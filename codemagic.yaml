@@ -1,6 +1,6 @@
 workflows:
-  ios-test-build:
-    name: iOS - بناء تجريبي (بدون توقيع)
+  ios-simulator-preview:
+    name: iOS - معاينة حيّة على المحاكي (بدون أي توقيع أو حساب مطوّر)
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
@@ -11,11 +11,29 @@ workflows:
       - name: تثبيت الحزم
         script: |
           flutter pub get
-      - name: بناء iOS بدون توقيع (للتأكد إن الكود يترجم صح فقط)
+      - name: بناء نسخة محاكي (Simulator) -- لا تحتاج توقيع إطلاقاً
         script: |
-          flutter build ios --release --no-codesign
+          flutter build ios --release --no-codesign --simulator
+      - name: تشغيل التطبيق على المحاكي والانتظار للمعاينة الحية عبر VNC
+        script: |
+          # افتح تطبيق المحاكي المرئي
+          open -a Simulator
+
+          # ابحث عن أي جهاز آيفون متاح وشغّله
+          DEVICE_ID=$(xcrun simctl list devices available | grep -m 1 "iPhone" | grep -oE '[A-F0-9-]{36}')
+          echo "جهاز المحاكاة المستخدم: $DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID" || true
+          sleep 15
+
+          # ثبّت التطبيق وشغّله على المحاكي
+          xcrun simctl install "$DEVICE_ID" build/ios/iphonesimulator/Runner.app
+          xcrun simctl launch "$DEVICE_ID" com.example.sallehlyApp
+
+          echo "✅ التطبيق شغال على المحاكي الآن -- اتصل عبر VNC من لوحة Codemagic لمعاينته حيّاً"
+          echo "الجلسة رح تبقى مفتوحة 25 دقيقة من هالنقطة"
+          sleep 1500
     artifacts:
-      - build/ios/iphoneos/*.app
+      - build/ios/iphonesimulator/*.app
     publishing:
       email:
         recipients:
