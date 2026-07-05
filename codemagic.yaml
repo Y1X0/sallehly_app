@@ -25,19 +25,21 @@ workflows:
           xcrun simctl install "$DEVICE_ID" build/ios/iphonesimulator/Runner.app
           xcrun simctl launch "$DEVICE_ID" com.example.sallehlyApp
 
-          mkdir -p screenshots
+          mkdir -p "$CM_BUILD_DIR/screenshots"
+          SHOTS="$CM_BUILD_DIR/screenshots"
           # ننتظر شوي بعد كل خطوة ونلتقط صورة -- هيك بناخذ شاشات متتالية
           # وهي شاشة البداية / السبلاش على الأغلب بما إنه ما في تفاعل تلقائي
           sleep 5
-          xcrun simctl io "$DEVICE_ID" screenshot screenshots/01_launch.png
+          xcrun simctl io "$DEVICE_ID" screenshot "$SHOTS/01_launch.png"
           sleep 5
-          xcrun simctl io "$DEVICE_ID" screenshot screenshots/02_after_5s.png
+          xcrun simctl io "$DEVICE_ID" screenshot "$SHOTS/02_after_5s.png"
           sleep 5
-          xcrun simctl io "$DEVICE_ID" screenshot screenshots/03_after_10s.png
+          xcrun simctl io "$DEVICE_ID" screenshot "$SHOTS/03_after_10s.png"
           sleep 10
-          xcrun simctl io "$DEVICE_ID" screenshot screenshots/04_after_20s.png
+          xcrun simctl io "$DEVICE_ID" screenshot "$SHOTS/04_after_20s.png"
 
-          echo "تم أخذ الصور -- راجع قسم Artifacts بصفحة البناء"
+          echo "تم أخذ الصور بمسار: $SHOTS"
+          ls -la "$SHOTS"
     artifacts:
       - screenshots/*.png
     publishing:
