@@ -13,7 +13,7 @@ workflows:
           flutter pub get
       - name: بناء نسخة محاكي (Simulator) -- لا تحتاج توقيع إطلاقاً
         script: |
-          flutter build ios --release --no-codesign --simulator
+          flutter build ios --debug --no-codesign --simulator
       - name: تشغيل التطبيق على المحاكي والانتظار للمعاينة الحية عبر VNC
         script: |
           # افتح تطبيق المحاكي المرئي
