@@ -1,0 +1,330 @@
+import '../../../core/api/api_client.dart';
+import '../../../core/api/api_endpoints.dart';
+import '../../../models/admin_stats_model.dart';
+import '../../../models/admin_user_model.dart';
+import '../../../models/support_ticket_model.dart';
+
+class AdminApi {
+  final ApiClient apiClient;
+
+  AdminApi(this.apiClient);
+
+  Future<AdminStatsModel> getStats() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminStats);
+      final data = Map<String, dynamic>.from(response.data);
+      return AdminStatsModel.fromJson(
+        Map<String, dynamic>.from(data['stats'] ?? {}),
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<AdminUserModel>> getUsers() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminUsers);
+      final data = Map<String, dynamic>.from(response.data);
+
+      return (data['users'] as List? ?? [])
+          .map((e) => AdminUserModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> toggleUser(int id) async {
+    try {
+      await apiClient.dio.post(ApiEndpoints.adminToggleUser(id));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getTopups() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.topups);
+      final data = Map<String, dynamic>.from(response.data);
+
+      return (data['topups'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> reviewTopup({
+    required int id,
+    required String status,
+    String? note,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminReviewTopup(id),
+        data: {
+          'status': status,
+          'admin_note': note ?? '',
+        },
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<SupportTicketModel>> getSupportTickets() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.support);
+      final data = Map<String, dynamic>.from(response.data);
+
+      return (data['tickets'] as List? ?? [])
+          .map(
+            (e) => SupportTicketModel.fromJson(Map<String, dynamic>.from(e)),
+      )
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> updateSupportStatus({
+    required int ticketId,
+    required String status,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.supportStatus(ticketId),
+        data: {'status': status},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getMeta() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.meta);
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> createService({
+    required String name,
+    required String icon,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminServices,
+        data: {
+          'name': name.trim(),
+          'icon': icon.trim().isEmpty ? '🔧' : icon.trim(),
+        },
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> createPackage({
+    required String name,
+    required double amount,
+    required double bonus,
+    required double commissionPerOrder,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminPackages,
+        data: {
+          'name': name.trim(),
+          'amount': amount,
+          'bonus': bonus,
+          'commission_per_order': commissionPerOrder,
+        },
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> deletePackage(int id) async {
+    try {
+      await apiClient.dio.delete(ApiEndpoints.adminPackageDelete(id));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> deleteService(int id) async {
+    try {
+      await apiClient.dio.delete(ApiEndpoints.adminServiceDelete(id));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getAuditLogs({
+    int limit = 50,
+    int offset = 0,
+    String search = '',
+  }) async {
+    try {
+      final response = await apiClient.dio.get(
+        ApiEndpoints.adminAuditLogs,
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+          if (search.trim().isNotEmpty) 'search': search.trim(),
+        },
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      return {
+        'logs': (data['logs'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList(),
+        'total': data['total'] ?? 0,
+      };
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllRequests() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminRequests);
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['requests'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> cancelRequest({required int id, String reason = ''}) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminCancelRequest(id),
+        data: {'reason': reason.trim()},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> changeRequestStatus({
+    required int id,
+    required String status,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminRequestStatus(id),
+        data: {'status': status},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> updateUserProfile({
+    required int id,
+    required String name,
+    required String city,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.adminUserProfile(id),
+        data: {'name': name.trim(), 'city': city.trim()},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<double> adjustUserBalance({
+    required int id,
+    required double amount,
+    required String reason,
+  }) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiEndpoints.adminUserBalance(id),
+        data: {'amount': amount, 'reason': reason.trim()},
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['balance'] as num?)?.toDouble() ?? 0;
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> deleteUser(int id) async {
+    try {
+      await apiClient.dio.delete(ApiEndpoints.adminDeleteUser(id));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getViolations() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminViolations);
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['violations'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getComplaints() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminComplaints);
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['complaints'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> updateComplaintStatus({
+    required int id,
+    required String status,
+  }) async {
+    try {
+      await apiClient.dio.post(
+        ApiEndpoints.complaintStatus(id),
+        data: {'status': status},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> updatePackage({
+    required int id,
+    required String name,
+    required double amount,
+    required double bonus,
+    required double commissionPerOrder,
+  }) async {
+    try {
+      await apiClient.dio.put(
+        ApiEndpoints.adminUpdatePackage(id),
+        data: {
+          'name': name.trim(),
+          'amount': amount,
+          'bonus': bonus,
+          'commission_per_order': commissionPerOrder,
+        },
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+}

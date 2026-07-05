@@ -1,0 +1,12 @@
+# ── قالب بيانات توقيع نسخة الإصدار ──
+# 1) انسخ هذا الملف إلى:  android/key.properties
+# 2) أنشئ مفتاح التوقيع (keystore) بالأمر التالي (مرة واحدة فقط، واحفظه في مكان آمن):
+#
+#    keytool -genkey -v -keystore sallehly-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias sallehly
+#
+# 3) ضع القيم الصحيحة هنا، ولا ترفع key.properties ولا ملف .jks إلى Git إطلاقاً.
+
+storePassword=كلمة_سر_المتجر
+keyPassword=كلمة_سر_المفتاح
+keyAlias=sallehly
+storeFile=/المسار/الكامل/إلى/sallehly-release.jks

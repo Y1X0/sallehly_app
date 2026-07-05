@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "213407241503",
+    "project_id": "sallehly-9bc16",
+    "storage_bucket": "sallehly-9bc16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213407241503:android:31b24bcbbf42129840cc2a",
+        "android_client_info": {
+          "package_name": "com.example.sallehly_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1U9FxhveMTbpw0o_Ko9JTB6DwDveMHJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213407241503:android:4a32b8ac536ca6ed40cc2a",
+        "android_client_info": {
+          "package_name": "com.sallehly.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1U9FxhveMTbpw0o_Ko9JTB6DwDveMHJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

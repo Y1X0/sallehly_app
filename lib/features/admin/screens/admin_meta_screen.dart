@@ -1,0 +1,326 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/api/api_exception.dart';
+import '../../../core/theme/app_colors.dart';
+import '../provider/admin_provider.dart';
+
+class AdminMetaScreen extends StatefulWidget {
+  const AdminMetaScreen({super.key});
+
+  @override
+  State<AdminMetaScreen> createState() => _AdminMetaScreenState();
+}
+
+class _AdminMetaScreenState extends State<AdminMetaScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<AdminProvider>().loadMeta();
+    });
+  }
+
+  Future<void> addService() async {
+    final name = TextEditingController();
+    final icon = TextEditingController(text: '🔧');
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('إضافة مهنة'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم المهنة')),
+              const SizedBox(height: 10),
+              TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('إضافة')),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) return;
+    if (!mounted) return;
+
+    try {
+      await context.read<AdminProvider>().createService(
+        name: name.text,
+        icon: icon.text,
+      );
+    } on ApiException catch (e) {
+      showError(e.message);
+    }
+  }
+
+  Future<void> addPackage({Map<String, dynamic>? existing}) async {
+    final isEdit = existing != null;
+    final name = TextEditingController(text: isEdit ? '${existing['name'] ?? ''}' : '');
+    final amount = TextEditingController(
+      text: isEdit ? '${existing['amount'] ?? ''}' : '',
+    );
+    final bonus = TextEditingController(
+      text: isEdit ? '${existing['bonus'] ?? 0}' : '0',
+    );
+    final commission = TextEditingController(
+      text: isEdit ? '${existing['commission_per_order'] ?? 2}' : '2',
+    );
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: Text(isEdit ? 'تعديل باقة' : 'إضافة باقة'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم الباقة')),
+                const SizedBox(height: 10),
+                TextField(controller: amount, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'القيمة')),
+                const SizedBox(height: 10),
+                TextField(controller: bonus, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'البونص')),
+                const SizedBox(height: 10),
+                TextField(controller: commission, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'عمولة الطلب')),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(isEdit ? 'حفظ' : 'إضافة')),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) return;
+    if (!mounted) return;
+
+    try {
+      if (isEdit) {
+        await context.read<AdminProvider>().updatePackage(
+          id: int.tryParse('${existing['id']}') ?? 0,
+          name: name.text,
+          amount: double.tryParse(amount.text) ?? 0,
+          bonus: double.tryParse(bonus.text) ?? 0,
+          commissionPerOrder: double.tryParse(commission.text) ?? 2,
+        );
+      } else {
+        await context.read<AdminProvider>().createPackage(
+          name: name.text,
+          amount: double.tryParse(amount.text) ?? 0,
+          bonus: double.tryParse(bonus.text) ?? 0,
+          commissionPerOrder: double.tryParse(commission.text) ?? 2,
+        );
+      }
+    } on ApiException catch (e) {
+      showError(e.message);
+    }
+  }
+
+  Future<void> confirmDelete({
+    required String title,
+    required String name,
+    required Future<void> Function() onConfirm,
+  }) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(title),
+        content: Text('هل أنت متأكد من حذف "$name"؟ لا يمكن التراجع عن هذا الإجراء.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('حذف', style: TextStyle(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+    if (!mounted) return;
+
+    try {
+      await onConfirm();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم الحذف بنجاح')),
+      );
+    } on ApiException catch (e) {
+      showError(e.message);
+    } catch (_) {
+      showError('تعذر الحذف');
+    }
+  }
+
+  void showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final admin = context.watch<AdminProvider>();
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text('الإعدادات', style: TextStyle(fontWeight: FontWeight.w900)),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'المهن'),
+              Tab(text: 'الباقات'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _MetaList(
+              loading: admin.loading,
+              items: admin.services,
+              empty: 'لا توجد مهن',
+              onAdd: addService,
+              titleBuilder: (e) => '${e['icon'] ?? '🔧'}  ${e['name'] ?? ''}',
+              subtitleBuilder: (_) => 'مهنة متاحة في التطبيق',
+              onDelete: (e) => confirmDelete(
+                title: 'حذف المهنة',
+                name: '${e['name'] ?? ''}',
+                onConfirm: () => admin.deleteService(
+                  int.tryParse('${e['id']}') ?? 0,
+                ),
+              ),
+            ),
+            _MetaList(
+              loading: admin.loading,
+              items: admin.packages,
+              empty: 'لا توجد باقات',
+              onAdd: addPackage,
+              titleBuilder: (e) => '${e['name'] ?? ''}',
+              subtitleBuilder: (e) {
+                final amount = double.tryParse('${e['amount'] ?? 0}') ?? 0;
+                final bonus = double.tryParse('${e['bonus'] ?? 0}') ?? 0;
+                return '${amount.toStringAsFixed(2)} د.أ • بونص ${bonus.toStringAsFixed(2)}';
+              },
+              onEdit: (e) => addPackage(existing: e),
+              onDelete: (e) => confirmDelete(
+                title: 'حذف الباقة',
+                name: '${e['name'] ?? ''}',
+                onConfirm: () => admin.deletePackage(
+                  int.tryParse('${e['id']}') ?? 0,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaList extends StatelessWidget {
+  final bool loading;
+  final List<Map<String, dynamic>> items;
+  final String empty;
+  final VoidCallback onAdd;
+  final String Function(Map<String, dynamic>) titleBuilder;
+  final String Function(Map<String, dynamic>) subtitleBuilder;
+  final void Function(Map<String, dynamic>)? onDelete;
+  final void Function(Map<String, dynamic>)? onEdit;
+
+  const _MetaList({
+    required this.loading,
+    required this.items,
+    required this.empty,
+    required this.onAdd,
+    required this.titleBuilder,
+    required this.subtitleBuilder,
+    this.onDelete,
+    this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        ElevatedButton.icon(
+          onPressed: onAdd,
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('إضافة جديد'),
+        ),
+        const SizedBox(height: 16),
+        if (loading && items.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 120),
+            child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          )
+        else if (items.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 120),
+            child: Center(
+              child: Text(empty, style: const TextStyle(color: AppColors.textSecondary)),
+            ),
+          )
+        else
+          ...items.map(
+                (e) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  titleBuilder(e),
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                subtitle: Text(
+                  subtitleBuilder(e),
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onEdit != null)
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined,
+                            color: AppColors.primary),
+                        onPressed: () => onEdit!(e),
+                      ),
+                    if (onDelete != null)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            color: AppColors.danger),
+                        onPressed: () => onDelete!(e),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
