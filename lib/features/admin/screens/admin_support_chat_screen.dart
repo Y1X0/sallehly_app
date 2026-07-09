@@ -157,6 +157,10 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
                         child:
                             CircularProgressIndicator(color: AppColors.primary),
                       )
+                    : support.error != null && support.messages.isEmpty
+                    ? _errorState(support.error!, () => context
+                        .read<SupportProvider>()
+                        .loadMessages(widget.ticket.id))
                     : ListView.builder(
                         controller: scrollController,
                         padding: const EdgeInsets.all(16),
@@ -173,6 +177,40 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _errorState(String message, Future<void> Function() onRetry) {
+    return ListView(
+      children: [
+        const SizedBox(height: 120),
+        const Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
+        const SizedBox(height: 14),
+        const Text(
+          'تعذّر تحميل الرسائل',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w900,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ),
+      ],
     );
   }
 

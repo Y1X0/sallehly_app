@@ -81,7 +81,12 @@ class _SupportScreenState extends State<SupportScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
-                  : support.tickets.isEmpty
+                  : support.error != null && support.tickets.isEmpty
+                      ? _SupportErrorState(
+                          message: support.error!,
+                          onRetry: support.loadMyTickets,
+                        )
+                      : support.tickets.isEmpty
                       ? ListView(
                           padding: const EdgeInsets.all(28),
                           children: const [
@@ -126,6 +131,56 @@ class _SupportScreenState extends State<SupportScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SupportErrorState extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
+
+  const _SupportErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(28),
+      children: [
+        const SizedBox(height: 120),
+        const Icon(
+          Icons.error_outline_rounded,
+          color: AppColors.danger,
+          size: 80,
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'تعذّر تحميل تذاكر الدعم',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 18),
+        Center(
+          child: TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ),
+      ],
     );
   }
 }
