@@ -31,6 +31,12 @@ class SocketService {
           .setReconnectionDelayMax(8000)
           .setAuth({'token': token})
           .setExtraHeaders({'Authorization': 'Bearer $token'})
+          // [FIX-SOCKET-01] بدون هذا، حزمة socket_io_client تعيد استخدام نفس
+          // الـ Manager الأول الذي أُنشئ في حياة العملية (تخزّنه مفتاحاً
+          // بعنوان السيرفر فقط)، فيبقى التوكن القديم فعّالاً في السوكت حتى
+          // بعد تسجيل خروج/دخول جديد بتوكن صالح — enableForceNew() يضمن
+          // Manager جديد فعلياً بالتوكن الحالي في كل مرة.
+          .enableForceNew()
           .build(),
     );
 
