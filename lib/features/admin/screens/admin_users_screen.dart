@@ -324,6 +324,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               )
+            // نتحقق من admin.users (لا users المفلترة) — قائمة فارغة بسبب
+            // فلتر الدور المختار ليست خطأً، فقط لا نتائج مطابقة.
+            else if (admin.error != null && admin.users.isEmpty)
+              _ErrorState(
+                message: admin.error!,
+                onRetry: admin.loadUsers,
+              )
             else if (users.isEmpty)
               const _EmptyState(text: 'لا يوجد مستخدمين')
             else
@@ -548,6 +555,45 @@ class _EmptyState extends StatelessWidget {
           text,
           style: const TextStyle(color: AppColors.textSecondary),
         ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 120),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 46,
+            color: AppColors.danger,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ],
       ),
     );
   }

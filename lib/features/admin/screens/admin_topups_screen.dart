@@ -101,6 +101,33 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             ? const Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         )
+            : admin.error != null && admin.topups.isEmpty
+            ? ListView(
+          padding: const EdgeInsets.all(28),
+          children: [
+            const SizedBox(height: 160),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 76,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              admin.error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 18),
+            Center(
+              child: TextButton.icon(
+                onPressed: admin.loadTopups,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('إعادة المحاولة'),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              ),
+            ),
+          ],
+        )
             : admin.topups.isEmpty
             ? ListView(
           padding: const EdgeInsets.all(28),

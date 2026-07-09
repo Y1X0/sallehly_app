@@ -157,7 +157,15 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
-                  : filtered.isEmpty
+                  // نتحقق من admin.allRequests (لا filtered) — قائمة فارغة بسبب
+                  // فلتر الحالة المختار ليست خطأً، فقط لا نتائج مطابقة.
+                  : admin.error != null && admin.allRequests.isEmpty
+                      ? _RequestsErrorState(
+                          message: admin.error!,
+                          onRetry: () =>
+                              context.read<AdminProvider>().loadAllRequests(),
+                        )
+                      : filtered.isEmpty
                       ? ListView(
                           children: const [
                             SizedBox(height: 120),
@@ -195,6 +203,51 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RequestsErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _RequestsErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        const SizedBox(height: 120),
+        const Icon(
+          Icons.error_outline_rounded,
+          size: 70,
+          color: AppColors.danger,
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ),
+      ],
     );
   }
 }

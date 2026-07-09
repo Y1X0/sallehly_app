@@ -80,7 +80,36 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
         onRefresh: admin.loadSupport,
         child: admin.loading && tickets.isEmpty
             ? const Center(child: CircularProgressIndicator())
-            : tickets.isEmpty
+            : admin.error != null && tickets.isEmpty
+                ? ListView(
+                    children: [
+                      const SizedBox(height: 180),
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 70,
+                        color: AppColors.danger,
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: Text(
+                          admin.error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: admin.loadSupport,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('إعادة المحاولة'),
+                          style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary),
+                        ),
+                      ),
+                    ],
+                  )
+                : tickets.isEmpty
                 ? ListView(
                     children: const [
                       SizedBox(height: 200),

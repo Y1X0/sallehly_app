@@ -85,7 +85,14 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
-                  : admin.auditLogs.isEmpty
+                  : admin.error != null && admin.auditLogs.isEmpty
+                      ? _AuditErrorState(
+                          message: admin.error!,
+                          onRetry: () => context
+                              .read<AdminProvider>()
+                              .loadAuditLogs(search: _searchController.text),
+                        )
+                      : admin.auditLogs.isEmpty
                       ? ListView(
                           children: const [
                             SizedBox(height: 120),
@@ -120,6 +127,51 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AuditErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _AuditErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        const SizedBox(height: 120),
+        const Icon(
+          Icons.error_outline_rounded,
+          size: 70,
+          color: AppColors.danger,
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ),
+      ],
     );
   }
 }

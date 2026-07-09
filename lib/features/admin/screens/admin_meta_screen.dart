@@ -193,6 +193,8 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
           children: [
             _MetaList(
               loading: admin.loading,
+              error: admin.error,
+              onRetry: () => admin.loadMeta(),
               items: admin.services,
               empty: 'لا توجد مهن',
               onAdd: addService,
@@ -208,6 +210,8 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
             ),
             _MetaList(
               loading: admin.loading,
+              error: admin.error,
+              onRetry: () => admin.loadMeta(),
               items: admin.packages,
               empty: 'لا توجد باقات',
               onAdd: addPackage,
@@ -235,6 +239,8 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
 
 class _MetaList extends StatelessWidget {
   final bool loading;
+  final String? error;
+  final VoidCallback? onRetry;
   final List<Map<String, dynamic>> items;
   final String empty;
   final VoidCallback onAdd;
@@ -245,6 +251,8 @@ class _MetaList extends StatelessWidget {
 
   const _MetaList({
     required this.loading,
+    this.error,
+    this.onRetry,
     required this.items,
     required this.empty,
     required this.onAdd,
@@ -269,6 +277,32 @@ class _MetaList extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(top: 120),
             child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          )
+        else if (error != null && items.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 120),
+            child: Column(
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    color: AppColors.danger, size: 46),
+                const SizedBox(height: 12),
+                Text(
+                  error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                if (onRetry != null) ...[
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('إعادة المحاولة'),
+                    style:
+                        TextButton.styleFrom(foregroundColor: AppColors.primary),
+                  ),
+                ],
+              ],
+            ),
           )
         else if (items.isEmpty)
           Padding(

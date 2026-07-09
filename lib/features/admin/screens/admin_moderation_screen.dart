@@ -72,6 +72,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                 _buildList(
                   context,
                   items: admin.violations,
+                  error: admin.error,
                   emptyText: 'لا توجد مخالفات',
                   emptyIcon: Icons.shield_outlined,
                   builder: (v) => _ModerationCard(
@@ -91,6 +92,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                 _buildList(
                   context,
                   items: admin.complaints,
+                  error: admin.error,
                   emptyText: 'لا توجد شكاوى',
                   emptyIcon: Icons.inbox_outlined,
                   builder: (c) => _ModerationCard(
@@ -118,6 +120,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
   Widget _buildList(
     BuildContext context, {
     required List<Map<String, dynamic>> items,
+    required String? error,
     required String emptyText,
     required IconData emptyIcon,
     required Widget Function(Map<String, dynamic>) builder,
@@ -125,7 +128,38 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: () => context.read<AdminProvider>().loadModeration(),
-      child: items.isEmpty
+      child: error != null && items.isEmpty
+          ? ListView(
+              children: [
+                const SizedBox(height: 120),
+                const Icon(Icons.error_outline_rounded,
+                    size: 70, color: AppColors.danger),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    error,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () =>
+                        context.read<AdminProvider>().loadModeration(),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('إعادة المحاولة'),
+                    style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary),
+                  ),
+                ),
+              ],
+            )
+          : items.isEmpty
           ? ListView(
               children: [
                 const SizedBox(height: 120),
