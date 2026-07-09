@@ -54,6 +54,14 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                       color: AppColors.primary,
                     ),
                   )
+                      // [FIX-EMPTYSTATE-01] كان يُظهر "لا يوجد طلبات بعد" حتى
+                      // لو فشل الجلب فعلياً (مثال: انتهت الجلسة) — الآن يتحقق
+                      // من provider.error أولاً ويُظهر رسالة الخطأ الحقيقية.
+                      : provider.error != null && requests.isEmpty
+                      ? _RequestsErrorState(
+                    message: provider.error!,
+                    onRetry: provider.loadRequests,
+                  )
                       : requests.isEmpty
                       ? const _EmptyRequests()
                       : ListView(
@@ -237,6 +245,72 @@ class _MiniStat extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _RequestsErrorState extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
+
+  const _RequestsErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 120, 24, 110),
+      children: [
+        GlassCard(
+          padding: const EdgeInsets.all(26),
+          child: Column(
+            children: [
+              Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: const Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.danger,
+                  size: 42,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'تعذّر تحميل الطلبات',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 18),
+              TextButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('إعادة المحاولة'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
