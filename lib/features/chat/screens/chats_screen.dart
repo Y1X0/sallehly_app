@@ -64,6 +64,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
                       ),
                     ),
                   )
+                else if (provider.error != null && chats.isEmpty)
+                  _ChatsErrorState(
+                    message: provider.error!,
+                    onRetry: provider.loadRequests,
+                  )
                 else if (chats.isEmpty)
                   const _EmptyChats()
                 else
@@ -237,6 +242,67 @@ class _ChatCard extends StatelessWidget {
             Icons.arrow_forward_ios_rounded,
             color: AppColors.textMuted,
             size: 17,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatsErrorState extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
+
+  const _ChatsErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 44,
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'تعذّر تحميل المحادثات',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 18),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
           ),
         ],
       ),

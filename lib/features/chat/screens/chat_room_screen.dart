@@ -319,6 +319,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     color: AppColors.primary,
                   ),
                 )
+                    : chatProvider.error != null && messages.isEmpty
+                    ? _ChatErrorState(
+                  message: chatProvider.error!,
+                  onRetry: () =>
+                      context.read<ChatProvider>().loadMessages(widget.request.id),
+                )
                     : messages.isEmpty
                     ? const _EmptyChat()
                     : RefreshIndicator(
@@ -455,6 +461,71 @@ class _ChatHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChatErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ChatErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(28),
+      children: [
+        const SizedBox(height: 130),
+        Container(
+          width: 92,
+          height: 92,
+          margin: const EdgeInsets.symmetric(horizontal: 100),
+          decoration: BoxDecoration(
+            color: AppColors.danger.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.danger,
+            size: 46,
+          ),
+        ),
+        const SizedBox(height: 22),
+        const Text(
+          'تعذّر تحميل الرسائل',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 21,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            height: 1.6,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Center(
+          child: TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
