@@ -41,15 +41,15 @@ class SocketService {
     );
 
     _socket!.on(SocketEvents.connect, (_) {
-      debugPrint('✅ SOCKET CONNECTED: ${_socket?.id}');
+      if (kDebugMode) debugPrint('✅ SOCKET CONNECTED: ${_socket?.id}');
     });
 
     _socket!.on(SocketEvents.disconnect, (reason) {
-      debugPrint('❌ SOCKET DISCONNECTED: $reason');
+      if (kDebugMode) debugPrint('❌ SOCKET DISCONNECTED: $reason');
     });
 
     _socket!.on(SocketEvents.connectError, (error) {
-      debugPrint('🚨 SOCKET CONNECT ERROR: $error');
+      if (kDebugMode) debugPrint('🚨 SOCKET CONNECT ERROR: $error');
     });
 
     _socket!.onAny((event, data) {
@@ -62,12 +62,12 @@ class SocketService {
   }
 
   void joinRequest(int requestId) {
-    debugPrint('JOIN REQUEST ROOM => $requestId');
+    if (kDebugMode) debugPrint('JOIN REQUEST ROOM => $requestId');
     _socket?.emit(SocketEvents.joinRequest, requestId);
   }
 
   void leaveRequest(int requestId) {
-    debugPrint('LEAVE REQUEST ROOM => $requestId');
+    if (kDebugMode) debugPrint('LEAVE REQUEST ROOM => $requestId');
     _socket?.emit(SocketEvents.leaveRequest, requestId);
   }
 
@@ -85,7 +85,7 @@ class SocketService {
   }
 
   void disconnect() {
-    debugPrint('SOCKET MANUAL DISCONNECT');
+    if (kDebugMode) debugPrint('SOCKET MANUAL DISCONNECT');
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;

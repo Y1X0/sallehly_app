@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../core/api/api_client.dart';
 import '../core/api/api_exception.dart';
@@ -359,9 +359,9 @@ class AuthProvider extends ChangeNotifier {
         data: {'token': fcmToken.trim()},
       );
 
-      debugPrint('[FCM] Token saved to server ✓');
+      if (kDebugMode) debugPrint('[FCM] Token saved to server ✓');
     } catch (e) {
-      debugPrint('[FCM] Token save failed: $e');
+      if (kDebugMode) debugPrint('[FCM] Token save failed: $e');
     }
   }
 

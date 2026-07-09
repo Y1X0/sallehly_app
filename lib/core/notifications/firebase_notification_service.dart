@@ -51,26 +51,30 @@ class FirebaseNotificationService {
 
     // ٣. لما يتجدد الـtoken (مثلاً بعد restore) — ارسله تلقائياً
     _messaging.onTokenRefresh.listen((newToken) {
-      debugPrint('[FCM] Token refreshed: $newToken');
+      if (kDebugMode) debugPrint('[FCM] Token refreshed');
       _sendTokenToServer(newToken);
     });
 
     // ٤. الإشعارات لما التطبيق مفتوح (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('[FCM] Foreground message: ${message.notification?.title}');
+      if (kDebugMode) {
+        debugPrint('[FCM] Foreground message: ${message.notification?.title}');
+      }
       _showLocalNotificationStatic(message);
     });
 
     // ٥. لما يضغط على الإشعار والتطبيق في الخلفية
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('[FCM] Opened from background: ${message.data}');
+      if (kDebugMode) debugPrint('[FCM] Opened from background: ${message.data}');
       _handleNotificationTap(message.data);
     });
 
     // ٦. لما يفتح التطبيق من إشعار وكان مغلقاً
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      debugPrint('[FCM] Opened from terminated: ${initialMessage.data}');
+      if (kDebugMode) {
+        debugPrint('[FCM] Opened from terminated: ${initialMessage.data}');
+      }
       _handleNotificationTap(initialMessage.data);
     }
   }
@@ -83,7 +87,7 @@ class FirebaseNotificationService {
       sound: true,
       provisional: false,
     );
-    debugPrint('[FCM] Permission: ${settings.authorizationStatus}');
+    if (kDebugMode) debugPrint('[FCM] Permission: ${settings.authorizationStatus}');
   }
 
   // ─── تهيئة الإشعارات المحلية ───
@@ -94,8 +98,10 @@ class FirebaseNotificationService {
     await _localNotifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (details) {
-        // لما يضغط على الإشعار المحلي
-        debugPrint('[FCM] Local notification tapped: ${details.payload}');
+        // لما يضغط على الإشعار المحلي (إشعار أنشأناه نحن من foreground/background handler)
+        if (kDebugMode) {
+          debugPrint('[FCM] Local notification tapped: ${details.payload}');
+        }
       },
     );
   }
@@ -122,7 +128,7 @@ class FirebaseNotificationService {
       // ارسله للسيرفر
       await _sendTokenToServer(token);
     } catch (e) {
-      debugPrint('[FCM] Error getting token: $e');
+      if (kDebugMode) debugPrint('[FCM] Error getting token: $e');
     }
   }
 
@@ -132,7 +138,9 @@ class FirebaseNotificationService {
       // احفظه مؤقتاً — رح يتبعت لما يتسجل الدخول
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcm_token_pending', token);
-      debugPrint('[FCM] Token saved locally — will send after login');
+      if (kDebugMode) {
+        debugPrint('[FCM] Token saved locally — will send after login');
+      }
       return;
     }
     try {
@@ -140,9 +148,9 @@ class FirebaseNotificationService {
         '$_baseUrl/api/fcm-token',
         data: {'token': token},
       );
-      debugPrint('[FCM] Token sent to server ✓');
+      if (kDebugMode) debugPrint('[FCM] Token sent to server ✓');
     } catch (e) {
-      debugPrint('[FCM] Failed to send token: $e');
+      if (kDebugMode) debugPrint('[FCM] Failed to send token: $e');
     }
   }
 
@@ -192,7 +200,7 @@ class FirebaseNotificationService {
   // ─── التعامل مع الضغط على الإشعار ───
   static void _handleNotificationTap(Map<String, dynamic> data) {
     final type = data['type']?.toString();
-    debugPrint('[FCM] Notification type: $type');
+    if (kDebugMode) debugPrint('[FCM] Notification type: $type');
     // بتقدري تضيفي navigation هنا حسب الـtype
     // مثال:
     // if (type == 'chat') navigatorKey.currentState?.pushNamed('/chats');

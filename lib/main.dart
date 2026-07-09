@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
@@ -16,7 +17,7 @@ void main() async {
     );
     await FirebaseNotificationService.init();
   } catch (e) {
-    debugPrint('[Firebase] disabled — skipped init: $e');
+    if (kDebugMode) debugPrint('[Firebase] disabled — skipped init: $e');
   }
 
   runApp(
