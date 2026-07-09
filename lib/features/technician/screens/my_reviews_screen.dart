@@ -93,6 +93,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                           _MessageBox(
                             icon: Icons.error_outline_rounded,
                             text: error!,
+                            onRetry: load,
                           )
                         else if (reviews.isEmpty)
                           const _MessageBox(
@@ -232,8 +233,9 @@ class _ReviewCard extends StatelessWidget {
 class _MessageBox extends StatelessWidget {
   final IconData icon;
   final String text;
+  final Future<void> Function()? onRetry;
 
-  const _MessageBox({required this.icon, required this.text});
+  const _MessageBox({required this.icon, required this.text, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +253,15 @@ class _MessageBox extends StatelessWidget {
               height: 1.6,
             ),
           ),
+          if (onRetry != null) ...[
+            const SizedBox(height: 14),
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('إعادة المحاولة'),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+          ],
         ],
       ),
     );
