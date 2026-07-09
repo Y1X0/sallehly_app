@@ -43,6 +43,48 @@ class _PackagesScreenState extends State<PackagesScreen> {
             ? const Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         )
+            : wallet.error != null && wallet.packages.isEmpty
+            ? ListView(
+          padding: const EdgeInsets.all(28),
+          children: [
+            const SizedBox(height: 160),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 76,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'تعذّر تحميل الباقات',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              wallet.error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Center(
+              child: TextButton.icon(
+                onPressed: wallet.loadPackages,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('إعادة المحاولة'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        )
             : wallet.packages.isEmpty
             ? ListView(
           padding: const EdgeInsets.all(28),
