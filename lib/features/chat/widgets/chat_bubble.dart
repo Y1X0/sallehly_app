@@ -44,7 +44,11 @@ class ChatBubble extends StatefulWidget {
 }
 
 class _ChatBubbleState extends State<ChatBubble> {
-  final player = AudioPlayer();
+  // [FIX-CRASH-01] كان يُنشأ AudioPlayer() بدون شرط لكل فقاعة رسالة — حتى
+  // الرسائل النصية العادية — رغم أنه غير مستخدم إلا لرسائل الصوت. على بعض
+  // البيئات (بدون جهاز صوت فعّال) هذا يرمي استثناء أصلي غير معالَج يُسقط
+  // التطبيق بالكامل. الآن يُنشأ فقط عند الحاجة الفعلية لرسالة صوتية.
+  AudioPlayer? _player;
 
   bool playing = false;
   Duration duration = Duration.zero;
@@ -53,6 +57,10 @@ class _ChatBubbleState extends State<ChatBubble> {
   @override
   void initState() {
     super.initState();
+
+    if (!widget.message.isAudio) return;
+
+    final player = _player = AudioPlayer();
 
     player.onDurationChanged.listen((value) {
       if (mounted) setState(() => duration = value);
@@ -73,7 +81,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 
   @override
   void dispose() {
-    player.dispose();
+    _player?.dispose();
     super.dispose();
   }
 
@@ -84,6 +92,9 @@ class _ChatBubbleState extends State<ChatBubble> {
   }
 
   Future<void> playAudio() async {
+    final player = _player;
+    if (player == null) return;
+
     final url = _mediaUrl(widget.message.audioUrl);
 
     if (playing) {
