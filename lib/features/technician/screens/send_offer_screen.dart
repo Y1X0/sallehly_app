@@ -88,7 +88,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
             key: formKey,
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.local_offer_rounded,
                   color: AppColors.primary,
                   size: 76,
@@ -96,7 +96,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 const SizedBox(height: 16),
                 Text(
                   widget.request.service,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -105,7 +105,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '${widget.request.city} - ${widget.request.area ?? ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                   ),
                 ),

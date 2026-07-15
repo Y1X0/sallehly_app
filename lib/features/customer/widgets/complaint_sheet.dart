@@ -82,7 +82,7 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Icon(
                 Icons.report_problem_rounded,
                 color: AppColors.warning,
@@ -90,7 +90,7 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
               ),
             ),
             const SizedBox(height: 10),
-            const Center(
+            Center(
               child: Text(
                 'تقديم شكوى',
                 style: TextStyle(
@@ -106,7 +106,7 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
                 widget.technicianName != null
                     ? 'بخصوص الفني: ${widget.technicianName}'
                     : 'بخصوص هذا الطلب',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: AppColors.textSecondary),
               ),
             ),
             const SizedBox(height: 18),

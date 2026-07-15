@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
+import '../../../core/widgets/services_multi_select.dart';
 import '../../../providers/auth_provider.dart';
+import '../../requests/provider/requests_provider.dart';
 import 'verify_otp_screen.dart';
 
 class TechnicianRegisterScreen extends StatefulWidget {
@@ -30,13 +32,24 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
 
   bool hidePassword = true;
   String? avatarPath;
-  String? selectedService;
+  List<String> selectedServices = [];
   String? selectedCity;
   String? selectedArea;
 
   List<String> get availableAreas {
     if (selectedCity == null) return [];
     return AppConstants.areasByCity[selectedCity] ?? [];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // [FIX-SERVICES-01] المهن كانت تُقرأ من قائمة ثابتة بالكود — الآن تُجلب
+    // حيّة من الخادم حتى تظهر أي مهنة يضيفها الأدمن فوراً دون تحديث التطبيق.
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<RequestsProvider>().loadMeta();
+    });
   }
 
   @override
@@ -71,6 +84,17 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
       return;
     }
 
+    // [FIX-TECH-SERVICES-01] تحقق صريح من عدد الخدمات المختارة (1 إلى 5) قبل
+    // الإرسال — نفس الحد المفروض بصريًا بودجت ServicesMultiSelect نفسها.
+    if (selectedServices.isEmpty) {
+      showError('اختر خدمة واحدة على الأقل');
+      return;
+    }
+    if (selectedServices.length > 5) {
+      showError('الحد الأقصى 5 خدمات');
+      return;
+    }
+
     final auth = context.read<AuthProvider>();
 
     try {
@@ -82,7 +106,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
         password: passwordController.text,
         city: selectedCity,
         nationalNumber: nationalController.text,
-        services: [selectedService!],
+        services: selectedServices,
         areas: [selectedArea!],
         avatarPath: avatarPath,
       );
@@ -122,6 +146,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final loading = context.watch<AuthProvider>().loading;
+    final meta = context.watch<RequestsProvider>().meta;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -140,7 +165,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   onTap: loading ? null : pickAvatar,
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                Text(
                   'إنشاء حساب فني',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -149,7 +174,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'أضف بياناتك حتى يتمكن العملاء من اختيارك بثقة',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -215,16 +240,13 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 14),
-                _dropdown(
-                  label: 'المهنة / الخدمة',
-                  icon: Icons.handyman_outlined,
-                  value: selectedService,
-                  items: AppConstants.services,
-                  onChanged: loading
-                      ? null
-                      : (value) {
+                ServicesMultiSelect(
+                  services: meta?.services ?? [],
+                  selected: selectedServices,
+                  enabled: !loading,
+                  onChanged: (value) {
                     setState(() {
-                      selectedService = value;
+                      selectedServices = value;
                     });
                   },
                 ),
@@ -395,7 +417,7 @@ class _AvatarPicker extends StatelessWidget {
               backgroundImage: hasImage ? FileImage(File(avatarPath!)) : null,
               child: hasImage
                   ? null
-                  : const Icon(
+                  : Icon(
                 Icons.add_a_photo_rounded,
                 color: AppColors.primary,
                 size: 36,
@@ -404,13 +426,13 @@ class _AvatarPicker extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               hasImage ? 'تم اختيار الصورة الشخصية' : 'اختر صورة شخصية',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
             ),
             const SizedBox(height: 5),
-            const Text(
+            Text(
               'الصورة مطلوبة لإنشاء حساب فني',
               style: TextStyle(
                 color: AppColors.textSecondary,

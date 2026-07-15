@@ -56,7 +56,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
             children: [
               Text(
                 'سيتم إلغاء الطلب رقم ${req['id']}. هذا الإجراء يُسجَّل في سجل العمليات.',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 14),
               TextField(
@@ -154,7 +154,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
               color: AppColors.primary,
               onRefresh: () => context.read<AdminProvider>().loadAllRequests(),
               child: admin.requestsLoading
-                  ? const Center(
+                  ? Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
                   // نتحقق من admin.allRequests (لا filtered) — قائمة فارغة بسبب
@@ -167,7 +167,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                         )
                       : filtered.isEmpty
                       ? ListView(
-                          children: const [
+                          children: [
                             SizedBox(height: 120),
                             Icon(
                               Icons.assignment_outlined,
@@ -221,7 +221,7 @@ class _RequestsErrorState extends StatelessWidget {
     return ListView(
       children: [
         const SizedBox(height: 120),
-        const Icon(
+        Icon(
           Icons.error_outline_rounded,
           size: 70,
           color: AppColors.danger,
@@ -231,7 +231,7 @@ class _RequestsErrorState extends StatelessWidget {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,
               fontSize: 16,
@@ -290,7 +290,7 @@ class _RequestCard extends StatelessWidget {
             children: [
               Text(
                 '#${req['id']}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w900,
                   fontSize: 14,
@@ -300,7 +300,7 @@ class _RequestCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${req['service'] ?? ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: 16,
@@ -364,7 +364,7 @@ class _RequestCard extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             '$label: ',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,
               fontSize: 13,
@@ -373,7 +373,7 @@ class _RequestCard extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

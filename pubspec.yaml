@@ -29,6 +29,7 @@ dependencies:
 
   geolocator: ^13.0.1
   url_launcher: ^6.3.2
+  permission_handler: ^11.3.1
 
   intl: ^0.20.2
 
@@ -46,6 +47,11 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   flutter_launcher_icons: ^0.14.4
+
+  # [FIX-TEST-01] لاختبار منطق الـProviders (Auth, Requests, ...) بدون شبكة
+  # حقيقية ولا Firebase/SharedPreferences حقيقيين — مكتبة Mock بسيطة بدون
+  # code-generation (بعكس mockito الذي يحتاج build_runner).
+  mocktail: ^1.0.4
 
 # إعدادات أيقونة التطبيق
 flutter_launcher_icons:

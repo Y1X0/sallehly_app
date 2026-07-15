@@ -22,4 +22,8 @@ class NotificationModel {
   bool get isOffer => type == 'offer';
   bool get isAdmin => type == 'admin';
   bool get isSupport => type == 'support';
+  bool get isTopup => type == 'topup';
+  bool get isComplaint => type == 'complaint';
+  bool get isWallet => type == 'wallet';
+  bool get isService => type == 'service';
 }

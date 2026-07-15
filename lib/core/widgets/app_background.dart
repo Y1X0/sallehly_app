@@ -59,7 +59,7 @@ class _AppBackgroundState extends State<AppBackground>
     final content = Stack(
       children: [
         // التدرّج الأساسي
-        const Positioned.fill(
+        Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: AppColors.backgroundGradient,

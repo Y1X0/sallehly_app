@@ -43,6 +43,9 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
       // سجّل أنك داخل هذه التذكرة حتى لا يصلك إشعار/صوت وأنت تتابعها.
       _notify = context.read<NotificationProvider>();
       _notify!.setActiveSupportTicket(widget.ticket.id);
+      // [FIX-NOTIF-02] صفّر فوراً أي إشعار قديم متراكم لهذه التذكرة تحديداً —
+      // بقية التذاكر الأخرى غير المقروءة تبقى كما هي.
+      _notify!.markSupportNotificationsReadForTicket(widget.ticket.id);
 
       // [REALTIME] استمع لرسائل الدعم لحظياً: عند وصول رسالة لنفس التذكرة،
       // أعِد تحميل الرسائل وانزل لأسفل تلقائياً.
@@ -151,7 +154,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               const SizedBox(height: 50),
               Expanded(
                 child: support.loading && support.messages.isEmpty
-                    ? const Center(
+                    ? Center(
                         child:
                             CircularProgressIndicator(color: AppColors.primary),
                       )
@@ -177,7 +180,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   color: AppColors.surface,
-                  child: const Text(
+                  child: Text(
                     'هذه التذكرة مغلقة. لا يمكن إرسال رسائل جديدة.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.textSecondary),
@@ -194,7 +197,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
 
   Widget _emptyState() {
     return ListView(
-      children: const [
+      children: [
         SizedBox(height: 120),
         Icon(Icons.forum_outlined, size: 70, color: AppColors.primary),
         SizedBox(height: 14),
@@ -221,12 +224,12 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     return ListView(
       children: [
         const SizedBox(height: 120),
-        const Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
+        Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
         const SizedBox(height: 14),
         Text(
           'تعذّر تحميل الرسائل',
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w900,
             fontSize: 16,
@@ -236,7 +239,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 14),
         Center(
@@ -282,7 +285,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             ),
             const SizedBox(width: 8),
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: AppColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -336,7 +339,7 @@ class _Bubble extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   message.isAdmin ? 'فريق الدعم' : (message.senderName ?? ''),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,
                     fontSize: 12,

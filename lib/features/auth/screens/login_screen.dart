@@ -48,11 +48,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      Navigator.pushReplacement(
+      // [FIX-BACK-LOGOUT-01] كانت هذه الشاشة تستخدم pushReplacement، وهو
+      // بيستبدل شاشة تسجيل الدخول نفسها بس — أي شاشة تحتها بالمكدّس (متل
+      // شاشة الهبوط اللي فتحت منها تسجيل الدخول أصلاً عبر Navigator.push)
+      // تضل موجودة! وهيك Navigator.canPop() بيصير true داخل لوحة الأدمن/
+      // العميل/الفني، فيضيف Flutter تلقائياً سهم رجوع بأعلى الشاشة — والضغط
+      // عليه يرجّع المستخدم لشاشة ما قبل تسجيل الدخول (يشبه تسجيل خروج فعلي
+      // بدون تنظيف الجلسة بشكل صحيح). الحل: pushAndRemoveUntil يمسح كل شي
+      // تحته، تماماً متل الاستخدام الصحيح أصلاً بـ verify_otp_screen.dart.
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (_) => RouteGuard.homeForUser(auth.user),
         ),
+        (route) => false,
       );
     } on ApiException catch (e) {
       showError(e.message);
@@ -90,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  const FadeIn(
+                  FadeIn(
                     delay: Duration(milliseconds: 90),
                     child: Text(
                       'أهلاً بعودتك',
@@ -102,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const FadeIn(
+                  FadeIn(
                     delay: Duration(milliseconds: 160),
                     child: Text(
                       'سجّل دخولك لإدارة طلباتك ومحادثاتك',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/notifications/firebase_notification_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../admin/screens/admin_dashboard_screen.dart';
@@ -28,6 +29,49 @@ class _AdminLayoutState extends State<AdminLayout> {
     AdminSupportScreen(),
     AdminMetaScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // [FIX-DEEPLINK-01] استمع لأي إشعار FCM ضُغط عليه (بالخلفية أو من إغلاق
+    // كامل للتطبيق) وحوّل الأدمن للتبويب الصحيح.
+    FirebaseNotificationService.pendingDeepLink.addListener(_handleDeepLink);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handleDeepLink());
+  }
+
+  @override
+  void dispose() {
+    FirebaseNotificationService.pendingDeepLink.removeListener(_handleDeepLink);
+    super.dispose();
+  }
+
+  /// يقرأ هدف التنقّل المعلّق من إشعار FCM ويطبّقه، ثم يستهلكه (يصفّره).
+  void _handleDeepLink() {
+    final data = FirebaseNotificationService.pendingDeepLink.value;
+    if (data == null || !mounted) return;
+
+    final type = data['type']?.toString() ?? '';
+
+    switch (type) {
+      case 'support':
+        context.read<NotificationProvider>().markSupportNotificationsRead();
+        setState(() => currentIndex = 3); // الدعم
+        break;
+      case 'topup':
+        context.read<NotificationProvider>().markTopupNotificationsRead();
+        setState(() => currentIndex = 2); // الشحن
+        break;
+    // [FIX-DEEPLINK-01] 'complaint' لا تُطابَق بأي تبويب هنا عمداً — شاشة
+    // الشكاوى (admin_moderation_screen) ليست ضمن الشريط السفلي الحالي ولا
+    // تملك مساراً مباشراً بدون سياق إضافي. تخمين وجهة خاطئة أسوأ من عدم
+    // التنقّل إطلاقاً؛ الأدمن يفتح التطبيق بشكل طبيعي على الرئيسية كما كان
+    // يحدث قبل هذا الإصلاح تماماً.
+      default:
+        break;
+    }
+
+    FirebaseNotificationService.pendingDeepLink.value = null;
+  }
 
   @override
   void didChangeDependencies() {
@@ -78,6 +122,9 @@ class _AdminLayoutState extends State<AdminLayout> {
 
     return Scaffold(
       appBar: AppBar(
+        // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق) — نفس السبب الموثّق
+        // بـ customer_layout.dart وlogin_screen.dart.
+        automaticallyImplyLeading: false,
         title: const Text('لوحة الأدمن'),
         actions: [
           NotificationBell(
@@ -94,6 +141,13 @@ class _AdminLayoutState extends State<AdminLayout> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
+          // [FIX-NOTIF-05] فتح تبويب "الشحن" أو "الدعم" → صفّر عدّاد كل واحد
+          // منهم لحاله (نفس نمط التصفير المستخدم بلوحة الفني تماماً).
+          if (index == 2) {
+            context.read<NotificationProvider>().markTopupNotificationsRead();
+          } else if (index == 3) {
+            context.read<NotificationProvider>().markSupportNotificationsRead();
+          }
           setState(() {
             currentIndex = index;
           });
@@ -112,17 +166,23 @@ class _AdminLayoutState extends State<AdminLayout> {
           NavigationDestination(
             icon: _BadgeIcon(
               icon: Icons.receipt_long_outlined,
-              count: notify.requestUnreadCount,
+              count: notify.topupUnreadCount,
             ),
             selectedIcon: _BadgeIcon(
               icon: Icons.receipt_long,
-              count: notify.requestUnreadCount,
+              count: notify.topupUnreadCount,
             ),
             label: 'الشحن',
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.support_agent_outlined),
-            selectedIcon: Icon(Icons.support_agent),
+          NavigationDestination(
+            icon: _BadgeIcon(
+              icon: Icons.support_agent_outlined,
+              count: notify.supportUnreadCount,
+            ),
+            selectedIcon: _BadgeIcon(
+              icon: Icons.support_agent,
+              count: notify.supportUnreadCount,
+            ),
             label: 'الدعم',
           ),
           const NavigationDestination(

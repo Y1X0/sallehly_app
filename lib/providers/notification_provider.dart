@@ -15,9 +15,22 @@ class NotificationProvider extends ChangeNotifier {
     return _items.where((e) => !e.isChat).toList();
   }
 
+  /// [FIX-NOTIF-03] منطق تضمين صريح بدل الاستثناء — هيك أي نوع إشعار جديد
+  /// يُضاف مستقبلاً (زي 'service' أو 'topup' أو 'complaint') ما بيتسرّب لهالعداد
+  /// إلا إذا أضفناه هون قصداً. هاد بالضبط كان سبب نفس الخلل يلي صلّحناه بتبويب
+  /// "الشحن" بلوحة الأدمن، فتجنّبنا نفس النمط هون من جذوره.
   int get requestUnreadCount {
-    return _items.where((e) => !e.read && !e.isChat && !e.isSupport).length;
+    return _items
+        .where((e) => !e.read && (e.isRequest || e.isOffer || e.isWallet))
+        .length;
   }
+
+  /// [FIX-BADGE-01] اسم صريح لعدّاد جرس الإشعارات — نفس requestUnreadCount
+  /// تماماً (مُبقى عليه لأن أماكن أخرى بالتطبيق ما زالت تستخدمه، مثل تبويب
+  /// "طلباتي" للعميل)، لكن بجرس الإشعارات تحديداً نريد اسماً يوضّح أنه عدد
+  /// الإشعارات غير المقروءة ولا علاقة له إطلاقاً بعدد الطلبات المتاحة للفني
+  /// (ذاك مصدره RequestsProvider.availableNewRequestsCount، مستقل تماماً).
+  int get unreadNotificationsCount => requestUnreadCount;
 
   int get chatUnreadCount {
     return _items.where((e) => !e.read && e.isChat).length;
@@ -26,6 +39,13 @@ class NotificationProvider extends ChangeNotifier {
   /// عدد رسائل الدعم غير المقروءة (تظهر كرقم على أيقونة الدعم).
   int get supportUnreadCount {
     return _items.where((e) => !e.read && e.isSupport).length;
+  }
+
+  /// عدد طلبات الشحن غير المقروءة (تظهر كرقم على تبويب "الشحن" بلوحة الأدمن).
+  /// [FIX-NOTIF-01] مفصولة عمداً عن requestUnreadCount حتى ما تختلط إشعارات
+  /// الشحن مع إشعارات التذاكر/الطلبات/الشكاوى العامة.
+  int get topupUnreadCount {
+    return _items.where((e) => !e.read && e.isTopup).length;
   }
 
   void setCurrentUser(UserModel? user) {
@@ -166,7 +186,7 @@ class NotificationProvider extends ChangeNotifier {
     addNotification(
       title: 'طلب شحن جديد',
       body: 'فني أرسل طلب شحن بانتظار المراجعة',
-      type: 'admin',
+      type: 'topup',
     );
   }
 
@@ -177,7 +197,7 @@ class NotificationProvider extends ChangeNotifier {
     addNotification(
       title: 'تذكرة دعم جديدة',
       body: 'يوجد طلب دعم جديد',
-      type: 'admin',
+      type: 'support',
     );
   }
 
@@ -198,8 +218,8 @@ class NotificationProvider extends ChangeNotifier {
     if (senderId == user.id) return;
 
     final ticketId = int.tryParse(
-          '${data?['ticketId'] ?? data?['ticket_id'] ?? 0}',
-        ) ??
+      '${data?['ticketId'] ?? data?['ticket_id'] ?? 0}',
+    ) ??
         0;
 
     // إذا كان الفني فاتح نفس التذكرة، لا داعي لإشعار — الرسالة أمامه.
@@ -234,6 +254,29 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// [FIX-NOTIF-04] بث "خدمة جديدة" لكل المستخدمين (عملاء وفنيين) — بعكس بقية
+  /// المعالجات هون، هاي ما بتفلتر حسب الدور لأنها معنية بكل الناس. تصل هالحدث
+  /// من الباك إند لكل المتصلين (io.emit بدون تحديد غرفة) لأي تعديل على الخدمات
+  /// (created/toggled/edited/deleted)، فنكتفي بحالة 'created' فقط — إضافة خدمة
+  /// جديدة فعلاً — لأنه هاد يلي طالبه المستخدم تحديداً، وتجنّباً لإزعاج الكل
+  /// بإشعار في كل مرة الأدمن يعدّل أو يعطّل خدمة موجودة أصلاً.
+  void handleServiceAdded(dynamic data) {
+    final user = currentUser;
+    if (user == null) return;
+
+    final type = '${data?['type'] ?? ''}';
+    if (type != 'created') return;
+
+    final name = '${data?['name'] ?? ''}';
+    if (name.isEmpty) return;
+
+    addNotification(
+      title: 'خدمة جديدة 🛠️',
+      body: 'تمت إضافة خدمة "$name" — يمكنك الاستفادة منها الآن',
+      type: 'service',
+    );
+  }
+
   void handleNewComplaint(dynamic data) {
     final user = currentUser;
     if (user == null || !user.isAdmin) return;
@@ -241,17 +284,30 @@ class NotificationProvider extends ChangeNotifier {
     addNotification(
       title: '⚠️ شكوى جديدة',
       body: 'قدّم أحد العملاء شكوى بانتظار المراجعة',
-      type: 'admin',
+      type: 'complaint',
     );
   }
 
+  /// يعلّم إشعاراً واحداً فقط كمقروء.
+  /// عند الضغط على إشعار واحد ينقص العداد بمقدار 1 فقط،
+  /// ولا تتأثر بقية الإشعارات غير المقروءة.
+  void markNotificationRead(String notificationId) {
+    final index = _items.indexWhere((item) => item.id == notificationId);
+    if (index == -1 || _items[index].read) return;
+
+    _items[index].read = true;
+    notifyListeners();
+  }
+
   void markRequestNotificationsRead() {
+    var changed = false;
     for (final item in _items) {
-      if (!item.isChat) {
+      if (!item.isChat && !item.read) {
         item.read = true;
+        changed = true;
       }
     }
-    notifyListeners();
+    if (changed) notifyListeners();
   }
 
   void markChatNotificationsRead() {
@@ -263,10 +319,48 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// [FIX-NOTIF-02] تصفير إشعارات محادثة معيّنة فقط (وليس كل المحادثات) — تُستدعى
+  /// فور فتح شات معيّن، فينقص عدّاد الجرس ديناميكياً بمقدار إشعارات هالمحادثة بس،
+  /// وتبقى إشعارات باقي المحادثات الأخرى غير المقروءة كما هي.
+  void markChatNotificationsReadForRequest(int requestId) {
+    var changed = false;
+    for (final item in _items) {
+      if (item.isChat && item.requestId == requestId && !item.read) {
+        item.read = true;
+        changed = true;
+      }
+    }
+    if (changed) notifyListeners();
+  }
+
   /// تُستدعى عند فتح شاشة الدعم → تصفّر عدّاد رسائل الدعم.
   void markSupportNotificationsRead() {
     for (final item in _items) {
       if (item.isSupport) {
+        item.read = true;
+      }
+    }
+    notifyListeners();
+  }
+
+  /// [FIX-NOTIF-02] تصفير إشعارات تذكرة دعم معيّنة فقط — نفس فكرة الشات تمامًا،
+  /// تُستدعى فور فتح تذكرة دعم محددة بدل ما تنتظر تصفير كل التذاكر مع بعض.
+  void markSupportNotificationsReadForTicket(int ticketId) {
+    var changed = false;
+    for (final item in _items) {
+      if (item.isSupport && item.requestId == ticketId && !item.read) {
+        item.read = true;
+        changed = true;
+      }
+    }
+    if (changed) notifyListeners();
+  }
+
+  /// [FIX-NOTIF-05] تُستدعى عند فتح شاشة "الشحن" بلوحة الأدمن → تصفّر عدّاد
+  /// طلبات الشحن غير المقروءة تحديداً (بدون التأثير على عدّادات الدعم/الطلبات).
+  void markTopupNotificationsRead() {
+    for (final item in _items) {
+      if (item.isTopup) {
         item.read = true;
       }
     }

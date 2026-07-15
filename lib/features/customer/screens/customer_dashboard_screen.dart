@@ -21,6 +21,10 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
     Future.microtask(() {
       if (!mounted) return;
       context.read<RequestsProvider>().loadRequests();
+      // [FIX-SERVICES-04] المهن كانت تُعرض من قائمة ثابتة — الآن حيّة من
+      // نفس المصدر المستخدم بالتسجيل وإنشاء الطلب (لا نداء API إضافي إن كان
+      // محمّلاً مسبقاً بفضل التخزين المؤقت داخل RequestsProvider).
+      context.read<RequestsProvider>().loadMeta();
     });
   }
 
@@ -53,7 +57,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: ListView(
-                children: const [
+                children: [
                   Text(
                     'كل الخدمات',
                     style: TextStyle(
@@ -148,7 +152,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 const SizedBox(height: 22),
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'خدمات صلّحلي',
                       style: TextStyle(
                         color: AppColors.textPrimary,
@@ -318,7 +322,7 @@ class _ActionCard extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
@@ -329,7 +333,7 @@ class _ActionCard extends StatelessWidget {
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 11,
                     ),
@@ -378,7 +382,7 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -391,7 +395,7 @@ class _StatCard extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
                 ),
@@ -411,26 +415,44 @@ class _ServicesGrid extends StatelessWidget {
     this.inSheet = false,
   });
 
-  static const items = [
-    ['كهربائي', 'تركيبات وصيانة', Icons.electric_bolt_rounded],
-    ['سباكة', 'تسريبات وتركيبات', Icons.water_drop_rounded],
-    ['تكييف', 'صيانة وتنظيف', Icons.ac_unit_rounded],
-    ['أجهزة منزلية', 'صيانة وإصلاح', Icons.kitchen_rounded],
-    ['دهانات', 'دهان وديكور', Icons.format_paint_rounded],
-    ['نجارة', 'أثاث وصيانة', Icons.chair_rounded],
-    ['ستلايت', 'تركيب وبرمجة', Icons.satellite_alt_rounded],
-    ['خدمات أخرى', 'متنوعة', Icons.grid_view_rounded],
-  ];
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final itemWidth = inSheet ? (width - 72) / 2 : (width - 52) / 2;
 
+    // [FIX-SERVICES-04] نفس مصدر البيانات الحيّ المستخدم بالتسجيل وإنشاء
+    // الطلب — /meta أصلاً يُرجع المهن الفعّالة فقط، فلا حاجة لأي فلترة هنا.
+    final meta = context.watch<RequestsProvider>().meta;
+
+    // حالة التحميل: لم تصل بيانات /meta بعد.
+    if (meta == null) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    final services = meta.services;
+
+    // حالة فارغة: لا توجد أي مهنة فعّالة حالياً.
+    if (services.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Text(
+            'لا توجد خدمات متاحة حالياً',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+      );
+    }
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: items.map((item) {
+      children: services.map((service) {
         return InkWell(
           borderRadius: BorderRadius.circular(22),
           onTap: () {
@@ -451,13 +473,16 @@ class _ServicesGrid extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(item[2] as IconData, color: AppColors.secondary, size: 27),
+                Text(
+                  service.icon ?? '🔧',
+                  style: const TextStyle(fontSize: 26),
+                ),
                 const Spacer(),
                 Text(
-                  item[0] as String,
+                  service.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
@@ -465,10 +490,10 @@ class _ServicesGrid extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  item[1] as String,
+                  'اطلب الخدمة الآن',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                   ),

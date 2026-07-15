@@ -35,9 +35,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
     final provider = context.watch<RequestsProvider>();
     final user = auth.user;
 
-    final newRequests = provider.requests
-        .where((e) => e.status == 'بانتظار العروض' || e.status == 'وصلت عروض')
-        .length;
+    final newRequests = provider.availableNewRequestsCount;
 
     final myOrders = provider.requests
         .where((e) => e.status != 'بانتظار العروض' && e.status != 'وصلت عروض')
@@ -102,7 +100,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
               wide: true,
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'اختصارات الفني',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -292,7 +290,7 @@ class _MainActionCard extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 54),
               foregroundColor: AppColors.textPrimary,
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
@@ -352,7 +350,7 @@ class _StatCard extends StatelessWidget {
                 Text(
                   value,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
@@ -361,7 +359,7 @@ class _StatCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                   ),
@@ -424,7 +422,7 @@ class _ShortcutGrid extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   item[0] as String,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w800,
                   ),

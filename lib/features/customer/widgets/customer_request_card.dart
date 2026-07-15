@@ -35,7 +35,7 @@ class CustomerRequestCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 request.service,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class CustomerRequestCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -53,7 +53,7 @@ class CustomerRequestCard extends StatelessWidget {
                 request.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                 ),
               ),

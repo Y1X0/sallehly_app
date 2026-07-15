@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../requests/provider/requests_provider.dart';
 import 'login_screen.dart';
 import 'register_role_screen.dart';
 
@@ -27,7 +29,7 @@ class LandingScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 30),
-              const Text(
+              Text(
                 'كل خدمات الصيانة\nفي مكان واحد',
                 textAlign: TextAlign.right,
                 style: TextStyle(
@@ -38,7 +40,7 @@ class LandingScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'اطلب فني قريب منك، استقبل عروض، واحكِ مع الفني داخل التطبيق بأمان.',
                 textAlign: TextAlign.right,
                 style: TextStyle(
@@ -49,8 +51,6 @@ class LandingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               const _HeroPreview(),
-              const SizedBox(height: 20),
-              const _ServicesRow(),
               const SizedBox(height: 26),
               GradientButton(
                 label: 'تسجيل الدخول',
@@ -73,6 +73,8 @@ class LandingScreen extends StatelessWidget {
                 icon: const Icon(Icons.person_add_alt_1_rounded),
                 label: const Text('إنشاء حساب جديد'),
               ),
+              const SizedBox(height: 24),
+              const _ServicesRow(),
             ],
           ),
         ),
@@ -93,7 +95,7 @@ class _MiniBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.success.withValues(alpha: 0.35)),
       ),
-      child: const Text(
+      child: Text(
         'الأردن',
         style: TextStyle(
           color: AppColors.success,
@@ -170,7 +172,7 @@ class _MiniStat extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
               fontSize: 17,
@@ -181,7 +183,7 @@ class _MiniStat extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 11,
             ),
@@ -192,22 +194,39 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-class _ServicesRow extends StatelessWidget {
+class _ServicesRow extends StatefulWidget {
   const _ServicesRow();
 
-  static const services = [
-    ['كهربائي', Icons.electric_bolt_rounded],
-    ['سباك', Icons.water_drop_rounded],
-    ['تكييف', Icons.ac_unit_rounded],
-    ['نجار', Icons.carpenter_rounded],
-  ];
+  @override
+  State<_ServicesRow> createState() => _ServicesRowState();
+}
+
+class _ServicesRowState extends State<_ServicesRow> {
+  @override
+  void initState() {
+    super.initState();
+    // [FIX-SERVICES-04] نفس RequestsProvider.loadMeta() المستخدم بكل مكان
+    // آخر بالتطبيق — تخزينها المؤقت الداخلي (meta ??= ...) يضمن عدم تكرار
+    // نداء /meta لو استُدعيت من شاشة أخرى أصلاً بنفس جلسة التطبيق.
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<RequestsProvider>().loadMeta();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final meta = context.watch<RequestsProvider>().meta;
+    final services = meta?.services ?? [];
+
+    // شريط تسويقي زخرفي فقط — لا داعي لمؤشر تحميل ملحوظ أو رسالة فارغة هنا؛
+    // ببساطة لا يظهر شيء حتى تصل البيانات، بدون أي إزعاج بصري بشاشة الترحيب.
+    if (services.isEmpty) return const SizedBox.shrink();
+
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: services.map((item) {
+      children: services.map((service) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -218,11 +237,14 @@ class _ServicesRow extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(item[1] as IconData, color: AppColors.accent, size: 18),
+              Text(
+                service.icon ?? '🔧',
+                style: const TextStyle(fontSize: 16),
+              ),
               const SizedBox(width: 6),
               Text(
-                item[0] as String,
-                style: const TextStyle(
+                service.name,
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w800,
                 ),

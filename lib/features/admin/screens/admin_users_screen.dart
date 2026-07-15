@@ -141,7 +141,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 12),
@@ -233,7 +233,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           content: Text(
             'سيتم حذف حساب ${user.name} نهائياً وإيقاف وصوله. '
             'لا يمكن التراجع. هذا الإجراء يُسجَّل في سجل العمليات.',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -281,15 +281,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final admin = context.watch<AdminProvider>();
     final users = filter(admin.users);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'المستخدمين',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-      ),
-      body: RefreshIndicator(
+    // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
+    // — إزالة الـ Scaffold/AppBar الداخلي المكرر فوق ذاك الموجود بـ AdminLayout.
+    return RefreshIndicator(
         color: AppColors.primary,
         onRefresh: admin.loadUsers,
         child: ListView(
@@ -318,7 +312,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             ),
             const SizedBox(height: 18),
             if (admin.loading && users.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 120),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
@@ -349,8 +343,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -438,7 +431,7 @@ class _UserCard extends StatelessWidget {
                   children: [
                     Text(
                       user.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -447,7 +440,7 @@ class _UserCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${user.roleAr} • ${user.phone}',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -475,13 +468,13 @@ class _UserCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   user.email,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
               if (user.isTechnician)
                 Text(
                   '${user.balance.toStringAsFixed(2)} د.أ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,
                   ),
@@ -530,7 +523,7 @@ class _UserCard extends StatelessWidget {
                 label: const Text('حذف المستخدم'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.danger,
-                  side: const BorderSide(color: AppColors.danger),
+                  side: BorderSide(color: AppColors.danger),
                 ),
               ),
             ),
@@ -553,7 +546,7 @@ class _EmptyState extends StatelessWidget {
       child: Center(
         child: Text(
           text,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
       ),
     );
@@ -575,7 +568,7 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 120),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             size: 46,
             color: AppColors.danger,
@@ -584,7 +577,7 @@ class _ErrorState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           TextButton.icon(

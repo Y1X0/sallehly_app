@@ -15,12 +15,16 @@ class AuthProvider extends ChangeNotifier {
 
   late final AuthApi authApi;
 
+  // [FIX-TEST-01] معامل اختياري جديد يسمح بحقن AuthApi جاهز (Mock) للاختبار،
+  // بدون أي تأثير على أي مكان يُنشئ AuthProvider حالياً (app.dart لا يمرره
+  // إطلاقاً، فيبقى السلوك الفعلي — AuthApi(apiClient) — كما هو تماماً).
   AuthProvider({
     required this.tokenStorage,
     required ApiClient apiClient,
     required this.appStorage,
+    AuthApi? authApiOverride,
   }) {
-    authApi = AuthApi(apiClient);
+    authApi = authApiOverride ?? AuthApi(apiClient);
   }
 
   UserModel? _user;
@@ -251,11 +255,36 @@ class AuthProvider extends ChangeNotifier {
       await onAuthenticated?.call();
 
       notifyListeners();
+    } on ApiException catch (e) {
+      // [FIX-AUTH-01] + [FIX-SESSION-02] امسح الجلسة فقط إذا رفض السيرفر
+      // التوكن صراحةً (401 = توكن غير صالح/منتهي، 403 = ممنوع). أي خطأ آخر
+      // — انقطاع شبكة، مهلة اتصال، بطء خادم (كولد ستارت)، أو 5xx — لا علاقة
+      // له بصحة التوكن، فلا يُسجَّل خروج المستخدم بسببه ولا تُمسح جلسته
+      // المحفوظة؛ يبقى مسجّل دخول محلياً وستُعاد المحاولة لاحقاً بشكل طبيعي.
+      // بدل تجاهل الخطأ بصمت، نحفظ رسالته في _error ونُخطر الواجهة حتى
+      // تقدر تعرضه للمستخدم لو احتاجت.
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        await logout();
+      } else {
+        _error = e.message;
+        notifyListeners();
+      }
     } catch (_) {
-      await logout();
+      // خطأ غير متوقع لا علاقة له بصلاحية التوكن (مثال: فشل تحويل JSON) —
+      // لا تمسح الجلسة أيضاً؛ اترك التوكن كما هو ودع المستخدم يعيد المحاولة.
+      notifyListeners();
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// [FIX-AUTH-01] يُستدعى من ApiClient.onUnauthorized عند 401 حقيقي فقط.
+  /// الشرط isLoggedIn ضروري: طلب تسجيل الدخول بكلمة سر خاطئة يرجع 401 أيضاً
+  /// وهو أمر طبيعي تماماً وليس "انتهاء جلسة" — فلا يجوز تنظيف أي شيء حينها
+  /// (لا يوجد أصلاً جلسة لتنظيفها بهذه الحالة).
+  Future<void> handleUnauthorized() async {
+    if (!isLoggedIn) return;
+    await logout();
   }
 
   Future<void> logout() async {
@@ -270,6 +299,24 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
 
     // اقطع السوكت حتى لا يبقى متصلاً بتوكن قديم.
+    onLoggedOut?.call();
+
+    notifyListeners();
+  }
+
+  /// حذف الحساب نهائياً (متطلّب سياسة Google Play لحذف الحساب).
+  /// يرمي [ApiException] إن رفض السيرفر الحذف (كلمة سر خاطئة، طلب نشط،
+  /// رصيد متبقٍّ) — الشاشة تعرض رسالة الخطأ كما هي للمستخدم.
+  /// عند النجاح، تنظّف الجلسة محلياً بنفس أسلوب logout() تماماً.
+  Future<void> deleteAccount({required String password}) async {
+    await authApi.deleteAccount(password: password);
+
+    await tokenStorage.clearToken();
+    await appStorage.clear();
+
+    _user = null;
+    _error = null;
+
     onLoggedOut?.call();
 
     notifyListeners();

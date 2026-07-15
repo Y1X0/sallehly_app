@@ -270,6 +270,21 @@ class AuthApi {
     }
   }
 
+  /// حذف الحساب نهائياً (متطلّب سياسة Google Play لحذف الحساب).
+  /// يتطلب كلمة السر الحالية للتأكيد — إجراء نهائي لا رجعة فيه.
+  Future<String> deleteAccount({required String password}) async {
+    try {
+      final response = await apiClient.dio.delete(
+        ApiEndpoints.me,
+        data: {'password': password},
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      return data['message']?.toString() ?? 'تم حذف حسابك بنجاح';
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
   Future<List<ReviewModel>> getReviews(int technicianId) async {
     try {
       final response = await apiClient.dio.get(

@@ -32,11 +32,15 @@ Future<Map<String, String>> _authHeaders() async {
 class ChatBubble extends StatefulWidget {
   final MessageModel message;
   final bool isMe;
+  // [FIX-UGC-01] استدعاء اختياري للإبلاغ عن هذه الرسالة (ضغط مطوّل).
+  // null لرسائلي أنا (لا معنى للإبلاغ عن رسالة أرسلتها بنفسك).
+  final VoidCallback? onReport;
 
   const ChatBubble({
     super.key,
     required this.message,
     required this.isMe,
+    this.onReport,
   });
 
   @override
@@ -132,7 +136,9 @@ class _ChatBubbleState extends State<ChatBubble> {
 
     return Align(
       alignment: isMe ? Alignment.centerLeft : Alignment.centerRight,
-      child: Container(
+      child: GestureDetector(
+        onLongPress: widget.onReport,
+        child: Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
@@ -215,6 +221,7 @@ class _ChatBubbleState extends State<ChatBubble> {
               ),
             ],
           ],
+        ),
         ),
       ),
     );
@@ -353,7 +360,7 @@ class _LocationMessage extends StatelessWidget {
                 color: AppColors.success.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.location_on_rounded,
                 color: AppColors.success,
               ),

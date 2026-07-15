@@ -87,7 +87,7 @@ class _WalletScreenState extends State<WalletScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'آخر طلبات الشحن',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -97,7 +97,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
             const SizedBox(height: 12),
             if (wallet.loading && topups.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 80),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
@@ -221,7 +221,7 @@ class _ActionCard extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -229,7 +229,7 @@ class _ActionCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
                 height: 1.4,
@@ -262,13 +262,13 @@ class _WalletErrorState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             color: AppColors.danger,
             size: 54,
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'تعذّر تحميل المحفظة',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -279,7 +279,7 @@ class _WalletErrorState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               height: 1.5,
             ),
@@ -311,7 +311,7 @@ class _EmptyWalletState extends StatelessWidget {
         borderRadius: BorderRadius.circular(26),
         border: Border.all(color: AppColors.border),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(
             Icons.inbox_rounded,

@@ -9,6 +9,15 @@ class UserModel {
   final String? nationalNumber;
   final String? avatar;
   final String? serviceName;
+
+  /// [FIX-TECH-SERVICES-01] السيرفر يخزّن خدمات الفني كنص مفصول بفواصل
+  /// ("كهربائي,سباك,نجار") — هاد الـ getter يحوّلها لقائمة نظيفة (بدون فراغات
+  /// أو عناصر فاضية) عشان تُعرض وتُعدَّل كخدمات متعددة فعلية بالواجهة.
+  List<String> get services => (serviceName ?? '')
+      .split(',')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
   final double rating;
   final double balance;
   final bool active;
@@ -48,7 +57,7 @@ class UserModel {
           json['profession']?.toString(),
       // السيرفر يرجع rating_avg
       rating: double.tryParse(
-              '${json['rating_avg'] ?? json['rating'] ?? 0}') ??
+          '${json['rating_avg'] ?? json['rating'] ?? 0}') ??
           0,
       balance: double.tryParse('${json['balance'] ?? 0}') ?? 0,
       active: json['is_active'] == 1 ||

@@ -57,7 +57,7 @@ class TopupCard extends StatelessWidget {
               children: [
                 Text(
                   topup.packageName ?? 'طلب شحن',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -66,7 +66,7 @@ class TopupCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   '${topup.total.toStringAsFixed(2)} د.أ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                   ),
                 ),

@@ -109,7 +109,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'معلومات التحويل',
                     style: TextStyle(
                       color: AppColors.textPrimary,
@@ -127,7 +127,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                     const SizedBox(height: 12),
                     Text(
                       method.instructions!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         height: 1.6,
                       ),
@@ -152,7 +152,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                 ),
               ),
               child: receiptPath == null
-                  ? const Column(
+                  ? Column(
                 children: [
                   Icon(
                     Icons.upload_file_rounded,
@@ -282,7 +282,7 @@ class _InfoLine extends StatelessWidget {
             width: 92,
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
               ),
             ),
@@ -290,7 +290,7 @@ class _InfoLine extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w800,
               ),

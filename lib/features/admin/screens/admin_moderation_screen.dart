@@ -13,7 +13,7 @@ class AdminModerationScreen extends StatefulWidget {
 
 class _AdminModerationScreenState extends State<AdminModerationScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tab = TabController(length: 2, vsync: this);
+  late final TabController _tab = TabController(length: 3, vsync: this);
 
   @override
   void initState() {
@@ -59,11 +59,12 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
           tabs: [
             Tab(text: 'مخالفات الشات (${admin.violations.length})'),
             Tab(text: 'الشكاوى (${admin.complaints.length})'),
+            Tab(text: 'بلاغات الرسائل (${admin.messageReports.length})'),
           ],
         ),
       ),
       body: admin.moderationLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             )
           : TabBarView(
@@ -112,6 +113,30 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                     trailing: _ComplaintStatusMenu(complaint: c),
                   ),
                 ),
+                // [FIX-UGC-01] بلاغات الرسائل — سياسة UGC بمنصّة Google Play
+                _buildList(
+                  context,
+                  items: admin.messageReports,
+                  error: admin.error,
+                  emptyText: 'لا توجد بلاغات رسائل',
+                  emptyIcon: Icons.flag_outlined,
+                  builder: (r) => _ModerationCard(
+                    title: '${r['reason'] ?? 'بلاغ'}',
+                    subtitle: r['reported_name'] != null
+                        ? 'المُبلَّغ عنه: ${r['reported_name']}'
+                            '${r['reported_email'] != null ? ' • ${r['reported_email']}' : ''}'
+                        : '',
+                    body: '${r['message_body'] ?? '(لم تُحدَّد رسالة معيّنة)'}',
+                    meta: [
+                      if (r['reporter_name'] != null)
+                        'المُبلِّغ: ${r['reporter_name']}',
+                      if (r['request_id'] != null) 'طلب #${r['request_id']}',
+                      _formatDate(r['created_at'] as String?),
+                    ],
+                    color: AppColors.danger,
+                    icon: Icons.flag_rounded,
+                  ),
+                ),
               ],
             ),
     );
@@ -132,14 +157,14 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
           ? ListView(
               children: [
                 const SizedBox(height: 120),
-                const Icon(Icons.error_outline_rounded,
+                Icon(Icons.error_outline_rounded,
                     size: 70, color: AppColors.danger),
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
                     error,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -168,7 +193,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                 Center(
                   child: Text(
                     emptyText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -199,7 +224,7 @@ class _ComplaintStatusMenu extends StatelessWidget {
     'rejected': 'مرفوضة',
   };
 
-  static const _colors = {
+  static Map<String, Color> get _colors => {
     'open': AppColors.danger,
     'in_review': Colors.orange,
     'resolved': Colors.green,
@@ -314,7 +339,7 @@ class _ModerationCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
                         fontSize: 15,
@@ -324,7 +349,7 @@ class _ModerationCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -348,7 +373,7 @@ class _ModerationCard extends StatelessWidget {
               ),
               child: Text(
                 body,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13.5,
                   height: 1.5,

@@ -153,7 +153,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
               const SizedBox(height: 50),
               Expanded(
                 child: support.loading && support.messages.isEmpty
-                    ? const Center(
+                    ? Center(
                         child:
                             CircularProgressIndicator(color: AppColors.primary),
                       )
@@ -184,9 +184,9 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
     return ListView(
       children: [
         const SizedBox(height: 120),
-        const Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
+        Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
         const SizedBox(height: 14),
-        const Text(
+        Text(
           'تعذّر تحميل الرسائل',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -199,7 +199,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 14),
         Center(
@@ -245,7 +245,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
             ),
             const SizedBox(width: 8),
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: AppColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -299,7 +299,7 @@ class _Bubble extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   message.senderName ?? 'المستخدم',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,
                     fontSize: 12,

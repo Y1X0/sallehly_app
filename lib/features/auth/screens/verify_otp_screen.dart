@@ -89,13 +89,13 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                const Icon(
+                Icon(
                   Icons.mark_email_read_rounded,
                   size: 82,
                   color: AppColors.primary,
                 ),
                 const SizedBox(height: 18),
-                const Text(
+                Text(
                   'أدخل كود التحقق',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -107,7 +107,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                 Text(
                   'تم إرسال كود مكوّن من 6 أرقام إلى:\n${widget.email}',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     height: 1.5,
                   ),
@@ -119,7 +119,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   textDirection: TextDirection.ltr,
                   keyboardType: TextInputType.number,
                   maxLength: 6,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
                     letterSpacing: 8,

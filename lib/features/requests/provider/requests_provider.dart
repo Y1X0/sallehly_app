@@ -10,10 +10,13 @@ import '../data/requests_api.dart';
 class RequestsProvider extends ChangeNotifier {
   late final RequestsApi api;
 
+  // [FIX-TEST-01] معامل اختياري جديد يسمح بحقن RequestsApi جاهز (Mock)
+  // للاختبار، بدون أي تأثير على app.dart الذي لا يمرره إطلاقاً.
   RequestsProvider({
     required ApiClient apiClient,
+    RequestsApi? apiOverride,
   }) {
-    api = RequestsApi(apiClient);
+    api = apiOverride ?? RequestsApi(apiClient);
   }
 
   bool loading = false;
@@ -23,9 +26,29 @@ class RequestsProvider extends ChangeNotifier {
   List<RequestModel> requests = [];
   List<OfferModel> offers = [];
 
-  Future<void> loadMeta() async {
+  // [FIX-BADGE-01] الحالات التي تعني أن الطلب ما زال متاحاً فعلياً لعروض
+  // الفنيين (لم يُقبل عرض عليه بعد ولم يُلغَ). مصدر وحيد يُستخدم في كل مكان
+  // (تبويب "جديدة"، شاشة الطلبات الجديدة، لوحة الفني الرئيسية) بدل تكرار
+  // نفس شرط الحالة في عدة ملفات.
+  static const List<String> _availableStatuses = ['بانتظار العروض', 'وصلت عروض'];
+
+  /// الطلبات المتاحة فعلياً حالياً لعروض الفني (تستثني المقبولة/الجارية/
+  /// المكتملة/الملغاة/غير المتاحة). لا علاقة لهذا بعدد الإشعارات غير المقروءة.
+  List<RequestModel> get availableNewRequests {
+    return requests.where((r) => _availableStatuses.contains(r.status)).toList();
+  }
+
+  int get availableNewRequestsCount => availableNewRequests.length;
+
+  // دمج تحديثات Socket المتقاربة في طلب واحد بدل تشغيل عدة GET متزامنة.
+  bool _requestsRefreshRunning = false;
+  bool _requestsRefreshPending = false;
+
+  Future<void> loadMeta({bool force = false}) async {
     try {
-      meta ??= await api.getMeta();
+      // [FIX-SERVICES-01] force=true يُستخدم عند وصول حدث services-updated
+      // عبر Socket.IO، لإعادة الجلب رغم وجود نسخة مخبَّأة سابقاً.
+      if (force || meta == null) meta = await api.getMeta();
       notifyListeners();
     } catch (e) {
       error = e is ApiException ? e.message : 'حدث خطأ';
@@ -34,18 +57,51 @@ class RequestsProvider extends ChangeNotifier {
   }
 
   Future<void> loadRequests({bool silent = false}) async {
+    if (_requestsRefreshRunning) {
+      _requestsRefreshPending = true;
+      return;
+    }
+
+    _requestsRefreshRunning = true;
     if (!silent) _setLoading(true);
 
     try {
-      requests = await api.getRequests();
-      error = null;
-      if (silent) notifyListeners();
+      do {
+        _requestsRefreshPending = false;
+        requests = await api.getRequests();
+        error = null;
+        if (silent) notifyListeners();
+      } while (_requestsRefreshPending);
     } catch (e) {
       error = e is ApiException ? e.message : 'تعذر تحميل الطلبات';
       if (silent) notifyListeners();
     } finally {
+      _requestsRefreshRunning = false;
       if (!silent) _setLoading(false);
     }
+  }
+
+  /// [FIX-BADGE-01] تحديث محلي فوري لحالة طلب واحد فور وصول حدث Socket.IO
+  /// (requests-updated / offer-accepted)، دون انتظار رحلة شبكة كاملة. هذا ما
+  /// يجعل الطلب يختفي فوراً من "الطلبات الجديدة" وينخفض العداد مباشرة عند
+  /// قبول عرضه، بدل أن يبقى العداد "عالقاً" لحين اكتمال التحديث الصامت
+  /// (الذي ما زال يُستدعى بعدها للتأكد من مطابقة حالة الخادم).
+  void applyRequestStatusUpdate({
+    required int requestId,
+    required String status,
+    int? technicianId,
+  }) {
+    final index = requests.indexWhere((r) => r.id == requestId);
+    if (index == -1) return;
+
+    final current = requests[index];
+    if (current.status == status &&
+        (technicianId == null || current.technicianId == technicianId)) {
+      return;
+    }
+
+    requests[index] = current.copyWith(status: status, technicianId: technicianId);
+    notifyListeners();
   }
 
   Future<void> createRequest({

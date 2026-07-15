@@ -31,7 +31,7 @@ class OfferCard extends StatelessWidget {
         children: [
           Text(
             offer.technicianName ?? 'فني',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -40,7 +40,7 @@ class OfferCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'السعر: ${offer.price.toStringAsFixed(2)} د.أ',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -49,13 +49,13 @@ class OfferCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'الوقت: ${offer.duration}',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           if (offer.note != null && offer.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
               offer.note!,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 14),

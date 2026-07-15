@@ -89,7 +89,7 @@ class _OffersScreenState extends State<OffersScreen> {
                       ),
                       const SizedBox(height: 14),
                       if (provider.loading && offers.isEmpty)
-                        const SizedBox(
+                        SizedBox(
                           height: 280,
                           child: Center(
                             child: CircularProgressIndicator(
@@ -145,7 +145,7 @@ class _TopBar extends StatelessWidget {
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
               'العروض',
               textAlign: TextAlign.center,
@@ -239,14 +239,14 @@ class _EmptyOffers extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.local_offer_outlined,
               color: AppColors.primary,
               size: 44,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'لا يوجد عروض بعد',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -255,7 +255,7 @@ class _EmptyOffers extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'عند وصول عروض من الفنيين ستظهر هنا، ويمكنك قبول العرض المناسب.',
             textAlign: TextAlign.center,
             style: TextStyle(

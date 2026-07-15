@@ -86,19 +86,13 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
   Widget build(BuildContext context) {
     final admin = context.watch<AdminProvider>();
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'طلبات الشحن',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-      ),
-      body: RefreshIndicator(
+    // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
+    // — إزالة الـ Scaffold/AppBar الداخلي المكرر فوق ذاك الموجود بـ AdminLayout.
+    return RefreshIndicator(
         color: AppColors.primary,
         onRefresh: admin.loadTopups,
         child: admin.loading && admin.topups.isEmpty
-            ? const Center(
+            ? Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         )
             : admin.error != null && admin.topups.isEmpty
@@ -106,7 +100,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
           padding: const EdgeInsets.all(28),
           children: [
             const SizedBox(height: 160),
-            const Icon(
+            Icon(
               Icons.error_outline_rounded,
               color: AppColors.danger,
               size: 76,
@@ -115,7 +109,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             Text(
               admin.error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 18),
             Center(
@@ -131,7 +125,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             : admin.topups.isEmpty
             ? ListView(
           padding: const EdgeInsets.all(28),
-          children: const [
+          children: [
             SizedBox(height: 180),
             Icon(
               Icons.receipt_long_outlined,
@@ -165,8 +159,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             );
           },
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -215,12 +208,12 @@ class _TopupCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary),
+              Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   '${topup['technician_name'] ?? 'فني'}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: 16,
@@ -247,7 +240,7 @@ class _TopupCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             '${topup['package_name'] ?? 'باقة'} • ${(amount + bonus).toStringAsFixed(2)} د.أ',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
           if (pending)

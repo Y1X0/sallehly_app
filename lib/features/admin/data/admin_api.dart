@@ -128,6 +128,48 @@ class AdminApi {
     }
   }
 
+  /// [FIX-SERVICES-01] كل المهن (فعّالة وغير فعّالة) — لشاشة إدارة الأدمن.
+  Future<List<Map<String, dynamic>>> getAllServices() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminServices);
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['services'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-SERVICES-01] تفعيل/تعطيل مهنة — البديل الآمن للحذف النهائي.
+  Future<void> toggleService(int id, bool isActive) async {
+    try {
+      await apiClient.dio.patch(
+        ApiEndpoints.adminServiceDelete(id),
+        data: {'is_active': isActive},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-SERVICES-03] تعديل اسم/أيقونة مهنة — نفس مسار PATCH المستخدم
+  /// بالتفعيل/التعطيل، بدون أي endpoint إضافي مكرر.
+  Future<void> updateService({
+    required int id,
+    required String name,
+    required String icon,
+  }) async {
+    try {
+      await apiClient.dio.patch(
+        ApiEndpoints.adminServiceDelete(id),
+        data: {'name': name.trim(), 'icon': icon.trim()},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
   Future<void> createPackage({
     required String name,
     required double amount,
@@ -285,6 +327,20 @@ class AdminApi {
       final response = await apiClient.dio.get(ApiEndpoints.adminComplaints);
       final data = Map<String, dynamic>.from(response.data);
       return (data['complaints'] as List? ?? [])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-UGC-01] بلاغات الرسائل المقدَّمة من المستخدمين (سياسة UGC).
+  Future<List<Map<String, dynamic>>> getMessageReports() async {
+    try {
+      final response =
+          await apiClient.dio.get(ApiEndpoints.adminMessageReports);
+      final data = Map<String, dynamic>.from(response.data);
+      return (data['reports'] as List? ?? [])
           .map((e) => Map<String, dynamic>.from(e))
           .toList();
     } catch (e) {

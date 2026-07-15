@@ -68,7 +68,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             request.service,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.w900,
@@ -77,7 +77,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
             ),
           ),
@@ -86,7 +86,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
             title: 'وصف المشكلة',
             child: Text(
               request.description,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.6,
               ),
@@ -178,7 +178,7 @@ class _InfoBox extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../chat/screens/chats_screen.dart';
+import '../requests/provider/requests_provider.dart';
 import '../notifications/widgets/notification_bell.dart';
 import '../settings/screens/settings_screen.dart';
 import '../support/provider/support_provider.dart';
@@ -38,6 +40,55 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
   static const int supportIndex = 6;
 
   @override
+  void initState() {
+    super.initState();
+    // [FIX-DEEPLINK-01] استمع لأي إشعار FCM ضُغط عليه (بالخلفية أو من إغلاق
+    // كامل للتطبيق) وحوّل الفني للتبويب الصحيح.
+    FirebaseNotificationService.pendingDeepLink.addListener(_handleDeepLink);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handleDeepLink());
+  }
+
+  @override
+  void dispose() {
+    FirebaseNotificationService.pendingDeepLink.removeListener(_handleDeepLink);
+    super.dispose();
+  }
+
+  /// يقرأ هدف التنقّل المعلّق من إشعار FCM ويطبّقه، ثم يستهلكه (يصفّره).
+  void _handleDeepLink() {
+    final data = FirebaseNotificationService.pendingDeepLink.value;
+    if (data == null || !mounted) return;
+
+    final type = data['type']?.toString() ?? '';
+
+    switch (type) {
+      case 'offer_accepted':
+        setState(() => currentIndex = 2); // طلباتي
+        break;
+      case 'chat':
+        setState(() => currentIndex = 3); // الدردشات
+        break;
+      case 'topup':
+        setState(() => currentIndex = 4); // المحفظة
+        break;
+      case 'support':
+        // [FIX-DEEPLINK-01] تحقّق أن التذكرة المفتوحة محمّلة فعلاً قبل القفز
+        // للتبويب — لو قفزنا بدون هذا الشرط وكانت بيانات التذاكر لم تُحمَّل
+        // بعد (سباق محتمل عند فتح التطبيق للتو من إشعار)، build() أدناه
+        // سيُرجع currentIndex تلقائياً لـ0 بالإطار التالي فيظهر "ارتداد"
+        // مرئي مزعج للمستخدم. تجاهل التنقّل هنا أفضل من ارتداد ظاهر.
+        if (context.read<SupportProvider>().hasOpenTicket) {
+          setState(() => currentIndex = supportIndex);
+        }
+        break;
+      default:
+        break;
+    }
+
+    FirebaseNotificationService.pendingDeepLink.value = null;
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -54,7 +105,13 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
   @override
   Widget build(BuildContext context) {
     final notify = context.watch<NotificationProvider>();
+    final requestsProvider = context.watch<RequestsProvider>();
     final support = context.watch<SupportProvider>();
+
+    // عدّاد تبويب "جديدة" يجب أن يعكس الطلبات المتاحة فعلياً،
+    // وليس عدد إشعارات الطلبات القديمة. لذلك عند قبول الطلب واختفائه
+    // من القائمة، ينخفض العداد مباشرة إلى العدد الصحيح.
+    final newRequestsCount = requestsProvider.availableNewRequestsCount;
 
     final hasSupport = support.hasOpenTicket;
 
@@ -80,7 +137,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
         Icons.search_outlined,
         Icons.search,
         'جديدة',
-        notify.requestUnreadCount,
+        newRequestsCount,
       ),
       _NavItem(Icons.assignment_outlined, Icons.assignment, 'طلباتي', 0),
       _NavItem(
@@ -111,6 +168,9 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
       appBar: hideAppBar
           ? null
           : AppBar(
+        // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق) — نفس السبب الموثّق
+        // بـ customer_layout.dart.
+        automaticallyImplyLeading: false,
         title: const Text('لوحة الفني'),
         actions: [
           NotificationBell(

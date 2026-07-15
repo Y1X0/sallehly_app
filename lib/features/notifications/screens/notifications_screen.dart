@@ -30,7 +30,7 @@ class NotificationsScreen extends StatelessWidget {
         ],
       ),
       body: items.isEmpty
-          ? const Center(
+          ? Center(
         child: Text(
           'لا توجد إشعارات طلبات حالياً',
           style: TextStyle(color: AppColors.textSecondary),
@@ -44,7 +44,10 @@ class NotificationsScreen extends StatelessWidget {
           return _NotificationCard(
             item: items[index],
             onTap: () {
-              provider.markRequestNotificationsRead();
+              // اقرأ الإشعار المضغوط فقط، وليس كل الإشعارات.
+              provider.markNotificationRead(items[index].id);
+
+              // أغلق شاشة الإشعارات ثم افتح القسم المرتبط بالطلب.
               Navigator.pop(context);
               onOpenRequests?.call();
             },
@@ -98,7 +101,7 @@ class _NotificationCard extends StatelessWidget {
                 children: [
                   Text(
                     item.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w900,
                     ),
@@ -106,7 +109,7 @@ class _NotificationCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     item.body,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -114,7 +117,7 @@ class _NotificationCard extends StatelessWidget {
               ),
             ),
             if (!item.read)
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 5,
                 backgroundColor: AppColors.danger,
               ),

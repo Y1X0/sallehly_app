@@ -37,6 +37,17 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // [FIX-SERVICES-01] المهن كانت تُقرأ من قائمة ثابتة بالكود — الآن تُجلب
+    // حيّة من الخادم حتى تظهر أي مهنة يضيفها الأدمن فوراً دون تحديث التطبيق.
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<RequestsProvider>().loadMeta();
+    });
+  }
+
+  @override
   void dispose() {
     descriptionController.dispose();
     preferredTimeController.dispose();
@@ -136,7 +147,9 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                                 label: 'الخدمة / المهنة',
                                 icon: Icons.handyman_rounded,
                                 value: selectedService,
-                                items: AppConstants.services,
+                                items: (provider.meta?.services ?? [])
+                                    .map((s) => s.name)
+                                    .toList(),
                                 onChanged: provider.loading
                                     ? null
                                     : (value) {
@@ -303,7 +316,7 @@ class _TopBar extends StatelessWidget {
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
               'طلب صيانة جديد',
               textAlign: TextAlign.center,
@@ -452,14 +465,14 @@ class _ImagePickerCard extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.image_rounded,
               color: AppColors.primary,
               size: 28,
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -482,7 +495,7 @@ class _ImagePickerCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.upload_rounded,
             color: AppColors.textSecondary,
           ),
@@ -506,7 +519,7 @@ class _SafeNote extends StatelessWidget {
           color: AppColors.success.withValues(alpha: 0.25),
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(
             Icons.verified_user_rounded,

@@ -52,7 +52,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
   Future<void> submit() async {
     if (stars == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.warning,
           content: Text('اختر عدد النجوم أولاً'),
         ),
@@ -83,7 +83,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.danger,
           content: Text('تعذر إرسال التقييم'),
         ),
@@ -114,7 +114,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
             ),
           ),
           const SizedBox(height: 22),
-          const Text(
+          Text(
             'كيف كانت تجربتك؟',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -127,7 +127,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
             widget.technicianName != null
                 ? 'قيّم الفني ${widget.technicianName}'
                 : 'قيّم الفني الذي خدمك',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 22),
           Row(

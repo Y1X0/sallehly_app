@@ -77,7 +77,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
               color: AppColors.primary,
               onRefresh: load,
               child: loading
-                  ? const Center(
+                  ? Center(
                       child:
                           CircularProgressIndicator(color: AppColors.primary),
                     )
@@ -186,7 +186,7 @@ class _ReviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.surface,
                 child: Icon(Icons.person, color: AppColors.textSecondary),
@@ -195,7 +195,7 @@ class _ReviewCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   review.customerName ?? 'عميل',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                   ),
@@ -218,7 +218,7 @@ class _ReviewCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               review.comment!,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),
@@ -248,7 +248,7 @@ class _MessageBox extends StatelessWidget {
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               height: 1.6,
             ),

@@ -72,11 +72,9 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
     final admin = context.watch<AdminProvider>();
     final tickets = admin.tickets;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('تذاكر الدعم'),
-      ),
-      body: RefreshIndicator(
+    // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
+    // — إزالة الـ Scaffold/AppBar الداخلي المكرر فوق ذاك الموجود بـ AdminLayout.
+    return RefreshIndicator(
         onRefresh: admin.loadSupport,
         child: admin.loading && tickets.isEmpty
             ? const Center(child: CircularProgressIndicator())
@@ -84,7 +82,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                 ? ListView(
                     children: [
                       const SizedBox(height: 180),
-                      const Icon(
+                      Icon(
                         Icons.error_outline_rounded,
                         size: 70,
                         color: AppColors.danger,
@@ -134,8 +132,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                       );
                     },
                   ),
-      ),
-    );
+      );
   }
 }
 

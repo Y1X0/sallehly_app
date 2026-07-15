@@ -56,7 +56,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && chats.isEmpty)
-                  const SizedBox(
+                  SizedBox(
                     height: 280,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -196,7 +196,7 @@ class _ChatCard extends StatelessWidget {
                   request.service,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -207,7 +207,7 @@ class _ChatCard extends StatelessWidget {
                   location,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
                   ),
@@ -225,7 +225,7 @@ class _ChatCard extends StatelessWidget {
                       color: AppColors.success.withValues(alpha: 0.20),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'محادثة آمنة',
                     style: TextStyle(
                       color: AppColors.success,
@@ -238,7 +238,7 @@ class _ChatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(
+          Icon(
             Icons.arrow_forward_ios_rounded,
             color: AppColors.textMuted,
             size: 17,
@@ -271,14 +271,14 @@ class _ChatsErrorState extends StatelessWidget {
               color: AppColors.danger.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.error_outline_rounded,
               color: AppColors.danger,
               size: 44,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'تعذّر تحميل المحادثات',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -290,7 +290,7 @@ class _ChatsErrorState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               height: 1.6,
             ),
@@ -326,14 +326,14 @@ class _EmptyChats extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.chat_bubble_outline_rounded,
               color: AppColors.primary,
               size: 44,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'لا توجد محادثات حالياً',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -342,7 +342,7 @@ class _EmptyChats extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'بعد قبول عرض أو بدء طلب، ستظهر المحادثة هنا.',
             textAlign: TextAlign.center,
             style: TextStyle(

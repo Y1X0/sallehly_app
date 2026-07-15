@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/theme_controller.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../support/screens/support_screen.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
+import 'privacy_policy_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -59,78 +62,153 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showPrivacy(BuildContext context) {
-    showModalBottomSheet(
+  /// حذف الحساب نهائياً (متطلّب سياسة Google Play لحذف الحساب).
+  /// يطلب كلمة السر الحالية للتأكيد، ثم يستدعي AuthProvider.deleteAccount().
+  Future<void> deleteAccountFlow(BuildContext context) async {
+    final passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool obscure = true;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      backgroundColor: AppColors.surface,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.85,
-          maxChildSize: 0.95,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(22),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Icon(
-                      Icons.privacy_tip_rounded,
-                      size: 54,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Center(
-                    child: Text(
-                      'سياسة الخصوصية',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 18),
-                  _PrivacySection(
-                    title: 'البيانات التي نجمعها',
-                    body:
-                        'نجمع البيانات اللازمة لتشغيل الخدمة فقط: الاسم، البريد الإلكتروني، رقم الهاتف، المدينة والمنطقة، والصورة الشخصية للفنيين. كما نستخدم موقعك الجغرافي عند طلبك ذلك لتحديد الفنيين الأقرب إليك.',
-                  ),
-                  _PrivacySection(
-                    title: 'كيف نستخدم بياناتك',
-                    body:
-                        'تُستخدم بياناتك لربط العملاء بالفنيين، وإدارة الطلبات والعروض والمحادثات، وإرسال الإشعارات المتعلقة بطلباتك. لا نبيع بياناتك أو نشاركها مع جهات إعلانية.',
-                  ),
-                  _PrivacySection(
-                    title: 'المحادثات والأمان',
-                    body:
-                        'المحادثة بين العميل والفني مرتبطة بالطلب وتخضع لمراجعة الإدارة للحفاظ على سلامة المستخدمين. يُمنع مشاركة أرقام التواصل الخارجية داخل المحادثة.',
-                  ),
-                  _PrivacySection(
-                    title: 'حماية البيانات',
-                    body:
-                        'كلمات المرور محفوظة بشكل مشفّر، والاتصال بالخادم مؤمّن. لا يطّلع أحد على كلمة مرورك، ويمكنك تغييرها في أي وقت من إعدادات الحساب.',
-                  ),
-                  _PrivacySection(
-                    title: 'حقوقك',
-                    body:
-                        'يمكنك تعديل بياناتك أو تغيير كلمة مرورك في أي وقت. لحذف حسابك أو الاستفسار عن بياناتك، تواصل معنا عبر الدعم الفني داخل التطبيق.',
-                  ),
-                  SizedBox(height: 10),
-                ],
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: AppColors.surface,
+              icon: Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.danger,
+                size: 36,
               ),
+              title: const Text(
+                'حذف الحساب نهائياً',
+                textAlign: TextAlign.center,
+              ),
+              content: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.danger.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.danger.withValues(alpha: 0.25),
+                          ),
+                        ),
+                        child: Text(
+                          'هذا الإجراء نهائي ولا يمكن التراجع عنه إطلاقاً.',
+                          style: TextStyle(
+                            color: AppColors.danger,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'عند التأكيد، سيتم حذف التالي فوراً ونهائياً:',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const _DeleteChecklistItem('اسمك، بريدك، ورقم هاتفك'),
+                      const _DeleteChecklistItem('كلمة المرور وبيانات الدخول'),
+                      const _DeleteChecklistItem('صورتك الشخصية'),
+                      const _DeleteChecklistItem('معرّف إشعارات جهازك'),
+                      const SizedBox(height: 4),
+                      Text(
+                        'محادثات الشات القديمة تبقى ظاهرة للطرف الآخر (بدون اسمك) '
+                        'للحفاظ على سجل الطلب، لكن دون أي بيانات تعرّف بك.',
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'أدخل كلمة مرورك الحالية لتأكيد أن هذا الطلب منك:',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: obscure,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          labelText: 'كلمة المرور الحالية',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              obscure
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                            ),
+                            onPressed: () =>
+                                setDialogState(() => obscure = !obscure),
+                          ),
+                        ),
+                        validator: (v) =>
+                            (v == null || v.isEmpty) ? 'أدخل كلمة المرور' : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('إلغاء'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (!(formKey.currentState?.validate() ?? false)) return;
+                    Navigator.pop(dialogContext, true);
+                  },
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                  child: const Text('حذف نهائياً'),
+                ),
+              ],
             );
           },
         );
       },
     );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    final auth = context.read<AuthProvider>();
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await auth.deleteAccount(password: passwordController.text);
+      if (!context.mounted) return;
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (_) => false,
+      );
+    } on ApiException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: AppColors.danger),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('تعذر حذف الحساب، حاول مرة أخرى'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
   }
 
   @override
@@ -145,7 +223,7 @@ class SettingsScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 120),
             children: [
-              const Text(
+              Text(
                 'الإعدادات',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -188,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
               ],
               const SizedBox(height: 14),
               _SectionCard(
-                title: 'إدارة الحساب',
+                title: 'الحساب والخصوصية',
                 children: [
                   _ActionTile(
                     Icons.edit_outlined,
@@ -218,12 +296,42 @@ class SettingsScreen extends StatelessWidget {
                       );
                     },
                   ),
+                  _ActionTile(
+                    Icons.privacy_tip_outlined,
+                    'سياسة الخصوصية',
+                    'كيف نجمع بياناتك ونحميها',
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PrivacyPolicyScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  // [FIX-UX-02] فاصل بصري قبل الإجراءات الحساسة — يفصل
+                  // "تسجيل الخروج" (قابل للتراجع) عن "حذف الحساب" (نهائي)
+                  // عن باقي إجراءات الحساب العادية، حسب توصيات Material Design
+                  // لتجميع الإجراءات الهدّامة بأسفل القائمة مع تمييزها لوناً.
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Divider(height: 26),
+                  ),
+                  _ActionTile(
+                    Icons.logout_rounded,
+                    'تسجيل الخروج',
+                    'يمكنك الدخول مرة أخرى بنفس بياناتك',
+                    () => logout(context),
+                    danger: true,
+                  ),
+                  _DeleteAccountTile(onTap: () => deleteAccountFlow(context)),
                 ],
               ),
               const SizedBox(height: 14),
               _SectionCard(
                 title: 'التطبيق',
                 children: [
+                  const _ThemeModeTile(),
                   _ActionTile(Icons.support_agent_rounded, 'الدعم الفني', 'تواصل معنا عند وجود مشكلة', () {
                     Navigator.push(
                       context,
@@ -232,7 +340,6 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     );
                   }),
-                  _ActionTile(Icons.privacy_tip_outlined, 'سياسة الخصوصية', 'طريقة حماية بياناتك داخل صلّحلي', () => _showPrivacy(context)),
                   _ActionTile(Icons.info_outline_rounded, 'حول صلّحلي', 'منصة خدمات الصيانة في الأردن', () {
                     showAboutDialog(
                       context: context,
@@ -243,11 +350,38 @@ class SettingsScreen extends StatelessWidget {
                   }),
                 ],
               ),
-              const SizedBox(height: 14),
-              _DangerButton(onTap: () => logout(context)),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// عنصر قائمة صغير يُستخدم داخل حوار تأكيد حذف الحساب لعرض ما سيُحذف بالضبط.
+class _DeleteChecklistItem extends StatelessWidget {
+  final String text;
+
+  const _DeleteChecklistItem(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Row(
+        children: [
+          Icon(Icons.close_rounded, size: 15, color: AppColors.danger),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -384,7 +518,7 @@ class _SectionCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
@@ -418,7 +552,7 @@ class _InfoTile extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
           ),
           Flexible(
@@ -426,7 +560,7 @@ class _InfoTile extends StatelessWidget {
               value.isEmpty ? '-' : value,
               textAlign: TextAlign.end,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w800,
               ),
@@ -443,32 +577,84 @@ class _ActionTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool danger;
 
-  const _ActionTile(this.icon, this.title, this.subtitle, this.onTap);
+  const _ActionTile(
+    this.icon,
+    this.title,
+    this.subtitle,
+    this.onTap, {
+    this.danger = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final color = danger ? AppColors.danger : AppColors.textPrimary;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         child: Row(
           children: [
-            _IconBox(icon),
+            _IconBox(icon, color: danger ? AppColors.danger : null),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900)),
+                  Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 3),
-                  Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(subtitle, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textMuted),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: danger ? AppColors.danger.withValues(alpha: 0.6) : AppColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// [FIX-THEME-01] مفتاح تبديل "الوايت مود" — يعرض الحالة الحالية (فاتح/داكن)
+/// ويستدعي ThemeController.setLight عند الضغط، فيتحدّث شكل التطبيق بالكامل
+/// فوراً وتُحفظ رغبة المستخدم محلياً للمرات القادمة.
+class _ThemeModeTile extends StatelessWidget {
+  const _ThemeModeTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final isLight = context.watch<ThemeController>().isLight;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Row(
+        children: [
+          _IconBox(isLight ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'الوضع الفاتح',
+                  style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  isLight ? 'خلفية بيضاء لكل الشاشات' : 'مفعّل حالياً الوضع الداكن',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: isLight,
+            activeColor: AppColors.primary,
+            onChanged: (value) => context.read<ThemeController>().setLight(value),
+          ),
+        ],
       ),
     );
   }
@@ -476,92 +662,78 @@ class _ActionTile extends StatelessWidget {
 
 class _IconBox extends StatelessWidget {
   final IconData icon;
+  final Color? color;
 
-  const _IconBox(this.icon);
+  const _IconBox(this.icon, {this.color});
 
   @override
   Widget build(BuildContext context) {
+    final tint = color ?? AppColors.primary;
     return Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.14),
+        color: tint.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Icon(icon, color: AppColors.primary, size: 22),
+      child: Icon(icon, color: tint, size: 22),
     );
   }
 }
 
-class _DangerButton extends StatelessWidget {
+/// [FIX-UX-02] صف حذف الحساب — أقوى تمييزاً بصرياً من أي إجراء آخر بالقائمة
+/// (خلفية محمّرة + حدود + نص عريض) لأنه الإجراء الوحيد الهدّام واللارجعة فيه،
+/// لكنه يبقى ضمن نفس بطاقة "الحساب والخصوصية" بدل صفحة/زر منفصل يكتشفه
+/// المستخدم بالصدفة.
+class _DeleteAccountTile extends StatelessWidget {
   final VoidCallback onTap;
 
-  const _DangerButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.danger.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.danger.withValues(alpha: 0.28)),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.logout_rounded, color: AppColors.danger),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'تسجيل الخروج',
-                style: TextStyle(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PrivacySection extends StatelessWidget {
-  final String title;
-  final String body;
-
-  const _PrivacySection({required this.title, required this.body});
+  const _DeleteAccountTile({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontSize: 16,
-              fontWeight: FontWeight.w900,
-            ),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.danger.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
           ),
-          const SizedBox(height: 6),
-          Text(
-            body,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-              height: 1.7,
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.delete_forever_rounded, color: AppColors.danger),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'حذف الحساب نهائياً',
+                      style: TextStyle(
+                        color: AppColors.danger,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'إجراء نهائي لا يمكن التراجع عنه',
+                      style: TextStyle(
+                        color: AppColors.danger.withValues(alpha: 0.75),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

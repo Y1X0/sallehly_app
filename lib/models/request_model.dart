@@ -61,4 +61,30 @@ class RequestModel {
   bool get isWaiting => status == 'بانتظار العروض';
   bool get isCompleted => status == 'مكتمل';
   bool get isCancelled => status == 'ملغي';
+
+  RequestModel copyWith({
+    String? status,
+    int? technicianId,
+    String? technicianName,
+    double? offerPrice,
+    String? arrivalTime,
+  }) {
+    return RequestModel(
+      id: id,
+      customerId: customerId,
+      technicianId: technicianId ?? this.technicianId,
+      service: service,
+      city: city,
+      area: area,
+      description: description,
+      preferredTime: preferredTime,
+      problemImageUrl: problemImageUrl,
+      status: status ?? this.status,
+      customerName: customerName,
+      technicianName: technicianName ?? this.technicianName,
+      offerPrice: offerPrice ?? this.offerPrice,
+      arrivalTime: arrivalTime ?? this.arrivalTime,
+      createdAt: createdAt,
+    );
+  }
 }

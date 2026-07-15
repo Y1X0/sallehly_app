@@ -6,14 +6,25 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- [FIX-PLAY-01] بدون هذا، Google Play قد تفترض أن هذه الأجهزة إلزامية
+         وتمنع تثبيت التطبيق على أجهزة بدون كاميرا/GPS (نادرة لكن موجودة،
+         خصوصاً بعض الأجهزة اللوحية). التطبيق يعمل بدونها تماماً (يوجد بديل
+         "المعرض" للصور، ومشاركة الموقع اختيارية بالكامل). -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+
     <application
         android:label="صلّحلي"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false">
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sallehly_channel" />
+            android:value="sallehly_main" />
 
         <activity
             android:name=".MainActivity"

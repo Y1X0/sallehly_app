@@ -38,6 +38,17 @@ class FirebaseNotificationService {
     _baseUrl = baseUrl;
   }
 
+  // ─── [FIX-DEEPLINK-01] هدف التنقّل المُعلَّق من آخر إشعار ضُغط عليه ───
+  // القيمة تبقى محفوظة هنا (وليست عابرة) حتى تُقرأ فعلياً — يغطي حالتين:
+  // ١) التطبيق كان بالخلفية والمستخدم ضغط الإشعار (onMessageOpenedApp).
+  // ٢) التطبيق كان مغلقاً تماماً وفُتح من الإشعار (getInitialMessage) — هنا
+  //    الشاشة الرئيسية (Layout) قد لا تكون بُنيت بعد وقت الضغط، فنُبقي القيمة
+  //    محفوظة إلى أن يقرأها الـLayout المناسب بعد اكتمال تسجيل الدخول/التوجيه.
+  // كل Layout (Customer/Technician/Admin) يستمع لهذه القيمة ويستهلكها
+  // (يعيدها null) بمجرد التعامل معها، حتى لا يُعاد تنفيذها بالخطأ لاحقاً.
+  static final ValueNotifier<Map<String, dynamic>?> pendingDeepLink =
+      ValueNotifier<Map<String, dynamic>?>(null);
+
   static Future<void> init() async {
     // ١. سجّل background handler أولاً
     FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
@@ -198,12 +209,16 @@ class FirebaseNotificationService {
   }
 
   // ─── التعامل مع الضغط على الإشعار ───
+  // [FIX-DEEPLINK-01] كانت هذه الدالة بلا أي تأثير فعلي (كود معلَّق فقط).
+  // الآن تنشر بيانات الإشعار (type + requestId/ticketId) عبر pendingDeepLink
+  // حتى تلتقطها شاشة الـLayout المناسبة (Customer/Technician/Admin) وتفتح
+  // التبويب الصحيح. لا تنقل مباشرة لأي Widget هنا عمداً — هذه الدالة static
+  // بلا BuildContext ولا تعرف دور المستخدم الحالي (customer/technician/admin)،
+  // فترك القرار لكل Layout (الذي يعرف دوره وتبويباته) هو الصحيح والآمن.
   static void _handleNotificationTap(Map<String, dynamic> data) {
     final type = data['type']?.toString();
     if (kDebugMode) debugPrint('[FCM] Notification type: $type');
-    // بتقدري تضيفي navigation هنا حسب الـtype
-    // مثال:
-    // if (type == 'chat') navigatorKey.currentState?.pushNamed('/chats');
-    // if (type == 'offer') navigatorKey.currentState?.pushNamed('/orders');
+    if (type == null || type.isEmpty) return;
+    pendingDeepLink.value = Map<String, dynamic>.from(data);
   }
 }

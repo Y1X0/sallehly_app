@@ -96,7 +96,7 @@ class ChatInput extends StatelessWidget {
           children: [
             IconButton(
               onPressed: sending ? null : () => openPlusMenu(context),
-              icon: const Icon(
+              icon: Icon(
                 Icons.add_circle_rounded,
                 color: AppColors.primary,
                 size: 30,
@@ -120,21 +120,21 @@ class ChatInput extends StatelessWidget {
                 child: recording
                     ? Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.mic_rounded,
                       color: AppColors.danger,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       durationText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'جاري التسجيل...',
                         style: TextStyle(
@@ -170,7 +170,7 @@ class ChatInput extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 gradient: recording
-                    ? const LinearGradient(
+                    ? LinearGradient(
                   colors: [AppColors.danger, AppColors.warning],
                 )
                     : AppColors.primaryGradient,
@@ -233,7 +233,7 @@ class _SheetAction extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w800,
             ),

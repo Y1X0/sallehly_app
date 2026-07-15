@@ -54,7 +54,7 @@ class PackageCard extends StatelessWidget {
                   ),
                   child: Text(
                     'بونص ${package.bonus.toStringAsFixed(2)} د.أ',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w900,
                       fontSize: 12,
@@ -72,7 +72,7 @@ class PackageCard extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.account_balance_wallet_rounded,
                     color: AppColors.primary,
                     size: 28,
@@ -82,7 +82,7 @@ class PackageCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     package.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -94,7 +94,7 @@ class PackageCard extends StatelessWidget {
             const SizedBox(height: 18),
             Text(
               '${package.amount.toStringAsFixed(2)} د.أ',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
@@ -103,7 +103,7 @@ class PackageCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'يصل رصيدك إلى ${package.total.toStringAsFixed(2)} د.أ بعد الموافقة',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),

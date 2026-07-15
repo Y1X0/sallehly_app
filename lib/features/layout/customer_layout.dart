@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
@@ -30,6 +31,62 @@ class _CustomerLayoutState extends State<CustomerLayout> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // [FIX-DEEPLINK-01] استمع لأي إشعار FCM ضُغط عليه (بالخلفية أو من إغلاق
+    // كامل للتطبيق) وحوّل المستخدم للتبويب الصحيح.
+    FirebaseNotificationService.pendingDeepLink.addListener(_handleDeepLink);
+    // عالج أي هدف تنقّل كان معلّقاً من قبل بناء هذه الشاشة (حالة الإقلاع من
+    // إشعار والتطبيق كان مغلقاً تماماً).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handleDeepLink());
+  }
+
+  @override
+  void dispose() {
+    FirebaseNotificationService.pendingDeepLink.removeListener(_handleDeepLink);
+    super.dispose();
+  }
+
+  /// يقرأ هدف التنقّل المعلّق من إشعار FCM ويطبّقه، ثم يستهلكه (يصفّره) حتى
+  /// لا يُعاد تنفيذه بالخطأ لاحقاً (مثلاً بعد rebuild أو تسجيل خروج/دخول).
+  void _handleDeepLink() {
+    final data = FirebaseNotificationService.pendingDeepLink.value;
+    if (data == null || !mounted) return;
+
+    final type = data['type']?.toString() ?? '';
+
+    switch (type) {
+      case 'offer':
+      case 'request':
+        setState(() => currentIndex = 1); // طلباتي
+        break;
+      case 'chat':
+        setState(() => currentIndex = 2); // الدردشات
+        break;
+      case 'support':
+        // نفس سلوك أيقونة الدعم بالشريط السفلي تماماً: تُفتح فقط لو فيه
+        // تذكرة دعم مفتوحة فعلاً.
+        final openTicket = context.read<SupportProvider>().openTicket;
+        if (openTicket != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SupportChatScreen(ticket: openTicket),
+            ),
+          );
+        }
+        break;
+      default:
+        // نوع غير معروف لهذا الدور — لا تفعل شيئاً (يبقى المستخدم بالتبويب
+        // الحالي، وهو نفس السلوك قبل هذا الإصلاح).
+        break;
+    }
+
+    // استهلاك الإشارة دائماً بعد المعالجة، بصرف النظر عن نوعها.
+    FirebaseNotificationService.pendingDeepLink.value = null;
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -55,6 +112,10 @@ class _CustomerLayoutState extends State<CustomerLayout> {
       appBar: currentIndex == 0 || currentIndex == 3
           ? null
           : AppBar(
+        // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق): هذه شاشة رئيسية
+        // بعد تسجيل الدخول ولا يجب أن يظهر عليها أي سهم رجوع تلقائي مهما كان
+        // محتوى مكدّس الـ Navigator خلفها.
+        automaticallyImplyLeading: false,
         title: const Text('صلّحلي'),
         actions: [
           NotificationBell(

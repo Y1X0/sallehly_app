@@ -15,7 +15,7 @@ class NotificationBell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final count = context.watch<NotificationProvider>().requestUnreadCount;
+    final count = context.watch<NotificationProvider>().unreadNotificationsCount;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -40,7 +40,7 @@ class NotificationBell extends StatelessWidget {
             right: 6,
             child: Container(
               padding: const EdgeInsets.all(5),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.danger,
                 shape: BoxShape.circle,
               ),

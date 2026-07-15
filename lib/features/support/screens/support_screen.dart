@@ -78,7 +78,7 @@ class _SupportScreenState extends State<SupportScreen> {
               color: AppColors.primary,
               onRefresh: support.loadMyTickets,
               child: support.loading && support.tickets.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
                   : support.error != null && support.tickets.isEmpty
@@ -89,7 +89,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       : support.tickets.isEmpty
                       ? ListView(
                           padding: const EdgeInsets.all(28),
-                          children: const [
+                          children: [
                             SizedBox(height: 120),
                             Icon(
                               Icons.support_agent_rounded,
@@ -150,13 +150,13 @@ class _SupportErrorState extends StatelessWidget {
       padding: const EdgeInsets.all(28),
       children: [
         const SizedBox(height: 120),
-        const Icon(
+        Icon(
           Icons.error_outline_rounded,
           color: AppColors.danger,
           size: 80,
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'تعذّر تحميل تذاكر الدعم',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -169,7 +169,7 @@ class _SupportErrorState extends StatelessWidget {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 18),
         Center(
@@ -210,13 +210,13 @@ class _TicketCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.confirmation_number_outlined,
+                Icon(Icons.confirmation_number_outlined,
                     color: AppColors.primary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     ticket.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
@@ -244,7 +244,7 @@ class _TicketCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               ticket.type,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
               ),
@@ -254,13 +254,13 @@ class _TicketCard extends StatelessWidget {
               ticket.body,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 10),
-            const Row(
+            Row(
               children: [
                 Icon(Icons.chat_bubble_outline_rounded,
                     size: 15, color: AppColors.primary),
@@ -332,7 +332,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
       );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: AppColors.danger,
           content: Text('تعذر إنشاء التذكرة'),
         ),
@@ -357,7 +357,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text(
                 'تذكرة دعم جديدة',
                 style: TextStyle(

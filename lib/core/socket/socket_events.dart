@@ -27,4 +27,8 @@ class SocketEvents {
   static const String supportMessageRefresh = 'support-message-refresh';
   static const String supportStatusUpdated = 'support-status-updated';
   static const String newComplaint = 'new-complaint';
+  // [FIX-UGC-01] بلاغ رسالة جديد (سياسة UGC)
+  static const String newMessageReport = 'new-message-report';
+  // [FIX-SERVICES-01] بث عام (لكل المستخدمين) عند إضافة/تعديل/حذف مهنة
+  static const String servicesUpdated = 'services-updated';
 }

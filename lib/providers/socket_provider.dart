@@ -34,6 +34,54 @@ class SocketProvider extends ChangeNotifier {
 
   bool _listenersBound = false;
 
+  // [FIX-CHAT-02] عند انقطاع الشبكة وإعادة الاتصال التلقائي (نفس الكائن،
+  // لكن اتصال جديد فعلياً من منظور الخادم)، تُفقد عضوية كل الغرف على
+  // الخادم ولا تُستعاد تلقائياً — فيتوقف وصول رسائل الشات اللحظية لأي
+  // محادثة كانت مفتوحة وقت الانقطاع، دون أي إشعار للمستخدم. هذه المجموعة
+  // تتذكر كل requestId منضمّ حالياً، وتُعاد إعادة الانضمام لها تلقائياً
+  // فور أي (إعادة) اتصال، بغض النظر عن السبب (شبكة، تبديل 4G/واي فاي، Sleep).
+  final Set<int> _joinedRequests = {};
+
+
+  DateTime _lastRequestsRefresh = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _requestsRefreshScheduled = false;
+
+  /// [FIX-BADGE-01] يستخرج id/status/technician_id من حمولة request-updated
+  /// أو request-status-updated ويطبّقها محلياً فوراً على RequestsProvider.
+  void _applyRequestUpdateFromSocketData(dynamic data) {
+    final raw = data?['request'];
+    if (raw is! Map) return;
+
+    final id = int.tryParse('${raw['id'] ?? 0}') ?? 0;
+    final status = '${raw['status'] ?? ''}';
+    if (id <= 0 || status.isEmpty) return;
+
+    final technicianId = raw['technician_id'] == null
+        ? null
+        : int.tryParse('${raw['technician_id']}');
+
+    _requestsProvider?.applyRequestStatusUpdate(
+      requestId: id,
+      status: status,
+      technicianId: technicianId,
+    );
+  }
+
+  Future<void> _refreshRequestsOnce() async {
+    final now = DateTime.now();
+    final elapsed = now.difference(_lastRequestsRefresh).inMilliseconds;
+
+    if (elapsed < 350) {
+      if (_requestsRefreshScheduled) return;
+      _requestsRefreshScheduled = true;
+      await Future<void>.delayed(Duration(milliseconds: 350 - elapsed));
+      _requestsRefreshScheduled = false;
+    }
+
+    _lastRequestsRefresh = DateTime.now();
+    await _requestsProvider?.loadRequests(silent: true);
+  }
+
   // حماية ضد تكرار تحديثات الدعم (نفس الحدث قد يصل أكثر من مرة بسرعة).
   DateTime _lastSupportRefresh = DateTime.fromMillisecondsSinceEpoch(0);
   bool _supportRefreshAllowed() {
@@ -85,6 +133,14 @@ class SocketProvider extends ChangeNotifier {
 
     socketService.on(SocketEvents.connect, (_) {
       connected = true;
+
+      // [FIX-CHAT-02] أعد الانضمام لكل غرف الطلبات المفتوحة حالياً — يغطي
+      // الاتصال الأول (المجموعة فارغة حينها فلا يفعل شيئاً إضافياً) وأي
+      // إعادة اتصال تلقائية لاحقة بعد انقطاع شبكة.
+      for (final requestId in _joinedRequests) {
+        socketService.joinRequest(requestId);
+      }
+
       notifyListeners();
     });
 
@@ -95,24 +151,28 @@ class SocketProvider extends ChangeNotifier {
 
     // ─────────────── الطلبات والعروض ───────────────
     socketService.on(SocketEvents.newRequestCreated, (data) async {
-      await _requestsProvider?.loadRequests(silent: true);
+      await _refreshRequestsOnce();
       await _adminProvider?.refreshRequestsSilent();
       _notificationProvider?.handleNewRequest(data);
     });
 
-    socketService.on(SocketEvents.requestsUpdated, (_) async {
-      await _requestsProvider?.loadRequests(silent: true);
+    socketService.on(SocketEvents.requestsUpdated, (data) async {
+      // [FIX-BADGE-01] طبّق التحديث محلياً فوراً (يُخفي الطلب من "الطلبات
+      // الجديدة" مباشرة لدى كل الفنيين) قبل التأكيد الصامت من الخادم أدناه.
+      _applyRequestUpdateFromSocketData(data);
+      await _refreshRequestsOnce();
       await _adminProvider?.refreshRequestsSilent();
     });
 
     socketService.on(SocketEvents.requestStatusUpdated, (data) async {
-      await _requestsProvider?.loadRequests(silent: true);
+      _applyRequestUpdateFromSocketData(data);
+      await _refreshRequestsOnce();
       await _adminProvider?.refreshRequestsSilent();
       _notificationProvider?.handleRequestStatus(data);
     });
 
     socketService.on(SocketEvents.offerCreated, (data) async {
-      await _requestsProvider?.loadRequests(silent: true);
+      await _refreshRequestsOnce();
 
       final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
       if (requestId > 0) {
@@ -123,7 +183,19 @@ class SocketProvider extends ChangeNotifier {
     });
 
     socketService.on(SocketEvents.offerAccepted, (data) async {
-      await _requestsProvider?.loadRequests(silent: true);
+      // [FIX-BADGE-01] الحدث الموجّه للفني صاحب العرض المقبول لا يحمل كامل
+      // بيانات الطلب، لكن يكفي requestId لتحديث حالته محلياً فوراً.
+      final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
+      final technicianId = int.tryParse('${data?['technicianId'] ?? 0}');
+      if (requestId > 0) {
+        _requestsProvider?.applyRequestStatusUpdate(
+          requestId: requestId,
+          status: 'تم اختيار عرض',
+          technicianId: technicianId,
+        );
+      }
+
+      await _refreshRequestsOnce();
       _notificationProvider?.handleOfferAccepted(data);
     });
 
@@ -209,13 +281,31 @@ class SocketProvider extends ChangeNotifier {
       await _adminProvider?.refreshModerationSilent();
       _notificationProvider?.handleNewComplaint(data);
     });
+
+    // [FIX-UGC-01] بلاغ رسالة جديد — حدّث بيانات المراقبة عند الأدمن فوراً.
+    socketService.on(SocketEvents.newMessageReport, (data) async {
+      await _adminProvider?.refreshModerationSilent();
+    });
+
+    // [FIX-SERVICES-01] مهنة أُضيفت/فُعِّلت/عُطِّلت — حدّث القائمة الحيّة لدى
+    // كل من يستخدم RequestsProvider.meta (تسجيل الفنيين، إنشاء الطلبات)
+    // ولوحة إدارة الأدمن، بدون أي حاجة لإعادة فتح التطبيق.
+    socketService.on(SocketEvents.servicesUpdated, (data) async {
+      await _requestsProvider?.loadMeta(force: true);
+      await _adminProvider?.loadMeta();
+      // [FIX-NOTIF-04] إشعار بث لكل المستخدمين عند إضافة خدمة جديدة فعلاً
+      // (type == 'created')، بالإضافة لتحديث قوائم الخدمات أعلاه.
+      _notificationProvider?.handleServiceAdded(data);
+    });
   }
 
   void joinRequest(int requestId) {
+    _joinedRequests.add(requestId);
     socketService.joinRequest(requestId);
   }
 
   void leaveRequest(int requestId) {
+    _joinedRequests.remove(requestId);
     socketService.leaveRequest(requestId);
   }
 
@@ -223,6 +313,10 @@ class SocketProvider extends ChangeNotifier {
     socketService.disconnect();
     _listenersBound = false;
     connected = false;
+    // [FIX-CHAT-02] بدون هذا، لو سجّل مستخدم آخر دخوله على نفس الجهاز بعد
+    // تسجيل خروج الأول (بدون إغلاق التطبيق)، كان سينضم تلقائياً عند أول
+    // اتصال لغرف طلبات المستخدم *السابق* المحفوظة بهذه المجموعة.
+    _joinedRequests.clear();
     notifyListeners();
   }
 }

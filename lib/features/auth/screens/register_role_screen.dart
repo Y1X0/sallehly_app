@@ -39,7 +39,7 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'اختر نوع الحساب',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -48,7 +48,7 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.',
               style: TextStyle(
                 color: AppColors.textSecondary,
@@ -73,7 +73,7 @@ class RegisterRoleScreen extends StatelessWidget {
               title: 'حساب فني',
               subtitle: 'استقبل طلبات العملاء وقدّم عروضك',
               icon: Icons.engineering_rounded,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [
                   AppColors.card2,
                   AppColors.surface,
@@ -137,7 +137,7 @@ class _RoleCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.w900,

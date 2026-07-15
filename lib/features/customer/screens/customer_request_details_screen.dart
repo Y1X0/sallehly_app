@@ -34,7 +34,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             request.service,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.bold,
@@ -43,14 +43,14 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 20),
           _Box(
             title: 'وصف المشكلة',
             child: Text(
               request.description,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.6,
               ),
@@ -141,7 +141,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.danger,
-                side: const BorderSide(color: AppColors.danger),
+                side: BorderSide(color: AppColors.danger),
               ),
               onPressed: () {
                 showModalBottomSheet(
@@ -192,7 +192,7 @@ class _Box extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),

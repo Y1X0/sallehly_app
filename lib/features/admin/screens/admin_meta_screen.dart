@@ -32,13 +32,15 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       builder: (_) {
         return AlertDialog(
           title: const Text('إضافة مهنة'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم المهنة')),
-              const SizedBox(height: 10),
-              TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم المهنة')),
+                const SizedBox(height: 10),
+                TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
+              ],
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
@@ -58,6 +60,71 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       );
     } on ApiException catch (e) {
       showError(e.message);
+    }
+  }
+
+  /// [FIX-SERVICES-03] تعديل اسم/أيقونة مهنة موجودة — نفس نمط addService()
+  /// تماماً، مع تحميل القيم الحالية مسبقاً والتحقق قبل الحفظ.
+  Future<void> editService(Map<String, dynamic> existing) async {
+    final name = TextEditingController(text: '${existing['name'] ?? ''}');
+    final icon = TextEditingController(text: '${existing['icon'] ?? '🔧'}');
+    final formKey = GlobalKey<FormState>();
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('تعديل المهنة'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: name,
+                    decoration: const InputDecoration(labelText: 'اسم المهنة'),
+                    validator: (v) => (v == null || v.trim().length < 2)
+                        ? 'اسم المهنة قصير جداً'
+                        : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+            ElevatedButton(
+              onPressed: () {
+                if (!(formKey.currentState?.validate() ?? false)) return;
+                Navigator.pop(context, true);
+              },
+              child: const Text('حفظ'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) return;
+    if (!mounted) return;
+
+    try {
+      await context.read<AdminProvider>().updateService(
+        id: int.tryParse('${existing['id']}') ?? 0,
+        name: name.text,
+        icon: icon.text,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تحديث المهنة بنجاح')),
+      );
+    } on ApiException catch (e) {
+      showError(e.message);
+    } catch (_) {
+      showError('تعذر تعديل المهنة');
     }
   }
 
@@ -143,7 +210,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('حذف', style: TextStyle(color: AppColors.danger)),
+            child: Text('حذف', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -176,21 +243,30 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
   Widget build(BuildContext context) {
     final admin = context.watch<AdminProvider>();
 
+    // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
+    // — إزالة الـ Scaffold/AppBar الداخلي المكرر فوق ذاك الموجود بـ AdminLayout.
+    // بعكس باقي شاشات الأدمن، هاي الشاشة فيها TabBar وظيفي فعلي (يبدّل بين
+    // "المهن" و"الباقات")، فما ينحذف — بس ينتقل من AppBar.bottom لصف مستقل
+    // أعلى المحتوى (ملفوف بـ Material حتى يشتغل تأثير التحديد بشكل طبيعي).
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          title: const Text('الإعدادات', style: TextStyle(fontWeight: FontWeight.w900)),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'المهن'),
-              Tab(text: 'الباقات'),
-            ],
+      child: Column(
+        children: [
+          Material(
+            color: AppColors.background,
+            child: TabBar(
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.primary,
+              tabs: [
+                Tab(text: 'المهن'),
+                Tab(text: 'الباقات'),
+              ],
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: [
+          Expanded(
+            child: TabBarView(
+              children: [
             _MetaList(
               loading: admin.loading,
               error: admin.error,
@@ -199,7 +275,15 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               empty: 'لا توجد مهن',
               onAdd: addService,
               titleBuilder: (e) => '${e['icon'] ?? '🔧'}  ${e['name'] ?? ''}',
-              subtitleBuilder: (_) => 'مهنة متاحة في التطبيق',
+              subtitleBuilder: (e) => (e['is_active'] == 0)
+                  ? 'معطّلة — لا تظهر بالتسجيل أو إنشاء الطلبات'
+                  : 'مهنة متاحة في التطبيق',
+              isActiveGetter: (e) => e['is_active'] != 0,
+              onToggle: (e) => admin.toggleService(
+                int.tryParse('${e['id']}') ?? 0,
+                e['is_active'] == 0,
+              ),
+              onEdit: (e) => editService(e),
               onDelete: (e) => confirmDelete(
                 title: 'حذف المهنة',
                 name: '${e['name'] ?? ''}',
@@ -230,8 +314,10 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -248,6 +334,9 @@ class _MetaList extends StatelessWidget {
   final String Function(Map<String, dynamic>) subtitleBuilder;
   final void Function(Map<String, dynamic>)? onDelete;
   final void Function(Map<String, dynamic>)? onEdit;
+  // [FIX-SERVICES-01] دعم تفعيل/تعطيل — اختياري، غير مستخدم بتبويب الباقات.
+  final bool Function(Map<String, dynamic>)? isActiveGetter;
+  final void Function(Map<String, dynamic>)? onToggle;
 
   const _MetaList({
     required this.loading,
@@ -260,6 +349,8 @@ class _MetaList extends StatelessWidget {
     required this.subtitleBuilder,
     this.onDelete,
     this.onEdit,
+    this.isActiveGetter,
+    this.onToggle,
   });
 
   @override
@@ -274,7 +365,7 @@ class _MetaList extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         if (loading && items.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 120),
             child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
           )
@@ -283,13 +374,13 @@ class _MetaList extends StatelessWidget {
             padding: const EdgeInsets.only(top: 120),
             child: Column(
               children: [
-                const Icon(Icons.error_outline_rounded,
+                Icon(Icons.error_outline_rounded,
                     color: AppColors.danger, size: 46),
                 const SizedBox(height: 12),
                 Text(
                   error!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 if (onRetry != null) ...[
                   const SizedBox(height: 12),
@@ -308,7 +399,7 @@ class _MetaList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 120),
             child: Center(
-              child: Text(empty, style: const TextStyle(color: AppColors.textSecondary)),
+              child: Text(empty, style: TextStyle(color: AppColors.textSecondary)),
             ),
           )
         else
@@ -325,27 +416,35 @@ class _MetaList extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   titleBuilder(e),
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: (isActiveGetter != null && !isActiveGetter!(e))
+                        ? AppColors.textMuted
+                        : AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 subtitle: Text(
                   subtitleBuilder(e),
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (isActiveGetter != null && onToggle != null)
+                      Switch(
+                        value: isActiveGetter!(e),
+                        activeColor: AppColors.success,
+                        onChanged: (_) => onToggle!(e),
+                      ),
                     if (onEdit != null)
                       IconButton(
-                        icon: const Icon(Icons.edit_outlined,
+                        icon: Icon(Icons.edit_outlined,
                             color: AppColors.primary),
                         onPressed: () => onEdit!(e),
                       ),
                     if (onDelete != null)
                       IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded,
+                        icon: Icon(Icons.delete_outline_rounded,
                             color: AppColors.danger),
                         onPressed: () => onDelete!(e),
                       ),

@@ -1,5 +1,10 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../theme/app_colors.dart';
 
@@ -38,7 +43,7 @@ class ImageSourcePicker {
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                const Text(
+                Text(
                   'إضافة صورة',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -78,13 +83,114 @@ class ImageSourcePicker {
     if (source == null) return null;
 
     final picker = ImagePicker();
-    final file = await picker.pickImage(
-      source: source,
-      imageQuality: imageQuality,
-      maxWidth: maxWidth,
-    );
 
-    return file?.path;
+    try {
+      final file = await picker.pickImage(
+        source: source,
+        imageQuality: imageQuality,
+        maxWidth: maxWidth,
+      );
+
+      return file?.path;
+    } on PlatformException catch (e) {
+      // [FIX-PERM-02] لا نعتمد على تحليل نص رسالة الاستثناء (غير مستقر بين
+      // أندرويد/iOS ونسخ الحزمة) لتحديد إن كان الرفض دائماً. بدلاً من ذلك
+      // نستعلم صراحة عن الحالة الفعلية من نظام التشغيل عبر permission_handler
+      // (استعلام قراءة فقط — لا يطلب صلاحية جديدة ولا يعرض أي حوار نظام).
+      //
+      // ملاحظة مهمة: هذا الاستعلام موثوق على iOS فقط، لأن NSCameraUsage/
+      // NSPhotoLibraryUsageDescription معلنتان فعلياً بـInfo.plist وتُطبَّقان
+      // من النظام. على أندرويد، هذا التطبيق لا يطلب صلاحية الكاميرا إطلاقاً
+      // (تُفوَّض لتطبيق الكاميرا الافتراضي عبر intent) ولا صلاحية المعرض
+      // (يُستخدم منتقي الصور الحديث من النظام على أندرويد 13+ الذي لا يحتاج
+      // أي صلاحية) — permission_handler يتطلب إعلان الصلاحية بـ
+      // AndroidManifest ليعطي نتيجة موثوقة، وإعلانها هنا كان سيُعيد صلاحيات
+      // غير ضرورية أُزيلت عمداً. لذا على أندرويد نكتفي برسالة عربية عامة.
+      //
+      // إن لم يعد image_picker يرمي PlatformException مستقبلاً عند الرفض
+      // (يعتمد على نسخة الحزمة)، فسيُعامَل الأمر كإلغاء عادي (path == null)
+      // دون أي عطل — فقط برسالة أقل تفصيلاً للمستخدم.
+      if (kDebugMode) debugPrint('[ImageSourcePicker] $e');
+
+      if (!context.mounted) return null;
+
+      if (!Platform.isIOS) {
+        _showGenericError(context, source == ImageSource.camera);
+        return null;
+      }
+
+      final permission =
+          source == ImageSource.camera ? Permission.camera : Permission.photos;
+      final status = await permission.status;
+
+      if (!context.mounted) return null;
+
+      if (status.isPermanentlyDenied) {
+        await _showOpenSettingsDialog(context, source == ImageSource.camera);
+      } else {
+        _showGenericError(context, source == ImageSource.camera);
+      }
+
+      return null;
+    }
+  }
+
+  static void _showGenericError(BuildContext context, bool isCamera) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.danger,
+        content: Text(
+          isCamera
+              ? 'تعذر الوصول إلى الكاميرا.'
+              : 'تعذر الوصول إلى معرض الصور.',
+        ),
+      ),
+    );
+  }
+
+  static Future<void> _showOpenSettingsDialog(
+    BuildContext context,
+    bool isCamera,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        icon: Icon(
+          isCamera ? Icons.camera_alt_rounded : Icons.photo_library_rounded,
+          color: AppColors.danger,
+          size: 32,
+        ),
+        title: Text(
+          isCamera ? 'صلاحية الكاميرا مرفوضة' : 'صلاحية معرض الصور مرفوضة',
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          isCamera
+              ? 'رفضت صلاحية الكاميرا بشكل دائم، ولا يمكن للتطبيق طلبها '
+                  'مجدداً. لالتقاط صورة، فعّل صلاحية الكاميرا يدوياً من '
+                  'إعدادات التطبيق.'
+              : 'رفضت صلاحية الوصول لمعرض الصور بشكل دائم، ولا يمكن للتطبيق '
+                  'طلبها مجدداً. لإرفاق صورة، فعّل الصلاحية يدوياً من '
+                  'إعدادات التطبيق.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.textSecondary, height: 1.6),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await openAppSettings();
+            },
+            child: const Text('فتح إعدادات التطبيق'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -117,7 +223,7 @@ class _SourceOption extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

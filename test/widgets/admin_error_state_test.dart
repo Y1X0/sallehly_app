@@ -28,7 +28,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: AdminUsersScreen()),
+          child: const MaterialApp(home: Scaffold(body: AdminUsersScreen())), 
         ),
       );
 

@@ -23,6 +23,9 @@ class ApiEndpoints {
   static String requestMessages(int id) => '/requests/$id/messages';
   static String requestAudio(int id) => '/requests/$id/audio';
   static String requestImages(int id) => '/requests/$id/images';
+  static String reportMessage(int id) => '/requests/$id/report-message';
+  static String requestBlock(int id) => '/requests/$id/block';
+  static String requestBlockStatus(int id) => '/requests/$id/block-status';
   static String requestStatus(int id) => '/requests/$id/status';
   static String requestRate(int id) => '/requests/$id/rate';
   static const String complaints = '/complaints';
@@ -54,6 +57,7 @@ class ApiEndpoints {
 
   static const String adminViolations = '/chat-violations';
   static const String adminComplaints = '/complaints';
+  static const String adminMessageReports = '/message-reports';
   static String complaintStatus(int id) => '/complaints/$id/status';
   static String adminUpdatePackage(int id) => '/admin/packages/$id';
 

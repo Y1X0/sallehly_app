@@ -31,9 +31,7 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<RequestsProvider>();
 
-    final requests = provider.requests
-        .where((e) => e.status == 'بانتظار العروض' || e.status == 'وصلت عروض')
-        .toList();
+    final requests = provider.availableNewRequests;
 
     return Scaffold(
       body: AppBackground(
@@ -56,7 +54,7 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && requests.isEmpty)
-                  const SizedBox(
+                  SizedBox(
                     height: 280,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -187,14 +185,14 @@ class _EmptyState extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.inbox_rounded,
               color: AppColors.primary,
               size: 44,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'لا توجد طلبات حالياً',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -203,7 +201,7 @@ class _EmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'عند وصول طلب جديد ضمن منطقتك سيظهر هنا مباشرة.',
             textAlign: TextAlign.center,
             style: TextStyle(

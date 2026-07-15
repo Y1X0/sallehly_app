@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +22,11 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController controller;
 
+  // [FIX-AUTH-02] لا مزيد من "انتظر للأبد" ولا "خمّن وانتقل خطأً" — حالة
+  // ثالثة صريحة: تعذّر التحقق خلال مهلة معقولة، فنعرض ذلك بوضوح مع خيار
+  // إعادة المحاولة، بدل الانتقال لأي شاشة بافتراض غير مؤكد.
+  bool _showRetry = false;
+
   @override
   void initState() {
     super.initState();
@@ -35,12 +42,28 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> checkAuth() async {
     final auth = context.read<AuthProvider>();
 
-    // لا تُعلّق المستخدم على شاشة البداية إن كان الخادم بطيئاً/نائماً.
-    // امنح loadMe مهلة قصوى ثم تابع بأي حال.
+    if (mounted && _showRetry) {
+      setState(() => _showRetry = false);
+    }
+
+    // [FIX-AUTH-02] كانت المهلة السابقة (8 ثوانٍ) تقود لقرار خاطئ: عند
+    // انتهائها كانت الشاشة تنتقل فوراً لـLandingScreen بافتراض عدم وجود
+    // مستخدم، بينما loadMe() تستمر فعلياً بالخلفية وقد تُسجّل المستخدم
+    // (بجلسة صالحة 100%) على شاشة أخرى لا تراقب AuthProvider إطلاقاً.
+    // الحل ليس إزالة المهلة نهائياً (فقد ينقطع الإنترنت فعلاً/DNS معطّل،
+    // ونبقى بشاشة البداية للأبد)، بل مهلة أطول وواقعية (25 ثانية — أطول
+    // قليلاً من مهلة Dio الأساسية 20 ثانية لإتمام محاولة واحدة كاملة دون
+    // قطعها ظلماً) + عند تجاوزها: لا تخمين ولا انتقال، فقط حالة صريحة
+    // "تعذّر الاتصال" مع زر إعادة محاولة يعيد استدعاء نفس الفحص من جديد.
     try {
-      await auth.loadMe().timeout(const Duration(seconds: 8));
+      await auth.loadMe().timeout(const Duration(seconds: 25));
+    } on TimeoutException {
+      if (!mounted) return;
+      setState(() => _showRetry = true);
+      return;
     } catch (_) {
-      // انتهت المهلة أو فشل — نتابع؛ سيُعاد التوجيه حسب وجود جلسة محفوظة.
+      // أي خطأ آخر متبقٍّ هنا غير متعلق بحالة الجلسة (auth.loadMe() تتعامل
+      // مع 401 الحقيقي داخلياً) — نتابع بالاعتماد على auth.user أدناه.
     }
 
     if (!mounted) return;
@@ -89,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
                   showText: false,
                 ),
                 const SizedBox(height: 22),
-                const Text(
+                Text(
                   'صلّحلي',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -98,7 +121,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'منصة خدمات الصيانة في الأردن',
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -106,25 +129,68 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 38),
-                Container(
-                  width: 42,
-                  height: 42,
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface.withValues(alpha: 0.8),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.border),
+                if (_showRetry)
+                  _RetryButton(onPressed: checkAuth)
+                else
+                  Container(
+                    width: 42,
+                    height: 42,
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface.withValues(alpha: 0.8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.7,
+                      color: AppColors.secondary,
+                    ),
                   ),
-                  child: const CircularProgressIndicator(
-                    strokeWidth: 2.7,
-                    color: AppColors.secondary,
-                  ),
-                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// [FIX-AUTH-02] تظهر فقط بعد تجاوز مهلة الاتصال الفعلية (25 ثانية) دون رد —
+/// بديل صريح وواضح عن الانتظار للأبد أو التخمين والانتقال لشاشة قد تكون خاطئة.
+class _RetryButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _RetryButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.cloud_off_rounded,
+          color: AppColors.textSecondary,
+          size: 32,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'تعذّر الاتصال بالخادم',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 14),
+        TextButton.icon(
+          onPressed: onPressed,
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('إعادة المحاولة'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+          ),
+        ),
+      ],
     );
   }
 }

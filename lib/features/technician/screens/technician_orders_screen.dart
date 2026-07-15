@@ -65,7 +65,7 @@ class _TechnicianOrdersScreenState extends State<TechnicianOrdersScreen> {
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && orders.isEmpty)
-                  const SizedBox(
+                  SizedBox(
                     height: 280,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -125,7 +125,7 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'لوحة طلباتك',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -134,7 +134,7 @@ class _SummaryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'تابع الطلبات المقبولة والحالة الحالية لكل طلب.',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -206,7 +206,7 @@ class _MiniStat extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -217,7 +217,7 @@ class _MiniStat extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
@@ -244,14 +244,14 @@ class _EmptyOrders extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(28),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.assignment_late_rounded,
               color: AppColors.primary,
               size: 44,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'لا توجد طلبات مقبولة بعد',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -260,7 +260,7 @@ class _EmptyOrders extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'عندما يقبل العميل عرضك سيظهر الطلب هنا لتتابع التنفيذ والدردشة.',
             textAlign: TextAlign.center,
             style: TextStyle(

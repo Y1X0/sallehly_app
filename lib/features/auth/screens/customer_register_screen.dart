@@ -105,13 +105,13 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
             key: formKey,
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.person_add_alt_1_rounded,
                   color: AppColors.primary,
                   size: 70,
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                Text(
                   'إنشاء حساب عميل',
                   style: TextStyle(
                     color: AppColors.textPrimary,

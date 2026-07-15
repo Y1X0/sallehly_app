@@ -113,13 +113,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                const Icon(
+                Icon(
                   Icons.lock_reset_rounded,
                   size: 76,
                   color: AppColors.primary,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'استعادة كلمة المرور',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -133,7 +133,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ? 'أدخل بريدك الإلكتروني وسنرسل لك كود التحقق'
                       : 'أدخل الكود الذي وصلك وكلمة المرور الجديدة',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     height: 1.5,
                   ),
@@ -205,7 +205,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               textDirection: TextDirection.ltr,
               keyboardType: TextInputType.number,
               maxLength: 6,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 22,
                 letterSpacing: 6,

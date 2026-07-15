@@ -82,7 +82,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const Icon(
+              Icon(
                 Icons.password_rounded,
                 size: 70,
                 color: AppColors.primary,

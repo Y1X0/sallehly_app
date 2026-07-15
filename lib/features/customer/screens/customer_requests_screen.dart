@@ -49,7 +49,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                   color: AppColors.primary,
                   onRefresh: provider.loadRequests,
                   child: provider.loading && requests.isEmpty
-                      ? const Center(
+                      ? Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primary,
                     ),
@@ -130,7 +130,7 @@ class _TopBar extends StatelessWidget {
             )
           else
             const SizedBox(width: 48),
-          const Expanded(
+          Expanded(
             child: Text(
               'طلباتي',
               textAlign: TextAlign.center,
@@ -224,7 +224,7 @@ class _MiniStat extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -237,7 +237,7 @@ class _MiniStat extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
               ),
@@ -274,14 +274,14 @@ class _RequestsErrorState extends StatelessWidget {
                   color: AppColors.danger.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.error_outline_rounded,
                   color: AppColors.danger,
                   size: 42,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'تعذّر تحميل الطلبات',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -293,7 +293,7 @@ class _RequestsErrorState extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   height: 1.6,
                 ),
@@ -334,14 +334,14 @@ class _EmptyRequests extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(28),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.inbox_rounded,
                   color: AppColors.primary,
                   size: 42,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'لا يوجد طلبات بعد',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -350,7 +350,7 @@ class _EmptyRequests extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'عند إنشاء أول طلب صيانة سيظهر هنا ويمكنك متابعة العروض والحالة.',
                 textAlign: TextAlign.center,
                 style: TextStyle(

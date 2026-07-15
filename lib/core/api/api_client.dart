@@ -12,8 +12,17 @@ class ApiClient {
   /// تُستدعى عند نجاح أي طلب (متصل).
   void Function()? onOnline;
 
-  /// تُستدعى عند فشل طلب بسبب الشبكة (غير متصل).
+  /// تُستدعى فقط عند خطأ شبكة حقيقي (لا يوجد اتصال إنترنت إطلاقاً).
   void Function()? onOffline;
+
+  /// [FIX-AUTH-01] تُستدعى فقط عند 401 حقيقي قادم من الخادم (وليس أي خطأ
+  /// شبكة/مهلة) — لتنظيف الجلسة مركزياً من مكان واحد بدل كل شاشة على حدة.
+  void Function()? onUnauthorized;
+
+  /// [FIX-CONNECTIVITY-01] تُستدعى عند انتهاء مهلة الاتصال بينما الإنترنت
+  /// نفسه قد يكون سليماً — الخادم فقط بطيء بالرد (مثلاً استيقاظ خادم Render
+  /// المجاني بعد خمول). منفصلة تماماً عن onOffline لتفادي رسالة مضلِّلة.
+  void Function()? onServerSlow;
 
   ApiClient(this.tokenStorage) {
     dio = Dio(
@@ -55,16 +64,38 @@ class ApiClient {
           handler.next(response);
         },
         onError: (error, handler) async {
-          // وصل رد من الخادم (حتى لو خطأ) → نحن متصلون.
-          // لا يوجد رد بسبب الشبكة → غير متصلين.
+          // وصل رد من الخادم (حتى لو خطأ) → نحن متصلون والخادم يستجيب.
+          // [FIX-CONNECTIVITY-01] فصلنا "لا يوجد إنترنت فعلاً" عن "الخادم بطيء
+          // بالرد فقط" — كانا يُعاملان كنفس الشيء سابقاً، ما ينتج رسالة خاطئة
+          // ("لا يوجد اتصال بالإنترنت") بينما إنترنت المستخدم سليم تماماً
+          // والمشكلة فقط إبطاء خادم Render المجاني عند استيقاظه من الخمول.
           if (error.response != null) {
             onOnline?.call();
-          } else if (_shouldRetry(error)) {
+
+            // [FIX-AUTH-01] 401 حقيقي من الخادم فقط (رد فعلي وصل، برمز 401) —
+            // لا علاقة له بانقطاع الشبكة أو بطء الخادم (تلك تُعالَج بالفروع
+            // أدناه). هذا وحده يعني أن الجلسة/التوكن لم يعودا صالحين.
+            if (error.response?.statusCode == 401) {
+              onUnauthorized?.call();
+            }
+          } else if (_isTrueOfflineError(error)) {
             onOffline?.call();
+          } else if (_isServerTimeoutError(error)) {
+            onServerSlow?.call();
           }
 
           // إعادة المحاولة تلقائياً عند فشل الشبكة أو بطء الخادم
           // (مفيد خصوصاً عندما يكون الخادم "نائماً" ويستغرق وقتاً ليستيقظ).
+          //
+          // [FIX-RETRY-01] مُقيَّدة الآن بطلبات GET/HEAD فقط (انظر _shouldRetry).
+          // السبب: عند timeout لا نعرف يقيناً هل الخادم نفّذ الطلب فعلاً قبل
+          // انقطاع الرد أم لا. لطلبات القراءة (GET) هذا غير مهم — إعادة الطلب
+          // آمنة دائماً. لكن لطلبات مثل إنشاء طلب صيانة (POST /requests)،
+          // إرسال عرض (POST /requests/:id/offer)، أو طلب شحن رصيد
+          // (POST /topups)، إعادة الإرسال التلقائي قد تُنشئ نسخة مكرّرة من
+          // نفس العملية فعلياً على الخادم دون علم المستخدم. لذلك أي طلب غير
+          // GET/HEAD يفشل بسبب الشبكة يُترك ليظهر خطأه للمستخدم مباشرة
+          // (عبر handleError) بدل إعادة إرساله تلقائياً.
           if (_shouldRetry(error)) {
             final options = error.requestOptions;
             final attempt = (options.extra['retry_attempt'] as int?) ?? 0;
@@ -101,21 +132,51 @@ class ApiClient {
     );
   }
 
-  bool _shouldRetry(DioException error) {
-    // أعد المحاولة فقط لأخطاء الشبكة/المهلة — وليس لأخطاء الخادم
-    // (مثل كلمة مرور خاطئة أو 4xx) التي لن تتغير بإعادة المحاولة.
+  /// [FIX-CONNECTIVITY-01] خطأ شبكة حقيقي من جهاز المستخدم نفسه — لا يوجد
+  /// مسار اتصال بالإنترنت إطلاقاً (فشل DNS، لا شبكة، وضع الطيران...).
+  /// هذا النوع تحديداً (connectionError) يعني عدم القدرة على فتح أي اتصال
+  /// إطلاقاً، بعكس الـ timeouts أدناه التي قد تعني فقط خادماً بطيئاً بالرد.
+  bool _isTrueOfflineError(DioException error) {
     switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
       case DioExceptionType.connectionError:
         return true;
       case DioExceptionType.unknown:
-        // عادةً مشاكل DNS / انقطاع شبكة (لا يوجد رد من الخادم)
+        // عادةً فشل DNS أو انقطاع شبكة حقيقي (لا يوجد رد من الخادم إطلاقاً)
         return error.response == null;
       default:
         return false;
     }
+  }
+
+  /// [FIX-CONNECTIVITY-01] انتهت مهلة الاتصال، لكن هذا لا يعني بالضرورة عدم
+  /// وجود إنترنت — الاحتمال الأقوى عملياً هو خادم Render (الخطة المجانية)
+  /// "نائم" ويستغرق حتى 50 ثانية أو أكثر ليستيقظ (موثّق رسمياً من Render
+  /// نفسها)، فتنتهي مهلة الاتصال قبل أن يستجيب رغم أن إنترنت المستخدم سليم.
+  bool _isServerTimeoutError(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /// هل هذا خطأ شبكة بأي من نوعيه (لأغراض إعادة المحاولة التلقائية فقط —
+  /// انظر _isTrueOfflineError/_isServerTimeoutError لتصنيف البانر الصحيح).
+  bool _isNetworkError(DioException error) =>
+      _isTrueOfflineError(error) || _isServerTimeoutError(error);
+
+  /// هل يجوز إعادة إرسال هذا الطلب تلقائياً؟
+  /// [FIX-RETRY-01] يشترط أن يكون الخطأ خطأ شبكة (_isNetworkError) وأن يكون
+  /// الطلب من نوع GET/HEAD حصراً — وهما الطريقتان الآمنتان للتكرار (idempotent)
+  /// بحكم تعريفهما. أي طلب POST/PUT/PATCH/DELETE لا يُعاد تلقائياً أبداً.
+  bool _shouldRetry(DioException error) {
+    if (!_isNetworkError(error)) return false;
+
+    final method = error.requestOptions.method.toUpperCase();
+    return method == 'GET' || method == 'HEAD';
   }
 
   String _extractTokenFromSetCookie(Headers headers) {
@@ -147,9 +208,12 @@ class ApiClient {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
-        case DioExceptionType.transformTimeout:
+          // [FIX-CONNECTIVITY-02] كانت هذه الرسالة تقول "تأكد من اتصالك
+          // بالإنترنت" لنفس أنواع الأخطاء التي صار البانر العام (app.dart)
+          // يصنّفها الآن كـ"الخادم بطيء بالرد" — تناقض مباشر كان يظهر
+          // للمستخدم رسالتين مختلفتين بنفس اللحظة. وحّدنا الصياغة.
           return ApiException(
-            'انتهت مهلة الاتصال. تأكد من اتصالك بالإنترنت وحاول مرة أخرى',
+            'الخادم يستغرق وقتاً أطول من المعتاد للرد. حاول مرة أخرى بعد قليل',
           );
         case DioExceptionType.connectionError:
           return ApiException(

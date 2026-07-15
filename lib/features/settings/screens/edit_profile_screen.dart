@@ -10,7 +10,10 @@ import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../core/widgets/services_multi_select.dart';
+import '../../../models/service_model.dart';
 import '../../../providers/auth_provider.dart';
+import '../../requests/provider/requests_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -27,6 +30,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final formKey = GlobalKey<FormState>();
 
   String? selectedCity;
+  // [FIX-TECH-SERVICES-01] خدمات الفني الحالية (متعددة، من 1 إلى 5) — تُهيَّأ
+  // من بياناته الحالية، وتبقى محفوظة حتى لو أصبحت إحداها معطّلة لاحقاً (لا
+  // تُحذف بصمت من القائمة المختارة).
+  List<String> selectedServices = [];
   String? avatarPath;
   bool isTechnician = false;
 
@@ -40,10 +47,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phoneController.text = user.phone;
       areaController.text = user.area ?? '';
       isTechnician = user.role == 'technician';
+      selectedServices = List<String>.from(user.services);
 
       if (user.city != null && AppConstants.cities.contains(user.city)) {
         selectedCity = user.city;
       }
+    }
+
+    // [FIX-SERVICES-02] نفس مصدر البيانات المستخدم بالتسجيل وإنشاء الطلبات —
+    // لا يوجد استدعاء API مكرر ولا مصدر ثانٍ للمهن.
+    if (isTechnician) {
+      Future.microtask(() {
+        if (!mounted) return;
+        context.read<RequestsProvider>().loadMeta();
+      });
     }
   }
 
@@ -72,6 +89,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    // [FIX-TECH-SERVICES-01] نفس تحقق شاشة التسجيل (1 إلى 5 خدمات).
+    if (isTechnician && selectedServices.isEmpty) {
+      showError('اختر خدمة واحدة على الأقل');
+      return;
+    }
+    if (isTechnician && selectedServices.length > 5) {
+      showError('الحد الأقصى 5 خدمات');
+      return;
+    }
+
     final auth = context.read<AuthProvider>();
 
     try {
@@ -80,6 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         phone: phoneController.text,
         city: selectedCity,
         area: areaController.text,
+        services: isTechnician ? selectedServices : null,
         avatarPath: avatarPath,
       );
 
@@ -109,6 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final loading = context.watch<AuthProvider>().loading;
+    final meta = context.watch<RequestsProvider>().meta;
 
     return Scaffold(
       appBar: AppBar(
@@ -133,22 +162,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       border: Border.all(color: AppColors.primary, width: 2),
                       image: avatarPath != null
                           ? DecorationImage(
-                              image: FileImage(File(avatarPath!)),
-                              fit: BoxFit.cover,
-                            )
+                        image: FileImage(File(avatarPath!)),
+                        fit: BoxFit.cover,
+                      )
                           : null,
                     ),
                     child: avatarPath == null
-                        ? const Icon(
-                            Icons.add_a_photo_rounded,
-                            color: AppColors.primary,
-                            size: 34,
-                          )
+                        ? Icon(
+                      Icons.add_a_photo_rounded,
+                      color: AppColors.primary,
+                      size: 34,
+                    )
                         : null,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'اضغط لتغيير الصورة الشخصية',
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -202,14 +231,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         items: AppConstants.cities
                             .map((c) => DropdownMenuItem(
-                                  value: c,
-                                  child: Text(c),
-                                ))
+                          value: c,
+                          child: Text(c),
+                        ))
                             .toList(),
                         onChanged: (value) {
                           setState(() => selectedCity = value);
                         },
                       ),
+                      if (isTechnician) ...[
+                        const SizedBox(height: 14),
+                        Builder(builder: (context) {
+                          // [FIX-TECH-SERVICES-01] نفس القائمة الحيّة المستخدمة
+                          // بالتسجيل وإنشاء الطلبات — مصدر واحد فقط، بدون أي
+                          // نداء API إضافي (تُحمَّل مرة عبر initState أعلاه).
+                          final activeServices = meta?.services ?? [];
+                          final activeNames =
+                          activeServices.map((s) => s.name).toSet();
+
+                          // أي خدمة كانت مختارة سابقاً وما عادت ضمن القائمة
+                          // الفعّالة (عُطّلت من الأدمن) — نُبقيها ظاهرة كخيار
+                          // قابل للإلغاء بدل حذفها بصمت من اختيار الفني.
+                          final inactiveSelected = selectedServices
+                              .where((s) => !activeNames.contains(s))
+                              .map((s) => ServiceModel(id: 0, name: s, icon: '⚠️'))
+                              .toList();
+
+                          return ServicesMultiSelect(
+                            services: [...inactiveSelected, ...activeServices],
+                            selected: selectedServices,
+                            onChanged: (value) {
+                              setState(() => selectedServices = value);
+                            },
+                          );
+                        }),
+                      ],
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: areaController,

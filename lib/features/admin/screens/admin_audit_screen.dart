@@ -82,7 +82,7 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                     search: _searchController.text,
                   ),
               child: admin.auditLoading
-                  ? const Center(
+                  ? Center(
                       child: CircularProgressIndicator(color: AppColors.primary),
                     )
                   : admin.error != null && admin.auditLogs.isEmpty
@@ -94,7 +94,7 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                         )
                       : admin.auditLogs.isEmpty
                       ? ListView(
-                          children: const [
+                          children: [
                             SizedBox(height: 120),
                             Icon(
                               Icons.history_rounded,
@@ -145,7 +145,7 @@ class _AuditErrorState extends StatelessWidget {
     return ListView(
       children: [
         const SizedBox(height: 120),
-        const Icon(
+        Icon(
           Icons.error_outline_rounded,
           size: 70,
           color: AppColors.danger,
@@ -155,7 +155,7 @@ class _AuditErrorState extends StatelessWidget {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,
               fontSize: 16,
@@ -247,7 +247,7 @@ class _AuditCard extends StatelessWidget {
               children: [
                 Text(
                   action,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: 15.5,
@@ -256,7 +256,7 @@ class _AuditCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.account_circle_rounded,
                       size: 15,
                       color: AppColors.textSecondary,
@@ -264,7 +264,7 @@ class _AuditCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       actorName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -276,7 +276,7 @@ class _AuditCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     details,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       height: 1.4,

@@ -36,6 +36,8 @@ class AdminProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> violations = [];
   List<Map<String, dynamic>> complaints = [];
+  // [FIX-UGC-01] بلاغات الرسائل (سياسة UGC)
+  List<Map<String, dynamic>> messageReports = [];
   bool moderationLoading = false;
 
   Future<void> loadDashboard() async {
@@ -157,9 +159,10 @@ class AdminProvider extends ChangeNotifier {
     try {
       final meta = await api.getMeta();
 
-      services = (meta['services'] as List? ?? [])
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
+      // [FIX-SERVICES-01] /meta العام أصبح يُظهر المهن الفعّالة فقط — شاشة
+      // إدارة الأدمن تحتاج رؤية كل المهن (فعّالة وغير فعّالة) لتقدر تُفعّل
+      // مهنة معطّلة لاحقاً، فتُجلب من endpoint مخصص للأدمن بدلاً من /meta.
+      services = await api.getAllServices();
 
       packages = (meta['packages'] as List? ?? [])
           .map((e) => Map<String, dynamic>.from(e))
@@ -170,6 +173,38 @@ class AdminProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر تحميل الإعدادات';
     } finally {
       _setLoading(false);
+    }
+  }
+
+  /// [FIX-SERVICES-01] تفعيل/تعطيل مهنة بدل حذفها نهائياً.
+  Future<void> toggleService(int id, bool isActive) async {
+    actionLoading = true;
+    notifyListeners();
+
+    try {
+      await api.toggleService(id, isActive);
+      await loadMeta();
+    } finally {
+      actionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-SERVICES-03] تعديل اسم/أيقونة مهنة موجودة.
+  Future<void> updateService({
+    required int id,
+    required String name,
+    required String icon,
+  }) async {
+    actionLoading = true;
+    notifyListeners();
+
+    try {
+      await api.updateService(id: id, name: name, icon: icon);
+      await loadMeta();
+    } finally {
+      actionLoading = false;
+      notifyListeners();
     }
   }
 
@@ -372,6 +407,7 @@ class AdminProvider extends ChangeNotifier {
     try {
       violations = await api.getViolations();
       complaints = await api.getComplaints();
+      messageReports = await api.getMessageReports();
       error = null;
     } catch (e) {
       error = e is ApiException ? e.message : 'تعذر تحميل بيانات المراقبة';
@@ -456,6 +492,7 @@ class AdminProvider extends ChangeNotifier {
     try {
       violations = await api.getViolations();
       complaints = await api.getComplaints();
+      messageReports = await api.getMessageReports();
       notifyListeners();
     } catch (_) {}
   }

@@ -30,15 +30,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final admin = context.watch<AdminProvider>();
     final stats = admin.stats;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'لوحة الأدمن',
-          style: TextStyle(fontWeight: FontWeight.w900),
-        ),
-      ),
-      body: RefreshIndicator(
+    // [FIX-DUPLICATE-APPBAR-01] كانت هذه الشاشة تبني Scaffold + AppBar خاصين
+    // بها فوق Scaffold + AppBar الموجودين أصلاً بـ AdminLayout (الأب الذي
+    // يحتضنها ضمن pages[])، فتظهر عنوان "لوحة الأدمن" مكرراً مرتين، وأخطر من
+    // هيك: AppBar الداخلي هذا كان يضيف سهم رجوع تلقائياً (لأن الشاشة السابقة
+    // لتسجيل الدخول تبقى بمكدّس الـ Navigator بسبب استخدام pushReplacement
+    // بدل pushAndRemoveUntil)، والضغط عليه يُخرج الأدمن فعلياً من التطبيق
+    // بالكامل (يشبه تسجيل الخروج) بدل تنظيف الجلسة بشكل صحيح. الحل الجذري:
+    // إزالة الـ Scaffold/AppBar الداخلي من كل شاشات الأدمن الخمس والاكتفاء
+    // بالـ Scaffold الواحد الموجود فعلاً بـ AdminLayout.
+    return RefreshIndicator(
         color: AppColors.primary,
         onRefresh: admin.loadDashboard,
         child: ListView(
@@ -81,7 +82,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             const SizedBox(height: 20),
             if (admin.loading)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 80),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
@@ -151,7 +152,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             if (!admin.loading && stats.topServices.isNotEmpty) ...[
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'أكثر الخدمات طلباً',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -176,7 +177,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
             if (!admin.loading && stats.topTechs.isNotEmpty) ...[
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'أفضل الفنيين أداءً',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -244,8 +245,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -291,7 +291,7 @@ class _ActionCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
@@ -300,7 +300,7 @@ class _ActionCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -309,7 +309,7 @@ class _ActionCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppColors.textSecondary,
               size: 16,
@@ -358,7 +358,7 @@ class _MetricTile extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -367,7 +367,7 @@ class _MetricTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -392,7 +392,7 @@ class _RankRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.border, width: 0.6)),
       ),
       child: Row(
@@ -400,7 +400,7 @@ class _RankRow extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700,
               ),
@@ -408,7 +408,7 @@ class _RankRow extends StatelessWidget {
           ),
           Text(
             trailing,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,
               fontSize: 12,
@@ -447,7 +447,7 @@ class _StatCard extends StatelessWidget {
           const Spacer(),
           Text(
             '$value',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 30,
               fontWeight: FontWeight.w900,
@@ -456,7 +456,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,
             ),

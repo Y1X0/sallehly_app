@@ -57,7 +57,7 @@ class TechnicianRequestCard extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -91,7 +91,7 @@ class TechnicianRequestCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.handyman_rounded,
                         color: AppColors.primary,
                         size: 28,
@@ -106,7 +106,7 @@ class TechnicianRequestCard extends StatelessWidget {
                             request.service,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 20,
                               fontWeight: FontWeight.w900,
@@ -134,7 +134,7 @@ class TechnicianRequestCard extends StatelessWidget {
                   request.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     height: 1.6,
                     fontSize: 14,
@@ -169,7 +169,7 @@ class TechnicianRequestCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_forward_ios_rounded,
                         color: AppColors.textPrimary,
                         size: 18,
@@ -210,7 +210,7 @@ class _InfoLine extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
