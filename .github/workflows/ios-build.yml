@@ -8,12 +8,15 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Flutter doctor
@@ -22,10 +25,28 @@ jobs:
       - name: Get packages
         run: flutter pub get
 
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+      - name: Disable iOS code signing
+        run: |
+          cd ios
+          xcodebuild \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+          cd ..
 
-      - name: Package as IPA
+      - name: Build iOS (unsigned)
+        run: |
+          flutter build ios \
+            --release \
+            --no-codesign \
+            --build-name=1.0.0 \
+            --build-number=1
+
+      - name: Create IPA
         run: |
           mkdir -p build/ios/ipa_payload/Payload
           cp -r build/ios/iphoneos/Runner.app build/ios/ipa_payload/Payload/
@@ -33,7 +54,8 @@ jobs:
           zip -r ../../../sallehly_app.ipa Payload
           cd ../../..
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
         with:
           name: sallehly-ios-ipa
           path: sallehly_app.ipa
