@@ -25,26 +25,18 @@ jobs:
       - name: Get packages
         run: flutter pub get
 
-      - name: Disable iOS code signing
+      - name: Disable iOS signing
         run: |
-          cd ios
-          xcodebuild \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM=""
-          cd ..
+          echo "CODE_SIGNING_ALLOWED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGNING_REQUIRED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
+          echo "DEVELOPMENT_TEAM=" >> ios/Flutter/Release.xcconfig
 
-      - name: Build iOS (unsigned)
+      - name: Build iOS unsigned
         run: |
           flutter build ios \
             --release \
-            --no-codesign \
-            --build-name=1.0.0 \
-            --build-number=1
+            --no-codesign
 
       - name: Create IPA
         run: |
@@ -52,9 +44,8 @@ jobs:
           cp -r build/ios/iphoneos/Runner.app build/ios/ipa_payload/Payload/
           cd build/ios/ipa_payload
           zip -r ../../../sallehly_app.ipa Payload
-          cd ../../..
 
-      - name: Upload IPA artifact
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: sallehly-ios-ipa
