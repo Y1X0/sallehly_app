@@ -157,12 +157,12 @@ class ApiClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return true;
       default:
         return false;
     }
-  }
-
+    }
   /// هل هذا خطأ شبكة بأي من نوعيه (لأغراض إعادة المحاولة التلقائية فقط —
   /// انظر _isTrueOfflineError/_isServerTimeoutError لتصنيف البانر الصحيح).
   bool _isNetworkError(DioException error) =>
@@ -208,6 +208,7 @@ class ApiClient {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
+        case DioExceptionType.transformTimeout:
           // [FIX-CONNECTIVITY-02] كانت هذه الرسالة تقول "تأكد من اتصالك
           // بالإنترنت" لنفس أنواع الأخطاء التي صار البانر العام (app.dart)
           // يصنّفها الآن كـ"الخادم بطيء بالرد" — تناقض مباشر كان يظهر
