@@ -5,9 +5,14 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../widgets/customer_request_card.dart';
 import 'customer_request_details_screen.dart';
+
+/// [FIX-CUSTFILTER-01] فلاتر شاشة "طلباتي" — تبديل فوري بلا أي طلب شبكة
+/// (القائمة محمَّلة أصلاً بالذاكرة، الفلترة محلية فقط).
+enum _RequestsFilter { all, active, completed, cancelled }
 
 class CustomerRequestsScreen extends StatefulWidget {
   const CustomerRequestsScreen({super.key});
@@ -17,6 +22,8 @@ class CustomerRequestsScreen extends StatefulWidget {
 }
 
 class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
+  _RequestsFilter _filter = _RequestsFilter.all;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +34,19 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
     });
   }
 
+  bool _matchesFilter(RequestModel request, _RequestsFilter filter) {
+    switch (filter) {
+      case _RequestsFilter.all:
+        return true;
+      case _RequestsFilter.active:
+        return !request.isCompleted && !request.isCancelled;
+      case _RequestsFilter.completed:
+        return request.isCompleted;
+      case _RequestsFilter.cancelled:
+        return request.isCancelled;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RequestsProvider>();
@@ -35,7 +55,12 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
     final activeCount = requests
         .where((e) => e.status != 'مكتمل' && e.status != 'ملغي')
         .length;
+    final completedCount = requests.where((e) => e.isCompleted).length;
+    final cancelledCount = requests.where((e) => e.isCancelled).length;
     final offersCount = requests.where((e) => e.hasOffers).length;
+
+    final filteredRequests =
+        requests.where((r) => _matchesFilter(r, _filter)).toList();
 
     return Scaffold(
       body: AppBackground(
@@ -79,27 +104,44 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                         subtitle: 'تابع حالة الطلبات والعروض',
                       ),
                       const SizedBox(height: 14),
-                      ...requests.map((request) {
-                        return Padding(
-                          padding:
-                          const EdgeInsets.only(bottom: 14),
-                          child: CustomerRequestCard(
-                            request: request,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) {
-                                    return CustomerRequestDetailsScreen(
-                                      request: request,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      }),
+                      _FilterBar(
+                        selected: _filter,
+                        allCount: requests.length,
+                        activeCount: activeCount,
+                        completedCount: completedCount,
+                        cancelledCount: cancelledCount,
+                        onSelect: (filter) {
+                          setState(() => _filter = filter);
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      if (filteredRequests.isEmpty)
+                        _EmptyFilterResult(
+                          filter: _filter,
+                          onShowAll: () => setState(() => _filter = _RequestsFilter.all),
+                        )
+                      else
+                        ...filteredRequests.map((request) {
+                          return Padding(
+                            padding:
+                            const EdgeInsets.only(bottom: 14),
+                            child: CustomerRequestCard(
+                              request: request,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) {
+                                      return CustomerRequestDetailsScreen(
+                                        request: request,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ),
@@ -107,6 +149,128 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  final _RequestsFilter selected;
+  final int allCount;
+  final int activeCount;
+  final int completedCount;
+  final int cancelledCount;
+  final ValueChanged<_RequestsFilter> onSelect;
+
+  const _FilterBar({
+    required this.selected,
+    required this.allCount,
+    required this.activeCount,
+    required this.completedCount,
+    required this.cancelledCount,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      (_RequestsFilter.all, 'الكل', allCount),
+      (_RequestsFilter.active, 'نشطة', activeCount),
+      (_RequestsFilter.completed, 'مكتملة', completedCount),
+      (_RequestsFilter.cancelled, 'ملغاة', cancelledCount),
+    ];
+
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final (filter, label, count) = items[index];
+          final isSelected = filter == selected;
+
+          return ChoiceChip(
+            label: Text('$label ($count)'),
+            selected: isSelected,
+            onSelected: (_) => onSelect(filter),
+            showCheckmark: false,
+            labelStyle: TextStyle(
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+            ),
+            backgroundColor: AppColors.surface.withValues(alpha: 0.75),
+            selectedColor: AppColors.primary,
+            side: BorderSide(
+              color: isSelected ? AppColors.primary : AppColors.border,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyFilterResult extends StatelessWidget {
+  final _RequestsFilter filter;
+  final VoidCallback onShowAll;
+
+  const _EmptyFilterResult({
+    required this.filter,
+    required this.onShowAll,
+  });
+
+  String get _message {
+    switch (filter) {
+      case _RequestsFilter.all:
+        return 'لا يوجد طلبات بعد';
+      case _RequestsFilter.active:
+        return 'لا توجد طلبات نشطة حالياً';
+      case _RequestsFilter.completed:
+        return 'لا توجد طلبات مكتملة بعد';
+      case _RequestsFilter.cancelled:
+        return 'لا توجد طلبات ملغاة';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Icon(
+              Icons.filter_list_off_rounded,
+              color: AppColors.primary,
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            _message,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          if (filter != _RequestsFilter.all) ...[
+            const SizedBox(height: 14),
+            TextButton(
+              onPressed: onShowAll,
+              child: const Text('عرض كل الطلبات'),
+            ),
+          ],
+        ],
       ),
     );
   }
