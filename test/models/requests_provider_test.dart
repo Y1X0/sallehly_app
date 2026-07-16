@@ -160,5 +160,27 @@ void main() {
       verify(() => mockApi.cancelRequest(1)).called(1);
       expect(provider.requests, isEmpty);
     });
+
+    // [FIX-CUSTDELETE-01] كان الخطأ يفلت بلا catch إطلاقاً (لا try/catch على
+    // الإطلاق بالكود القديم) — لا رسالة، ولا استقرار للحالة، فقط استثناء غير
+    // معالَج. يتحقق من أن الخطأ يُسجَّل برسالة السيرفر ويُعاد رميه (rethrow)
+    // للواجهة لتعرضه، ولا يبقى loading معلّقاً.
+    test('عند رفض السيرفر: يسجّل رسالة الخطأ، يعيد رميه، ولا يُبقي loading معلّقاً', () async {
+      when(() => mockApi.cancelRequest(any())).thenThrow(
+        ApiException('لا يمكن إلغاء الطلب بعد قبول عرض الفني. تواصل مع الدعم الفني إذا واجهت مشكلة.'),
+      );
+
+      await expectLater(
+        provider.cancelRequest(1),
+        throwsA(isA<ApiException>()),
+      );
+
+      expect(provider.loading, isFalse);
+      expect(
+        provider.error,
+        'لا يمكن إلغاء الطلب بعد قبول عرض الفني. تواصل مع الدعم الفني إذا واجهت مشكلة.',
+      );
+      verifyNever(() => mockApi.getRequests());
+    });
   });
 }

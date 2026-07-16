@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/app_config.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -17,6 +18,54 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
     super.key,
     required this.request,
   });
+
+  /// [FIX-CUSTDELETE-01] تأكيد صريح قبل إلغاء الطلب — إجراء لا يمكن التراجع
+  /// عنه (السيرفر يرفض الطلبات المعلَّمة "ملغي" لاحقاً)، فلا يجوز تنفيذه
+  /// بضغطة واحدة عرضية.
+  Future<void> _confirmAndCancel(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('إلغاء الطلب؟'),
+        content: const Text(
+          'سيتم إلغاء هذا الطلب نهائياً ولن يتمكن أي فني من التقدّم بعروض عليه بعد الآن. هل أنت متأكد؟',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('تراجع'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('نعم، ألغِ الطلب'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final provider = context.read<RequestsProvider>();
+
+    try {
+      await provider.cancelRequest(request.id);
+      if (context.mounted) Navigator.pop(context);
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(backgroundColor: AppColors.danger, content: Text(e.message)),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(backgroundColor: AppColors.danger, content: Text('تعذر إلغاء الطلب')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,15 +134,14 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
               icon: const Icon(Icons.local_offer_outlined),
               label: const Text('عرض عروض الفنيين'),
             ),
-          if (!request.isCompleted && !request.isCancelled) ...[
+          if (request.isCancellable) ...[
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: provider.loading
-                  ? null
-                  : () async {
-                await provider.cancelRequest(request.id);
-                if (context.mounted) Navigator.pop(context);
-              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.danger,
+                side: BorderSide(color: AppColors.danger),
+              ),
+              onPressed: provider.loading ? null : () => _confirmAndCancel(context),
               icon: const Icon(Icons.cancel_outlined),
               label: const Text('إلغاء الطلب'),
             ),

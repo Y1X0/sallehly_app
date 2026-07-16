@@ -87,5 +87,21 @@ void main() {
       expect(withStatus('ملغي').isCancelled, true);
       expect(withStatus('مكتمل').isCancelled, false);
     });
+
+    // [FIX-CUSTDELETE-01] isCancellable يجب أن يطابق تماماً الحالات التي
+    // يسمح بها السيرفر بالإلغاء (routes/requests.routes.js) — أي اختلاف هنا
+    // يعني إما إخفاء زر إلغاء صالح، أو عرضه لحالة سيرفضها السيرفر دائماً.
+    test('isCancellable صحيحة فقط قبل قبول أي عرض فني', () {
+      expect(withStatus('بانتظار العروض').isCancellable, true);
+      expect(withStatus('وصلت عروض').isCancellable, true);
+    });
+
+    test('isCancellable خاطئة بعد قبول عرض فني أو إكمال/إلغاء الطلب', () {
+      expect(withStatus('تم اختيار عرض').isCancellable, false);
+      expect(withStatus('قيد التنفيذ').isCancellable, false);
+      expect(withStatus('بانتظار تأكيد الدفع').isCancellable, false);
+      expect(withStatus('مكتمل').isCancellable, false);
+      expect(withStatus('ملغي').isCancellable, false);
+    });
   });
 }

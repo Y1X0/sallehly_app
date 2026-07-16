@@ -62,6 +62,12 @@ class RequestModel {
   bool get isCompleted => status == 'مكتمل';
   bool get isCancelled => status == 'ملغي';
 
+  /// [FIX-CUSTDELETE-01] يطابق تماماً الحالات التي يسمح بها السيرفر بالإلغاء
+  /// (DELETE /requests/:id) — بعد قبول عرض فني (تم اختيار عرض/قيد التنفيذ/
+  /// بانتظار تأكيد الدفع) أو اكتمال الطلب، السيرفر يرفض الإلغاء دائماً. عرض
+  /// الزر فقط بهذه الحالات يمنع المستخدم من الوصول لخطأ متوقّع مسبقاً.
+  bool get isCancellable => status == 'بانتظار العروض' || status == 'وصلت عروض';
+
   RequestModel copyWith({
     String? status,
     int? technicianId,

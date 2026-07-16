@@ -298,6 +298,15 @@ class RequestsProvider extends ChangeNotifier {
       await api.cancelRequest(requestId);
       requests = await api.getRequests();
       error = null;
+    } on ApiException catch (e) {
+      // [FIX-CUSTDELETE-01] كان الخطأ (مثلاً رفض السيرفر لأن الفني قبل العرض
+      // فعلاً بين تحميل الشاشة والضغط على الزر) يفلت بلا catch هنا إطلاقاً —
+      // استثناء غير معالَج بدل رسالة تُفهَم للمستخدم.
+      error = e.message;
+      rethrow;
+    } catch (_) {
+      error = 'تعذر إلغاء الطلب';
+      rethrow;
     } finally {
       _setLoading(false);
     }
