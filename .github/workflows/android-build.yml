@@ -1,0 +1,47 @@
+name: Build Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      # No android/key.properties in CI (release keystore is not committed,
+      # by design — see android/app/build.gradle.kts). The release build
+      # type falls back to debug signing when key.properties is absent, so
+      # this validates that the app actually builds; it is not a
+      # Play-Store-ready artifact and must not be uploaded as one.
+      - name: Build Android App Bundle (CI validation only, debug-signed)
+        run: flutter build appbundle --release
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: sallehly-android-aab-unsigned
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
