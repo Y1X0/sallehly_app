@@ -61,6 +61,14 @@ class ApiEndpoints {
   static String complaintStatus(int id) => '/complaints/$id/status';
   static String adminUpdatePackage(int id) => '/admin/packages/$id';
 
+  // [FIX-SUPERADMIN-01]
+  static String adminUserDetail(int id) => '/admin/users/$id';
+  static String adminUserRole(int id) => '/admin/users/$id/role';
+  static String adminUserVerify(int id) => '/admin/users/$id/verify';
+  static const String adminLedger = '/admin/ledger';
+  static String chatViolationStatus(int id) => '/chat-violations/$id/status';
+  static String messageReportStatus(int id) => '/message-reports/$id/status';
+
   static const String adminRequests = '/requests';
   static String adminCancelRequest(int id) => '/admin/requests/$id/cancel';
   static String adminRequestStatus(int id) => '/requests/$id/status';

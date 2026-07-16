@@ -32,6 +32,27 @@ class TopTechnicianModel {
   }
 }
 
+class ActivityWindowModel {
+  final int newRequests;
+  final int newUsers;
+  final double revenue;
+
+  const ActivityWindowModel({
+    this.newRequests = 0,
+    this.newUsers = 0,
+    this.revenue = 0,
+  });
+
+  factory ActivityWindowModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const ActivityWindowModel();
+    return ActivityWindowModel(
+      newRequests: int.tryParse('${json['newRequests'] ?? 0}') ?? 0,
+      newUsers: int.tryParse('${json['newUsers'] ?? 0}') ?? 0,
+      revenue: double.tryParse('${json['revenue'] ?? 0}') ?? 0,
+    );
+  }
+}
+
 class AdminStatsModel {
   final int customers;
   final int technicians;
@@ -44,6 +65,12 @@ class AdminStatsModel {
   final double revenue;
   final List<TopServiceModel> topServices;
   final List<TopTechnicianModel> topTechs;
+  // [FIX-STATS-01] نشاط الفترات الزمنية + عدّادات الإيقاف/التوثيق.
+  final int suspendedUsers;
+  final int pendingVerification;
+  final ActivityWindowModel dailyActivity;
+  final ActivityWindowModel weeklyActivity;
+  final ActivityWindowModel monthlyActivity;
 
   const AdminStatsModel({
     required this.customers,
@@ -56,9 +83,15 @@ class AdminStatsModel {
     this.revenue = 0,
     this.topServices = const [],
     this.topTechs = const [],
+    this.suspendedUsers = 0,
+    this.pendingVerification = 0,
+    this.dailyActivity = const ActivityWindowModel(),
+    this.weeklyActivity = const ActivityWindowModel(),
+    this.monthlyActivity = const ActivityWindowModel(),
   });
 
   factory AdminStatsModel.fromJson(Map<String, dynamic> json) {
+    final activity = json['activity'] as Map?;
     return AdminStatsModel(
       customers: int.tryParse('${json['customers'] ?? 0}') ?? 0,
       technicians: int.tryParse('${json['technicians'] ?? 0}') ?? 0,
@@ -75,6 +108,11 @@ class AdminStatsModel {
       topTechs: (json['topTechs'] as List? ?? [])
           .map((e) => TopTechnicianModel.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
+      suspendedUsers: int.tryParse('${json['suspendedUsers'] ?? 0}') ?? 0,
+      pendingVerification: int.tryParse('${json['pendingVerification'] ?? 0}') ?? 0,
+      dailyActivity: ActivityWindowModel.fromJson(activity?['daily'] as Map<String, dynamic>?),
+      weeklyActivity: ActivityWindowModel.fromJson(activity?['weekly'] as Map<String, dynamic>?),
+      monthlyActivity: ActivityWindowModel.fromJson(activity?['monthly'] as Map<String, dynamic>?),
     );
   }
 

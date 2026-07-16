@@ -12,8 +12,9 @@ class AdminProvider extends ChangeNotifier {
 
   AdminProvider({
     required ApiClient apiClient,
+    AdminApi? apiOverride,
   }) {
-    api = AdminApi(apiClient);
+    api = apiOverride ?? AdminApi(apiClient);
   }
 
   bool loading = false;
@@ -39,6 +40,16 @@ class AdminProvider extends ChangeNotifier {
   // [FIX-UGC-01] بلاغات الرسائل (سياسة UGC)
   List<Map<String, dynamic>> messageReports = [];
   bool moderationLoading = false;
+
+  // [FIX-ADMINPROFILE-01] بروفايل مستخدم واحد كامل بشاشته الخاصة.
+  Map<String, dynamic>? userDetail;
+  bool userDetailLoading = false;
+  String? userDetailError;
+
+  // [FIX-LEDGER-01] دفتر الحساب الشامل بلوحة الأدمن.
+  List<Map<String, dynamic>> ledgerEntries = [];
+  int ledgerTotal = 0;
+  bool ledgerLoading = false;
 
   Future<void> loadDashboard() async {
     _setLoading(true);
@@ -66,12 +77,12 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleUser(int id) async {
+  Future<void> toggleUser(int id, {String? reason}) async {
     actionLoading = true;
     notifyListeners();
 
     try {
-      await api.toggleUser(id);
+      await api.toggleUser(id, reason: reason);
       users = await api.getUsers();
       stats = await api.getStats();
       error = null;
@@ -80,6 +91,93 @@ class AdminProvider extends ChangeNotifier {
       rethrow;
     } finally {
       actionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-ADMINPROFILE-01] يُحمَّل عند فتح شاشة تفاصيل مستخدم واحد.
+  Future<void> loadUserDetail(int id) async {
+    userDetailLoading = true;
+    userDetailError = null;
+    notifyListeners();
+
+    try {
+      userDetail = await api.getUserDetail(id);
+      userDetailError = null;
+    } catch (e) {
+      userDetailError = e is ApiException ? e.message : 'تعذر تحميل بيانات المستخدم';
+    } finally {
+      userDetailLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearUserDetail() {
+    userDetail = null;
+    userDetailError = null;
+  }
+
+  /// [FIX-ROLECHANGE-01] تحويل دور مستخدم (super admin فقط — السيرفر يرفض
+  /// غير ذلك بـ403 بغض النظر عمّا تعرضه الواجهة).
+  Future<void> changeUserRole({
+    required int id,
+    required String role,
+    String? nationalNumber,
+    String? services,
+    String? areas,
+  }) async {
+    actionLoading = true;
+    notifyListeners();
+    try {
+      await api.changeUserRole(
+        id: id,
+        role: role,
+        nationalNumber: nationalNumber,
+        services: services,
+        areas: areas,
+      );
+      users = await api.getUsers();
+      if (userDetail != null) await loadUserDetail(id);
+      error = null;
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحويل دور المستخدم';
+      rethrow;
+    } finally {
+      actionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-VERIFY-01] توثيق فني.
+  Future<void> verifyTechnician(int id) async {
+    actionLoading = true;
+    notifyListeners();
+    try {
+      await api.verifyTechnician(id);
+      users = await api.getUsers();
+      error = null;
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر توثيق الفني';
+      rethrow;
+    } finally {
+      actionLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-LEDGER-01] دفتر الحساب الشامل — اختياري الفلترة حسب مستخدم واحد.
+  Future<void> loadLedger({int? userId}) async {
+    ledgerLoading = true;
+    notifyListeners();
+    try {
+      final result = await api.getLedger(userId: userId, limit: 100);
+      ledgerEntries = result['entries'] as List<Map<String, dynamic>>;
+      ledgerTotal = result['total'] is int ? result['total'] as int : 0;
+      error = null;
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحميل دفتر الحساب';
+    } finally {
+      ledgerLoading = false;
       notifyListeners();
     }
   }
@@ -435,12 +533,43 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
+  /// [FIX-MODERATION-01] تحديث حالة متابعة مخالفة شات — نفس نمط
+  /// updateComplaintStatus تماماً (تحديث محلي فوري بدل إعادة تحميل كامل).
+  Future<void> updateViolationStatus({required int id, required String status}) async {
+    try {
+      await api.updateViolationStatus(id: id, status: status);
+      final index = violations.indexWhere((v) => v['id'] == id);
+      if (index != -1) {
+        violations[index] = {...violations[index], 'status': status};
+        notifyListeners();
+      }
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحديث حالة المخالفة';
+      rethrow;
+    }
+  }
+
+  Future<void> updateMessageReportStatus({required int id, required String status}) async {
+    try {
+      await api.updateMessageReportStatus(id: id, status: status);
+      final index = messageReports.indexWhere((r) => r['id'] == id);
+      if (index != -1) {
+        messageReports[index] = {...messageReports[index], 'status': status};
+        notifyListeners();
+      }
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحديث حالة البلاغ';
+      rethrow;
+    }
+  }
+
   Future<void> updatePackage({
     required int id,
     required String name,
     required double amount,
     required double bonus,
     required double commissionPerOrder,
+    bool? isActive,
   }) async {
     actionLoading = true;
     notifyListeners();
@@ -451,6 +580,7 @@ class AdminProvider extends ChangeNotifier {
         amount: amount,
         bonus: bonus,
         commissionPerOrder: commissionPerOrder,
+        isActive: isActive,
       );
       await loadMeta();
     } catch (e) {
@@ -460,6 +590,18 @@ class AdminProvider extends ChangeNotifier {
       actionLoading = false;
       notifyListeners();
     }
+  }
+
+  /// [FIX-PACKAGEACTIVE-01] تفعيل/تعطيل باقة بدون تغيير بقية بياناتها.
+  Future<void> togglePackageActive(Map<String, dynamic> package) async {
+    await updatePackage(
+      id: int.tryParse('${package['id']}') ?? 0,
+      name: '${package['name'] ?? ''}',
+      amount: double.tryParse('${package['amount'] ?? 0}') ?? 0,
+      bonus: double.tryParse('${package['bonus'] ?? 0}') ?? 0,
+      commissionPerOrder: double.tryParse('${package['commission_per_order'] ?? 2}') ?? 2,
+      isActive: package['is_active'] == 0,
+    );
   }
 
   // ─────────────── تحديثات لحظية صامتة (عبر السوكت) ───────────────

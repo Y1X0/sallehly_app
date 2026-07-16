@@ -34,9 +34,105 @@ class AdminApi {
     }
   }
 
-  Future<void> toggleUser(int id) async {
+  /// [FIX-SUSPEND-01] reason اختياري — يُرسَل فقط عند وجوده، فلا يغيّر شكل
+  /// الطلب لأي استدعاء قديم (تفعيل حساب مثلاً لا يحتاج سبباً).
+  Future<void> toggleUser(int id, {String? reason}) async {
     try {
-      await apiClient.dio.post(ApiEndpoints.adminToggleUser(id));
+      await apiClient.dio.post(
+        ApiEndpoints.adminToggleUser(id),
+        data: {if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim()},
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-ADMINPROFILE-01] بروفايل مستخدم كامل + تاريخه (طلبات/عروض/دفتر حساب).
+  Future<Map<String, dynamic>> getUserDetail(int id) async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminUserDetail(id));
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-ROLECHANGE-01] تحويل دور مستخدم (super admin فقط بالسيرفر). حقول
+  /// الفني مطلوبة فقط عند التحويل *إلى* فني.
+  Future<AdminUserModel> changeUserRole({
+    required int id,
+    required String role,
+    String? nationalNumber,
+    String? services,
+    String? areas,
+  }) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiEndpoints.adminUserRole(id),
+        data: {
+          'role': role,
+          if (nationalNumber != null) 'national_number': nationalNumber.trim(),
+          if (services != null) 'services': services.trim(),
+          if (areas != null) 'areas': areas.trim(),
+        },
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      return AdminUserModel.fromJson(Map<String, dynamic>.from(data['user']));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-VERIFY-01] توثيق فني.
+  Future<void> verifyTechnician(int id) async {
+    try {
+      await apiClient.dio.post(ApiEndpoints.adminUserVerify(id));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-LEDGER-01] سجل حركات مالية عبر المنصة — مقصور على الأدمن.
+  Future<Map<String, dynamic>> getLedger({
+    int limit = 50,
+    int offset = 0,
+    int? userId,
+    String? type,
+  }) async {
+    try {
+      final response = await apiClient.dio.get(
+        ApiEndpoints.adminLedger,
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+          if (userId != null) 'user_id': userId,
+          if (type != null && type.isNotEmpty) 'type': type,
+        },
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      return {
+        'entries': (data['entries'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList(),
+        'total': data['total'] ?? 0,
+      };
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FIX-MODERATION-01] تحديث حالة متابعة مخالفة شات أو بلاغ رسالة.
+  Future<void> updateViolationStatus({required int id, required String status}) async {
+    try {
+      await apiClient.dio.post(ApiEndpoints.chatViolationStatus(id), data: {'status': status});
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  Future<void> updateMessageReportStatus({required int id, required String status}) async {
+    try {
+      await apiClient.dio.post(ApiEndpoints.messageReportStatus(id), data: {'status': status});
     } catch (e) {
       throw apiClient.handleError(e);
     }
@@ -368,6 +464,7 @@ class AdminApi {
     required double amount,
     required double bonus,
     required double commissionPerOrder,
+    bool? isActive,
   }) async {
     try {
       await apiClient.dio.put(
@@ -377,6 +474,7 @@ class AdminApi {
           'amount': amount,
           'bonus': bonus,
           'commission_per_order': commissionPerOrder,
+          if (isActive != null) 'is_active': isActive,
         },
       );
     } catch (e) {

@@ -303,8 +303,13 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               subtitleBuilder: (e) {
                 final amount = double.tryParse('${e['amount'] ?? 0}') ?? 0;
                 final bonus = double.tryParse('${e['bonus'] ?? 0}') ?? 0;
-                return '${amount.toStringAsFixed(2)} د.أ • بونص ${bonus.toStringAsFixed(2)}';
+                final activeText = (e['is_active'] == 0)
+                    ? 'معطّلة — لا تظهر بشاشة شحن الفنيين'
+                    : '${amount.toStringAsFixed(2)} د.أ • بونص ${bonus.toStringAsFixed(2)}';
+                return activeText;
               },
+              isActiveGetter: (e) => e['is_active'] != 0,
+              onToggle: (e) => admin.togglePackageActive(e),
               onEdit: (e) => addPackage(existing: e),
               onDelete: (e) => confirmDelete(
                 title: 'حذف الباقة',

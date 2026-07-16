@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
+import 'admin_ledger_screen.dart';
 import 'admin_moderation_screen.dart';
 import 'admin_requests_screen.dart';
 
@@ -29,6 +31,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final admin = context.watch<AdminProvider>();
     final stats = admin.stats;
+    // [FIX-DASHBOARD-01] لا يوجد "تحميل أول مرة" منفصل بهذا الـmodel (على
+    // عكس شاشات أخرى بقائمة List فارغة واضحة) — نستدل عليه من عدم وصول أي
+    // رقم حقيقي بعد، لتفادي إظهار بطاقات مُصفَّرة بصمت أثناء التحميل أو الخطأ.
+    final noDataYet = stats.requests == 0 && stats.customers == 0 && stats.technicians == 0;
+    final isInitialLoading = admin.loading && noDataYet;
+    final hasError = admin.error != null && noDataYet;
 
     // [FIX-DUPLICATE-APPBAR-01] كانت هذه الشاشة تبني Scaffold + AppBar خاصين
     // بها فوق Scaffold + AppBar الموجودين أصلاً بـ AdminLayout (الأب الذي
@@ -81,13 +89,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            if (admin.loading)
+            if (isInitialLoading)
               Padding(
                 padding: EdgeInsets.only(top: 80),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               )
+            // [FIX-DASHBOARD-01] كانت هذه الشاشة تُظهر إحصائيات مُصفَّرة بصمت
+            // عند فشل الجلب (مثلاً جلسة منتهية) بدل رسالة خطأ حقيقية — بعكس كل
+            // شاشات الأدمن الأخرى التي تتحقق من admin.error أولاً.
+            else if (hasError)
+              _DashboardErrorState(message: admin.error!, onRetry: admin.loadDashboard)
             else
               GridView.count(
                 shrinkWrap: true,
@@ -130,7 +143,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             const SizedBox(height: 12),
-            if (!admin.loading)
+            if (!isInitialLoading && !hasError) ...[
               Row(
                 children: [
                   Expanded(
@@ -150,7 +163,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ],
               ),
-            if (!admin.loading && stats.topServices.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _MetricTile(
+                      title: 'حسابات موقوفة',
+                      value: '${stats.suspendedUsers}',
+                      icon: Icons.block_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MetricTile(
+                      title: 'بانتظار التوثيق',
+                      value: '${stats.pendingVerification}',
+                      icon: Icons.verified_outlined,
+                    ),
+                  ),
+                ],
+              ),
+              // [FIX-STATS-01] نشاط الفترات الزمنية — طلبات/مستخدمون جدد وإيراد
+              // كل فترة، بلا أي مكتبة رسوم بيانية إضافية (أرقام واضحة تكفي هنا).
+              const SizedBox(height: 20),
+              Text('النشاط', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: _ActivityCard(title: 'اليوم', activity: stats.dailyActivity)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _ActivityCard(title: '٧ أيام', activity: stats.weeklyActivity)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _ActivityCard(title: '٣٠ يوماً', activity: stats.monthlyActivity)),
+                ],
+              ),
+            ],
+            if (!isInitialLoading && !hasError && stats.topServices.isNotEmpty) ...[
               const SizedBox(height: 20),
               Text(
                 'أكثر الخدمات طلباً',
@@ -175,7 +223,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
               ),
             ],
-            if (!admin.loading && stats.topTechs.isNotEmpty) ...[
+            if (!isInitialLoading && !hasError && stats.topTechs.isNotEmpty) ...[
               const SizedBox(height: 20),
               Text(
                 'أفضل الفنيين أداءً',
@@ -243,9 +291,85 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 );
               },
             ),
+            const SizedBox(height: 12),
+            // [FIX-LEDGER-01] دفتر الحساب الشامل — عرض/بحث فقط، لا يعدّل أي منطق مالي.
+            _ActionCard(
+              icon: Icons.receipt_long_rounded,
+              title: 'دفتر الحساب',
+              subtitle: 'كل الحركات المالية عبر المنصة',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AdminLedgerScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       );
+  }
+}
+
+class _ActivityCard extends StatelessWidget {
+  final String title;
+  final ActivityWindowModel activity;
+
+  const _ActivityCard({required this.title, required this.activity});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w800, fontSize: 12)),
+          const SizedBox(height: 8),
+          Text('${activity.newRequests} طلب', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 15)),
+          Text('${activity.newUsers} مستخدم', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text('${activity.revenue.toStringAsFixed(1)} د.أ', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardErrorState extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
+
+  const _DashboardErrorState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 60),
+      child: Column(
+        children: [
+          Icon(Icons.error_outline_rounded, size: 56, color: AppColors.danger),
+          const SizedBox(height: 14),
+          Text(
+            'تعذّر تحميل الإحصائيات',
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
+          const SizedBox(height: 14),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+        ],
+      ),
+    );
   }
 }
 

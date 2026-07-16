@@ -5,6 +5,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/admin_user_model.dart';
 import '../provider/admin_provider.dart';
+import 'admin_user_detail_screen.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -28,35 +29,71 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   List<AdminUserModel> filter(List<AdminUserModel> users) {
     if (query == 'all') return users;
+    if (query == 'pending_verification') return users.where((e) => e.isPendingVerification).toList();
     return users.where((e) => e.role == query).toList();
   }
 
+  // [FIX-SUSPEND-01] الإيقاف الآن يطلب سبباً (يُسجَّل ويظهر بتفاصيل الحساب) —
+  // التفعيل يبقى بضغطة تأكيد واحدة كما كان بالضبط.
   Future<void> toggleUser(AdminUserModel user) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: Text(user.active ? 'إيقاف الحساب' : 'تفعيل الحساب'),
-          content: Text('هل تريد ${user.active ? 'إيقاف' : 'تفعيل'} حساب ${user.name}؟'),
+    if (!user.active) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('تفعيل الحساب'),
+          content: Text('هل تريد تفعيل حساب ${user.name}؟'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('إلغاء'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('تأكيد'),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('تأكيد')),
+          ],
+        ),
+      );
+      if (confirm != true || !mounted) return;
+      try {
+        await context.read<AdminProvider>().toggleUser(user.id);
+      } on ApiException catch (e) {
+        showError(e.message);
+      } catch (_) {
+        showError('تعذر تحديث الحساب');
+      }
+      return;
+    }
+
+    final reasonController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text('إيقاف الحساب', style: TextStyle(fontWeight: FontWeight.w900)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
+                style: TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: reasonController,
+              maxLength: 300,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: 'السبب'),
             ),
           ],
-        );
-      },
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('إيقاف'),
+          ),
+        ],
+      ),
     );
 
-    if (confirm != true) return;
-    if (!mounted) return;
-
+    if (confirmed != true || !mounted) return;
     try {
-      await context.read<AdminProvider>().toggleUser(user.id);
+      await context.read<AdminProvider>().toggleUser(user.id, reason: reasonController.text);
     } on ApiException catch (e) {
       showError(e.message);
     } catch (_) {
@@ -289,26 +326,36 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            Row(
-              children: [
-                _FilterChip(
-                  title: 'الكل',
-                  active: query == 'all',
-                  onTap: () => setState(() => query = 'all'),
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  title: 'عملاء',
-                  active: query == 'customer',
-                  onTap: () => setState(() => query = 'customer'),
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  title: 'فنيين',
-                  active: query == 'technician',
-                  onTap: () => setState(() => query = 'technician'),
-                ),
-              ],
+            SizedBox(
+              height: 42,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _FilterChip(
+                    title: 'الكل',
+                    active: query == 'all',
+                    onTap: () => setState(() => query = 'all'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    title: 'عملاء',
+                    active: query == 'customer',
+                    onTap: () => setState(() => query = 'customer'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    title: 'فنيين',
+                    active: query == 'technician',
+                    onTap: () => setState(() => query = 'technician'),
+                  ),
+                  const SizedBox(width: 8),
+                  _FilterChip(
+                    title: 'بانتظار التوثيق',
+                    active: query == 'pending_verification',
+                    onTap: () => setState(() => query = 'pending_verification'),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 18),
             if (admin.loading && users.isEmpty)
@@ -338,6 +385,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     onEdit: () => editProfile(user),
                     onBalance: () => adjustBalance(user),
                     onDelete: () => deleteUser(user),
+                    onOpenDetail: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => AdminUserDetailScreen(userId: user.id)),
+                    ),
                   ),
                 ),
               ),
@@ -360,24 +411,22 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: active ? AppColors.primary : AppColors.card,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: active ? AppColors.primary : AppColors.border),
-          ),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: active ? Colors.white : AppColors.textSecondary,
-              fontWeight: FontWeight.w900,
-            ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : AppColors.card,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: active ? AppColors.primary : AppColors.border),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: active ? Colors.white : AppColors.textSecondary,
+            fontWeight: FontWeight.w900,
           ),
         ),
       ),
@@ -392,6 +441,7 @@ class _UserCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onBalance;
   final VoidCallback onDelete;
+  final VoidCallback onOpenDetail;
 
   const _UserCard({
     required this.user,
@@ -400,16 +450,22 @@ class _UserCard extends StatelessWidget {
     required this.onEdit,
     required this.onBalance,
     required this.onDelete,
+    required this.onOpenDetail,
   });
 
   @override
   Widget build(BuildContext context) {
     final color = user.active ? AppColors.success : AppColors.danger;
 
-    return Container(
+    return Material(
+      color: AppColors.card,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: onOpenDetail,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
       ),
@@ -445,20 +501,43 @@ class _UserCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  user.active ? 'نشط' : 'موقوف',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      user.active ? 'نشط' : 'موقوف',
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
-                ),
+                  if (user.isPendingVerification) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'بانتظار التوثيق',
+                        style: TextStyle(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
@@ -529,6 +608,8 @@ class _UserCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }

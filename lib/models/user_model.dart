@@ -28,6 +28,10 @@ class UserModel {
   final int freeOffersUsed;
   final int freeOffersRemaining;
 
+  /// [FIX-SUPERADMIN-01] صحيحة فقط لحساب الإدارة الوحيد المُهيَّأ من .env —
+  /// تتحكم بظهور القدرات الأشد حساسية (تغيير دور مستخدم) بواجهة الأدمن.
+  final bool isSuperAdmin;
+
   const UserModel({
     required this.id,
     required this.role,
@@ -44,6 +48,7 @@ class UserModel {
     required this.active,
     this.freeOffersUsed = 0,
     this.freeOffersRemaining = 0,
+    this.isSuperAdmin = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -75,6 +80,7 @@ class UserModel {
       freeOffersUsed: int.tryParse('${json['free_offers_used'] ?? 0}') ?? 0,
       freeOffersRemaining:
           int.tryParse('${json['free_offers_remaining'] ?? 0}') ?? 0,
+      isSuperAdmin: json['is_super_admin'] == 1 || json['is_super_admin'] == true,
     );
   }
 

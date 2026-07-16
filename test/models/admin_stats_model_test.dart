@@ -76,4 +76,38 @@ void main() {
       expect(stats.topTechs, isEmpty);
     });
   });
+
+  // [FIX-STATS-01]
+  group('AdminStatsModel.fromJson — نشاط الفترات الزمنية والتوثيق/الإيقاف', () {
+    test('يحلّل activity.daily/weekly/monthly والعدّادات الجديدة', () {
+      final stats = AdminStatsModel.fromJson({
+        'customers': 1, 'technicians': 1, 'requests': 1, 'pendingTopups': 0, 'completed': 1,
+        'suspendedUsers': 3,
+        'pendingVerification': 2,
+        'activity': {
+          'daily': {'newRequests': 5, 'newUsers': 2, 'revenue': '12.50'},
+          'weekly': {'newRequests': 20, 'newUsers': 8, 'revenue': '80.00'},
+          'monthly': {'newRequests': 90, 'newUsers': 30, 'revenue': '400.00'},
+        },
+      });
+      expect(stats.suspendedUsers, 3);
+      expect(stats.pendingVerification, 2);
+      expect(stats.dailyActivity.newRequests, 5);
+      expect(stats.dailyActivity.newUsers, 2);
+      expect(stats.dailyActivity.revenue, 12.50);
+      expect(stats.weeklyActivity.newRequests, 20);
+      expect(stats.monthlyActivity.newRequests, 90);
+    });
+
+    test('activity مفقودة بالكامل (استجابة قديمة) ترجع نوافذ صفرية آمنة بدل انهيار', () {
+      final stats = AdminStatsModel.fromJson({
+        'customers': 1, 'technicians': 1, 'requests': 1, 'pendingTopups': 0, 'completed': 1,
+      });
+      expect(stats.suspendedUsers, 0);
+      expect(stats.pendingVerification, 0);
+      expect(stats.dailyActivity.newRequests, 0);
+      expect(stats.weeklyActivity.newUsers, 0);
+      expect(stats.monthlyActivity.revenue, 0);
+    });
+  });
 }

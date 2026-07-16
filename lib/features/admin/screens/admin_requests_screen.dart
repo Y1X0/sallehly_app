@@ -110,6 +110,22 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
     }
   }
 
+  // [FIX-REQSTATUS-01] كان changeRequestStatus موجوداً بـAdminProvider/AdminApi
+  // بلا أي شاشة تستدعيه — "تعديل حالة الطلب عند الضرورة" (مطلوب صراحة) لم يكن
+  // متاحاً فعلياً رغم وجود كل البنية التحتية له.
+  Future<void> _changeStatus(Map<String, dynamic> req, String status) async {
+    try {
+      await context.read<AdminProvider>().changeRequestStatus(id: req['id'] as int, status: status);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تم تغيير الحالة إلى: $status')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e'.replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final admin = context.watch<AdminProvider>();
@@ -196,6 +212,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                             return _RequestCard(
                               req: filtered[index],
                               onCancel: () => _confirmCancel(filtered[index]),
+                              onChangeStatus: (status) => _changeStatus(filtered[index], status),
                             );
                           },
                         ),
@@ -255,8 +272,14 @@ class _RequestsErrorState extends StatelessWidget {
 class _RequestCard extends StatelessWidget {
   final Map<String, dynamic> req;
   final VoidCallback onCancel;
+  final ValueChanged<String> onChangeStatus;
 
-  const _RequestCard({required this.req, required this.onCancel});
+  // [FIX-REQSTATUS-01] نفس القيم المسموحة صراحة بـPOST /requests/:id/status
+  // بالسيرفر (routes/requests.routes.js) عدا 'ملغي' — لها زر إلغاء مستقل
+  // بسبب إلزامي أصلاً.
+  static const _statusOptions = ['قيد التنفيذ', 'بانتظار تأكيد الدفع', 'مكتمل'];
+
+  const _RequestCard({required this.req, required this.onCancel, required this.onChangeStatus});
 
   Color _statusColor(String status) {
     switch (status) {
@@ -334,20 +357,44 @@ class _RequestCard extends StatelessWidget {
               '${req['city'] ?? '-'}${req['area'] != null ? ' - ${req['area']}' : ''}'),
           if (canCancel) ...[
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onCancel,
-                icon: const Icon(Icons.cancel_rounded, size: 18),
-                label: const Text('إلغاء الطلب إدارياً'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red.shade400,
-                  side: BorderSide(color: Colors.red.shade400),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+            Row(
+              children: [
+                Expanded(
+                  child: PopupMenuButton<String>(
+                    tooltip: 'تغيير حالة الطلب',
+                    onSelected: onChangeStatus,
+                    itemBuilder: (context) => _statusOptions
+                        .where((s) => s != status)
+                        .map((s) => PopupMenuItem<String>(value: s, child: Text(s)))
+                        .toList(),
+                    child: IgnorePointer(
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.sync_alt_rounded, size: 18),
+                        label: const Text('تغيير الحالة'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: BorderSide(color: AppColors.primary),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onCancel,
+                    icon: const Icon(Icons.cancel_rounded, size: 18),
+                    label: const Text('إلغاء الطلب'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red.shade400,
+                      side: BorderSide(color: Colors.red.shade400),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ],

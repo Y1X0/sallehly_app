@@ -120,5 +120,21 @@ void main() {
       });
       expect(user.id, 0);
     });
+
+    // [FIX-SUPERADMIN-01]
+    test('is_super_admin مفقودة ترجع false افتراضياً', () {
+      final user = UserModel.fromJson({
+        'id': 1, 'role': 'admin', 'name': 'test', 'email': 'a@a.com', 'phone': '0791111111',
+      });
+      expect(user.isSuperAdmin, false);
+    });
+
+    test('is_super_admin=1 يُحلَّل كـ true', () {
+      final user = UserModel.fromJson({
+        'id': 1, 'role': 'admin', 'name': 'test', 'email': 'a@a.com', 'phone': '0791111111',
+        'is_super_admin': 1,
+      });
+      expect(user.isSuperAdmin, true);
+    });
   });
 }

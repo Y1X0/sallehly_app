@@ -88,6 +88,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                     ],
                     color: AppColors.danger,
                     icon: Icons.report_rounded,
+                    trailing: _ViolationStatusMenu(violation: v),
                   ),
                 ),
                 _buildList(
@@ -135,6 +136,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                     ],
                     color: AppColors.danger,
                     icon: Icons.flag_rounded,
+                    trailing: _MessageReportStatusMenu(report: r),
                   ),
                 ),
               ],
@@ -279,6 +281,151 @@ class _ComplaintStatusMenu extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
+            ),
+            const SizedBox(width: 2),
+            Icon(Icons.arrow_drop_down, size: 16, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// [FIX-MODERATION-01] نفس نمط _ComplaintStatusMenu تماماً — توثيق أن الأدمن
+/// راجع المخالفة/البلاغ، بدون حذف أي محتوى أو حظر مباشر من هنا (الحظر/الإيقاف
+/// عبر شاشة تفاصيل المستخدم — لا تكرار منطق).
+class _ViolationStatusMenu extends StatelessWidget {
+  final Map<String, dynamic> violation;
+
+  const _ViolationStatusMenu({required this.violation});
+
+  static const _labels = {
+    'مفتوح': 'مفتوح',
+    'تمت المراجعة': 'تمت المراجعة',
+    'تم اتخاذ إجراء': 'تم اتخاذ إجراء',
+  };
+
+  static Map<String, Color> get _colors => {
+    'مفتوح': AppColors.danger,
+    'تمت المراجعة': Colors.orange,
+    'تم اتخاذ إجراء': Colors.green,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final status = '${violation['status'] ?? 'مفتوح'}';
+    final color = _colors[status] ?? AppColors.textSecondary;
+    final id = violation['id'];
+
+    return PopupMenuButton<String>(
+      tooltip: 'تحديث حالة المخالفة',
+      onSelected: (newStatus) async {
+        if (id == null) return;
+        try {
+          await context.read<AdminProvider>().updateViolationStatus(
+                id: id is int ? id : int.tryParse('$id') ?? 0,
+                status: newStatus,
+              );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('تم تحديث الحالة إلى: ${_labels[newStatus]}')),
+            );
+          }
+        } catch (_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تعذر تحديث حالة المخالفة')),
+            );
+          }
+        }
+      },
+      itemBuilder: (context) => _labels.entries
+          .map((e) => PopupMenuItem<String>(value: e.key, child: Text(e.value)))
+          .toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _labels[status] ?? status,
+              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(width: 2),
+            Icon(Icons.arrow_drop_down, size: 16, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageReportStatusMenu extends StatelessWidget {
+  final Map<String, dynamic> report;
+
+  const _MessageReportStatusMenu({required this.report});
+
+  static const _labels = {
+    'قيد المراجعة': 'قيد المراجعة',
+    'تم اتخاذ إجراء': 'تم اتخاذ إجراء',
+    'مرفوض': 'مرفوض',
+  };
+
+  static Map<String, Color> get _colors => {
+    'قيد المراجعة': Colors.orange,
+    'تم اتخاذ إجراء': Colors.green,
+    'مرفوض': AppColors.textSecondary,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final status = '${report['status'] ?? 'قيد المراجعة'}';
+    final color = _colors[status] ?? AppColors.textSecondary;
+    final id = report['id'];
+
+    return PopupMenuButton<String>(
+      tooltip: 'تحديث حالة البلاغ',
+      onSelected: (newStatus) async {
+        if (id == null) return;
+        try {
+          await context.read<AdminProvider>().updateMessageReportStatus(
+                id: id is int ? id : int.tryParse('$id') ?? 0,
+                status: newStatus,
+              );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('تم تحديث الحالة إلى: ${_labels[newStatus]}')),
+            );
+          }
+        } catch (_) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تعذر تحديث حالة البلاغ')),
+            );
+          }
+        }
+      },
+      itemBuilder: (context) => _labels.entries
+          .map((e) => PopupMenuItem<String>(value: e.key, child: Text(e.value)))
+          .toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _labels[status] ?? status,
+              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800),
             ),
             const SizedBox(width: 2),
             Icon(Icons.arrow_drop_down, size: 16, color: color),
