@@ -5,6 +5,7 @@ import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../chat/provider/chat_provider.dart';
 import '../chat/screens/chats_screen.dart';
 import '../customer/screens/customer_dashboard_screen.dart';
 import '../customer/screens/customer_requests_screen.dart';
@@ -105,6 +106,11 @@ class _CustomerLayoutState extends State<CustomerLayout> {
     final notify = context.watch<NotificationProvider>();
     final support = context.watch<SupportProvider>();
     final openTicket = support.openTicket;
+    // [FIX-CHATBADGE-01] المصدر الصحيح لعدد الدردشات غير المقروءة: القيمة
+    // المدعومة من الخادم (GET /chats، جدول chat_reads) عبر ChatProvider —
+    // وليس notify.chatUnreadCount (قائمة إشعارات محلية بالذاكرة فقط، تُصفَّر
+    // عند كل إعادة تشغيل للتطبيق ولا تعكس الحالة الحقيقية بقاعدة البيانات).
+    final chatUnread = context.watch<ChatProvider>().totalUnread;
 
     return Scaffold(
       extendBody: true,
@@ -155,7 +161,7 @@ class _CustomerLayoutState extends State<CustomerLayout> {
             Icons.chat_bubble_outline,
             Icons.chat,
             'الدردشات',
-            notify.chatUnreadCount,
+            chatUnread,
           ),
           _NavItem(Icons.settings_outlined, Icons.settings, 'الإعدادات', 0),
         ],

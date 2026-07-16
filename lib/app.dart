@@ -132,7 +132,17 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper> {
       // اربط دورة حياة المصادقة بالسوكت:
       // عند تسجيل الدخول/استعادة الجلسة → اتصال، وعند الخروج → قطع.
       final authProvider = context.read<AuthProvider>();
-      authProvider.onAuthenticated = () => socketProvider.reconnect();
+      final chatProvider = context.read<ChatProvider>();
+      authProvider.onAuthenticated = () async {
+        await socketProvider.reconnect();
+        // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
+        // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
+        // GET /chats) تبقى صفراً منذ إقلاع التطبيق حتى يفتح المستخدم تبويب
+        // "الدردشات" يدوياً ولو مرة واحدة. تحميل صامت هنا (بعد كل تسجيل
+        // دخول/استعادة جلسة) يضمن ظهور الشارة الصحيحة فوراً من اللحظة
+        // الأولى — يشمل إعادة تشغيل التطبيق واستعادة الجلسة المحفوظة تماماً.
+        await chatProvider.loadChats(silent: true);
+      };
       authProvider.onLoggedOut = () => socketProvider.disconnect();
 
       // [FIX-AUTH-01] عند 401 حقيقي من أي طلب بالتطبيق (توكن منتهي فعلياً أو

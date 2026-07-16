@@ -556,7 +556,18 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       final isMe = currentUser != null &&
                           message.senderId == currentUser.id;
 
+                      // [FIX-CHATBUBBLE-01] بدون key، تُطابق Flutter عناصر
+                      // القائمة حسب الموقع (index) لا حسب هوية الرسالة —
+                      // بقائمة reverse:true تُدرَج فيها رسائل جديدة أعلى
+                      // القائمة باستمرار، هذا كان يُعيد استخدام نفس
+                      // _ChatBubbleState (ومعه AudioPlayer/duration/position)
+                      // لرسالة مختلفة كلياً بدل إنشاء حالة جديدة، فـinitState
+                      // (حيث تُقرأ مدة الصوت المخزَّنة) لا يُعاد تنفيذه أبداً
+                      // لرسائل الصوت الجديدة — وهذا بالضبط سبب عدم ظهور مدة
+                      // الرسالة الصوتية فوراً إلا بعد الضغط على تشغيل (اللحظة
+                      // الوحيدة المتبقية التي تُحدِّث duration فعلياً).
                       return ChatBubble(
+                        key: ValueKey(message.id),
                         message: message,
                         isMe: isMe,
                         onReport: isMe

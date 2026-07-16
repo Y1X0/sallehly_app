@@ -5,6 +5,7 @@ import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../chat/provider/chat_provider.dart';
 import '../chat/screens/chats_screen.dart';
 import '../requests/provider/requests_provider.dart';
 import '../notifications/widgets/notification_bell.dart';
@@ -107,6 +108,10 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
     final notify = context.watch<NotificationProvider>();
     final requestsProvider = context.watch<RequestsProvider>();
     final support = context.watch<SupportProvider>();
+    // [FIX-CHATBADGE-01] نفس الإصلاح بـcustomer_layout.dart — المصدر الصحيح
+    // هو ChatProvider.totalUnread المدعوم من الخادم، وليس القائمة المحلية
+    // بالذاكرة (notify.chatUnreadCount) التي تُصفَّر عند إعادة تشغيل التطبيق.
+    final chatUnread = context.watch<ChatProvider>().totalUnread;
 
     // عدّاد تبويب "جديدة" يجب أن يعكس الطلبات المتاحة فعلياً،
     // وليس عدد إشعارات الطلبات القديمة. لذلك عند قبول الطلب واختفائه
@@ -144,7 +149,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
         Icons.chat_bubble_outline,
         Icons.chat,
         'الدردشات',
-        notify.chatUnreadCount,
+        chatUnread,
       ),
       _NavItem(
         Icons.account_balance_wallet_outlined,
