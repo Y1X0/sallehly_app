@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/request_model.dart';
+import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
+import '../../wallet/screens/packages_screen.dart';
 
 class SendOfferScreen extends StatefulWidget {
   final RequestModel request;
@@ -57,7 +59,14 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     } on ApiException catch (e) {
-      showError(e.message);
+      // [FIX-OFFERQUOTA-01] استُهلكت الفرصتان المجانيتان والرصيد غير كافٍ —
+      // نوجّه الفني مباشرة لشاشة شراء الباقات بدل رسالة خطأ عامة لا يعرف
+      // بعدها ماذا يفعل.
+      if (e.code == 'INSUFFICIENT_BALANCE') {
+        showInsufficientBalanceDialog(e.message);
+      } else {
+        showError(e.message);
+      }
     } catch (_) {
       showError('تعذر إرسال العرض');
     }
@@ -72,9 +81,40 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
     );
   }
 
+  Future<void> showInsufficientBalanceDialog(String message) async {
+    if (!mounted) return;
+
+    final shouldTopUp = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('استُهلكت فرصتاك المجانيتان'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('لاحقاً'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('شحن الرصيد'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldTopUp == true && mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PackagesScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loading = context.watch<RequestsProvider>().loading;
+    final freeOffersRemaining =
+        context.watch<AuthProvider>().user?.freeOffersRemaining ?? 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -107,6 +147,27 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   '${widget.request.city} - ${widget.request.area ?? ''}',
                   style: TextStyle(
                     color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // [FIX-OFFERQUOTA-01] عدد الفرص المجانية المتبقية — مرئي دائماً
+                // قبل الإرسال بدل مفاجأة الفني برفض 402 بلا سياق مسبق.
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: (freeOffersRemaining > 0 ? AppColors.primary : AppColors.danger)
+                        .withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    freeOffersRemaining > 0
+                        ? 'لديك $freeOffersRemaining من العروض المجانية متبقية'
+                        : 'استُهلكت فرصتاك المجانيتان — هذا العرض يحتاج رصيداً كافياً',
+                    style: TextStyle(
+                      color: freeOffersRemaining > 0 ? AppColors.primary : AppColors.danger,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),

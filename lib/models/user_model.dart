@@ -22,6 +22,12 @@ class UserModel {
   final double balance;
   final bool active;
 
+  /// [FIX-OFFERQUOTA-01] عدد "محاولات تقديم عرض" التي استهلكها الفني من أصل
+  /// فرصتيه المجانيتين — عدّاد دائم لا يتأثر بسحب عرض لاحقاً. السيرفر يرسله
+  /// فقط للفنيين؛ يبقى صفراً لأي دور آخر (لا معنى له لعميل أو أدمن).
+  final int freeOffersUsed;
+  final int freeOffersRemaining;
+
   const UserModel({
     required this.id,
     required this.role,
@@ -36,6 +42,8 @@ class UserModel {
     required this.rating,
     required this.balance,
     required this.active,
+    this.freeOffersUsed = 0,
+    this.freeOffersRemaining = 0,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +72,9 @@ class UserModel {
           json['is_active'] == true ||
           json['active'] == 1 ||
           json['active'] == true,
+      freeOffersUsed: int.tryParse('${json['free_offers_used'] ?? 0}') ?? 0,
+      freeOffersRemaining:
+          int.tryParse('${json['free_offers_remaining'] ?? 0}') ?? 0,
     );
   }
 
@@ -82,6 +93,8 @@ class UserModel {
       'rating': rating,
       'balance': balance,
       'active': active,
+      'free_offers_used': freeOffersUsed,
+      'free_offers_remaining': freeOffersRemaining,
     };
   }
 

@@ -239,6 +239,10 @@ class ApiClient {
       final data = error.response?.data;
       final status = error.response?.statusCode;
 
+      // [FIX-OFFERQUOTA-01] رمز الخطأ الصريح (إن وُجد) — مثل 'INSUFFICIENT_BALANCE'.
+      final String? errorCode =
+          (data is Map && data['code'] != null) ? data['code'].toString() : null;
+
       // رسالة الخطأ القادمة من السيرفر إن وُجدت
       String? serverMessage;
       if (data is Map && data['message'] != null) {
@@ -254,7 +258,7 @@ class ApiClient {
       }
 
       if (serverMessage != null && serverMessage.isNotEmpty) {
-        return ApiException(serverMessage, statusCode: status);
+        return ApiException(serverMessage, statusCode: status, code: errorCode);
       }
 
       // رسائل افتراضية حسب رمز الحالة عندما لا يرسل السيرفر نصاً
@@ -271,7 +275,7 @@ class ApiClient {
         fallback = 'حدث خطأ بالاتصال (رمز: ${status ?? 'غير معروف'})';
       }
 
-      return ApiException(fallback, statusCode: status);
+      return ApiException(fallback, statusCode: status, code: errorCode);
     }
 
     return ApiException('حدث خطأ غير متوقع');
