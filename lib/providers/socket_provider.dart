@@ -206,6 +206,10 @@ class SocketProvider extends ChangeNotifier {
 
     socketService.on(SocketEvents.chatBadgesUpdated, (data) {
       _notificationProvider?.handleChatBadges(data);
+      // [FIX-CHATUNREAD-01] حدّث قائمة المحادثات (شارات غير المقروء) فوراً —
+      // يغطي وصول رسالة جديدة، وأيضاً فتح الطرف الآخر للمحادثة (يُصفّر
+      // شارتنا نحن إن كنا المرسل، ويُصفّر شارة الطرف الآخر إن كان هو الفاتح).
+      _chatProvider?.loadChats(silent: true);
     });
 
     socketService.on(SocketEvents.messagesUpdated, (data) {

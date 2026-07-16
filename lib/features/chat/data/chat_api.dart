@@ -2,12 +2,31 @@ import 'package:dio/dio.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
+import '../../../models/chat_summary_model.dart';
 import '../../../models/message_model.dart';
 
 class ChatApi {
   final ApiClient apiClient;
 
   ChatApi(this.apiClient);
+
+  /// [FIX-CHATUNREAD-01] قائمة كل المحادثات مع آخر رسالة وعدد غير المقروء لكل
+  /// منها، كما يرجعها GET /chats (نفس المنطق الجاهز أصلاً بالسيرفر).
+  Future<(List<ChatSummaryModel>, int)> getChats() async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.chats);
+      final data = Map<String, dynamic>.from(response.data);
+
+      final chats = (data['chats'] as List? ?? [])
+          .map((e) => ChatSummaryModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      final totalUnread = int.tryParse('${data['total_unread'] ?? 0}') ?? 0;
+
+      return (chats, totalUnread);
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
 
   Future<List<MessageModel>> getMessages(int requestId) async {
     try {

@@ -15,13 +15,18 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:sallehly_app/core/api/api_client.dart';
+import 'package:sallehly_app/features/chat/data/chat_api.dart';
+import 'package:sallehly_app/features/chat/provider/chat_provider.dart';
 import 'package:sallehly_app/features/chat/screens/chats_screen.dart';
 import 'package:sallehly_app/features/requests/data/requests_api.dart';
 import 'package:sallehly_app/features/requests/provider/requests_provider.dart';
+import 'package:sallehly_app/models/chat_summary_model.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
 
 class MockRequestsApi extends Mock implements RequestsApi {}
+
+class MockChatApi extends Mock implements ChatApi {}
 
 // AppBackground (المستخدَمة بهذه الشاشة) تحوي AnimationController..repeat()
 // دائم الحركة — هذا يجعل pumpAndSettle() لا "يستقر" أبداً (مهلة/timeout)،
@@ -46,9 +51,21 @@ void main() {
         apiOverride: mockApi,
       );
 
+      final mockChatApi = MockChatApi();
+      when(() => mockChatApi.getChats())
+          .thenAnswer((_) async => (<ChatSummaryModel>[], 0));
+
+      final chatProvider = ChatProvider(
+        apiClient: MockApiClient(),
+        apiOverride: mockChatApi,
+      );
+
       await tester.pumpWidget(
-        ChangeNotifierProvider.value(
-          value: provider,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: provider),
+            ChangeNotifierProvider.value(value: chatProvider),
+          ],
           child: const MaterialApp(home: ChatsScreen()),
         ),
       );

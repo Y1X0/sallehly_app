@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_exception.dart';
+import '../../../models/chat_summary_model.dart';
 import '../../../models/message_model.dart';
 import '../data/chat_api.dart';
 
@@ -10,8 +11,9 @@ class ChatProvider extends ChangeNotifier {
 
   ChatProvider({
     required ApiClient apiClient,
+    ChatApi? apiOverride,
   }) {
-    api = ChatApi(apiClient);
+    api = apiOverride ?? ChatApi(apiClient);
   }
 
   bool loading = false;
@@ -23,6 +25,46 @@ class ChatProvider extends ChangeNotifier {
   final Set<int> _loadingRequestIds = {};
   // [FIX-UGC-01] حالة الحظر لكل طلب (يُحمَّل عند فتح شاشة الشات).
   final Map<int, BlockStatus> _blockStatusByRequest = {};
+
+  // [FIX-CHATUNREAD-01] ملخّص كل المحادثات (آخر رسالة + عدد غير المقروء)،
+  // مصدره GET /chats — يُحدَّث عند فتح شاشة المحادثات وعند وصول
+  // chat-badges-updated عبر السوكت (انظر SocketProvider).
+  List<ChatSummaryModel> chats = [];
+  int totalUnread = 0;
+  bool chatsLoading = false;
+  String? chatsError;
+  bool _loadingChats = false;
+
+  int unreadCountFor(int requestId) {
+    for (final c in chats) {
+      if (c.requestId == requestId) return c.unreadCount;
+    }
+    return 0;
+  }
+
+  Future<void> loadChats({bool silent = false}) async {
+    if (_loadingChats) return;
+    _loadingChats = true;
+
+    if (!silent) {
+      chatsLoading = true;
+      chatsError = null;
+      notifyListeners();
+    }
+
+    try {
+      final (result, total) = await api.getChats();
+      chats = result;
+      totalUnread = total;
+      chatsError = null;
+    } catch (e) {
+      chatsError = e is ApiException ? e.message : 'تعذر تحميل المحادثات';
+    } finally {
+      _loadingChats = false;
+      if (!silent) chatsLoading = false;
+      notifyListeners();
+    }
+  }
 
   List<MessageModel> messagesFor(int requestId) {
     return _messagesByRequest[requestId] ?? [];

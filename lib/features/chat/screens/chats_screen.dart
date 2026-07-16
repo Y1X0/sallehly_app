@@ -5,8 +5,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../models/chat_summary_model.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
+import '../provider/chat_provider.dart';
 import 'chat_room_screen.dart';
 
 class ChatsScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     Future.microtask(() {
       if (!mounted) return;
       context.read<RequestsProvider>().loadRequests();
+      context.read<ChatProvider>().loadChats();
     });
   }
 
@@ -33,10 +36,44 @@ class _ChatsScreenState extends State<ChatsScreen> {
         request.status != 'ملغي';
   }
 
+  Future<void> _refresh(BuildContext context) async {
+    await Future.wait([
+      context.read<RequestsProvider>().loadRequests(),
+      context.read<ChatProvider>().loadChats(),
+    ]);
+  }
+
+  /// [FIX-CHATUNREAD-01] يرتّب المحادثات حسب آخر رسالة (الأحدث أولاً)، مثل
+  /// أي تطبيق مراسلة — بدل ترتيب الطلبات الافتراضي غير المرتبط بالمحادثة.
+  List<RequestModel> _sortByLastMessage(
+    List<RequestModel> requests,
+    Map<int, ChatSummaryModel> summaries,
+  ) {
+    final sorted = [...requests];
+    sorted.sort((a, b) {
+      final aTime = summaries[a.id]?.lastAt ?? a.createdAt;
+      final bTime = summaries[b.id]?.lastAt ?? b.createdAt;
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+      return bTime.compareTo(aTime);
+    });
+    return sorted;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RequestsProvider>();
-    final chats = provider.requests.where(_isChatRequest).toList();
+    final chatProvider = context.watch<ChatProvider>();
+
+    final summaries = {
+      for (final c in chatProvider.chats) c.requestId: c,
+    };
+
+    final chats = _sortByLastMessage(
+      provider.requests.where(_isChatRequest).toList(),
+      summaries,
+    );
 
     return Scaffold(
       body: AppBackground(
@@ -44,11 +81,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
         child: SafeArea(
           child: RefreshIndicator(
             color: AppColors.primary,
-            onRefresh: provider.loadRequests,
+            onRefresh: () => _refresh(context),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
               children: [
-                _HeaderCard(count: chats.length),
+                _HeaderCard(count: chats.length, totalUnread: chatProvider.totalUnread),
                 const SizedBox(height: 22),
                 const SectionTitle(
                   title: 'المحادثات',
@@ -73,17 +110,27 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   const _EmptyChats()
                 else
                   ...chats.map((request) {
+                    final summary = summaries[request.id];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _ChatCard(
                         request: request,
+                        summary: summary,
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ChatRoomScreen(request: request),
                             ),
-                          );
+                          ).then((_) {
+                            // [FIX-CHATUNREAD-01] غادر المستخدم غرفة المحادثة
+                            // (فُتحت الرسائل وتم تعليمها كمقروءة بالسيرفر) —
+                            // حدّث القائمة فوراً لتصفير شارتها هنا أيضاً، دون
+                            // الانتظار لحدث سوكت قد يتأخر أو يُفقد.
+                            if (context.mounted) {
+                              context.read<ChatProvider>().loadChats(silent: true);
+                            }
+                          });
                         },
                       ),
                     );
@@ -99,9 +146,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
 class _HeaderCard extends StatelessWidget {
   final int count;
+  final int totalUnread;
 
   const _HeaderCard({
     required this.count,
+    this.totalUnread = 0,
   });
 
   @override
@@ -140,7 +189,9 @@ class _HeaderCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'تواصل بأمان داخل التطبيق بدون مشاركة أرقام الهاتف.',
+                totalUnread > 0
+                    ? 'لديك $totalUnread رسالة غير مقروءة'
+                    : 'تواصل بأمان داخل التطبيق بدون مشاركة أرقام الهاتف.',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.82),
                   fontSize: 14,
@@ -157,17 +208,45 @@ class _HeaderCard extends StatelessWidget {
 
 class _ChatCard extends StatelessWidget {
   final RequestModel request;
+  final ChatSummaryModel? summary;
   final VoidCallback onTap;
 
   const _ChatCard({
     required this.request,
     required this.onTap,
+    this.summary,
   });
+
+  /// [FIX-CHATUNREAD-01] معاينة آخر رسالة — تحوّل حمولات الصورة/الصوت/الموقع
+  /// الداخلية إلى نص عربي مفهوم بدل عرض الرابط الخام.
+  String _previewText(String? lastBody) {
+    final body = (lastBody ?? '').trim();
+    if (body.isEmpty) return 'ابدأ المحادثة الآن';
+    if (body.startsWith('[image]')) return '📷 صورة';
+    if (body.startsWith('[audio]')) return '🎤 رسالة صوتية';
+    if (body.startsWith('[location]')) return '📍 موقع';
+    return body;
+  }
+
+  String _formatTime(DateTime? at) {
+    if (at == null) return '';
+    final local = at.toLocal();
+    final now = DateTime.now();
+    final sameDay = local.year == now.year && local.month == now.month && local.day == now.day;
+    if (sameDay) {
+      final hour = local.hour.toString().padLeft(2, '0');
+      final minute = local.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+    return '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
     final location =
         '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}';
+    final unreadCount = summary?.unreadCount ?? 0;
+    final hasUnread = unreadCount > 0;
 
     return GlassCard(
       onTap: onTap,
@@ -175,31 +254,87 @@ class _ChatCard extends StatelessWidget {
       radius: 24,
       child: Row(
         children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.handyman_rounded,
-              color: Colors.white,
-            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.handyman_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              if (hasUnread)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    constraints: const BoxConstraints(minWidth: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.background, width: 2),
+                    ),
+                    child: Text(
+                      unreadCount > 99 ? '99+' : '$unreadCount',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        request.service,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    if (summary?.lastAt != null) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatTime(summary?.lastAt),
+                        style: TextStyle(
+                          color: hasUnread ? AppColors.primary : AppColors.textMuted,
+                          fontSize: 11,
+                          fontWeight: hasUnread ? FontWeight.w900 : FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 5),
                 Text(
-                  request.service,
+                  _previewText(summary?.lastBody),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
+                    color: hasUnread ? AppColors.textPrimary : AppColors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: hasUnread ? FontWeight.w800 : FontWeight.normal,
                   ),
                 ),
                 const SizedBox(height: 5),
