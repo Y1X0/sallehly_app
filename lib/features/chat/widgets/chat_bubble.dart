@@ -414,59 +414,49 @@ class _ImageMessage extends StatelessWidget {
             maxWidth: 220,
             maxHeight: 260,
           ),
-          child: FutureBuilder<Map<String, String>>(
-            future: _authHeaders(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Container(
-                  width: 200,
-                  height: 200,
-                  color: Colors.black.withValues(alpha: 0.2),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
+          // [FIX-CHATIMG-03] كانت هذه الصورة ملفوفة بـFutureBuilder ينتظر
+          // _authHeaders() (توكن غير مستخدَم أصلاً من الخادم — /uploads
+          // بلا أي تحقق مصادقة). لأن _ImageMessage تُعاد بناؤها مع كل
+          // إعادة بناء لشاشة الشات (كل حدث Socket.IO يمسّها)، كل إعادة بناء
+          // كانت تُنشئ Future جديداً فتستبدل الصورة المعروضة فعلياً بسبينر
+          // مؤقتاً ثم تبني Image.network **جديداً بالكامل** — أي طلب شبكة
+          // جديد من الصفر لنفس الصورة في كل مرة، بدل تحميلها مرة واحدة
+          // والاستفادة من ImageCache الطبيعي لـFlutter. نفس نمط
+          // customer/technician_request_details_screen.dart بالضبط (تعمل
+          // بثبات لنفس نوع الروابط بلا أي headers).
+          child: Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return Container(
+                width: 200,
+                height: 200,
+                color: Colors.black.withValues(alpha: 0.2),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
                   ),
-                );
-              }
-
-              return Image.network(
-                imageUrl,
-                headers: snapshot.data,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return Container(
-                    width: 200,
-                    height: 200,
-                    color: Colors.black.withValues(alpha: 0.2),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stack) {
+              return Container(
+                width: 200,
+                height: 120,
+                color: Colors.black.withValues(alpha: 0.25),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image_outlined, color: Colors.white70),
+                    SizedBox(height: 6),
+                    Text(
+                      'تعذّر تحميل الصورة',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
-                  );
-                },
-                errorBuilder: (context, error, stack) {
-                  return Container(
-                    width: 200,
-                    height: 120,
-                    color: Colors.black.withValues(alpha: 0.25),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.broken_image_outlined, color: Colors.white70),
-                        SizedBox(height: 6),
-                        Text(
-                          'تعذّر تحميل الصورة',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                  ],
+                ),
               );
             },
           ),
