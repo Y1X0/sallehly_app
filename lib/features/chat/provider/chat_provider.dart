@@ -156,6 +156,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> sendAudio({
     required int requestId,
     required String audioPath,
+    int? durationSeconds,
   }) async {
     if (sending) return;
     sending = true;
@@ -166,6 +167,7 @@ class ChatProvider extends ChangeNotifier {
       final messages = await api.sendAudio(
         requestId: requestId,
         audioPath: audioPath,
+        durationSeconds: durationSeconds,
       );
 
       _messagesByRequest[requestId] = messages;

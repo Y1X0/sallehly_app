@@ -81,6 +81,7 @@ class ChatApi {
   Future<List<MessageModel>> sendAudio({
     required int requestId,
     required String audioPath,
+    int? durationSeconds,
   }) async {
     try {
       final response = await apiClient.dio.post(
@@ -91,6 +92,9 @@ class ChatApi {
             filename: 'voice_${DateTime.now().millisecondsSinceEpoch}.wav',
             contentType: DioMediaType('audio', 'wav'),
           ),
+          // [FIX-AUDIODUR-01] المدة الفعلية بالثواني (من مؤقّت التسجيل نفسه)
+          // — اختيارية، يتجاهلها السيرفر بصمت إن غابت أو كانت غير منطقية.
+          if (durationSeconds != null) 'duration': durationSeconds.toString(),
         }),
       );
 

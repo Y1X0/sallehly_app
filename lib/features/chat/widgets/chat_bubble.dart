@@ -64,6 +64,14 @@ class _ChatBubbleState extends State<ChatBubble> {
 
     if (!widget.message.isAudio) return;
 
+    // [FIX-AUDIODUR-01] اعرض المدة المخزَّنة فوراً بدل "00:00" لحين بدء
+    // التشغيل — قبل هذا التغيير لم تكن المدة تظهر أبداً إلا بعد ضغط تشغيل
+    // فعلي (لحظة تحميل AudioPlayer لبيانات الملف).
+    final storedSeconds = widget.message.audioDurationSeconds;
+    if (storedSeconds != null && storedSeconds > 0) {
+      duration = Duration(seconds: storedSeconds);
+    }
+
     final player = _player = AudioPlayer();
 
     player.onDurationChanged.listen((value) {

@@ -233,6 +233,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         await context.read<ChatProvider>().sendAudio(
           requestId: widget.request.id,
           audioPath: path,
+          durationSeconds: duration,
         );
 
         scrollToBottom();

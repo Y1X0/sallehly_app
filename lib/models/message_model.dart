@@ -21,9 +21,24 @@ class MessageModel {
   bool get isLocation => body.startsWith('[location]');
   bool get isImage => body.startsWith('[image]');
 
+  /// [FIX-AUDIODUR-01] الجسم بصيغة '[audio]/uploads/audios/x.wav' أو
+  /// '[audio]/uploads/audios/x.wav|42' (42 = المدة بالثواني، اختيارية —
+  /// رسائل قديمة من قبل هذا التغيير لا تحمل اللاحقة إطلاقاً).
   String get audioUrl {
     if (!isAudio) return '';
-    return body.replaceFirst('[audio]', '').trim();
+    final raw = body.replaceFirst('[audio]', '').trim();
+    final pipeIndex = raw.indexOf('|');
+    return pipeIndex == -1 ? raw : raw.substring(0, pipeIndex);
+  }
+
+  /// المدة المخزَّنة من السيرفر وقت الرفع، أو null لرسائل قديمة/بلا مدة —
+  /// عندها تبقى الواجهة تعتمد على مدة مشغّل الصوت الفعلية بعد بدء التشغيل.
+  int? get audioDurationSeconds {
+    if (!isAudio) return null;
+    final raw = body.replaceFirst('[audio]', '').trim();
+    final pipeIndex = raw.indexOf('|');
+    if (pipeIndex == -1) return null;
+    return int.tryParse(raw.substring(pipeIndex + 1));
   }
 
   String get locationPayload {

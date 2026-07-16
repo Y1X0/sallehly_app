@@ -223,9 +223,21 @@ class _ChatCard extends StatelessWidget {
     final body = (lastBody ?? '').trim();
     if (body.isEmpty) return 'ابدأ المحادثة الآن';
     if (body.startsWith('[image]')) return '📷 صورة';
-    if (body.startsWith('[audio]')) return '🎤 رسالة صوتية';
+    if (body.startsWith('[audio]')) return '🎤 رسالة صوتية${_audioDurationSuffix(body)}';
     if (body.startsWith('[location]')) return '📍 موقع';
     return body;
+  }
+
+  /// [FIX-AUDIODUR-01] '[audio]url|42' → ' (00:42)'؛ بلا لاحقة إن كانت الرسالة
+  /// قديمة أو المدة غير مخزَّنة.
+  String _audioDurationSuffix(String body) {
+    final pipeIndex = body.indexOf('|');
+    if (pipeIndex == -1) return '';
+    final seconds = int.tryParse(body.substring(pipeIndex + 1));
+    if (seconds == null || seconds <= 0) return '';
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return ' ($minutes:$secs)';
   }
 
   String _formatTime(DateTime? at) {

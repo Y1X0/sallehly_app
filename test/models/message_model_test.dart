@@ -77,6 +77,34 @@ void main() {
     });
   });
 
+  // [FIX-AUDIODUR-01] المدة الآن قد تُخزَّن كلاحقة '|<ثواني>' بعد رابط الصوت.
+  group('MessageModel — مدة الرسالة الصوتية', () {
+    test('رسالة صوتية بمدة مخزَّنة: audioDurationSeconds صحيحة، وaudioUrl بلا اللاحقة', () {
+      final m = MessageModel.fromJson({
+        'id': 1, 'request_id': 1, 'sender_id': 1,
+        'body': '[audio]/uploads/audios/voice.wav|42',
+      });
+      expect(m.isAudio, true);
+      expect(m.audioUrl, '/uploads/audios/voice.wav');
+      expect(m.audioDurationSeconds, 42);
+    });
+
+    test('رسالة صوتية قديمة بلا مدة (توافق قديم): audioDurationSeconds تكون null، وaudioUrl سليمة', () {
+      final m = MessageModel.fromJson({
+        'id': 1, 'request_id': 1, 'sender_id': 1,
+        'body': '[audio]/uploads/audios/old-voice.wav',
+      });
+      expect(m.isAudio, true);
+      expect(m.audioUrl, '/uploads/audios/old-voice.wav');
+      expect(m.audioDurationSeconds, isNull);
+    });
+
+    test('audioDurationSeconds على رسالة غير صوتية يرجع null بدل خطأ', () {
+      final m = MessageModel.fromJson({'id': 1, 'request_id': 1, 'sender_id': 1, 'body': 'رسالة عادية'});
+      expect(m.audioDurationSeconds, isNull);
+    });
+  });
+
   group('MessageModel.fromJson — أسماء حقول بديلة (camelCase احتياطية)', () {
     test('requestId/senderId/createdAt كبدائل لو الأسماء بصيغة snake_case غير موجودة', () {
       final m = MessageModel.fromJson({
