@@ -4,8 +4,10 @@
 .dart_tool/
 .packages
 build/
-# If you're building an application, you may want to check-in your pubspec.lock
-pubspec.lock
+# pubspec.lock is committed intentionally (this is an application, not a
+# library) to pin exact dependency versions for reproducible CI/release
+# builds. A loose Dio version range once let CI silently re-resolve to a
+# newer Dio patch with a different DioExceptionType enum and break the build.
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.
