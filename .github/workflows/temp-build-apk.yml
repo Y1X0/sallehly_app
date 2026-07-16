@@ -1,0 +1,41 @@
+name: Temporary Build Android APK (Release)
+
+# [TEMP] مؤقت — لإنتاج app-release.apk قابل للتنزيل والتثبيت المباشر للتحقق
+# اليدوي، بعكس android-build.yml الذي ينتج App Bundle (.aab) غير قابل للتثبيت
+# مباشرة على جهاز. يعمل يدوياً فقط (workflow_dispatch)، لا يعمل تلقائياً عند
+# push. لا يعدّل أي كود بالتطبيق، ولا يمس android-build.yml الأصلي.
+#
+# نفس ملاحظة android-build.yml: لا يوجد android/key.properties (مفتاح
+# التوقيع الحقيقي غير موجود بالمستودع عمداً)، فيقع البناء تلقائياً على توقيع
+# debug (حسب android/app/build.gradle.kts) — هذا يثبت نجاح البناء فقط، وليس
+# ملفاً جاهزاً للنشر على Google Play.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Build Android APK (CI validation only, debug-signed)
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sallehly-android-apk-unsigned
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
