@@ -58,6 +58,7 @@ class RequestsApi {
       final response = await apiClient.dio.post(
         ApiEndpoints.requests,
         data: FormData.fromMap(map),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);

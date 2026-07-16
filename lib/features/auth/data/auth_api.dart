@@ -94,6 +94,7 @@ class AuthApi {
       final response = await apiClient.dio.post(
         ApiEndpoints.register,
         data: FormData.fromMap(map),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);
@@ -240,6 +241,7 @@ class AuthApi {
       final response = await apiClient.dio.post(
         ApiEndpoints.meProfile,
         data: FormData.fromMap(map),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);

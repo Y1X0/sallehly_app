@@ -77,6 +77,7 @@ class WalletApi {
           'package_id': packageId,
           'receipt': await MultipartFile.fromFile(receiptPath),
         }),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);

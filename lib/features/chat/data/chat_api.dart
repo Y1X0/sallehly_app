@@ -96,6 +96,7 @@ class ChatApi {
           // — اختيارية، يتجاهلها السيرفر بصمت إن غابت أو كانت غير منطقية.
           if (durationSeconds != null) 'duration': durationSeconds.toString(),
         }),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);
@@ -121,6 +122,7 @@ class ChatApi {
             filename: 'image_${DateTime.now().millisecondsSinceEpoch}.jpg',
           ),
         }),
+        options: apiClient.uploadOptions(),
       );
 
       final data = Map<String, dynamic>.from(response.data);

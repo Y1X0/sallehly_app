@@ -119,6 +119,13 @@ class ApiClient {
                 );
 
                 final response = await retryDio.fetch(options);
+                // [FIX-RETRY-02] retryDio كائن منفصل بلا أي Interceptors —
+                // نجاح الطلب هنا لا يمر إطلاقاً عبر onResponse الأصلي أعلاه،
+                // فكان onOnline() لا يُستدعى أبداً رغم نجاح الطلب فعلياً،
+                // ويبقى البانر ظاهراً على الشاشة حتى ينجح طلب آخر لاحق
+                // بالصدفة عبر المسار الطبيعي. استدعاء صريح هنا يصحّح الحالة
+                // فوراً بمجرد أن نعرف يقيناً أن الخادم استجاب.
+                onOnline?.call();
                 return handler.resolve(response);
               } catch (_) {
                 // فشلت إعادة المحاولة أيضاً — كمّل بمعالجة الخطأ العادية
@@ -177,6 +184,16 @@ class ApiClient {
 
     final method = error.requestOptions.method.toUpperCase();
     return method == 'GET' || method == 'HEAD';
+  }
+
+  /// [FIX-UPLOADTIMEOUT-01] رفع الملفات (صور/تسجيلات صوتية) يشارك نفس مهلة
+  /// الـ20 ثانية العامة لكل طلبات API رغم أن مدة الرفع تعتمد على سرعة رفع
+  /// المستخدم نفسها لا على استجابة الخادم — ملف صوتي 5MB على شبكة ضعيفة
+  /// (~150KB/s) يحتاج فعلياً أكثر من 30 ثانية لمجرد الإرسال، فتظهر رسالة
+  /// "الخادم بطيء" رغم أن المشكلة بالكامل هي سرعة رفع المستخدم. مهلة أطول
+  /// خاصة بطلبات الرفع فقط (لا تؤثر على أي طلب API عادي آخر).
+  Options uploadOptions({Duration timeout = const Duration(seconds: 60)}) {
+    return Options(sendTimeout: timeout, receiveTimeout: timeout);
   }
 
   String _extractTokenFromSetCookie(Headers headers) {

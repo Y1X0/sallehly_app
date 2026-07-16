@@ -27,6 +27,14 @@ class _SplashScreenState extends State<SplashScreen>
   // إعادة المحاولة، بدل الانتقال لأي شاشة بافتراض غير مؤكد.
   bool _showRetry = false;
 
+  // [FIX-AUTH-04] Future.timeout() لا يُلغي العملية الأصلية، فقط يتوقف عن
+  // الانتظار لها — auth.loadMe() تستمر فعلياً بالخلفية (وقد تُعاد إرسالها
+  // تلقائياً عبر منطق إعادة المحاولة بـApiClient حتى ~40 ثانية إضافية) حتى
+  // بعد ظهور شاشة "تعذّر الاتصال". بدون هذا المرجع، ضغط زر "إعادة المحاولة"
+  // كان يُصدر طلب /me ثانياً متزامناً مع الأول الذي ما زال قيد التنفيذ فعلاً
+  // — يضاعف الحمل على الخادم في أضعف لحظة له (خادم يستيقظ من الخمول).
+  Future<void>? _loadMeFuture;
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +63,16 @@ class _SplashScreenState extends State<SplashScreen>
     // قليلاً من مهلة Dio الأساسية 20 ثانية لإتمام محاولة واحدة كاملة دون
     // قطعها ظلماً) + عند تجاوزها: لا تخمين ولا انتقال، فقط حالة صريحة
     // "تعذّر الاتصال" مع زر إعادة محاولة يعيد استدعاء نفس الفحص من جديد.
+    // [FIX-AUTH-04] أعد استخدام نفس العملية قيد التنفيذ فعلاً إن وُجدت، بدل
+    // إصدار طلب /me جديد كل مرة يُستدعى فيها checkAuth() (إقلاع أول أو إعادة
+    // محاولة يدوية) — يُصفَّر المرجع فقط عند اكتمال العملية الحقيقية فعلاً،
+    // وليس عند انتهاء مهلة الانتظار الظاهرة أدناه.
+    final loadMeFuture = _loadMeFuture ??= auth.loadMe().whenComplete(() {
+      _loadMeFuture = null;
+    });
+
     try {
-      await auth.loadMe().timeout(const Duration(seconds: 25));
+      await loadMeFuture.timeout(const Duration(seconds: 25));
     } on TimeoutException {
       if (!mounted) return;
       setState(() => _showRetry = true);
