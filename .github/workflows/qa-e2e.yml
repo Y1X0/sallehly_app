@@ -1,0 +1,186 @@
+name: QA E2E (Maestro)
+
+# Foundation for the scripted-tier QA automation described in maestro/README.md.
+# Manual trigger only for now — this stays workflow_dispatch until the flow
+# suite has enough coverage to be trusted as an automatic gate on every push.
+on:
+  workflow_dispatch:
+
+# Least-privilege default: this workflow only reads source and runs a local,
+# throwaway backend — it never needs to write to the repo, open PRs, or touch
+# releases.
+permissions:
+  contents: read
+
+env:
+  # Throwaway secret for an ephemeral, empty, CI-only test database — never
+  # used against any real data. Not stored as a GitHub secret on purpose;
+  # there is nothing sensitive to protect here. Same pattern used by the
+  # backend's own Playwright config (sallehly/playwright.config.js) and
+  # throughout this session's live diagnostics.
+  QA_JWT_SECRET: qa_e2e_dummy_secret_do_not_use_in_prod_1234567890
+  QA_BACKEND_PORT: 4001
+
+# QA_EMAIL and QA_PASSWORD are repo secrets (Settings → Secrets → Actions),
+# not plaintext env values, purely so GitHub's automatic log-masking covers
+# them — the account they protect is throwaway and destroyed with the
+# runner regardless, but there's no reason to leave them readable in logs.
+# Must be set, alongside QA_BACKEND_CHECKOUT_TOKEN, before this workflow can
+# run successfully.
+
+jobs:
+  qa-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout sallehly_app
+        uses: actions/checkout@v4
+
+      # Cross-repo checkout of the backend. The default GITHUB_TOKEN is
+      # scoped only to this repo, so this needs a PAT (or fine-grained
+      # token) with at least read access to Y1X0/sallehly, stored as the
+      # QA_BACKEND_CHECKOUT_TOKEN secret in this repo's settings. This step
+      # will fail with a permissions error until that secret is created —
+      # that is expected on first run, not a bug in this workflow.
+      - name: Checkout sallehly backend
+        uses: actions/checkout@v4
+        with:
+          repository: Y1X0/sallehly
+          ref: master
+          token: ${{ secrets.QA_BACKEND_CHECKOUT_TOKEN }}
+          path: backend
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Boot test backend
+        working-directory: backend
+        run: |
+          mkdir -p "$RUNNER_TEMP/qa-data"
+          NODE_ENV=test \
+          PORT=${{ env.QA_BACKEND_PORT }} \
+          DATA_DIR="$RUNNER_TEMP/qa-data" \
+          JWT_SECRET="${{ env.QA_JWT_SECRET }}" \
+            node server.js > "$RUNNER_TEMP/backend.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/backend.pid"
+
+      - name: Wait for backend readiness
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf "http://127.0.0.1:${{ env.QA_BACKEND_PORT }}/api/meta" > /dev/null; then
+              echo "Backend is up."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend never became ready. Log follows:"
+          cat "$RUNNER_TEMP/backend.log"
+          exit 1
+
+      - name: Seed test customer account
+        run: |
+          set -e
+          BASE="http://127.0.0.1:${{ env.QA_BACKEND_PORT }}/api"
+
+          curl -sf -X POST "$BASE/auth/register" \
+            -F "role=customer" \
+            -F "name=QA Customer" \
+            -F "email=${{ secrets.QA_EMAIL }}" \
+            -F "phone=0790000001" \
+            -F "password=${{ secrets.QA_PASSWORD }}" \
+            -F "city=عمّان" \
+            > /dev/null
+
+          OTP=$(node maestro/scripts/read-otp.js \
+            "$(pwd)/backend/node_modules/better-sqlite3" \
+            "$RUNNER_TEMP/qa-data/sallehly.sqlite" \
+            "${{ secrets.QA_EMAIL }}")
+
+          curl -sf -X POST "$BASE/auth/verify-otp" \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${{ secrets.QA_EMAIL }}\",\"otp\":\"$OTP\"}" \
+            > /dev/null
+
+          echo "Seeded and verified test customer: ${{ secrets.QA_EMAIL }}"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      # 10.0.2.2 is the Android emulator's fixed alias for the host
+      # machine's localhost — the emulator (running inside this same CI
+      # job) reaches the backend booted above through it. Debug build:
+      # this is QA infrastructure, not a release artifact, and debug
+      # builds are faster and simpler for Maestro to drive.
+      - name: Build debug APK for QA
+        run: |
+          flutter build apk --debug \
+            --dart-define=API_BASE_URL=http://10.0.2.2:${{ env.QA_BACKEND_PORT }}
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Run smoke flow on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            export PATH="$HOME/.maestro/bin:$PATH"
+            maestro test maestro/smoke/login_and_verify_home.yaml \
+              -e QA_EMAIL="${{ secrets.QA_EMAIL }}" \
+              -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" \
+              --format junit \
+              --output "$RUNNER_TEMP/maestro-report.xml"
+
+      - name: Stop test backend
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/backend.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/backend.pid")" 2>/dev/null || true
+          fi
+
+      - name: Upload Maestro report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-qa-report
+          path: |
+            ${{ runner.temp }}/maestro-report.xml
+            ~/.maestro/tests/**
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload backend log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-backend-log
+          path: ${{ runner.temp }}/backend.log
+          retention-days: 14
+          if-no-files-found: warn

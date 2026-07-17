@@ -1,0 +1,29 @@
+# Smoke test: launch the app, log in as a pre-seeded customer, verify the
+# customer home screen actually loads. This is the single "is the app alive
+# at all" gate — see maestro/README.md for how CI seeds the account.
+#
+# Required env vars (pass via `maestro test ... -e KEY=value`):
+#   QA_EMAIL     — email of a real, already-registered customer account
+#   QA_PASSWORD  — that account's password
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+
+# Landing screen — tap through to the login form.
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+
+# Login form.
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "${QA_EMAIL}"
+- tapOn: "كلمة المرور"
+- inputText: "${QA_PASSWORD}"
+- tapOn: "تسجيل الدخول"
+
+# Customer home screen — "الرئيسية" is the first bottom-nav tab label,
+# only present once a real, authenticated home screen has rendered.
+- assertVisible:
+    text: "الرئيسية"
+    timeout: 20000
