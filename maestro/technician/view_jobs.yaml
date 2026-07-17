@@ -1,19 +1,24 @@
-# Technician: confirm the "browse jobs" feed loads. This is already the
-# technician's default landing tab — no extra navigation tap needed.
+# Technician: confirm the "browse jobs" feed loads.
 #
-# Selectors verified directly against source:
-#   - lib/features/layout/technician_layout.dart:33 puts NewRequestsScreen
-#     at index 0, matching the "الرئيسية" nav tab at line 140 — so it's
-#     the screen already showing right after login.
-#   - lib/features/technician/screens/new_requests_screen.dart:36-54: the
-#     screen body is a ListView whose FIRST child is a large _HeroCard
-#     (padding 22, 130px icon, multi-line text), with the "طلبات العملاء"
-#     SectionTitle only appearing AFTER it. On the emulator's screen size
-#     that pushes the title below the fold — confirmed root cause of run
-#     29562329149's failure (a 20s extendedWaitUntil still couldn't find
-#     it: it's off-screen, not slow to render, and Maestro's
-#     assertVisible/extendedWaitUntil don't auto-scroll). scrollUntilVisible
-#     is the correct Maestro command for an element that requires scrolling.
+# CORRECTED after real screenshot evidence (run 29565568559,
+# screenshot-❌-...-(view_jobs).png): the technician's home tab
+# ("الرئيسية") is NOT NewRequestsScreen directly — it's a separate
+# TechnicianDashboardScreen (رصيد، زر "عرض الطلبات الجديدة"،
+# اختصارات الفني). "طلبات العملاء" was never on that screen at all,
+# which is why neither the earlier extendedWaitUntil nor
+# scrollUntilVisible fix could ever find it — no amount of
+# waiting/scrolling puts text on a screen it was never part of.
+#
+# Confirmed via source, not guessed:
+#   - lib/features/layout/technician_layout.dart:31-38: pages[0] is
+#     TechnicianDashboardScreen(), pages[1] is NewRequestsScreen().
+#   - lib/features/layout/technician_layout.dart:141-146: the nav item
+#     at index 1 is labeled "جديدة" — exactly matching the bottom nav
+#     in the screenshot. Tapping it selects pages[1] = NewRequestsScreen.
+#   - lib/features/technician/screens/new_requests_screen.dart:52: once
+#     actually on that screen, "طلبات العملاء" is the SectionTitle,
+#     rendered unconditionally regardless of loading/empty/populated
+#     state.
 appId: com.sallehly.app
 ---
 - launchApp:
@@ -35,7 +40,9 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-- scrollUntilVisible:
-    element: "طلبات العملاء"
-    direction: DOWN
+# Navigate from the technician dashboard to the actual jobs feed via
+# the "جديدة" bottom-nav tab (index 1 -> NewRequestsScreen).
+- tapOn: "جديدة"
+- extendedWaitUntil:
+    visible: "طلبات العملاء"
     timeout: 20000

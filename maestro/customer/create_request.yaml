@@ -41,20 +41,24 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-# Dashboard -> "إنشاء طلب" action card -> create-request form. Runs
-# 29560553896/29562329149 both failed here (Element-not-found, then
-# still-not-visible with a 20s extendedWaitUntil) even though the
-# dashboard's _HeroCard is the same size regardless of role and the
-# sibling "طلباتي" card in the identical row/position taps fine in
-# customer/view_requests.yaml — so this is either a smaller margin
-# call than the other screens or a timing race on the very first
-# frame after "الرئيسية" appears. scrollUntilVisible is a safe
-# superset of extendedWaitUntil here: a no-op if already on-screen,
-# and self-correcting if it needs even a small scroll.
-- scrollUntilVisible:
-    element: "إنشاء طلب"
-    direction: DOWN
-    timeout: 20000
+# Dashboard -> "إنشاء طلب" action card -> create-request form.
+#
+# CORRECTED after real screenshot evidence (run 29565568559,
+# screenshot-❌-...-(create_request).png): the failure frame shows the
+# screen scrolled all the way down into the services grid section, far
+# past where "إنشاء طلب" actually sits (near the top, right after one
+# _HeroCard — same position/row as the "طلباتي" card in
+# customer/view_requests.yaml, which taps fine there with a plain
+# tapOn and no scroll). scrollUntilVisible with direction: DOWN was
+# the bug: on a transient render gap it doesn't find the target
+# immediately, then actively scrolls AWAY from it (down, toward the
+# services grid) and never scrolls back up, so it can end up further
+# from the target the longer it searches. Reverting to a plain
+# extendedWaitUntil (no directional scroll bias), same pattern as the
+# already-reliable "طلباتي" card, with a longer timeout for margin.
+- extendedWaitUntil:
+    visible: "إنشاء طلب"
+    timeout: 30000
 - tapOn: "إنشاء طلب"
 - assertVisible: "طلب صيانة جديد"
 

@@ -1,15 +1,21 @@
 # Customer: open "My Requests" and confirm the list screen actually loads.
 #
-# Selectors verified directly against source:
-#   - lib/features/customer/screens/customer_dashboard_screen.dart:113
-#     "طلباتي" action card -> opens CustomerRequestsScreen
-#   - lib/features/customer/screens/customer_requests_screen.dart:92-105:
-#     the destination screen's ListView puts a _SummaryCard BEFORE the
-#     "طلباتي" / "تابع حالة الطلبات والعروض" SectionTitle, which can push
-#     it below the fold — confirmed root cause of run 29562329149's
-#     failure (same class of bug as technician/view_jobs.yaml).
-#     scrollUntilVisible instead of assertVisible/extendedWaitUntil,
-#     since those don't auto-scroll.
+# CORRECTED after real screenshot evidence (run 29565568559,
+# screenshot-❌-...-(view_requests).png): the screen IS reached
+# correctly every time — the screenshot shows "طلباتي" (from _TopBar,
+# always present) plus an empty-state card "لا يوجد طلبات بعد", not the
+# populated ListView. The CI-seeded customer account is brand new with
+# zero requests ever, so customer_requests_screen.dart takes its
+# `requests.isEmpty` branch and renders _EmptyRequests() instead of the
+# ListView — and the "تابع حالة الطلبات والعروض" subtitle this flow
+# used to check only exists INSIDE that ListView branch
+# (customer_requests_screen.dart:92-105), never in the empty-state one
+# (:482-509, confirmed exact text 'لا يوجد طلبات بعد' at line 509).
+# Neither the earlier extendedWaitUntil nor scrollUntilVisible attempt
+# could ever have found it, regardless of timeout or scrolling — it
+# genuinely isn't rendered for a zero-history account. Asserting on the
+# empty-state text instead is the deterministically correct check for
+# this CI account's actual, always-empty history.
 #
 # Required env vars: QA_EMAIL, QA_PASSWORD (same seeded customer account).
 appId: com.sallehly.app
@@ -34,7 +40,6 @@ appId: com.sallehly.app
     timeout: 20000
 
 - tapOn: "طلباتي"
-- scrollUntilVisible:
-    element: "تابع حالة الطلبات والعروض"
-    direction: DOWN
+- extendedWaitUntil:
+    visible: "لا يوجد طلبات بعد"
     timeout: 20000
