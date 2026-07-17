@@ -1,0 +1,21 @@
+# Workspace config for `maestro test maestro/` (see .github/workflows/qa-e2e.yml).
+#
+# By default Maestro only runs flow files directly inside the directory
+# it's pointed at — it does NOT recurse into subdirectories. This file is
+# Maestro's documented mechanism for opting specific subdirectories in
+# (https://docs.maestro.dev/maestro-flows/workspace-management/project-configuration),
+# and is auto-detected whenever `maestro test <dir>` is run against the
+# directory containing it. Confirmed necessary by CI run 29557554859,
+# which failed with "Top-level directories do not contain any Flows"
+# before this file existed.
+#
+# Each pattern is one level deep on purpose, matching this repo's
+# smoke/customer/technician/admin folder layout — new flows dropped into
+# an existing folder are picked up automatically, same as the README
+# already describes. A brand new top-level folder needs a line added
+# here, which is a run-strategy change, not a per-flow one.
+flows:
+  - "smoke/*"
+  - "customer/*"
+  - "technician/*"
+  - "admin/*"

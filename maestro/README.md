@@ -42,12 +42,17 @@ file in this tree, in one pass. Maestro reports pass/fail per individual
 flow even when run as a batch, so CI output still tells you exactly which
 flow broke, without needing a separate ~10-minute emulator boot per flow.
 
+Maestro does not recurse into subdirectories by default — `config.yaml`
+(auto-detected by `maestro test maestro/`) opts each role folder in via
+its `flows:` glob patterns. See that file for why it's needed.
+
 More flows (registration, OTP, chat, wallet, notifications, admin user
 management, etc.) get added the same way: read the real source first,
 write the flow using the actual Arabic labels found there, drop it in the
 right role folder, and it's automatically picked up by the existing
-`maestro test maestro/` invocation — no workflow change needed per new
-flow, only when the run strategy itself needs to change.
+`maestro test maestro/` invocation and `config.yaml` patterns — no
+workflow change needed per new flow, only when a brand new top-level
+folder or the run strategy itself needs to change.
 
 ## How a CI run works
 
