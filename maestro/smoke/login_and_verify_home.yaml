@@ -7,8 +7,19 @@
 #   QA_PASSWORD  — that account's password
 appId: com.sallehly.app
 ---
+# permissions: { all: allow } pre-grants every Android runtime permission
+# (including POST_NOTIFICATIONS on API 33+) before the app process starts.
+# Without this, main.dart's FirebaseNotificationService.init() awaits a
+# permission-request call that shows a native OS dialog on first launch,
+# blocking runApp() (and therefore the whole Flutter UI, including this
+# screen's own text) from ever rendering — confirmed root cause of the
+# previous run's failure ("تسجيل الدخول" never became visible within the
+# assertion timeout). This is a test-infrastructure-only change; it does
+# not alter any app code or runtime behavior on a real user's device.
 - launchApp:
     clearState: true
+    permissions:
+      all: allow
 
 # Landing screen — tap through to the login form.
 - assertVisible: "تسجيل الدخول"
