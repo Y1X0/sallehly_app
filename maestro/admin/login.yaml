@@ -24,6 +24,17 @@ appId: com.sallehly.app
 
 # Admin home screen — "الرئيسية" is the first bottom-nav tab label
 # (lib/features/layout/admin_layout.dart:159).
+#
+# Timeout bumped 20s -> 90s: runs 29562329149/29563877861 both showed
+# admin/login and admin/dashboard taking 2m26s/1m27s total, 2-3x every
+# other role's ~40-55s, confirmed via logcat FCM-token-upload timestamps
+# (admin: 55-109s between app launch and post-login state; every other
+# role: a tight 37-44s cluster in the same runs). Cause not fully
+# pinned down (plausibly CPU contention on the CI runner's 2 shared
+# cores between bcrypt and the software-rendered emulator, since admin
+# runs first against the coldest backend/runner state) but the pattern
+# is consistent and admin-specific across two separate full runs, so
+# raising this timeout is the direct fix rather than another guess.
 - extendedWaitUntil:
     visible: "الرئيسية"
-    timeout: 20000
+    timeout: 90000

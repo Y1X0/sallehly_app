@@ -26,8 +26,14 @@ appId: com.sallehly.app
 - tapOn: "كلمة المرور"
 - inputText: "AdminTestPass123"
 - tapOn: "تسجيل الدخول"
+# Timeout bumped 20s -> 90s — see maestro/admin/login.yaml for the
+# evidence (admin/login and admin/dashboard both consistently 2-3x
+# slower reaching post-login state than every other role, across two
+# separate full CI runs).
 - extendedWaitUntil:
     visible: "الرئيسية"
-    timeout: 20000
+    timeout: 90000
 
-- assertVisible: "إدارة صلّحلي"
+- extendedWaitUntil:
+    visible: "إدارة صلّحلي"
+    timeout: 20000
