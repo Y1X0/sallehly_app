@@ -24,6 +24,8 @@ appId: com.sallehly.app
 
 # Customer home screen — "الرئيسية" is the first bottom-nav tab label,
 # only present once a real, authenticated home screen has rendered.
-- assertVisible:
-    text: "الرئيسية"
+# assertVisible does not support a "timeout" property; extendedWaitUntil
+# is Maestro's supported command for a custom wait timeout.
+- extendedWaitUntil:
+    visible: "الرئيسية"
     timeout: 20000
