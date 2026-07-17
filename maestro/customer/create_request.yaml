@@ -43,25 +43,25 @@ appId: com.sallehly.app
 
 # Dashboard -> "إنشاء طلب" action card -> create-request form.
 #
-# CORRECTED after real screenshot evidence (run 29565568559,
-# screenshot-❌-...-(create_request).png): the failure frame shows the
-# screen scrolled all the way down into the services grid section, far
-# past where "إنشاء طلب" actually sits (near the top, right after one
-# _HeroCard — same position/row as the "طلباتي" card in
-# customer/view_requests.yaml, which taps fine there with a plain
-# tapOn and no scroll). scrollUntilVisible with direction: DOWN was
-# the bug: on a transient render gap it doesn't find the target
-# immediately, then actively scrolls AWAY from it (down, toward the
-# services grid) and never scrolls back up, so it can end up further
-# from the target the longer it searches. Reverting to a plain
-# extendedWaitUntil (no directional scroll bias), same pattern as the
-# already-reliable "طلباتي" card.
+# Run 29602424550 screenshot evidence: "إنشاء طلب" is clearly, visibly
+# rendered on screen at the exact moment Maestro reports the assertion
+# as still false after the full 60s timeout — this is not a rendering,
+# navigation, or timing problem; the element is genuinely on screen
+# and Maestro's own detection is not seeing it. See the ~180-word
+# report accompanying this commit for the full cross-flow evidence.
 #
-# Timeout raised 30s -> 60s: run 29579334695 (after this fix was
-# already in place) still failed here with "Assertion is false", not
-# "element not found" — same environment-wide slowdown pattern
-# observed on every other remaining failure across the last several
-# runs.
+# EXPERIMENTAL — not a fix. Testing whether inserting one cheap,
+# state-neutral query (re-checking "الرئيسية", already proven to
+# resolve in ~2s every run, so this adds no real wait under normal
+# conditions) immediately before the "إنشاء طلب" check changes the
+# outcome. If "إنشاء طلب" now passes, the failure is sequencing/
+# caching-sensitive, not a hard detection limit. If it still fails,
+# Maestro's accessibility tree genuinely never exposes this element,
+# regardless of what precedes it. This step is temporary and will be
+# removed once the experiment's result is known.
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 5000
 - extendedWaitUntil:
     visible: "إنشاء طلب"
     timeout: 60000
