@@ -8,13 +8,17 @@ on:
     inputs:
       flow_path:
         description: >
-          Path (or glob) under maestro/ to run, e.g. maestro/customer/create_request.yaml.
-          Leave empty to run the full suite (maestro/) — use that for regression
-          verification after a fix is confirmed. Use a single flow path for
-          fast, single-variable root-cause experiments: this skips the fixed
-          ~10-15 min backend/APK/emulator setup only in the sense that the
-          Maestro test phase itself finishes in a couple of minutes instead
-          of ~20+, since the other flows (esp. admin's 400s timeouts) never run.
+          Path (or glob) to a single flow, relative to maestro/ or to repo
+          root — e.g. customer/create_request.yaml or
+          maestro/customer/create_request.yaml (either form works; the
+          maestro/ prefix is stripped if present, and the flow always runs
+          with maestro/ as cwd so its own config.yaml is unambiguous — see
+          the script step below for why that matters). Leave empty to run
+          the full suite (maestro/) — use that for regression verification
+          after a fix is confirmed. Use a single flow path for fast,
+          single-variable root-cause experiments: the Maestro test phase
+          finishes in a couple of minutes instead of ~20+, since the other
+          flows (esp. admin's 400s timeouts) never run.
         required: false
         default: ''
 
@@ -200,8 +204,27 @@ jobs:
             export PATH="$HOME/.maestro/bin:$PATH"
             adb logcat -c
             adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
-            FLOW_TARGET="${{ inputs.flow_path }}"; FLOW_TARGET="${FLOW_TARGET:-maestro/}"; echo "Running: $FLOW_TARGET"
-            maestro test "$FLOW_TARGET" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?
+            FLOW_TARGET="${{ inputs.flow_path }}"
+            if [ -z "$FLOW_TARGET" ]; then
+              echo "Running full suite: maestro/"
+              maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?
+            else
+              # A single flow FILE (as opposed to the `maestro/` directory) doesn't
+              # trigger maestro/config.yaml's directory-based auto-detection, so
+              # Maestro's fallback config discovery instead scans the CWD (repo
+              # root) and tries — and fails — to parse the unrelated top-level
+              # codemagic.yaml as a workspace config. Confirmed via run
+              # 29619172516: that run's "success" was invalid — Maestro errored
+              # out after ~3s (vs. the normal 100s+) before ever executing the
+              # flow, only surfacing "Config Field Required at
+              # .../codemagic.yaml:52:1". Running from inside maestro/ instead
+              # keeps its own config.yaml as the unambiguous nearest config,
+              # sidestepping the issue entirely. Accepts the path either as
+              # "customer/x.yaml" or "maestro/customer/x.yaml".
+              REL="${FLOW_TARGET#maestro/}"
+              echo "Running scoped flow (from maestro/): $REL"
+              ( cd maestro && maestro test "$REL" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml" ); MAESTRO_EXIT=$?
+            fi
             echo "===== UI hierarchy dump (uiautomator, whatever screen the app was left on when Maestro finished) ====="
             adb shell uiautomator dump /sdcard/window_dump.xml 2>&1 || echo "(uiautomator dump command failed)"
             adb pull /sdcard/window_dump.xml "$RUNNER_TEMP/window_dump.xml" 2>&1 || echo "(pull failed)"
