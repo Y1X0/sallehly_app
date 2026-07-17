@@ -141,7 +141,16 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-      - name: Run smoke flow on Android emulator
+      # Runs every flow under maestro/ in one pass — Maestro reports
+      # pass/fail per individual flow file even when run as a batch, so
+      # this still gives per-flow results, just without a separate CI step
+      # (and separate ~10-minute emulator boot) per flow. Customer flows
+      # need QA_EMAIL/QA_PASSWORD (the account seeded above); technician
+      # and admin flows use fixed, source-committed test-mode-only default
+      # credentials (see maestro/technician/login.yaml and
+      # maestro/admin/login.yaml for exactly which, and why hardcoding them
+      # there is safe) and need no extra env vars here.
+      - name: Run Maestro E2E suite on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -152,11 +161,11 @@ jobs:
           # The script below runs one line per `sh -c` invocation (not as one
           # continuous shell script), so trailing `\` line continuations do
           # not join across lines here the way they would in a normal `run:`
-          # step. The maestro command must stay on a single line.
+          # step. Each maestro command must stay on a single line.
           script: |
             adb install -r build/app/outputs/flutter-apk/app-debug.apk
             export PATH="$HOME/.maestro/bin:$PATH"
-            maestro test maestro/smoke/login_and_verify_home.yaml -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"
+            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"
 
       - name: Stop test backend
         if: always()

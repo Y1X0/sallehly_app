@@ -12,6 +12,24 @@ maestro/
   README.md              this file
   smoke/                  smallest possible flows — one per critical path
     login_and_verify_home.yaml
+  customer/               customer-role flows (uses the CI-seeded QA_EMAIL/
+                           QA_PASSWORD account)
+    login.yaml
+    create_request.yaml
+    view_requests.yaml
+  technician/              technician-role flows (uses a fixed, source-
+                           committed test-mode demo account — see
+                           config/migrate.js in the backend repo — not a CI
+                           secret, since it's already public in that repo's
+                           history and only ever exists on a NODE_ENV=test
+                           backend)
+    login.yaml
+    view_jobs.yaml
+  admin/                   admin-role flows (uses the fixed
+                           admin-test@example.com test-mode default, same
+                           reasoning as technician/ above)
+    login.yaml
+    dashboard.yaml
   scripts/                small Node/bash helpers used only by CI, not app code
     read-otp.js           reads a pending registration's OTP straight out of
                            the test backend's SQLite file (same technique the
@@ -19,8 +37,17 @@ maestro/
                            sallehly/tests/*.spec.js's getPendingOtp helper)
 ```
 
-More role-specific flow folders (`customer/`, `technician/`, `admin/`) will be
-added incrementally — this first slice is intentionally just the smoke test.
+`.github/workflows/qa-e2e.yml` runs `maestro test maestro/` — every flow
+file in this tree, in one pass. Maestro reports pass/fail per individual
+flow even when run as a batch, so CI output still tells you exactly which
+flow broke, without needing a separate ~10-minute emulator boot per flow.
+
+More flows (registration, OTP, chat, wallet, notifications, admin user
+management, etc.) get added the same way: read the real source first,
+write the flow using the actual Arabic labels found there, drop it in the
+right role folder, and it's automatically picked up by the existing
+`maestro test maestro/` invocation — no workflow change needed per new
+flow, only when the run strategy itself needs to change.
 
 ## How a CI run works
 
@@ -62,9 +89,8 @@ maestro test maestro/smoke/login_and_verify_home.yaml \
   -e QA_PASSWORD='TestPass123!'
 ```
 
-## What this first slice deliberately does NOT include yet
+## What this suite deliberately does NOT include yet
 
-- Technician/admin flows.
 - Image or voice-message upload flows (camera/mic simulation needs a
   separate, slightly more involved setup — pushing seed media into the
   emulator rather than driving a real camera/mic).
@@ -73,4 +99,5 @@ maestro test maestro/smoke/login_and_verify_home.yaml \
 - Automatic triggering on every push — the workflow is `workflow_dispatch`
   only for now, until the suite has enough coverage to be trusted as a gate.
 
-These are the next slices, not omissions.
+These are being expanded incrementally, each validated by a real CI run
+before being considered done.
