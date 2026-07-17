@@ -149,14 +149,14 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
+          # The script below runs one line per `sh -c` invocation (not as one
+          # continuous shell script), so trailing `\` line continuations do
+          # not join across lines here the way they would in a normal `run:`
+          # step. The maestro command must stay on a single line.
           script: |
             adb install -r build/app/outputs/flutter-apk/app-debug.apk
             export PATH="$HOME/.maestro/bin:$PATH"
-            maestro test maestro/smoke/login_and_verify_home.yaml \
-              -e QA_EMAIL="${{ secrets.QA_EMAIL }}" \
-              -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" \
-              --format junit \
-              --output "$RUNNER_TEMP/maestro-report.xml"
+            maestro test maestro/smoke/login_and_verify_home.yaml -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"
 
       - name: Stop test backend
         if: always()
