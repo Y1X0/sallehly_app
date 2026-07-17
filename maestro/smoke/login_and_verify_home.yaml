@@ -21,8 +21,15 @@ appId: com.sallehly.app
     permissions:
       all: allow
 
-# Landing screen — tap through to the login form.
-- assertVisible: "تسجيل الدخول"
+# Landing screen — tap through to the login form. Uses extendedWaitUntil,
+# not a bare assertVisible, for the same reason as the post-login
+# assertion below: under real CI/emulator load (confirmed by run
+# 29557990817, where every flow in a batched run failed here despite
+# this exact step passing in an earlier isolated run) a fresh cold
+# launch can take longer than assertVisible's default timeout allows.
+- extendedWaitUntil:
+    visible: "تسجيل الدخول"
+    timeout: 20000
 - tapOn: "تسجيل الدخول"
 
 # Login form.

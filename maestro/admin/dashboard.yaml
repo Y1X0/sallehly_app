@@ -16,7 +16,9 @@ appId: com.sallehly.app
     permissions:
       all: allow
 
-- assertVisible: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "تسجيل الدخول"
+    timeout: 20000
 - tapOn: "تسجيل الدخول"
 - assertVisible: "البريد الإلكتروني"
 - tapOn: "البريد الإلكتروني"
