@@ -1,0 +1,33 @@
+# Customer: open "My Requests" and confirm the list screen actually loads.
+#
+# Selectors verified directly against source:
+#   - lib/features/customer/screens/customer_dashboard_screen.dart:113
+#     "طلباتي" action card -> opens CustomerRequestsScreen
+#   - lib/features/customer/screens/customer_requests_screen.dart:103-104
+#     section title "طلباتي" / subtitle "تابع حالة الطلبات والعروض" — both
+#     are static widgets rendered unconditionally, independent of whether
+#     the account has any requests yet, so this assertion holds regardless
+#     of prior test runs / account history.
+#
+# Required env vars: QA_EMAIL, QA_PASSWORD (same seeded customer account).
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "${QA_EMAIL}"
+- tapOn: "كلمة المرور"
+- inputText: "${QA_PASSWORD}"
+- tapOn: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000
+
+- tapOn: "طلباتي"
+- assertVisible: "تابع حالة الطلبات والعروض"

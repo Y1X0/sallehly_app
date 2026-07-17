@@ -1,0 +1,31 @@
+# Admin: confirm the dashboard actually renders. Already the admin's
+# default landing tab — no extra navigation tap needed.
+#
+# Selectors verified directly against source:
+#   - lib/features/layout/admin_layout.dart:26 puts AdminDashboardScreen
+#     at index 0, matching the "الرئيسية" nav tab at line 159.
+#   - lib/features/admin/screens/admin_dashboard_screen.dart:79 hero text
+#     "إدارة صلّحلي" is a static Text widget with no network-loaded-data
+#     dependency, so it's a reliable, load-order-independent marker —
+#     unlike the activity/stat numbers further down the screen, which do
+#     depend on an API call completing first.
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "admin-test@example.com"
+- tapOn: "كلمة المرور"
+- inputText: "AdminTestPass123"
+- tapOn: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000
+
+- assertVisible: "إدارة صلّحلي"

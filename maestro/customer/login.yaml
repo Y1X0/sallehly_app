@@ -1,0 +1,36 @@
+# Customer login — launches the app, navigates from the landing screen to
+# the login form, submits the CI-seeded customer account, and confirms the
+# customer home screen loads. Deliberately close to
+# maestro/smoke/login_and_verify_home.yaml — this is the customer-specific
+# building block other customer flows in this folder start from.
+#
+# Required env vars (pass via `maestro test ... -e KEY=value`):
+#   QA_EMAIL     — email of the CI-seeded customer account (see
+#                  .github/workflows/qa-e2e.yml's "Seed test customer
+#                  account" step)
+#   QA_PASSWORD  — that account's password
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+# Landing screen — tap through to the login form.
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+
+# Login form.
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "${QA_EMAIL}"
+- tapOn: "كلمة المرور"
+- inputText: "${QA_PASSWORD}"
+- tapOn: "تسجيل الدخول"
+
+# Customer home screen — "الرئيسية" is the first bottom-nav tab label
+# (lib/features/layout/customer_layout.dart:153), only present once a real,
+# authenticated customer home screen has rendered.
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000

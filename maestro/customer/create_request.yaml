@@ -1,0 +1,67 @@
+# Customer: create a maintenance request end-to-end.
+#
+# Selectors verified directly against source, not guessed:
+#   - lib/features/customer/screens/customer_dashboard_screen.dart:104
+#     "إنشاء طلب" action card -> opens CreateRequestScreen
+#   - lib/features/customer/screens/create_request_screen.dart:137/147/163/
+#     179/195/206/244 for the screen title, field labels, and submit button
+#   - "كهربائي" is guaranteed to exist as a real service_categories row —
+#     seeded unconditionally in config/migrate.js:310-312, independent of
+#     any test-only branch, so this is safe against any freshly-migrated
+#     backend, not just the CI test one.
+#   - "عمّان" / "القويسمة" are the first city/area entries in
+#     lib/core/utils/app_constants.dart, always present, no live-data
+#     dependency.
+#
+# Least-proven part of this flow: the three DropdownButtonFormField
+# selections (service/city/area). Every other step here reuses the exact
+# tap/input pattern already validated by real CI runs of the smoke test.
+# If this flow fails specifically at one of the three `tapOn` calls right
+# after a dropdown label, that's the first thing to check.
+#
+# Required env vars: QA_EMAIL, QA_PASSWORD (same seeded customer account).
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "${QA_EMAIL}"
+- tapOn: "كلمة المرور"
+- inputText: "${QA_PASSWORD}"
+- tapOn: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000
+
+# Dashboard -> "إنشاء طلب" action card -> create-request form.
+- tapOn: "إنشاء طلب"
+- assertVisible: "طلب صيانة جديد"
+
+# Service dropdown.
+- tapOn: "الخدمة / المهنة"
+- tapOn: "كهربائي"
+
+# City dropdown.
+- tapOn: "المحافظة"
+- tapOn: "عمّان"
+
+# Area dropdown (options only populate after a city is picked).
+- tapOn: "المنطقة"
+- tapOn: "القويسمة"
+
+# Description — validator requires at least 10 characters.
+- tapOn: "وصف المشكلة"
+- inputText: "يوجد عطل كهربائي في المطبخ ويحتاج فني بسرعة"
+
+- tapOn: "نشر الطلب واستقبال العروض"
+
+# Success snackbar text from create_request_screen.dart:91.
+- extendedWaitUntil:
+    visible: "تم إنشاء الطلب بنجاح"
+    timeout: 15000

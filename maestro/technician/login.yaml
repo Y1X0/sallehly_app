@@ -1,0 +1,31 @@
+# Technician login — uses a demo technician account that config/migrate.js
+# seeds automatically whenever `!IS_PROD` (true for the CI backend, booted
+# with NODE_ENV=test) — see config/migrate.js:388-398. No extra seed step
+# is needed in .github/workflows/qa-e2e.yml for this credential to exist;
+# it is a fixed, non-secret, source-committed test default, not something
+# this repo's CI creates on demand — hardcoded here deliberately, same as
+# how the admin flows use the equally fixed admin-test@example.com default.
+#
+# tech.elec.amman@sallehly.jo: role=technician, city=عمان,
+# services include كهربائي/سباك/صيانة سخانات/صيانة غسالات.
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- assertVisible: "تسجيل الدخول"
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "tech.elec.amman@sallehly.jo"
+- tapOn: "كلمة المرور"
+- inputText: "Tech@12345"
+- tapOn: "تسجيل الدخول"
+
+# Technician home screen — "الرئيسية" is the first bottom-nav tab label
+# (lib/features/layout/technician_layout.dart:140).
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000
