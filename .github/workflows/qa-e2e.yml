@@ -201,7 +201,14 @@ jobs:
             adb logcat -c
             adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
             FLOW_TARGET="${{ inputs.flow_path }}"; FLOW_TARGET="${FLOW_TARGET:-maestro/}"; echo "Running: $FLOW_TARGET"
-            maestro test "$FLOW_TARGET" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500; exit $MAESTRO_EXIT
+            maestro test "$FLOW_TARGET" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?
+            echo "===== UI hierarchy dump (uiautomator, whatever screen the app was left on when Maestro finished) ====="
+            adb shell uiautomator dump /sdcard/window_dump.xml 2>&1 || echo "(uiautomator dump command failed)"
+            adb pull /sdcard/window_dump.xml "$RUNNER_TEMP/window_dump.xml" 2>&1 || echo "(pull failed)"
+            cat "$RUNNER_TEMP/window_dump.xml" 2>/dev/null || echo "(no window_dump.xml to show)"
+            echo "===== full logcat excerpt (flutter/admin/crash) ====="
+            grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500
+            exit $MAESTRO_EXIT
 
       - name: Stop test backend
         if: always()
