@@ -5,6 +5,18 @@ name: QA E2E (Maestro)
 # suite has enough coverage to be trusted as an automatic gate on every push.
 on:
   workflow_dispatch:
+    inputs:
+      flow_path:
+        description: >
+          Path (or glob) under maestro/ to run, e.g. maestro/customer/create_request.yaml.
+          Leave empty to run the full suite (maestro/) — use that for regression
+          verification after a fix is confirmed. Use a single flow path for
+          fast, single-variable root-cause experiments: this skips the fixed
+          ~10-15 min backend/APK/emulator setup only in the sense that the
+          Maestro test phase itself finishes in a couple of minutes instead
+          of ~20+, since the other flows (esp. admin's 400s timeouts) never run.
+        required: false
+        default: ''
 
 # Least-privilege default: this workflow only reads source and runs a local,
 # throwaway backend — it never needs to write to the repo, open PRs, or touch
@@ -188,7 +200,8 @@ jobs:
             export PATH="$HOME/.maestro/bin:$PATH"
             adb logcat -c
             adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
-            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500; exit $MAESTRO_EXIT
+            FLOW_TARGET="${{ inputs.flow_path }}"; FLOW_TARGET="${FLOW_TARGET:-maestro/}"; echo "Running: $FLOW_TARGET"
+            maestro test "$FLOW_TARGET" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500; exit $MAESTRO_EXIT
 
       - name: Stop test backend
         if: always()
