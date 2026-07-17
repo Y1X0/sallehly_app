@@ -3,11 +3,13 @@
 # Selectors verified directly against source:
 #   - lib/features/customer/screens/customer_dashboard_screen.dart:113
 #     "طلباتي" action card -> opens CustomerRequestsScreen
-#   - lib/features/customer/screens/customer_requests_screen.dart:103-104
-#     section title "طلباتي" / subtitle "تابع حالة الطلبات والعروض" — both
-#     are static widgets rendered unconditionally, independent of whether
-#     the account has any requests yet, so this assertion holds regardless
-#     of prior test runs / account history.
+#   - lib/features/customer/screens/customer_requests_screen.dart:92-105:
+#     the destination screen's ListView puts a _SummaryCard BEFORE the
+#     "طلباتي" / "تابع حالة الطلبات والعروض" SectionTitle, which can push
+#     it below the fold — confirmed root cause of run 29562329149's
+#     failure (same class of bug as technician/view_jobs.yaml).
+#     scrollUntilVisible instead of assertVisible/extendedWaitUntil,
+#     since those don't auto-scroll.
 #
 # Required env vars: QA_EMAIL, QA_PASSWORD (same seeded customer account).
 appId: com.sallehly.app
@@ -32,6 +34,7 @@ appId: com.sallehly.app
     timeout: 20000
 
 - tapOn: "طلباتي"
-- extendedWaitUntil:
-    visible: "تابع حالة الطلبات والعروض"
+- scrollUntilVisible:
+    element: "تابع حالة الطلبات والعروض"
+    direction: DOWN
     timeout: 20000

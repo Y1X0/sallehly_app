@@ -173,6 +173,14 @@ jobs:
           # all 8 flows finished (~10 minutes later). Streaming to a file
           # from before the run starts avoids that: nothing is lost
           # regardless of how long the suite takes.
+          #
+          # `grep -v "I/Maestro"` matters even with the file-based capture:
+          # run 29562329149's dump was still dominated by thousands of
+          # "Skipping invisible child..." lines (Maestro re-walks the whole
+          # accessibility tree on every extendedWaitUntil poll), which
+          # crowded the admin flow's window out of even a 4000-line fetch
+          # of this job's own log. Excluding that one noisy tag should let
+          # the real, much sparser admin-flow window survive the fetch.
           # `; MAESTRO_EXIT=$?; ...; exit $MAESTRO_EXIT` preserves the real
           # pass/fail exit code so CI failure semantics are unchanged.
           script: |
@@ -180,7 +188,7 @@ jobs:
             export PATH="$HOME/.maestro/bin:$PATH"
             adb logcat -c
             adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
-            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|com.sallehly.app|admin" "$RUNNER_TEMP/full-logcat.txt" | tail -n 800; exit $MAESTRO_EXIT
+            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500; exit $MAESTRO_EXIT
 
       - name: Stop test backend
         if: always()

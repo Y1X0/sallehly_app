@@ -5,10 +5,15 @@
 #   - lib/features/layout/technician_layout.dart:33 puts NewRequestsScreen
 #     at index 0, matching the "الرئيسية" nav tab at line 140 — so it's
 #     the screen already showing right after login.
-#   - lib/features/technician/screens/new_requests_screen.dart:52
-#     section title "طلبات العملاء" is a static SectionTitle widget,
-#     rendered unconditionally whether the feed is loading, empty, or
-#     populated — safe to assert regardless of data state.
+#   - lib/features/technician/screens/new_requests_screen.dart:36-54: the
+#     screen body is a ListView whose FIRST child is a large _HeroCard
+#     (padding 22, 130px icon, multi-line text), with the "طلبات العملاء"
+#     SectionTitle only appearing AFTER it. On the emulator's screen size
+#     that pushes the title below the fold — confirmed root cause of run
+#     29562329149's failure (a 20s extendedWaitUntil still couldn't find
+#     it: it's off-screen, not slow to render, and Maestro's
+#     assertVisible/extendedWaitUntil don't auto-scroll). scrollUntilVisible
+#     is the correct Maestro command for an element that requires scrolling.
 appId: com.sallehly.app
 ---
 - launchApp:
@@ -30,6 +35,7 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-- extendedWaitUntil:
-    visible: "طلبات العملاء"
+- scrollUntilVisible:
+    element: "طلبات العملاء"
+    direction: DOWN
     timeout: 20000

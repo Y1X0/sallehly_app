@@ -41,13 +41,19 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-# Dashboard -> "إنشاء طلب" action card -> create-request form. Run
-# 29560553896 showed "Element not found" here (not a timeout-style
-# failure) — the dashboard's action cards apparently aren't rendered
-# the instant the "الرئيسية" nav label is, so wait for the card itself
-# before tapping it, same fix as the other bare-assertion failures.
-- extendedWaitUntil:
-    visible: "إنشاء طلب"
+# Dashboard -> "إنشاء طلب" action card -> create-request form. Runs
+# 29560553896/29562329149 both failed here (Element-not-found, then
+# still-not-visible with a 20s extendedWaitUntil) even though the
+# dashboard's _HeroCard is the same size regardless of role and the
+# sibling "طلباتي" card in the identical row/position taps fine in
+# customer/view_requests.yaml — so this is either a smaller margin
+# call than the other screens or a timing race on the very first
+# frame after "الرئيسية" appears. scrollUntilVisible is a safe
+# superset of extendedWaitUntil here: a no-op if already on-screen,
+# and self-correcting if it needs even a small scroll.
+- scrollUntilVisible:
+    element: "إنشاء طلب"
+    direction: DOWN
     timeout: 20000
 - tapOn: "إنشاء طلب"
 - assertVisible: "طلب صيانة جديد"
