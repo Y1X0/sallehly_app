@@ -32,4 +32,6 @@ appId: com.sallehly.app
     timeout: 20000
 
 - tapOn: "طلباتي"
-- assertVisible: "تابع حالة الطلبات والعروض"
+- extendedWaitUntil:
+    visible: "تابع حالة الطلبات والعروض"
+    timeout: 20000

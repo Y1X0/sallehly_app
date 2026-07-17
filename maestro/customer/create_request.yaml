@@ -41,7 +41,14 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-# Dashboard -> "إنشاء طلب" action card -> create-request form.
+# Dashboard -> "إنشاء طلب" action card -> create-request form. Run
+# 29560553896 showed "Element not found" here (not a timeout-style
+# failure) — the dashboard's action cards apparently aren't rendered
+# the instant the "الرئيسية" nav label is, so wait for the card itself
+# before tapping it, same fix as the other bare-assertion failures.
+- extendedWaitUntil:
+    visible: "إنشاء طلب"
+    timeout: 20000
 - tapOn: "إنشاء طلب"
 - assertVisible: "طلب صيانة جديد"
 

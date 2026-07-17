@@ -30,4 +30,6 @@ appId: com.sallehly.app
     visible: "الرئيسية"
     timeout: 20000
 
-- assertVisible: "طلبات العملاء"
+- extendedWaitUntil:
+    visible: "طلبات العملاء"
+    timeout: 20000

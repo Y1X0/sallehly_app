@@ -158,24 +158,29 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          # The script below runs one line per `sh -c` invocation (not as one
-          # continuous shell script), so trailing `\` line continuations do
-          # not join across lines here the way they would in a normal `run:`
-          # step. Each maestro command must stay on a single line.
-          # Every recent run has failed at the very first landing-screen
-          # assertion, for every flow, with no artifact-download access in
-          # this environment to inspect the actual screenshots (blob
-          # storage host is proxy-blocked). The final line below prints a
-          # filtered logcat excerpt straight to this job's own log output
-          # (not a separate artifact) after the maestro run, regardless of
-          # its exit code, specifically so a Flutter crash / exception /
-          # process death shows up here as plain text we can actually read.
+          # A trailing `\` does not join lines here the way it would in a
+          # normal `run:` step (confirmed by an earlier bug: commit
+          # 95158a7), so any multi-part command must stay on one physical
+          # line. Plain `export`, though, does persist from one line to the
+          # next (confirmed: `export PATH` on one line is visible to
+          # `maestro test` on the next in every run so far) — this is one
+          # continuous script, not isolated per-line shells.
+          #
+          # `adb logcat -d` (one-shot dump at the very end) previously lost
+          # the earliest flows' log lines — Maestro's own internal
+          # accessibility-tree logging is extremely verbose and had likely
+          # already rotated the in-memory ring buffer past them by the time
+          # all 8 flows finished (~10 minutes later). Streaming to a file
+          # from before the run starts avoids that: nothing is lost
+          # regardless of how long the suite takes.
           # `; MAESTRO_EXIT=$?; ...; exit $MAESTRO_EXIT` preserves the real
           # pass/fail exit code so CI failure semantics are unchanged.
           script: |
             adb install -r build/app/outputs/flutter-apk/app-debug.apk
             export PATH="$HOME/.maestro/bin:$PATH"
-            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== logcat flutter/crash excerpt ====="; adb logcat -d | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|com.sallehly.app" | tail -n 400; exit $MAESTRO_EXIT
+            adb logcat -c
+            adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
+            maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?; echo "===== full logcat excerpt (flutter/admin/crash) ====="; grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|com.sallehly.app|admin" "$RUNNER_TEMP/full-logcat.txt" | tail -n 800; exit $MAESTRO_EXIT
 
       - name: Stop test backend
         if: always()
