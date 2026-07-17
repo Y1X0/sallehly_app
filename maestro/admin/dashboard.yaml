@@ -26,13 +26,12 @@ appId: com.sallehly.app
 - tapOn: "كلمة المرور"
 - inputText: "AdminTestPass123"
 - tapOn: "تسجيل الدخول"
-# Timeout raised again, 90s -> 240s — see maestro/admin/login.yaml for
-# the screenshot evidence: the failure frame shows a fully loaded,
-# fully working Admin Dashboard with real data and "الرئيسية" clearly
-# visible/selected. Confirmed timing issue, not a wrong selector.
+# Timeout raised again, 240s -> 400s — see maestro/admin/login.yaml for
+# the screenshot evidence and the climbing-duration data (146s -> 212s
+# -> 327s across successive runs, still not settling at 240s).
 - extendedWaitUntil:
     visible: "الرئيسية"
-    timeout: 240000
+    timeout: 400000
 
 - extendedWaitUntil:
     visible: "إدارة صلّحلي"

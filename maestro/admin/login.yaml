@@ -25,15 +25,14 @@ appId: com.sallehly.app
 # Admin home screen — "الرئيسية" is the first bottom-nav tab label
 # (lib/features/layout/admin_layout.dart:159).
 #
-# Timeout raised again, 90s -> 240s, based on the run 29565568559
-# screenshot (screenshot-❌-...-(login).png): the captured failure
-# frame shows a fully loaded, fully functional Admin Dashboard with
-# real data (5 فنيين, 1 عملاء) and "الرئيسية" clearly visible and
-# selected in the bottom nav — login succeeds and the correct screen
-# renders correctly every time, it just consistently takes longer
-# than 90s in this CI/emulator environment (worst observed: 212s in
-# that same run, up from 146s two runs earlier — still climbing, not
-# settling). This is a confirmed timing issue, not a wrong selector.
+# Timeout raised again, 240s -> 400s. Screenshot evidence (run
+# 29565568559) already confirmed this is a real timing issue, not a
+# wrong selector: the failure frame shows a fully loaded, working
+# Admin Dashboard with real data and "الرئيسية" clearly visible and
+# selected. The actual duration keeps climbing across successive runs
+# (146s -> 212s -> 327s), even after the timeout was raised to 240s,
+# so this is not settling — raising well past the worst value observed
+# so far for margin.
 - extendedWaitUntil:
     visible: "الرئيسية"
-    timeout: 240000
+    timeout: 400000

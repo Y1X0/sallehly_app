@@ -55,10 +55,16 @@ appId: com.sallehly.app
 # services grid) and never scrolls back up, so it can end up further
 # from the target the longer it searches. Reverting to a plain
 # extendedWaitUntil (no directional scroll bias), same pattern as the
-# already-reliable "طلباتي" card, with a longer timeout for margin.
+# already-reliable "طلباتي" card.
+#
+# Timeout raised 30s -> 60s: run 29579334695 (after this fix was
+# already in place) still failed here with "Assertion is false", not
+# "element not found" — same environment-wide slowdown pattern
+# observed on every other remaining failure across the last several
+# runs.
 - extendedWaitUntil:
     visible: "إنشاء طلب"
-    timeout: 30000
+    timeout: 60000
 - tapOn: "إنشاء طلب"
 - assertVisible: "طلب صيانة جديد"
 

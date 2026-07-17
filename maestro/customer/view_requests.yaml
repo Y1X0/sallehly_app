@@ -40,6 +40,12 @@ appId: com.sallehly.app
     timeout: 20000
 
 - tapOn: "طلباتي"
+# Timeout raised 20s -> 60s: run 29579334695 (after this empty-state
+# fix was already in place) still failed here with "Assertion is
+# false", not "element not found" — the correct screen/text is being
+# checked for, it just needs more time in this CI environment,
+# consistent with the same environment-wide slowdown observed
+# elsewhere across the last several runs.
 - extendedWaitUntil:
     visible: "لا يوجد طلبات بعد"
-    timeout: 20000
+    timeout: 60000

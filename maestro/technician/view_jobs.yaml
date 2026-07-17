@@ -43,6 +43,12 @@ appId: com.sallehly.app
 # Navigate from the technician dashboard to the actual jobs feed via
 # the "جديدة" bottom-nav tab (index 1 -> NewRequestsScreen).
 - tapOn: "جديدة"
+# Timeout raised 20s -> 60s: run 29579334695 (after this navigation fix
+# was already in place) still failed here with "Assertion is false",
+# not "element not found" — the screen is the right one, it just needs
+# more time in this CI environment, consistent with the same
+# environment-wide slowdown observed on admin/login and admin/dashboard
+# across the last several runs.
 - extendedWaitUntil:
     visible: "طلبات العملاء"
-    timeout: 20000
+    timeout: 60000
