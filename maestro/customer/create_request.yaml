@@ -45,25 +45,24 @@ appId: com.sallehly.app
 #
 # Run 29602424550 screenshot evidence: "إنشاء طلب" is clearly, visibly
 # rendered on screen at the exact moment Maestro reports the assertion
-# as still false after the full 60s timeout — this is not a rendering,
-# navigation, or timing problem; the element is genuinely on screen
-# and Maestro's own detection is not seeing it. See the ~180-word
-# report accompanying this commit for the full cross-flow evidence.
+# as still false after the full 60s timeout. Run 29612873137 (the
+# sequencing experiment: a cheap, state-neutral pre-check inserted
+# right before this assertion) changed nothing — same failure, same
+# relative timing — closing the timeout/sequencing hypothesis.
 #
-# EXPERIMENTAL — not a fix. Testing whether inserting one cheap,
-# state-neutral query (re-checking "الرئيسية", already proven to
-# resolve in ~2s every run, so this adds no real wait under normal
-# conditions) immediately before the "إنشاء طلب" check changes the
-# outcome. If "إنشاء طلب" now passes, the failure is sequencing/
-# caching-sensitive, not a hard detection limit. If it still fails,
-# Maestro's accessibility tree genuinely never exposes this element,
-# regardless of what precedes it. This step is temporary and will be
-# removed once the experiment's result is known.
+# EXPERIMENTAL — not a fix. Diagnostic swap only: probing
+# "طلب صيانة جديد" (the card's subtitle — a separate, independent Text
+# sibling of "إنشاء طلب" inside the exact same InkWell-wrapped
+# _ActionCard, customer_dashboard_screen.dart:278-347) instead of the
+# title. If this ALSO fails identically, the whole card's semantics
+# are inaccessible to Maestro (Flutter-side merging, likely from the
+# InkWell wrapper). If it PASSES, the problem is isolated to the
+# "إنشاء طلب" node/string specifically, not the card as a whole. No
+# app code touched — maestro/ only. tapOn target left as "إنشاء طلب"
+# deliberately, so the tap's own pass/fail is a second, independent
+# data point regardless of this wait's result.
 - extendedWaitUntil:
-    visible: "الرئيسية"
-    timeout: 5000
-- extendedWaitUntil:
-    visible: "إنشاء طلب"
+    visible: "طلب صيانة جديد"
     timeout: 60000
 - tapOn: "إنشاء طلب"
 - assertVisible: "طلب صيانة جديد"
