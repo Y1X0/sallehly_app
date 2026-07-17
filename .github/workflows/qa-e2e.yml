@@ -177,10 +177,13 @@ jobs:
           # A trailing `\` does not join lines here the way it would in a
           # normal `run:` step (confirmed by an earlier bug: commit
           # 95158a7), so any multi-part command must stay on one physical
-          # line. Plain `export`, though, does persist from one line to the
-          # next (confirmed: `export PATH` on one line is visible to
-          # `maestro test` on the next in every run so far) — this is one
-          # continuous script, not isolated per-line shells.
+          # line. CORRECTION (run 29620605323): this is NOT one continuous
+          # script — each physical line runs as its own separate `sh -c`
+          # call. `export`ed vars (e.g. `export PATH` below) persist across
+          # those calls; plain variable assignments and shell control-flow
+          # (if/then/else/fi) do not. See the note further down for the
+          # concrete failure this caused and how the exit code is threaded
+          # through a file instead.
           #
           # `adb logcat -d` (one-shot dump at the very end) previously lost
           # the earliest flows' log lines — Maestro's own internal
@@ -199,39 +202,45 @@ jobs:
           # the real, much sparser admin-flow window survive the fetch.
           # `; MAESTRO_EXIT=$?; ...; exit $MAESTRO_EXIT` preserves the real
           # pass/fail exit code so CI failure semantics are unchanged.
+          # IMPORTANT — confirmed by run 29620605323's actual failure: this
+          # action's `script:` field does NOT execute as one shell script.
+          # Each physical line is dispatched as its own separate
+          # `sh -c '<line>'` call (env exports persist across them — already
+          # relied on below for PATH — but shell control-flow, and plain
+          # variable assignments, do not: a bare multi-line `if/then/else/fi`
+          # breaks with "Syntax error: end of file unexpected (expecting
+          # fi")" because `then`/`else`/`fi` land in different invocations
+          # than their `if`). Every logical unit that needs its own
+          # control-flow (the flow_path branch) MUST stay on one physical
+          # line here. The Maestro exit code is threaded to the final `exit`
+          # via a file in $RUNNER_TEMP, not a variable, since $RUNNER_TEMP
+          # itself is runner-provided (confirmed available on every line
+          # throughout this file already) while an unexported plain
+          # variable set on one line is not guaranteed to survive to a
+          # later one.
+          #
+          # A single flow FILE (as opposed to the `maestro/` directory)
+          # doesn't trigger maestro/config.yaml's directory-based
+          # auto-detection, so Maestro's fallback config discovery instead
+          # scans the CWD (repo root) and tries — and fails — to parse the
+          # unrelated top-level codemagic.yaml as a workspace config
+          # (confirmed via run 29619172516). Running from inside maestro/
+          # instead keeps its own config.yaml as the unambiguous nearest
+          # config. Accepts the path either as "customer/x.yaml" or
+          # "maestro/customer/x.yaml".
           script: |
             adb install -r build/app/outputs/flutter-apk/app-debug.apk
             export PATH="$HOME/.maestro/bin:$PATH"
             adb logcat -c
             adb logcat -v time > "$RUNNER_TEMP/full-logcat.txt" 2>&1 &
-            FLOW_TARGET="${{ inputs.flow_path }}"
-            if [ -z "$FLOW_TARGET" ]; then
-              echo "Running full suite: maestro/"
-              maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; MAESTRO_EXIT=$?
-            else
-              # A single flow FILE (as opposed to the `maestro/` directory) doesn't
-              # trigger maestro/config.yaml's directory-based auto-detection, so
-              # Maestro's fallback config discovery instead scans the CWD (repo
-              # root) and tries — and fails — to parse the unrelated top-level
-              # codemagic.yaml as a workspace config. Confirmed via run
-              # 29619172516: that run's "success" was invalid — Maestro errored
-              # out after ~3s (vs. the normal 100s+) before ever executing the
-              # flow, only surfacing "Config Field Required at
-              # .../codemagic.yaml:52:1". Running from inside maestro/ instead
-              # keeps its own config.yaml as the unambiguous nearest config,
-              # sidestepping the issue entirely. Accepts the path either as
-              # "customer/x.yaml" or "maestro/customer/x.yaml".
-              REL="${FLOW_TARGET#maestro/}"
-              echo "Running scoped flow (from maestro/): $REL"
-              ( cd maestro && maestro test "$REL" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml" ); MAESTRO_EXIT=$?
-            fi
+            FLOW_TARGET="${{ inputs.flow_path }}"; if [ -z "$FLOW_TARGET" ]; then echo "Running full suite: maestro/"; maestro test maestro/ -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml"; else REL="${FLOW_TARGET#maestro/}"; echo "Running scoped flow (from maestro/): $REL"; ( cd maestro && maestro test "$REL" -e QA_EMAIL="${{ secrets.QA_EMAIL }}" -e QA_PASSWORD="${{ secrets.QA_PASSWORD }}" --format junit --output "$RUNNER_TEMP/maestro-report.xml" ); fi; echo $? > "$RUNNER_TEMP/maestro_exit_code"
             echo "===== UI hierarchy dump (uiautomator, whatever screen the app was left on when Maestro finished) ====="
             adb shell uiautomator dump /sdcard/window_dump.xml 2>&1 || echo "(uiautomator dump command failed)"
             adb pull /sdcard/window_dump.xml "$RUNNER_TEMP/window_dump.xml" 2>&1 || echo "(pull failed)"
             cat "$RUNNER_TEMP/window_dump.xml" 2>/dev/null || echo "(no window_dump.xml to show)"
             echo "===== full logcat excerpt (flutter/admin/crash) ====="
             grep -v "I/Maestro" "$RUNNER_TEMP/full-logcat.txt" | grep -iE "flutter|AndroidRuntime|FATAL EXCEPTION|Process.*died|System.err|OkHttp|chromium|admin" | tail -n 1500
-            exit $MAESTRO_EXIT
+            exit "$(cat "$RUNNER_TEMP/maestro_exit_code")"
 
       - name: Stop test backend
         if: always()
