@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
-import '../../../core/widgets/pressable.dart';
 import '../../../models/package_model.dart';
 import '../provider/wallet_provider.dart';
 
@@ -25,6 +24,7 @@ class TopupRequestScreen extends StatefulWidget {
 
 class _TopupRequestScreenState extends State<TopupRequestScreen> {
   String? receiptPath;
+  bool _receiptPressed = false;
 
   Future<void> pickReceipt() async {
     final path = await ImageSourcePicker.pick(
@@ -143,55 +143,65 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
               ),
             ),
           const SizedBox(height: 16),
-          Pressable(
+          InkWell(
             onTap: wallet.submitting ? null : pickReceipt,
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(26),
-                border: Border.all(
-                  color: receiptPath == null
-                      ? AppColors.border
-                      : AppColors.primary,
+            borderRadius: BorderRadius.circular(26),
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onHighlightChanged: (value) =>
+                setState(() => _receiptPressed = value),
+            child: AnimatedScale(
+              scale: _receiptPressed ? 0.97 : 1.0,
+              duration: const Duration(milliseconds: 120),
+              curve: Curves.easeOut,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(
+                    color: receiptPath == null
+                        ? AppColors.border
+                        : AppColors.primary,
+                  ),
                 ),
-              ),
-              child: receiptPath == null
-                  ? Column(
-                children: [
-                  Icon(
-                    Icons.upload_file_rounded,
-                    color: AppColors.primary,
-                    size: 56,
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'ارفع صورة إثبات الدفع',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w900,
+                child: receiptPath == null
+                    ? Column(
+                  children: [
+                    Icon(
+                      Icons.upload_file_rounded,
+                      color: AppColors.primary,
+                      size: 56,
                     ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    'صورة الوصل مطلوبة لمراجعة طلب الشحن',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
+                    SizedBox(height: 12),
+                    Text(
+                      'ارفع صورة إثبات الدفع',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
+                    SizedBox(height: 6),
+                    Text(
+                      'صورة الوصل مطلوبة لمراجعة طلب الشحن',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                )
+                    : ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Image.file(
+                    File(receiptPath!),
+                    // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                    // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                    // الهواتف العادية (العرض المرجعي 390).
+                    height: MediaQuery.of(context).size.width * (220 / 390),
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                ],
-              )
-                  : ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Image.file(
-                  File(receiptPath!),
-                  // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
-                  // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
-                  // الهواتف العادية (العرض المرجعي 390).
-                  height: MediaQuery.of(context).size.width * (220 / 390),
-                  width: double.infinity,
-                  fit: BoxFit.cover,
                 ),
               ),
             ),
