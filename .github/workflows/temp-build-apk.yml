@@ -30,8 +30,20 @@ jobs:
       - name: Get packages
         run: flutter pub get
 
+      - name: AUDIT-TEMP - print resolved pubspec.lock
+        run: cat pubspec.lock
+
       - name: Build Android APK (CI validation only, debug-signed)
         run: flutter build apk --release
+
+      - name: AUDIT-TEMP - dump merged manifest and SDK versions
+        run: |
+          echo "=== aapt2 badging (permissions + SDK versions) ==="
+          AAPT2=$(find "$ANDROID_HOME" -iname "aapt2" -type f 2>/dev/null | sort -V | tail -1)
+          echo "Using aapt2: $AAPT2"
+          "$AAPT2" dump badging build/app/outputs/flutter-apk/app-release.apk
+          echo "=== merged AndroidManifest.xml (raw) ==="
+          find build/app/intermediates -iname "AndroidManifest.xml" -path "*release*" -exec echo "--- {} ---" \; -exec cat {} \;
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

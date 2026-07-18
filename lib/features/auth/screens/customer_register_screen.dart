@@ -5,6 +5,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/consent_checkbox.dart';
 import '../../../providers/auth_provider.dart';
 import 'verify_otp_screen.dart';
 
@@ -24,6 +25,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   final passwordController = TextEditingController();
 
   bool hidePassword = true;
+  bool consentGiven = false;
 
   String? selectedCity;
   String? selectedArea;
@@ -44,6 +46,11 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
+
+    if (!consentGiven) {
+      showError('يجب الموافقة على سياسة الخصوصية وشروط الاستخدام أولاً');
+      return;
+    }
 
     final auth = context.read<AuthProvider>();
 
@@ -222,7 +229,14 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
+                ConsentCheckbox(
+                  value: consentGiven,
+                  onChanged: (value) {
+                    setState(() => consentGiven = value);
+                  },
+                ),
+                const SizedBox(height: 14),
                 ElevatedButton(
                   onPressed: loading ? null : submit,
                   child: loading
