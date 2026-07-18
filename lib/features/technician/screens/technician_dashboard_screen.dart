@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
@@ -419,9 +420,8 @@ class _ShortcutGrid extends StatelessWidget {
       spacing: 12,
       runSpacing: 12,
       children: items.map((item) {
-        return InkWell(
+        return Pressable(
           onTap: item[2] as VoidCallback,
-          borderRadius: BorderRadius.circular(22),
           child: Container(
             width: itemWidth,
             padding: const EdgeInsets.all(16),

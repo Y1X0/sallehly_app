@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/wallet_provider.dart';
 import '../widgets/topup_card.dart';
@@ -118,10 +120,13 @@ class _WalletScreenState extends State<WalletScreen> {
                   else if (topups.isEmpty)
                     const _EmptyWalletState()
                   else
-                    ...topups.map(
-                          (e) => Padding(
+                    ...topups.asMap().entries.map(
+                          (entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: TopupCard(topup: e),
+                        child: FadeIn(
+                          delay: Duration(milliseconds: 60 * entry.key),
+                          child: TopupCard(topup: entry.value),
+                        ),
                       ),
                     ),
                 ],
@@ -214,8 +219,7 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return Pressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),

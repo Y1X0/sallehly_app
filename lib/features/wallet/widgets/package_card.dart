@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../models/package_model.dart';
 
 class PackageCard extends StatelessWidget {
@@ -17,9 +18,8 @@ class PackageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasBonus = package.bonus > 0;
 
-    return InkWell(
+    return Pressable(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(28),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(

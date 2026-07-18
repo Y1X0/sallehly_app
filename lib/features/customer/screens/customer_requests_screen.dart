@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../models/request_model.dart';
@@ -89,7 +90,8 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                   )
                       : requests.isEmpty
                       ? const _EmptyRequests()
-                      : ListView(
+                      : FadeIn(
+                    child: ListView(
                     padding:
                     const EdgeInsets.fromLTRB(20, 8, 20, 110),
                     children: [
@@ -143,6 +145,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                           );
                         }),
                     ],
+                    ),
                   ),
                 ),
               ),

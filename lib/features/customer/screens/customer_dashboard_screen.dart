@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'create_request_screen.dart';
 import 'customer_requests_screen.dart';
@@ -291,8 +293,7 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
+    return Pressable(
       onTap: onTap,
       child: Container(
         height: 104,
@@ -364,8 +365,7 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(22),
+    return Pressable(
       onTap: onTap,
       child: Container(
         height: 112,
@@ -462,60 +462,61 @@ class _ServicesGrid extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: services.map((service) {
-        return InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CreateRequestScreen()),
-            );
-          },
-          child: Container(
-            width: itemWidth,
-            height: tileHeight,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.card.withValues(alpha: 0.88),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  service.icon ?? '🔧',
-                  style: const TextStyle(fontSize: 26),
-                ),
-                const Spacer(),
-                Text(
-                  service.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
+    return FadeIn(
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: services.map((service) {
+          return Pressable(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateRequestScreen()),
+              );
+            },
+            child: Container(
+              width: itemWidth,
+              height: tileHeight,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.card.withValues(alpha: 0.88),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.icon ?? '🔧',
+                    style: const TextStyle(fontSize: 26),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'اطلب الخدمة الآن',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
+                  const Spacer(),
+                  Text(
+                    service.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 15,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 2),
+                  Text(
+                    'اطلب الخدمة الآن',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 }

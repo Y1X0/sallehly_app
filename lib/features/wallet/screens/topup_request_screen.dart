@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../models/package_model.dart';
 import '../provider/wallet_provider.dart';
 
@@ -142,9 +143,8 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
               ),
             ),
           const SizedBox(height: 16),
-          InkWell(
+          Pressable(
             onTap: wallet.submitting ? null : pickReceipt,
-            borderRadius: BorderRadius.circular(26),
             child: Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
