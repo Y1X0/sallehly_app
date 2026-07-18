@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
@@ -418,8 +419,11 @@ class _ShortcutGrid extends StatelessWidget {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: items.map((item) {
-        return _ShortcutTile(
+      children: items.asMap().entries.map((entry) {
+        final item = entry.value;
+        return FadeIn(
+          delay: Duration(milliseconds: 60 * entry.key),
+          child: _ShortcutTile(
           label: item[0] as String,
           icon: item[1] as IconData,
           onTap: item[2] as VoidCallback,
@@ -429,6 +433,7 @@ class _ShortcutGrid extends StatelessWidget {
           // فقط على الأجهزة اللوحية/الشاشات الأعرض حيث تكبر البطاقة كثيراً
           // عن محتواها، التوسيط يمنع فراغاً كبيراً منحازاً لجهة واحدة.
           centered: columns != 2,
+          ),
         );
       }).toList(),
     );

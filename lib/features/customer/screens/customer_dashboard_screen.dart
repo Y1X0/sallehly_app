@@ -103,20 +103,25 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _ActionCard(
-                        title: 'إنشاء طلب',
-                        subtitle: 'طلب صيانة جديد',
-                        icon: Icons.add_rounded,
-                        onTap: openCreate,
+                      child: FadeIn(
+                        child: _ActionCard(
+                          title: 'إنشاء طلب',
+                          subtitle: 'طلب صيانة جديد',
+                          icon: Icons.add_rounded,
+                          onTap: openCreate,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _ActionCard(
-                        title: 'طلباتي',
-                        subtitle: 'متابعة الطلبات',
-                        icon: Icons.receipt_long_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 60),
+                        child: _ActionCard(
+                          title: 'طلباتي',
+                          subtitle: 'متابعة الطلبات',
+                          icon: Icons.receipt_long_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                   ],
@@ -125,29 +130,38 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        title: 'طلباتي',
-                        value: '$total',
-                        icon: Icons.assignment_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 120),
+                        child: _StatCard(
+                          title: 'طلباتي',
+                          value: '$total',
+                          icon: Icons.assignment_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _StatCard(
-                        title: 'عروض',
-                        value: '$offers',
-                        icon: Icons.local_offer_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 180),
+                        child: _StatCard(
+                          title: 'عروض',
+                          value: '$offers',
+                          icon: Icons.local_offer_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _StatCard(
-                        title: 'مكتملة',
-                        value: '$completed',
-                        icon: Icons.verified_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 240),
+                        child: _StatCard(
+                          title: 'مكتملة',
+                          value: '$completed',
+                          icon: Icons.verified_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                   ],

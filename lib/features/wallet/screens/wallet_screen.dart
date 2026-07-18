@@ -62,34 +62,39 @@ class _WalletScreenState extends State<WalletScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: _ActionCard(
-                          title: 'شحن الرصيد',
-                          subtitle: 'اختر باقة وارفع الوصل',
-                          icon: Icons.add_card_rounded,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const PackagesScreen(),
-                              ),
-                            );
-                          },
+                        child: FadeIn(
+                          child: _ActionCard(
+                            title: 'شحن الرصيد',
+                            subtitle: 'اختر باقة وارفع الوصل',
+                            icon: Icons.add_card_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const PackagesScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _ActionCard(
-                          title: 'سجل العمليات',
-                          subtitle: 'كل حركات الرصيد',
-                          icon: Icons.receipt_long_rounded,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LedgerScreen(),
-                              ),
-                            );
-                          },
+                        child: FadeIn(
+                          delay: const Duration(milliseconds: 60),
+                          child: _ActionCard(
+                            title: 'سجل العمليات',
+                            subtitle: 'كل حركات الرصيد',
+                            icon: Icons.receipt_long_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LedgerScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
@@ -254,57 +255,68 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
             const SizedBox(height: 20),
-            _ActionCard(
-              icon: Icons.assignment_rounded,
-              title: 'إدارة الطلبات',
-              subtitle: 'عرض كل الطلبات والتدخّل الإداري عند النزاعات',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminRequestsScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              child: _ActionCard(
+                icon: Icons.assignment_rounded,
+                title: 'إدارة الطلبات',
+                subtitle: 'عرض كل الطلبات والتدخّل الإداري عند النزاعات',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminRequestsScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
-            _ActionCard(
-              icon: Icons.shield_rounded,
-              title: 'المراقبة والشكاوى',
-              subtitle: 'مخالفات الشات وشكاوى العملاء',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminModerationScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 60),
+              child: _ActionCard(
+                icon: Icons.shield_rounded,
+                title: 'المراقبة والشكاوى',
+                subtitle: 'مخالفات الشات وشكاوى العملاء',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminModerationScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
-            _ActionCard(
-              icon: Icons.history_rounded,
-              title: 'سجل العمليات',
-              subtitle: 'تتبّع كل العمليات الإدارية على المنصة',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminAuditScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 120),
+              child: _ActionCard(
+                icon: Icons.history_rounded,
+                title: 'سجل العمليات',
+                subtitle: 'تتبّع كل العمليات الإدارية على المنصة',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminAuditScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
             // [FIX-LEDGER-01] دفتر الحساب الشامل — عرض/بحث فقط، لا يعدّل أي منطق مالي.
-            _ActionCard(
-              icon: Icons.receipt_long_rounded,
-              title: 'دفتر الحساب',
-              subtitle: 'كل الحركات المالية عبر المنصة',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminLedgerScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 180),
+              child: _ActionCard(
+                icon: Icons.receipt_long_rounded,
+                title: 'دفتر الحساب',
+                subtitle: 'كل الحركات المالية عبر المنصة',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminLedgerScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
