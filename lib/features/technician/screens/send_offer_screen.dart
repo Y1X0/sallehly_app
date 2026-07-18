@@ -224,12 +224,12 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   onPressed: loading ? null : submit,
                   child: loading
                       ? const CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Colors.white,
                   )
                       : const Text(
                     'إرسال العرض',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),

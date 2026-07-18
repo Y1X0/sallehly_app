@@ -318,12 +318,12 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   onPressed: loading ? null : submit,
                   child: loading
                       ? const CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Colors.white,
                   )
                       : const Text(
                     'إنشاء حساب فني',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),

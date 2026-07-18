@@ -149,12 +149,12 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   onPressed: loading ? null : verify,
                   child: loading
                       ? const CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Colors.white,
                   )
                       : const Text(
                     'تفعيل الحساب',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),

@@ -197,7 +197,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
           ElevatedButton(
             onPressed: wallet.submitting ? null : submit,
             child: wallet.submitting
-                ? const CircularProgressIndicator(color: Colors.black)
+                ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
               'إرسال طلب الشحن',
               style: TextStyle(

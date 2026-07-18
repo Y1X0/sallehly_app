@@ -91,7 +91,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 10),
