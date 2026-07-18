@@ -53,6 +53,29 @@ class AppTheme {
           side: BorderSide(color: AppColors.border),
         ),
       ),
+      // [PHASE2-DIALOG-01] توحيد شكل AlertDialog على مستوى التطبيق كامل: نفس
+      // نصف قطر/حدود CardTheme أعلاه بالضبط (26 + AppColors.border)، خلفية
+      // AppColors.card، وعنوان بخط ثقيل (w900) بلون النص الأساسي. هذا يصحّح
+      // فقط الحوارات التي لا تحدّد backgroundColor/titleTextStyle الخاص بها —
+      // أي حوار يمرّر قيمه الخاصة صراحة (مثل AppColors.surface بمكان آخر)
+      // يبقى كما هو تماماً لأن القيمة الصريحة تتفوّق دائماً على قيمة الثيم.
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(26),
+          side: BorderSide(color: AppColors.border),
+        ),
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w900,
+        ),
+        contentTextStyle: TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 14,
+          height: 1.5,
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
