@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/wallet_provider.dart';
 import '../widgets/topup_card.dart';
@@ -33,91 +34,100 @@ class _WalletScreenState extends State<WalletScreen> {
     final topups = wallet.topups.take(3).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text(
           'المحفظة',
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: wallet.loadWallet,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            _BalanceCard(
-              balance: user?.balance ?? 0,
-              pendingCount: wallet.pendingTopups,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionCard(
-                    title: 'شحن الرصيد',
-                    subtitle: 'اختر باقة وارفع الوصل',
-                    icon: Icons.add_card_rounded,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const PackagesScreen(),
-                        ),
-                      );
-                    },
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 50),
+            child: RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: wallet.loadWallet,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                children: [
+                  _BalanceCard(
+                    balance: user?.balance ?? 0,
+                    pendingCount: wallet.pendingTopups,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActionCard(
-                    title: 'سجل العمليات',
-                    subtitle: 'كل حركات الرصيد',
-                    icon: Icons.receipt_long_rounded,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LedgerScreen(),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionCard(
+                          title: 'شحن الرصيد',
+                          subtitle: 'اختر باقة وارفع الوصل',
+                          icon: Icons.add_card_rounded,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PackagesScreen(),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _ActionCard(
+                          title: 'سجل العمليات',
+                          subtitle: 'كل حركات الرصيد',
+                          icon: Icons.receipt_long_rounded,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LedgerScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'آخر طلبات الشحن',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
+                  const SizedBox(height: 24),
+                  Text(
+                    'آخر طلبات الشحن',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (wallet.loading && topups.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.only(top: 80),
+                      child: Center(
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      ),
+                    )
+                  else if (wallet.error != null && topups.isEmpty)
+                    _WalletErrorState(
+                      message: wallet.error!,
+                      onRetry: wallet.loadWallet,
+                    )
+                  else if (topups.isEmpty)
+                    const _EmptyWalletState()
+                  else
+                    ...topups.map(
+                          (e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: TopupCard(topup: e),
+                      ),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            if (wallet.loading && topups.isEmpty)
-              Padding(
-                padding: EdgeInsets.only(top: 80),
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                ),
-              )
-            else if (wallet.error != null && topups.isEmpty)
-              _WalletErrorState(
-                message: wallet.error!,
-                onRetry: wallet.loadWallet,
-              )
-            else if (topups.isEmpty)
-              const _EmptyWalletState()
-            else
-              ...topups.map(
-                    (e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TopupCard(topup: e),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );

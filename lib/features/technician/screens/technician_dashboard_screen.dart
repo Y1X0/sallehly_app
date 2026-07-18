@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
@@ -42,8 +43,10 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
         .length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: provider.loadRequests,
         child: ListView(
@@ -128,6 +131,8 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
               },
             ),
           ],
+        ),
+          ),
         ),
       ),
     );

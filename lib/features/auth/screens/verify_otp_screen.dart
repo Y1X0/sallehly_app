@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routes/route_guard.dart';
 
@@ -77,13 +78,16 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text('تفعيل الحساب'),
       ),
-      body: SafeArea(
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(22, 66, 22, 22),
           child: Form(
             key: formKey,
             child: Column(
@@ -158,6 +162,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

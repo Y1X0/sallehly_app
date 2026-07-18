@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../requests/widgets/request_status_chip.dart';
@@ -72,12 +73,16 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
     final provider = context.watch<RequestsProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text('طلب رقم ${request.id}'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
         children: [
           RequestStatusChip(status: request.status),
           const SizedBox(height: 18),
@@ -211,6 +216,8 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
             ),
           ],
         ],
+          ),
+        ),
       ),
     );
   }
@@ -232,7 +239,7 @@ class _Box extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
@@ -242,7 +249,7 @@ class _Box extends StatelessWidget {
             title,
             style: TextStyle(
               color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 10),
