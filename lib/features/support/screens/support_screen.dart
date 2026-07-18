@@ -91,10 +91,20 @@ class _SupportScreenState extends State<SupportScreen> {
                           padding: const EdgeInsets.all(28),
                           children: [
                             SizedBox(height: 120),
-                            Icon(
-                              Icons.support_agent_rounded,
-                              color: AppColors.primary,
-                              size: 80,
+                            Center(
+                              child: Container(
+                                width: 84,
+                                height: 84,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(28),
+                                ),
+                                child: Icon(
+                                  Icons.support_agent_rounded,
+                                  color: AppColors.primary,
+                                  size: 40,
+                                ),
+                              ),
                             ),
                             SizedBox(height: 16),
                             Text(
@@ -150,10 +160,20 @@ class _SupportErrorState extends StatelessWidget {
       padding: const EdgeInsets.all(28),
       children: [
         const SizedBox(height: 120),
-        Icon(
-          Icons.error_outline_rounded,
-          color: AppColors.danger,
-          size: 80,
+        Center(
+          child: Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 40,
+            ),
+          ),
         ),
         const SizedBox(height: 16),
         Text(
