@@ -23,8 +23,15 @@ class OfferCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(26),
         border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +41,7 @@ class OfferCard extends StatelessWidget {
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 8),
@@ -43,7 +50,7 @@ class OfferCard extends StatelessWidget {
             style: TextStyle(
               color: AppColors.primary,
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 6),
@@ -63,16 +70,18 @@ class OfferCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: loading ? null : onAccept,
-                    child: const Text('قبول'),
+                    icon: const Icon(Icons.check_circle_outline_rounded),
+                    label: const Text('قبول'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: loading ? null : onReject,
-                    child: const Text('رفض'),
+                    icon: const Icon(Icons.close_rounded),
+                    label: const Text('رفض'),
                   ),
                 ),
               ],
@@ -82,7 +91,7 @@ class OfferCard extends StatelessWidget {
               offer.isAccepted ? 'تم قبول العرض' : 'تم رفض العرض',
               style: TextStyle(
                 color: offer.isAccepted ? AppColors.success : AppColors.danger,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w900,
               ),
             ),
         ],

@@ -20,14 +20,21 @@ class RequestStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      label: Text(status),
-      backgroundColor: color.withValues(alpha: 0.15),
-      labelStyle: TextStyle(
-        color: color,
-        fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
-      side: BorderSide(color: color.withValues(alpha: 0.4)),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w900,
+          fontSize: 12.5,
+        ),
+      ),
     );
   }
 }

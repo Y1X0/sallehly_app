@@ -17,17 +17,25 @@ class CustomerRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(22),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: Container(
-          padding: const EdgeInsets.all(18),
+        borderRadius: BorderRadius.circular(28),
+        child: Ink(
           decoration: BoxDecoration(
+            color: AppColors.card,
             border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.16),
+                blurRadius: 24,
+                offset: const Offset(0, 14),
+              ),
+            ],
           ),
+          child: Padding(
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,7 +46,7 @@ class CustomerRequestCard extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
               const SizedBox(height: 8),
@@ -59,6 +67,7 @@ class CustomerRequestCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
