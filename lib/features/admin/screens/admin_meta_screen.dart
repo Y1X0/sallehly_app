@@ -361,7 +361,7 @@ class _MetaList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
       children: [
         ElevatedButton.icon(
           onPressed: onAdd,

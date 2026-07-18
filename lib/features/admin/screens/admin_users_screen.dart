@@ -324,7 +324,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         color: AppColors.primary,
         onRefresh: admin.loadUsers,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           children: [
             SizedBox(
               height: 42,

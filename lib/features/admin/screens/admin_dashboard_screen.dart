@@ -51,7 +51,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         color: AppColors.primary,
         onRefresh: admin.loadDashboard,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           children: [
             Container(
               padding: const EdgeInsets.all(22),

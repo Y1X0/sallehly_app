@@ -80,6 +80,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
             ? const Center(child: CircularProgressIndicator())
             : admin.error != null && tickets.isEmpty
                 ? ListView(
+                    padding: const EdgeInsets.only(bottom: 110),
                     children: [
                       const SizedBox(height: 180),
                       Icon(
@@ -109,6 +110,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                   )
                 : tickets.isEmpty
                 ? ListView(
+                    padding: const EdgeInsets.only(bottom: 110),
                     children: const [
                       SizedBox(height: 200),
                       Center(
@@ -120,7 +122,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                     ],
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 110),
                     itemCount: tickets.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {

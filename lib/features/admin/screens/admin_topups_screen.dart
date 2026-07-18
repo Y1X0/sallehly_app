@@ -97,7 +97,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         )
             : admin.error != null && admin.topups.isEmpty
             ? ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 110),
           children: [
             const SizedBox(height: 160),
             Icon(
@@ -124,7 +124,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         )
             : admin.topups.isEmpty
             ? ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 110),
           children: [
             SizedBox(height: 180),
             Icon(
@@ -141,7 +141,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
           ],
         )
             : ListView.separated(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           itemCount: admin.topups.length,
           separatorBuilder: (_, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {

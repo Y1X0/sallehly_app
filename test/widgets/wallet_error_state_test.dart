@@ -23,6 +23,16 @@ class MockTokenStorage extends Mock implements TokenStorage {}
 
 class MockAppStorage extends Mock implements AppStorage {}
 
+// WalletScreen وPackagesScreen يستخدمان AppBackground (خلفية متحركة) التي
+// تحوي AnimationController..repeat() دائم الحركة — نفس السبب الموثّق بـ
+// my_reviews_error_state_test.dart. pumpAndSettle() لا يتوقف أبداً مع
+// أنيميشن متكرر بلا نهاية، فنستخدم دفعات pump() بمهلة محددة بدلاً منه.
+Future<void> _pumpSteps(WidgetTester tester, {int steps = 6}) async {
+  for (var i = 0; i < steps; i++) {
+    await tester.pump(const Duration(milliseconds: 200));
+  }
+}
+
 // WalletScreen يقرأ AuthProvider أيضاً (لعرض الرصيد)، فلا بد من توفيره كأب
 // حتى لو لم تُستدعَ أي دالة دخول فعلية هنا.
 AuthProvider _fakeAuthProvider() {
@@ -52,7 +62,7 @@ void main() {
 
       // initState يطلق loadWallet() عبر Future.microtask — الـApiClient غير
       // مهيّأ (Mock بلا stubbing) فيفشل الجلب فعلياً بنفس طريقة فشل شبكي حقيقي.
-      await tester.pumpAndSettle();
+      await _pumpSteps(tester);
 
       expect(find.text('لا توجد طلبات شحن بعد'), findsNothing);
       expect(find.text('تعذّر تحميل المحفظة'), findsOneWidget);
@@ -72,7 +82,7 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await _pumpSteps(tester);
 
       expect(find.text('لا توجد باقات حالياً'), findsNothing);
       expect(find.text('تعذّر تحميل الباقات'), findsOneWidget);
