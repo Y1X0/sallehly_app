@@ -61,6 +61,12 @@ class AppTheme {
       // يبقى كما هو تماماً لأن القيمة الصريحة تتفوّق دائماً على قيمة الثيم.
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.card,
+        // [RESPONSIVE-03] بلا حد أقصى للعرض كانت الحوارات التي تحوي TextField
+        // أو Row من Expanded (مثل حوارات admin_users_screen.dart) تتمدد لتقارب
+        // عرض الشاشة كاملاً على الأجهزة اللوحية/الشاشات الكبيرة. 480 أعرض من
+        // (عرض أي هاتف - 80 هامش insetPadding الافتراضي) فلا يُفعَّل القيد
+        // إطلاقاً على الهواتف — فقط على الشاشات الأعرض من 560.
+        constraints: const BoxConstraints(maxWidth: 480),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(26),
           side: BorderSide(color: AppColors.border),

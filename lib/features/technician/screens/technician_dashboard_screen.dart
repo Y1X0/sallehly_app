@@ -431,6 +431,13 @@ class _ShortcutGrid extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
+              // [RESPONSIVE-04] عند العمودين (كل الهواتف) البقاء بلا محاذاة
+              // صريحة يعطي نفس السلوك الافتراضي الأصلي (start) بلا أي تغيير.
+              // فقط على الأجهزة اللوحية/الشاشات الأعرض حيث تكبر البطاقة كثيراً
+              // عن محتواها، التوسيط يمنع فراغاً كبيراً منحازاً لجهة واحدة.
+              mainAxisAlignment: columns == 2
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               children: [
                 Icon(item[1] as IconData, color: AppColors.secondary),
                 const SizedBox(width: 10),

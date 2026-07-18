@@ -427,6 +427,11 @@ class _ServicesGrid extends StatelessWidget {
     final itemWidth = columns == 2
         ? (width - outerPad) / 2
         : (width - outerPad - 12.0 * (columns - 2)) / columns;
+    // [RESPONSIVE-04] الارتفاع 116 يبقى كما هو بالضبط على كل الهواتف
+    // (columns == 2). فقط على الأجهزة اللوحية/الشاشات الأعرض حيث يكبر عرض
+    // البطاقة أكثر بكثير، يتمدد الارتفاع بنفس النسبة تقريباً بدل بقائه 116
+    // ثابتاً — لتفادي بطاقات مسطّحة وعريضة بشكل غير متناسق.
+    final tileHeight = columns == 2 ? 116.0 : itemWidth / 1.5;
 
     // [FIX-SERVICES-04] نفس مصدر البيانات الحيّ المستخدم بالتسجيل وإنشاء
     // الطلب — /meta أصلاً يُرجع المهن الفعّالة فقط، فلا حاجة لأي فلترة هنا.
@@ -471,7 +476,7 @@ class _ServicesGrid extends StatelessWidget {
           },
           child: Container(
             width: itemWidth,
-            height: 116,
+            height: tileHeight,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.card.withValues(alpha: 0.88),
