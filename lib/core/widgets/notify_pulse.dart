@@ -39,6 +39,8 @@ class _NotifyPulseState extends State<NotifyPulse>
   void didUpdateWidget(covariant NotifyPulse oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.count > oldWidget.count) {
+      // احترام "تقليل الحركة": العدّاد يتحدّث فوراً بلا نبضة حركية.
+      if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) return;
       _controller.forward(from: 0);
     }
   }
