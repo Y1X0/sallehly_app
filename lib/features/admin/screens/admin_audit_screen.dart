@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../provider/admin_provider.dart';
 
 class AdminAuditScreen extends StatefulWidget {
@@ -34,17 +35,21 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text(
           'سجل العمليات',
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: Column(
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 66, 16, 8),
             child: TextField(
               controller: _searchController,
               textInputAction: TextInputAction.search,
@@ -93,27 +98,7 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                               .loadAuditLogs(search: _searchController.text),
                         )
                       : admin.auditLogs.isEmpty
-                      ? ListView(
-                          children: [
-                            SizedBox(height: 120),
-                            Icon(
-                              Icons.history_rounded,
-                              size: 70,
-                              color: AppColors.textSecondary,
-                            ),
-                            SizedBox(height: 16),
-                            Center(
-                              child: Text(
-                                'لا توجد عمليات مسجّلة',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
+                      ? const _EmptyAuditState()
                       : ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: admin.auditLogs.length,
@@ -126,6 +111,57 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
             ),
           ),
         ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyAuditState extends StatelessWidget {
+  const _EmptyAuditState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(
+                Icons.history_rounded,
+                color: AppColors.textSecondary,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'لا توجد عمليات مسجّلة',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'ستظهر هنا كل العمليات الإدارية على المنصة',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -142,36 +178,53 @@ class _AuditErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        const SizedBox(height: 120),
-        Icon(
-          Icons.error_outline_rounded,
-          size: 70,
-          color: AppColors.danger,
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                color: AppColors.danger,
+                size: 40,
+              ),
             ),
-          ),
+            const SizedBox(height: 18),
+            Text(
+              'تعذّر تحميل سجل العمليات',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('إعادة المحاولة'),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+            ),
+          ],
         ),
-        const SizedBox(height: 14),
-        Center(
-          child: TextButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
-            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../provider/admin_provider.dart';
 
 /// [FIX-LEDGER-01] دفتر الحساب الشامل عبر المنصة كاملة — عرض/بحث فقط، لا
@@ -37,21 +38,25 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text('دفتر الحساب (${admin.ledgerTotal})', style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
-      body: admin.ledgerLoading && admin.ledgerEntries.isEmpty
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: admin.ledgerLoading && admin.ledgerEntries.isEmpty
           ? Center(child: CircularProgressIndicator(color: AppColors.primary))
           : admin.error != null && admin.ledgerEntries.isEmpty
               ? _ErrorState(message: admin.error!, onRetry: () => context.read<AdminProvider>().loadLedger())
               : admin.ledgerEntries.isEmpty
-                  ? _EmptyState()
+                  ? const _EmptyState()
                   : RefreshIndicator(
                       color: AppColors.primary,
                       onRefresh: () => context.read<AdminProvider>().loadLedger(),
                       child: ListView.separated(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.fromLTRB(16, 66, 16, 16),
                         itemCount: admin.ledgerEntries.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 10),
                         itemBuilder: (_, i) {
@@ -109,22 +114,36 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                         },
                       ),
                     ),
+        ),
+      ),
     );
   }
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.receipt_long_outlined, size: 70, color: AppColors.textSecondary),
-            const SizedBox(height: 16),
-            Text('لا توجد حركات مالية بعد', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w700, fontSize: 16)),
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(Icons.receipt_long_outlined, color: AppColors.textSecondary, size: 40),
+            ),
+            const SizedBox(height: 18),
+            Text('لا توجد حركات مالية بعد', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('ستظهر هنا كل الحركات المالية عبر المنصة', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
           ],
         ),
       ),
@@ -142,14 +161,24 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 56, color: AppColors.danger),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 12),
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 40),
+            ),
+            const SizedBox(height: 18),
+            Text('تعذّر تحميل دفتر الحساب', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
+            const SizedBox(height: 14),
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),

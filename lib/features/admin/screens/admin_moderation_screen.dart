@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../provider/admin_provider.dart';
 
 class AdminModerationScreen extends StatefulWidget {
@@ -45,8 +46,8 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text(
           'المراقبة والشكاوى',
           style: TextStyle(fontWeight: FontWeight.w900),
@@ -63,7 +64,13 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
           ],
         ),
       ),
-      body: admin.moderationLoading
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 114),
+            child: admin.moderationLoading
           ? Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             )
@@ -141,6 +148,9 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                 ),
               ],
             ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -156,53 +166,73 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
       color: AppColors.primary,
       onRefresh: () => context.read<AdminProvider>().loadModeration(),
       child: error != null && items.isEmpty
-          ? ListView(
-              children: [
-                const SizedBox(height: 120),
-                Icon(Icons.error_outline_rounded,
-                    size: 70, color: AppColors.danger),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    error,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        color: AppColors.danger.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Icon(Icons.error_outline_rounded,
+                          color: AppColors.danger, size: 40),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    Text(
+                      error,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextButton.icon(
+                      onPressed: () =>
+                          context.read<AdminProvider>().loadModeration(),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('إعادة المحاولة'),
+                      style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 14),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () =>
-                        context.read<AdminProvider>().loadModeration(),
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة المحاولة'),
-                    style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary),
-                  ),
-                ),
-              ],
+              ),
             )
           : items.isEmpty
-          ? ListView(
-              children: [
-                const SizedBox(height: 120),
-                Icon(emptyIcon, size: 70, color: AppColors.textSecondary),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    emptyText,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        color: AppColors.textSecondary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Icon(emptyIcon, color: AppColors.textSecondary, size: 40),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    Text(
+                      emptyText,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             )
           : ListView.separated(
               padding: const EdgeInsets.all(16),
