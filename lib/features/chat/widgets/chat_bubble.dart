@@ -17,8 +17,23 @@ String _mediaUrl(String path) {
   return '${AppConfig.baseUrl}$path';
 }
 
-/// يجلب هيدر المصادقة (التوكن) لاستخدامه مع Image.network والصوت.
-Future<Map<String, String>> _authHeaders() async {
+/// [SEC-FIX-C1] هل هذا الرابط يشير لخادمنا نفسه (نفس host الخاص بـ baseUrl)؟
+/// [image]/[audio] بالشات مصدرها جسم رسالة نصية يُخزَّن كما هو — لو أُرسِل
+/// رابط خارجي (مثلاً بعد استغلال ثغرة انتحال صيغة الوسائط) فلا يجوز إطلاقاً
+/// إرفاق هيدر Authorization معه؛ هذا يُسرّب توكن جلسة المستخدم لأي
+/// خادم خارجي يتحكم به المهاجم بمجرد فتح الصورة كاملة الحجم.
+bool _isFirstPartyUrl(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null || !uri.hasAuthority) return false;
+  return uri.host == Uri.parse(AppConfig.baseUrl).host;
+}
+
+/// يجلب هيدر المصادقة (التوكن) لاستخدامه مع Image.network — فقط لو كان
+/// الرابط المستهدَف يعود فعلاً لخادم API الخاص بنا. أي رابط خارجي (host
+/// مختلف) يُعامَل كرابط عادي بلا أي هيدر مصادقة إطلاقاً.
+Future<Map<String, String>> _authHeadersFor(String url) async {
+  if (!_isFirstPartyUrl(url)) return {};
+
   const storage = FlutterSecureStorage();
   final token = await storage.read(key: 'sallehly_token');
 
@@ -481,7 +496,7 @@ class _FullImageView extends StatelessWidget {
       ),
       body: Center(
         child: FutureBuilder<Map<String, String>>(
-          future: _authHeaders(),
+          future: _authHeadersFor(imageUrl),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator(color: Colors.white);
