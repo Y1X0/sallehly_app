@@ -155,16 +155,16 @@ class _TicketCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isOpen
                 ? AppColors.primary.withValues(alpha: 0.4)
-                : Colors.white.withValues(alpha: 0.08),
+                : AppColors.border,
           ),
         ),
         child: Column(
@@ -176,7 +176,7 @@ class _TicketCard extends StatelessWidget {
                   child: Text(
                     ticket.title.isEmpty ? 'تذكرة دعم' : ticket.title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 15,
                     ),
                     maxLines: 1,
@@ -190,16 +190,16 @@ class _TicketCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isOpen
-                        ? Colors.green.withValues(alpha: 0.18)
-                        : Colors.grey.withValues(alpha: 0.18),
+                        ? AppColors.success.withValues(alpha: 0.18)
+                        : AppColors.textSecondary.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     isOpen ? 'مفتوحة' : 'مغلقة',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isOpen ? Colors.green : Colors.grey,
-                      fontWeight: FontWeight.bold,
+                      color: isOpen ? AppColors.success : AppColors.textSecondary,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
@@ -210,7 +210,7 @@ class _TicketCard extends StatelessWidget {
               ticket.body,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.textSecondary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -221,7 +221,7 @@ class _TicketCard extends StatelessWidget {
                 Icon(
                   Icons.person_outline,
                   size: 16,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -229,7 +229,7 @@ class _TicketCard extends StatelessWidget {
                     '${ticket.userName ?? 'مستخدم'} · ${ticket.type}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.55),
+                      color: AppColors.textMuted,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -82,7 +82,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
+                backgroundColor: AppColors.danger,
               ),
               onPressed: () => Navigator.pop(context, true),
               child: const Text('تأكيد الإلغاء'),
@@ -331,11 +331,11 @@ class _RequestCard extends StatelessWidget {
   Color _statusColor(String status) {
     switch (status) {
       case 'مكتمل':
-        return Colors.green;
+        return AppColors.success;
       case 'ملغي':
-        return Colors.red;
+        return AppColors.danger;
       case 'قيد التنفيذ':
-        return Colors.orange;
+        return AppColors.warning;
       default:
         return AppColors.primary;
     }
@@ -435,8 +435,8 @@ class _RequestCard extends StatelessWidget {
                     icon: const Icon(Icons.cancel_rounded, size: 18),
                     label: const Text('إلغاء الطلب'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red.shade400,
-                      side: BorderSide(color: Colors.red.shade400),
+                      foregroundColor: AppColors.danger,
+                      side: BorderSide(color: AppColors.danger),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   ),

@@ -258,8 +258,8 @@ class _ComplaintStatusMenu extends StatelessWidget {
 
   static Map<String, Color> get _colors => {
     'open': AppColors.danger,
-    'in_review': Colors.orange,
-    'resolved': Colors.green,
+    'in_review': AppColors.warning,
+    'resolved': AppColors.success,
     'rejected': AppColors.textSecondary,
   };
 
@@ -337,8 +337,8 @@ class _ViolationStatusMenu extends StatelessWidget {
 
   static Map<String, Color> get _colors => {
     'مفتوح': AppColors.danger,
-    'تمت المراجعة': Colors.orange,
-    'تم اتخاذ إجراء': Colors.green,
+    'تمت المراجعة': AppColors.warning,
+    'تم اتخاذ إجراء': AppColors.success,
   };
 
   @override
@@ -407,8 +407,8 @@ class _MessageReportStatusMenu extends StatelessWidget {
   };
 
   static Map<String, Color> get _colors => {
-    'قيد المراجعة': Colors.orange,
-    'تم اتخاذ إجراء': Colors.green,
+    'قيد المراجعة': AppColors.warning,
+    'تم اتخاذ إجراء': AppColors.success,
     'مرفوض': AppColors.textSecondary,
   };
 

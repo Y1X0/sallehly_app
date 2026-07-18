@@ -6,6 +6,7 @@ import 'core/api/api_client.dart';
 import 'core/socket/socket_service.dart';
 import 'core/storage/app_storage.dart';
 import 'core/storage/token_storage.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'features/admin/provider/admin_provider.dart';
 import 'features/chat/provider/chat_provider.dart';
@@ -242,7 +243,7 @@ class _OfflineBanner extends StatelessWidget {
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFE53935),
+                color: AppColors.danger,
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
@@ -263,7 +264,7 @@ class _OfflineBanner extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
                         fontSize: 14,
                       ),
                     ),
