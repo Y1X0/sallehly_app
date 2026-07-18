@@ -361,7 +361,7 @@ class _MetaList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
       children: [
         ElevatedButton.icon(
           onPressed: onAdd,
@@ -379,9 +379,26 @@ class _MetaList extends StatelessWidget {
             padding: const EdgeInsets.only(top: 120),
             child: Column(
               children: [
-                Icon(Icons.error_outline_rounded,
-                    color: AppColors.danger, size: 46),
-                const SizedBox(height: 12),
+                Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Icon(Icons.error_outline_rounded,
+                      color: AppColors.danger, size: 40),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'تعذّر تحميل القائمة',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Text(
                   error!,
                   textAlign: TextAlign.center,
@@ -404,7 +421,31 @@ class _MetaList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 120),
             child: Center(
-              child: Text(empty, style: TextStyle(color: AppColors.textSecondary)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      color: AppColors.textSecondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Icon(Icons.inventory_2_outlined,
+                        color: AppColors.textSecondary, size: 40),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    empty,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         else

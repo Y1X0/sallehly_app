@@ -97,15 +97,31 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         )
             : admin.error != null && admin.topups.isEmpty
             ? ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 110),
           children: [
             const SizedBox(height: 160),
-            Icon(
-              Icons.error_outline_rounded,
-              color: AppColors.danger,
-              size: 76,
+            Center(
+              child: Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.danger,
+                  size: 40,
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
+            Text(
+              'تعذّر تحميل طلبات الشحن',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
             Text(
               admin.error!,
               textAlign: TextAlign.center,
@@ -124,24 +140,34 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         )
             : admin.topups.isEmpty
             ? ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 28, 28, 110),
           children: [
             SizedBox(height: 180),
-            Icon(
-              Icons.receipt_long_outlined,
-              color: AppColors.primary,
-              size: 76,
+            Center(
+              child: Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Icon(
+                  Icons.receipt_long_outlined,
+                  color: AppColors.primary,
+                  size: 40,
+                ),
+              ),
             ),
             SizedBox(height: 16),
             Text(
               'لا توجد طلبات شحن',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
             ),
           ],
         )
             : ListView.separated(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           itemCount: admin.topups.length,
           separatorBuilder: (_, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {

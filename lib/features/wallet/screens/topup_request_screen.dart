@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../models/package_model.dart';
 import '../provider/wallet_provider.dart';
 
@@ -86,16 +87,20 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
     final method = wallet.firstPaymentMethod;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text(
           'طلب شحن رصيد',
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
+            children: [
           _SelectedPackageCard(package: widget.package),
           const SizedBox(height: 16),
           if (method != null)
@@ -181,7 +186,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                 borderRadius: BorderRadius.circular(18),
                 child: Image.file(
                   File(receiptPath!),
-                  height: 220,
+                  // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                  // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                  // الهواتف العادية (العرض المرجعي 390).
+                  height: MediaQuery.of(context).size.width * (220 / 390),
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
@@ -192,7 +200,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
           ElevatedButton(
             onPressed: wallet.submitting ? null : submit,
             child: wallet.submitting
-                ? const CircularProgressIndicator(color: Colors.black)
+                ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
               'إرسال طلب الشحن',
               style: TextStyle(
@@ -202,6 +210,8 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }

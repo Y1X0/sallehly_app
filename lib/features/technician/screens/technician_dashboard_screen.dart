@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
@@ -42,8 +44,10 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
         .length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: provider.loadRequests,
         child: ListView(
@@ -128,6 +132,8 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
               },
             ),
           ],
+        ),
+          ),
         ),
       ),
     );
@@ -401,6 +407,14 @@ class _ShortcutGrid extends StatelessWidget {
       }],
     ];
 
+    final width = MediaQuery.of(context).size.width;
+    // [RESPONSIVE-01] نفس صيغة الحساب الأصلية بالضبط على الهواتف (columns=2)
+    // — أعمدة إضافية فقط على الشاشات الأعرض (أجهزة لوحية).
+    final columns = responsiveColumns(width);
+    final itemWidth = columns == 2
+        ? (width - 64) / 2
+        : (width - 64 - 12.0 * (columns - 2)) / columns;
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -409,7 +423,7 @@ class _ShortcutGrid extends StatelessWidget {
           onTap: item[2] as VoidCallback,
           borderRadius: BorderRadius.circular(22),
           child: Container(
-            width: (MediaQuery.of(context).size.width - 64) / 2,
+            width: itemWidth,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.card,
@@ -417,6 +431,13 @@ class _ShortcutGrid extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
+              // [RESPONSIVE-04] عند العمودين (كل الهواتف) البقاء بلا محاذاة
+              // صريحة يعطي نفس السلوك الافتراضي الأصلي (start) بلا أي تغيير.
+              // فقط على الأجهزة اللوحية/الشاشات الأعرض حيث تكبر البطاقة كثيراً
+              // عن محتواها، التوسيط يمنع فراغاً كبيراً منحازاً لجهة واحدة.
+              mainAxisAlignment: columns == 2
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
               children: [
                 Icon(item[1] as IconData, color: AppColors.secondary),
                 const SizedBox(width: 10),

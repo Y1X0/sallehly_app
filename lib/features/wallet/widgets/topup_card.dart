@@ -31,6 +31,13 @@ class TopupCard extends StatelessWidget {
         color: AppColors.card,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
       ),
       child: Row(
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
@@ -51,7 +52,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         color: AppColors.primary,
         onRefresh: admin.loadDashboard,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           children: [
             Container(
               padding: const EdgeInsets.all(22),
@@ -105,7 +106,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
+                crossAxisCount: responsiveColumns(MediaQuery.of(context).size.width),
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.05,
@@ -352,7 +353,15 @@ class _DashboardErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 60),
       child: Column(
         children: [
-          Icon(Icons.error_outline_rounded, size: 56, color: AppColors.danger),
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(Icons.error_outline_rounded, size: 40, color: AppColors.danger),
+          ),
           const SizedBox(height: 14),
           Text(
             'تعذّر تحميل الإحصائيات',

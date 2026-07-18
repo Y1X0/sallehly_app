@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../requests/widgets/request_status_chip.dart';
@@ -57,12 +58,16 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
     final loading = context.watch<RequestsProvider>().loading;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text('طلب رقم ${request.id}'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
         children: [
           RequestStatusChip(status: request.status),
           const SizedBox(height: 18),
@@ -99,7 +104,10 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               child: Image.network(
                 '${AppConfig.baseUrl}${request.problemImageUrl}',
-                height: 220,
+                // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                // الهواتف العادية (العرض المرجعي 390).
+                height: MediaQuery.of(context).size.width * (220 / 390),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const SizedBox();
@@ -149,6 +157,8 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
             ),
           ],
         ],
+          ),
+        ),
       ),
     );
   }
@@ -180,7 +190,7 @@ class _InfoBox extends StatelessWidget {
             title,
             style: TextStyle(
               color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 10),

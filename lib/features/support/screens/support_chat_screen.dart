@@ -197,9 +197,20 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
 
   Widget _emptyState() {
     return ListView(
+      padding: const EdgeInsets.all(28),
       children: [
         SizedBox(height: 120),
-        Icon(Icons.forum_outlined, size: 70, color: AppColors.primary),
+        Center(
+          child: Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(Icons.forum_outlined, color: AppColors.primary, size: 40),
+          ),
+        ),
         SizedBox(height: 14),
         Text(
           'ابدأ المحادثة مع فريق الدعم',
@@ -222,9 +233,20 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
 
   Widget _errorState(String message, Future<void> Function() onRetry) {
     return ListView(
+      padding: const EdgeInsets.all(28),
       children: [
         const SizedBox(height: 120),
-        Icon(Icons.error_outline_rounded, size: 70, color: AppColors.danger),
+        Center(
+          child: Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 40),
+          ),
+        ),
         const SizedBox(height: 14),
         Text(
           'تعذّر تحميل الرسائل',

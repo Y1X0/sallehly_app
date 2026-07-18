@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -117,13 +118,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         context.watch<AuthProvider>().user?.freeOffersRemaining ?? 0;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text('تقديم عرض'),
       ),
-      body: SafeArea(
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(22, 66, 22, 22),
           child: Form(
             key: formKey,
             child: Column(
@@ -220,12 +224,12 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   onPressed: loading ? null : submit,
                   child: loading
                       ? const CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Colors.white,
                   )
                       : const Text(
                     'إرسال العرض',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),
@@ -233,6 +237,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

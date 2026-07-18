@@ -65,20 +65,22 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.card,
         title: const Text('إيقاف الحساب', style: TextStyle(fontWeight: FontWeight.w900)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
-                style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: reasonController,
-              maxLength: 300,
-              maxLines: 3,
-              decoration: const InputDecoration(labelText: 'السبب'),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
+                  style: TextStyle(color: AppColors.textSecondary)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reasonController,
+                maxLength: 300,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'السبب'),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
@@ -173,50 +175,52 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               backgroundColor: AppColors.card,
               title: const Text('تعديل الرصيد',
                   style: TextStyle(fontWeight: FontWeight.w900)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
-                      style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ChoiceChip(
-                          label: const Text('إضافة'),
-                          selected: isAdd,
-                          onSelected: (_) => setLocal(() => isAdd = true),
-                          selectedColor: AppColors.success,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
+                        style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('إضافة'),
+                            selected: isAdd,
+                            onSelected: (_) => setLocal(() => isAdd = true),
+                            selectedColor: AppColors.success,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ChoiceChip(
-                          label: const Text('خصم'),
-                          selected: !isAdd,
-                          onSelected: (_) => setLocal(() => isAdd = false),
-                          selectedColor: AppColors.danger,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('خصم'),
+                            selected: !isAdd,
+                            onSelected: (_) => setLocal(() => isAdd = false),
+                            selectedColor: AppColors.danger,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'المبلغ'),
-                  ),
-                  TextField(
-                    controller: reasonController,
-                    maxLength: 200,
-                    decoration:
-                        const InputDecoration(labelText: 'سبب التعديل (إلزامي)'),
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: amountController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'المبلغ'),
+                    ),
+                    TextField(
+                      controller: reasonController,
+                      maxLength: 200,
+                      decoration:
+                          const InputDecoration(labelText: 'سبب التعديل (إلزامي)'),
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -324,7 +328,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         color: AppColors.primary,
         onRefresh: admin.loadUsers,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           children: [
             SizedBox(
               height: 42,
@@ -625,9 +629,25 @@ class _EmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 140),
       child: Center(
-        child: Text(
-          text,
-          style: TextStyle(color: AppColors.textSecondary),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(Icons.people_outline_rounded, size: 40, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
+            ),
+          ],
         ),
       ),
     );
@@ -649,12 +669,25 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 120),
       child: Column(
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 46,
-            color: AppColors.danger,
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              size: 40,
+              color: AppColors.danger,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          Text(
+            'تعذّر تحميل المستخدمين',
+            style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
           Text(
             message,
             textAlign: TextAlign.center,

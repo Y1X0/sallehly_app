@@ -48,7 +48,7 @@ class ImageSourcePicker {
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 17,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 16),

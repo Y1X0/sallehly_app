@@ -424,7 +424,11 @@ class _ImagePickerCard extends StatelessWidget {
               Image.file(
                 File(imagePath!),
                 width: double.infinity,
-                height: 210,
+                // [RESPONSIVE-02] ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة —
+                // 210 هي القيمة الأصلية عند العرض المرجعي 390 (لا تغيير على
+                // الهواتف العادية)، وتتمدد بتناسب على الأجهزة اللوحية بدل
+                // صورة مضغوطة بعرض غير متناسق.
+                height: MediaQuery.of(context).size.width * (210 / 390),
                 fit: BoxFit.cover,
               ),
               Positioned(

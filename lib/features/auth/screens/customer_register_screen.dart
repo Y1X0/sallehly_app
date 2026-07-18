@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import 'verify_otp_screen.dart';
 
@@ -94,13 +95,16 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: const Text('حساب عميل جديد'),
       ),
-      body: SafeArea(
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(22, 66, 22, 22),
           child: Form(
             key: formKey,
             child: Column(
@@ -223,12 +227,12 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   onPressed: loading ? null : submit,
                   child: loading
                       ? const CircularProgressIndicator(
-                    color: Colors.black,
+                    color: Colors.white,
                   )
                       : const Text(
                     'إنشاء الحساب',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),
@@ -236,6 +240,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'create_request_screen.dart';
@@ -418,7 +419,19 @@ class _ServicesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final itemWidth = inSheet ? (width - 72) / 2 : (width - 52) / 2;
+    // [RESPONSIVE-01] على الهواتف columns تساوي 2 دائماً، فتُعطي نفس صيغة
+    // الحساب الأصلية بالضبط (بدون أي تغيير بصري) — الأعمدة الإضافية تُستخدم
+    // فقط على الشاشات الأعرض (أجهزة لوحية) بدل بطاقات متمدّدة بعرض غير متناسق.
+    final columns = responsiveColumns(width);
+    final outerPad = inSheet ? 72.0 : 52.0;
+    final itemWidth = columns == 2
+        ? (width - outerPad) / 2
+        : (width - outerPad - 12.0 * (columns - 2)) / columns;
+    // [RESPONSIVE-04] الارتفاع 116 يبقى كما هو بالضبط على كل الهواتف
+    // (columns == 2). فقط على الأجهزة اللوحية/الشاشات الأعرض حيث يكبر عرض
+    // البطاقة أكثر بكثير، يتمدد الارتفاع بنفس النسبة تقريباً بدل بقائه 116
+    // ثابتاً — لتفادي بطاقات مسطّحة وعريضة بشكل غير متناسق.
+    final tileHeight = columns == 2 ? 116.0 : itemWidth / 1.5;
 
     // [FIX-SERVICES-04] نفس مصدر البيانات الحيّ المستخدم بالتسجيل وإنشاء
     // الطلب — /meta أصلاً يُرجع المهن الفعّالة فقط، فلا حاجة لأي فلترة هنا.
@@ -463,7 +476,7 @@ class _ServicesGrid extends StatelessWidget {
           },
           child: Container(
             width: itemWidth,
-            height: 116,
+            height: tileHeight,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.card.withValues(alpha: 0.88),

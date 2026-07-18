@@ -53,6 +53,35 @@ class AppTheme {
           side: BorderSide(color: AppColors.border),
         ),
       ),
+      // [PHASE2-DIALOG-01] توحيد شكل AlertDialog على مستوى التطبيق كامل: نفس
+      // نصف قطر/حدود CardTheme أعلاه بالضبط (26 + AppColors.border)، خلفية
+      // AppColors.card، وعنوان بخط ثقيل (w900) بلون النص الأساسي. هذا يصحّح
+      // فقط الحوارات التي لا تحدّد backgroundColor/titleTextStyle الخاص بها —
+      // أي حوار يمرّر قيمه الخاصة صراحة (مثل AppColors.surface بمكان آخر)
+      // يبقى كما هو تماماً لأن القيمة الصريحة تتفوّق دائماً على قيمة الثيم.
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.card,
+        // [RESPONSIVE-03] بلا حد أقصى للعرض كانت الحوارات التي تحوي TextField
+        // أو Row من Expanded (مثل حوارات admin_users_screen.dart) تتمدد لتقارب
+        // عرض الشاشة كاملاً على الأجهزة اللوحية/الشاشات الكبيرة. 480 أعرض من
+        // (عرض أي هاتف - 80 هامش insetPadding الافتراضي) فلا يُفعَّل القيد
+        // إطلاقاً على الهواتف — فقط على الشاشات الأعرض من 560.
+        constraints: const BoxConstraints(maxWidth: 480),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(26),
+          side: BorderSide(color: AppColors.border),
+        ),
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w900,
+        ),
+        contentTextStyle: TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 14,
+          height: 1.5,
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,

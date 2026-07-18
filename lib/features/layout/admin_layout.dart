@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/notifications/firebase_notification_service.dart';
+import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../admin/screens/admin_dashboard_screen.dart';
@@ -121,6 +122,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     final notify = context.watch<NotificationProvider>();
 
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق) — نفس السبب الموثّق
         // بـ customer_layout.dart وlogin_screen.dart.
@@ -138,9 +140,9 @@ class _AdminLayoutState extends State<AdminLayout> {
         ],
       ),
       body: pages[currentIndex],
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: _GlassNav(
         selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
+        onTap: (index) {
           // [FIX-NOTIF-05] فتح تبويب "الشحن" أو "الدعم" → صفّر عدّاد كل واحد
           // منهم لحاله (نفس نمط التصفير المستخدم بلوحة الفني تماماً).
           if (index == 2) {
@@ -152,65 +154,120 @@ class _AdminLayoutState extends State<AdminLayout> {
             currentIndex = index;
           });
         },
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'الرئيسية',
+        items: [
+          const _NavItem(Icons.dashboard_outlined, Icons.dashboard, 'الرئيسية', 0),
+          const _NavItem(Icons.people_outline, Icons.people, 'المستخدمين', 0),
+          _NavItem(
+            Icons.receipt_long_outlined,
+            Icons.receipt_long,
+            'الشحن',
+            notify.topupUnreadCount,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'المستخدمين',
+          _NavItem(
+            Icons.support_agent_outlined,
+            Icons.support_agent,
+            'الدعم',
+            notify.supportUnreadCount,
           ),
-          NavigationDestination(
-            icon: _BadgeIcon(
-              icon: Icons.receipt_long_outlined,
-              count: notify.topupUnreadCount,
-            ),
-            selectedIcon: _BadgeIcon(
-              icon: Icons.receipt_long,
-              count: notify.topupUnreadCount,
-            ),
-            label: 'الشحن',
-          ),
-          NavigationDestination(
-            icon: _BadgeIcon(
-              icon: Icons.support_agent_outlined,
-              count: notify.supportUnreadCount,
-            ),
-            selectedIcon: _BadgeIcon(
-              icon: Icons.support_agent,
-              count: notify.supportUnreadCount,
-            ),
-            label: 'الدعم',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.tune_outlined),
-            selectedIcon: Icon(Icons.tune),
-            label: 'الإعدادات',
-          ),
+          const _NavItem(Icons.tune_outlined, Icons.tune, 'الإعدادات', 0),
         ],
       ),
     );
   }
 }
 
-class _BadgeIcon extends StatelessWidget {
-  final IconData icon;
-  final int count;
+/// شريط تنقّل زجاجي عائم بنفس هوية شريطي العميل والفني تماماً (نفس النصف
+/// قطر، الحدود، الظل، وتدرّج البطاقة المختارة) بدل NavigationBar الافتراضي
+/// الذي كان يجعل لوحة الأدمن تبدو كأنها تطبيق مختلف.
+class _GlassNav extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+  final List<_NavItem> items;
 
-  const _BadgeIcon({
-    required this.icon,
-    required this.count,
+  const _GlassNav({
+    required this.selectedIndex,
+    required this.onTap,
+    required this.items,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: count > 0,
-      label: Text(count > 99 ? '99+' : '$count'),
-      child: Icon(icon),
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.32),
+              blurRadius: 24,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Row(
+          children: List.generate(items.length, (index) {
+            final item = items[index];
+            final selected = selectedIndex == index;
+
+            return Expanded(
+              child: InkWell(
+                onTap: () => onTap(index),
+                borderRadius: BorderRadius.circular(22),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: selected ? AppColors.primaryGradient : null,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Badge(
+                        isLabelVisible: item.count > 0,
+                        label: Text(item.count > 99 ? '99+' : '${item.count}'),
+                        child: Icon(
+                          selected ? item.selectedIcon : item.icon,
+                          color: selected
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: selected
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                          fontSize: 11,
+                          fontWeight:
+                              selected ? FontWeight.w900 : FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final int count;
+
+  const _NavItem(this.icon, this.selectedIcon, this.label, this.count);
 }

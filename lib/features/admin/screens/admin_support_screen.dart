@@ -80,19 +80,42 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
             ? const Center(child: CircularProgressIndicator())
             : admin.error != null && tickets.isEmpty
                 ? ListView(
+                    padding: const EdgeInsets.only(bottom: 110),
                     children: [
                       const SizedBox(height: 180),
-                      Icon(
-                        Icons.error_outline_rounded,
-                        size: 70,
-                        color: AppColors.danger,
+                      Center(
+                        child: Container(
+                          width: 84,
+                          height: 84,
+                          decoration: BoxDecoration(
+                            color: AppColors.danger.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Icon(
+                            Icons.error_outline_rounded,
+                            size: 40,
+                            color: AppColors.danger,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Center(
                         child: Text(
+                          'تعذّر تحميل تذاكر الدعم',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
                           admin.error!,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -109,18 +132,40 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                   )
                 : tickets.isEmpty
                 ? ListView(
-                    children: const [
-                      SizedBox(height: 200),
+                    padding: const EdgeInsets.only(bottom: 110),
+                    children: [
+                      const SizedBox(height: 200),
+                      Center(
+                        child: Container(
+                          width: 84,
+                          height: 84,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Icon(
+                            Icons.support_agent_rounded,
+                            size: 40,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Center(
                         child: Text(
                           'لا توجد تذاكر دعم حالياً',
-                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 110),
                     itemCount: tickets.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
@@ -153,16 +198,16 @@ class _TicketCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.card,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isOpen
                 ? AppColors.primary.withValues(alpha: 0.4)
-                : Colors.white.withValues(alpha: 0.08),
+                : AppColors.border,
           ),
         ),
         child: Column(
@@ -174,7 +219,7 @@ class _TicketCard extends StatelessWidget {
                   child: Text(
                     ticket.title.isEmpty ? 'تذكرة دعم' : ticket.title,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       fontSize: 15,
                     ),
                     maxLines: 1,
@@ -188,16 +233,16 @@ class _TicketCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isOpen
-                        ? Colors.green.withValues(alpha: 0.18)
-                        : Colors.grey.withValues(alpha: 0.18),
+                        ? AppColors.success.withValues(alpha: 0.18)
+                        : AppColors.textSecondary.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     isOpen ? 'مفتوحة' : 'مغلقة',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isOpen ? Colors.green : Colors.grey,
-                      fontWeight: FontWeight.bold,
+                      color: isOpen ? AppColors.success : AppColors.textSecondary,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
@@ -208,7 +253,7 @@ class _TicketCard extends StatelessWidget {
               ticket.body,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.textSecondary,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -219,7 +264,7 @@ class _TicketCard extends StatelessWidget {
                 Icon(
                   Icons.person_outline,
                   size: 16,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: AppColors.textMuted,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -227,7 +272,7 @@ class _TicketCard extends StatelessWidget {
                     '${ticket.userName ?? 'مستخدم'} · ${ticket.type}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.55),
+                      color: AppColors.textMuted,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

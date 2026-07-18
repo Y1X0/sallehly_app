@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/admin_provider.dart';
 
@@ -150,11 +151,15 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
     final user = detail?['user'] as Map<String, dynamic>?;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(user?['name']?.toString() ?? 'تفاصيل المستخدم', style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
-      body: admin.userDetailLoading && detail == null
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        safeArea: false,
+        child: SafeArea(
+          child: admin.userDetailLoading && detail == null
           ? const Center(child: CircularProgressIndicator())
           : admin.userDetailError != null && detail == null
               ? _ErrorState(message: admin.userDetailError!, onRetry: () => context.read<AdminProvider>().loadUserDetail(widget.userId))
@@ -163,7 +168,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                   : RefreshIndicator(
                       onRefresh: () => context.read<AdminProvider>().loadUserDetail(widget.userId),
                       child: ListView(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
                         children: [
                           _SummaryCard(user: user),
                           const SizedBox(height: 16),
@@ -224,6 +229,8 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                         ],
                       ),
                     ),
+        ),
+      ),
     );
   }
 
@@ -389,14 +396,27 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, size: 46, color: AppColors.danger),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 12),
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 40),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'تعذّر تحميل بيانات المستخدم',
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
+            const SizedBox(height: 14),
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
