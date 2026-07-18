@@ -62,9 +62,9 @@ appId: com.sallehly.app
 # deliberately, so the tap's own pass/fail is a second, independent
 # data point regardless of this wait's result.
 - extendedWaitUntil:
-    visible: "طلب صيانة جديد"
+    visible: "إنشاء طلب\nطلب صيانة جديد"
     timeout: 60000
-- tapOn: "إنشاء طلب"
+- tapOn: "إنشاء طلب\nطلب صيانة جديد"
 - assertVisible: "طلب صيانة جديد"
 
 # Service dropdown.
