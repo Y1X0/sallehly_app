@@ -69,7 +69,10 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
           child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
         children: [
-          RequestStatusChip(status: request.status),
+          Hero(
+            tag: 'technician-request-status-${request.id}',
+            child: RequestStatusChip(status: request.status),
+          ),
           const SizedBox(height: 18),
           Text(
             request.service,

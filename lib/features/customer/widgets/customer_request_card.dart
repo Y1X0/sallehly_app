@@ -53,7 +53,10 @@ class _CustomerRequestCardState extends State<CustomerRequestCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RequestStatusChip(status: widget.request.status),
+                  Hero(
+                    tag: 'customer-request-status-${widget.request.id}',
+                    child: RequestStatusChip(status: widget.request.status),
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     widget.request.service,

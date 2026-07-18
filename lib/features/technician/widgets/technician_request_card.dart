@@ -60,7 +60,10 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                 children: [
                   Row(
                     children: [
-                      RequestStatusChip(status: widget.request.status),
+                      Hero(
+                        tag: 'technician-request-status-${widget.request.id}',
+                        child: RequestStatusChip(status: widget.request.status),
+                      ),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
