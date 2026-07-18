@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -108,10 +110,29 @@ class FirebaseNotificationService {
 
     await _localNotifications.initialize(
       settings,
+      // [FIX-DEEPLINK-02] هذا هو الاستدعاء الفعلي عند الضغط على الإشعار
+      // بينما التطبيق مفتوح (onMessage يعرضه محلياً عبر
+      // _showLocalNotificationStatic، وليس عبر عرض FCM التلقائي) — كان بلا
+      // أي تأثير سوى debugPrint، فالضغط على إشعار وصل والتطبيق شغّال لا
+      // يوصّل المستخدم لأي مكان إطلاقاً، بعكس onMessageOpenedApp/
+      // getInitialMessage (يعملان فقط والتطبيق بالخلفية/مغلق). الآن يفكّ
+      // ترميز الحمولة الكاملة (JSON، وليس النوع فقط كما كانت من قبل) ويمرّرها
+      // لنفس _handleNotificationTap المستخدَم بمساري الخلفية/الإغلاق.
       onDidReceiveNotificationResponse: (details) {
-        // لما يضغط على الإشعار المحلي (إشعار أنشأناه نحن من foreground/background handler)
         if (kDebugMode) {
           debugPrint('[FCM] Local notification tapped: ${details.payload}');
+        }
+        final payload = details.payload;
+        if (payload == null || payload.isEmpty) return;
+        try {
+          final data = Map<String, dynamic>.from(
+            jsonDecode(payload) as Map,
+          );
+          _handleNotificationTap(data);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('[FCM] Failed to decode local notification payload: $e');
+          }
         }
       },
     );
@@ -199,12 +220,17 @@ class FirebaseNotificationService {
 
     const details = NotificationDetails(android: androidDetails);
 
+    // [FIX-DEEPLINK-02] كانت الحمولة تحمل النوع (type) فقط — يكفي للاستدلال
+    // لكن onDidReceiveNotificationResponse (أسفل) الآن يحتاج الحمولة الكاملة
+    // (requestId/ticketId إلخ) لتمريرها لنفس _handleNotificationTap المستخدَم
+    // بمساري الخلفية/الإغلاق. message.data كلها نصوص أصلاً (سيرفر Push يحوّلها
+    // بـString(v) قبل الإرسال) فـjsonEncode آمن هنا بلا أي قيمة معقّدة متوقَّعة.
     await _localNotifications.show(
       DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       details,
-      payload: message.data['type']?.toString(),
+      payload: jsonEncode(message.data),
     );
   }
 
