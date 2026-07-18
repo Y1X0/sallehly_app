@@ -55,10 +55,10 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && requests.isEmpty)
-                  const Semantics(
+                  Semantics(
                     label: 'جاري تحميل الطلبات',
                     child: Column(
-                      children: [
+                      children: const [
                         RequestCardSkeleton(),
                         SizedBox(height: 14),
                         RequestCardSkeleton(),
