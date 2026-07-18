@@ -104,7 +104,10 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               child: Image.network(
                 '${AppConfig.baseUrl}${request.problemImageUrl}',
-                height: 220,
+                // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                // الهواتف العادية (العرض المرجعي 390).
+                height: MediaQuery.of(context).size.width * (220 / 390),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const SizedBox();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
@@ -105,7 +106,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
+                crossAxisCount: responsiveColumns(MediaQuery.of(context).size.width),
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.05,

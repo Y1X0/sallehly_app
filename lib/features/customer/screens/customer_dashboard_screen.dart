@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'create_request_screen.dart';
@@ -418,7 +419,14 @@ class _ServicesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final itemWidth = inSheet ? (width - 72) / 2 : (width - 52) / 2;
+    // [RESPONSIVE-01] على الهواتف columns تساوي 2 دائماً، فتُعطي نفس صيغة
+    // الحساب الأصلية بالضبط (بدون أي تغيير بصري) — الأعمدة الإضافية تُستخدم
+    // فقط على الشاشات الأعرض (أجهزة لوحية) بدل بطاقات متمدّدة بعرض غير متناسق.
+    final columns = responsiveColumns(width);
+    final outerPad = inSheet ? 72.0 : 52.0;
+    final itemWidth = columns == 2
+        ? (width - outerPad) / 2
+        : (width - outerPad - 12.0 * (columns - 2)) / columns;
 
     // [FIX-SERVICES-04] نفس مصدر البيانات الحيّ المستخدم بالتسجيل وإنشاء
     // الطلب — /meta أصلاً يُرجع المهن الفعّالة فقط، فلا حاجة لأي فلترة هنا.

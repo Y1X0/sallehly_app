@@ -65,20 +65,22 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.card,
         title: const Text('إيقاف الحساب', style: TextStyle(fontWeight: FontWeight.w900)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
-                style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: reasonController,
-              maxLength: 300,
-              maxLines: 3,
-              decoration: const InputDecoration(labelText: 'السبب'),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
+                  style: TextStyle(color: AppColors.textSecondary)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: reasonController,
+                maxLength: 300,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'السبب'),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
@@ -173,50 +175,52 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               backgroundColor: AppColors.card,
               title: const Text('تعديل الرصيد',
                   style: TextStyle(fontWeight: FontWeight.w900)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
-                      style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ChoiceChip(
-                          label: const Text('إضافة'),
-                          selected: isAdd,
-                          onSelected: (_) => setLocal(() => isAdd = true),
-                          selectedColor: AppColors.success,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
+                        style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('إضافة'),
+                            selected: isAdd,
+                            onSelected: (_) => setLocal(() => isAdd = true),
+                            selectedColor: AppColors.success,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ChoiceChip(
-                          label: const Text('خصم'),
-                          selected: !isAdd,
-                          onSelected: (_) => setLocal(() => isAdd = false),
-                          selectedColor: AppColors.danger,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('خصم'),
+                            selected: !isAdd,
+                            onSelected: (_) => setLocal(() => isAdd = false),
+                            selectedColor: AppColors.danger,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'المبلغ'),
-                  ),
-                  TextField(
-                    controller: reasonController,
-                    maxLength: 200,
-                    decoration:
-                        const InputDecoration(labelText: 'سبب التعديل (إلزامي)'),
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: amountController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'المبلغ'),
+                    ),
+                    TextField(
+                      controller: reasonController,
+                      maxLength: 200,
+                      decoration:
+                          const InputDecoration(labelText: 'سبب التعديل (إلزامي)'),
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(

@@ -186,7 +186,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                 borderRadius: BorderRadius.circular(18),
                 child: Image.file(
                   File(receiptPath!),
-                  height: 220,
+                  // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                  // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                  // الهواتف العادية (العرض المرجعي 390).
+                  height: MediaQuery.of(context).size.width * (220 / 390),
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),

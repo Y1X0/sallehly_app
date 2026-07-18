@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -406,6 +407,14 @@ class _ShortcutGrid extends StatelessWidget {
       }],
     ];
 
+    final width = MediaQuery.of(context).size.width;
+    // [RESPONSIVE-01] نفس صيغة الحساب الأصلية بالضبط على الهواتف (columns=2)
+    // — أعمدة إضافية فقط على الشاشات الأعرض (أجهزة لوحية).
+    final columns = responsiveColumns(width);
+    final itemWidth = columns == 2
+        ? (width - 64) / 2
+        : (width - 64 - 12.0 * (columns - 2)) / columns;
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -414,7 +423,7 @@ class _ShortcutGrid extends StatelessWidget {
           onTap: item[2] as VoidCallback,
           borderRadius: BorderRadius.circular(22),
           child: Container(
-            width: (MediaQuery.of(context).size.width - 64) / 2,
+            width: itemWidth,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.card,
