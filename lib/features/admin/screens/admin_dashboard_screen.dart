@@ -352,7 +352,15 @@ class _DashboardErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 60),
       child: Column(
         children: [
-          Icon(Icons.error_outline_rounded, size: 56, color: AppColors.danger),
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(Icons.error_outline_rounded, size: 40, color: AppColors.danger),
+          ),
           const SizedBox(height: 14),
           Text(
             'تعذّر تحميل الإحصائيات',

@@ -83,17 +83,39 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                     padding: const EdgeInsets.only(bottom: 110),
                     children: [
                       const SizedBox(height: 180),
-                      Icon(
-                        Icons.error_outline_rounded,
-                        size: 70,
-                        color: AppColors.danger,
+                      Center(
+                        child: Container(
+                          width: 84,
+                          height: 84,
+                          decoration: BoxDecoration(
+                            color: AppColors.danger.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Icon(
+                            Icons.error_outline_rounded,
+                            size: 40,
+                            color: AppColors.danger,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Center(
                         child: Text(
+                          'تعذّر تحميل تذاكر الدعم',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
                           admin.error!,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -111,12 +133,33 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                 : tickets.isEmpty
                 ? ListView(
                     padding: const EdgeInsets.only(bottom: 110),
-                    children: const [
-                      SizedBox(height: 200),
+                    children: [
+                      const SizedBox(height: 200),
+                      Center(
+                        child: Container(
+                          width: 84,
+                          height: 84,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          child: Icon(
+                            Icons.support_agent_rounded,
+                            size: 40,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Center(
                         child: Text(
                           'لا توجد تذاكر دعم حالياً',
-                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ],

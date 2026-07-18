@@ -625,9 +625,25 @@ class _EmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 140),
       child: Center(
-        child: Text(
-          text,
-          style: TextStyle(color: AppColors.textSecondary),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(28),
+              ),
+              child: Icon(Icons.people_outline_rounded, size: 40, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
+            ),
+          ],
         ),
       ),
     );
@@ -649,12 +665,25 @@ class _ErrorState extends StatelessWidget {
       padding: const EdgeInsets.only(top: 120),
       child: Column(
         children: [
-          Icon(
-            Icons.error_outline_rounded,
-            size: 46,
-            color: AppColors.danger,
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              size: 40,
+              color: AppColors.danger,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          Text(
+            'تعذّر تحميل المستخدمين',
+            style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
           Text(
             message,
             textAlign: TextAlign.center,
