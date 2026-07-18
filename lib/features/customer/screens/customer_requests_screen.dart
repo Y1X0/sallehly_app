@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/request_card_skeleton.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -74,9 +76,17 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                   color: AppColors.primary,
                   onRefresh: provider.loadRequests,
                   child: provider.loading && requests.isEmpty
-                      ? Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
+                      ? Semantics(
+                    label: 'جاري تحميل الطلبات',
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
+                      children: const [
+                        RequestCardSkeleton(),
+                        SizedBox(height: 14),
+                        RequestCardSkeleton(),
+                        SizedBox(height: 14),
+                        RequestCardSkeleton(),
+                      ],
                     ),
                   )
                       // [FIX-EMPTYSTATE-01] كان يُظهر "لا يوجد طلبات بعد" حتى
@@ -89,7 +99,8 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                   )
                       : requests.isEmpty
                       ? const _EmptyRequests()
-                      : ListView(
+                      : FadeIn(
+                    child: ListView(
                     padding:
                     const EdgeInsets.fromLTRB(20, 8, 20, 110),
                     children: [
@@ -143,6 +154,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                           );
                         }),
                     ],
+                    ),
                   ),
                 ),
               ),

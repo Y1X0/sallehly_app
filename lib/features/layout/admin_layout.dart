@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/notify_pulse.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../admin/screens/admin_dashboard_screen.dart';
@@ -227,14 +228,17 @@ class _GlassNav extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Badge(
-                        isLabelVisible: item.count > 0,
-                        label: Text(item.count > 99 ? '99+' : '${item.count}'),
-                        child: Icon(
-                          selected ? item.selectedIcon : item.icon,
-                          color: selected
-                              ? Colors.white
-                              : AppColors.textSecondary,
+                      NotifyPulse(
+                        count: item.count,
+                        child: Badge(
+                          isLabelVisible: item.count > 0,
+                          label: Text(item.count > 99 ? '99+' : '${item.count}'),
+                          child: Icon(
+                            selected ? item.selectedIcon : item.icon,
+                            color: selected
+                                ? Colors.white
+                                : AppColors.textSecondary,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),

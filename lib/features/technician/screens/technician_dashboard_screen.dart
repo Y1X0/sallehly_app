@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
@@ -418,41 +419,87 @@ class _ShortcutGrid extends StatelessWidget {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: items.map((item) {
-        return InkWell(
+      children: items.asMap().entries.map((entry) {
+        final item = entry.value;
+        return FadeIn(
+          delay: Duration(milliseconds: 60 * entry.key),
+          child: _ShortcutTile(
+          label: item[0] as String,
+          icon: item[1] as IconData,
           onTap: item[2] as VoidCallback,
-          borderRadius: BorderRadius.circular(22),
-          child: Container(
-            width: itemWidth,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              // [RESPONSIVE-04] عند العمودين (كل الهواتف) البقاء بلا محاذاة
-              // صريحة يعطي نفس السلوك الافتراضي الأصلي (start) بلا أي تغيير.
-              // فقط على الأجهزة اللوحية/الشاشات الأعرض حيث تكبر البطاقة كثيراً
-              // عن محتواها، التوسيط يمنع فراغاً كبيراً منحازاً لجهة واحدة.
-              mainAxisAlignment: columns == 2
-                  ? MainAxisAlignment.start
-                  : MainAxisAlignment.center,
-              children: [
-                Icon(item[1] as IconData, color: AppColors.secondary),
-                const SizedBox(width: 10),
-                Text(
-                  item[0] as String,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
+          width: itemWidth,
+          // [RESPONSIVE-04] عند العمودين (كل الهواتف) البقاء بلا محاذاة
+          // صريحة يعطي نفس السلوك الافتراضي الأصلي (start) بلا أي تغيير.
+          // فقط على الأجهزة اللوحية/الشاشات الأعرض حيث تكبر البطاقة كثيراً
+          // عن محتواها، التوسيط يمنع فراغاً كبيراً منحازاً لجهة واحدة.
+          centered: columns != 2,
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _ShortcutTile extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  final double width;
+  final bool centered;
+
+  const _ShortcutTile({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    required this.width,
+    required this.centered,
+  });
+
+  @override
+  State<_ShortcutTile> createState() => _ShortcutTileState();
+}
+
+class _ShortcutTileState extends State<_ShortcutTile> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: widget.onTap,
+      borderRadius: BorderRadius.circular(22),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          width: widget.width,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            mainAxisAlignment: widget.centered
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
+            children: [
+              Icon(widget.icon, color: AppColors.secondary),
+              const SizedBox(width: 10),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
@@ -254,57 +255,68 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
             const SizedBox(height: 20),
-            _ActionCard(
-              icon: Icons.assignment_rounded,
-              title: 'إدارة الطلبات',
-              subtitle: 'عرض كل الطلبات والتدخّل الإداري عند النزاعات',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminRequestsScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              child: _ActionCard(
+                icon: Icons.assignment_rounded,
+                title: 'إدارة الطلبات',
+                subtitle: 'عرض كل الطلبات والتدخّل الإداري عند النزاعات',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminRequestsScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
-            _ActionCard(
-              icon: Icons.shield_rounded,
-              title: 'المراقبة والشكاوى',
-              subtitle: 'مخالفات الشات وشكاوى العملاء',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminModerationScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 60),
+              child: _ActionCard(
+                icon: Icons.shield_rounded,
+                title: 'المراقبة والشكاوى',
+                subtitle: 'مخالفات الشات وشكاوى العملاء',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminModerationScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
-            _ActionCard(
-              icon: Icons.history_rounded,
-              title: 'سجل العمليات',
-              subtitle: 'تتبّع كل العمليات الإدارية على المنصة',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminAuditScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 120),
+              child: _ActionCard(
+                icon: Icons.history_rounded,
+                title: 'سجل العمليات',
+                subtitle: 'تتبّع كل العمليات الإدارية على المنصة',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminAuditScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 12),
             // [FIX-LEDGER-01] دفتر الحساب الشامل — عرض/بحث فقط، لا يعدّل أي منطق مالي.
-            _ActionCard(
-              icon: Icons.receipt_long_rounded,
-              title: 'دفتر الحساب',
-              subtitle: 'كل الحركات المالية عبر المنصة',
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AdminLedgerScreen(),
-                  ),
-                );
-              },
+            FadeIn(
+              delay: const Duration(milliseconds: 180),
+              child: _ActionCard(
+                icon: Icons.receipt_long_rounded,
+                title: 'دفتر الحساب',
+                subtitle: 'كل الحركات المالية عبر المنصة',
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AdminLedgerScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -382,7 +394,7 @@ class _DashboardErrorState extends StatelessWidget {
   }
 }
 
-class _ActionCard extends StatelessWidget {
+class _ActionCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -396,58 +408,73 @@ class _ActionCard extends StatelessWidget {
   });
 
   @override
+  State<_ActionCard> createState() => _ActionCardState();
+}
+
+class _ActionCardState extends State<_ActionCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
       borderRadius: BorderRadius.circular(26),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(26),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(widget.icon, color: AppColors.primary, size: 28),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.subtitle,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textSecondary,
-              size: 16,
-            ),
-          ],
+              Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.textSecondary,
+                size: 16,
+              ),
+            ],
+          ),
         ),
       ),
     );

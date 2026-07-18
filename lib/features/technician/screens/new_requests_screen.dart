@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/request_card_skeleton.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../widgets/technician_request_card.dart';
@@ -54,12 +55,16 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && requests.isEmpty)
-                  SizedBox(
-                    height: 280,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
+                  Semantics(
+                    label: 'جاري تحميل الطلبات',
+                    child: Column(
+                      children: const [
+                        RequestCardSkeleton(),
+                        SizedBox(height: 14),
+                        RequestCardSkeleton(),
+                        SizedBox(height: 14),
+                        RequestCardSkeleton(),
+                      ],
                     ),
                   )
                 else if (requests.isEmpty)

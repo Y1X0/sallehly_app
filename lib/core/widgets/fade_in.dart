@@ -24,6 +24,7 @@ class _FadeInState extends State<FadeIn> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  bool _started = false;
 
   @override
   void initState() {
@@ -38,6 +39,21 @@ class _FadeInState extends State<FadeIn> with SingleTickerProviderStateMixin {
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // ابدأ مرة واحدة فقط (وليس عند كل تغيّر في الاعتماديات).
+    if (_started) return;
+    _started = true;
+
+    // احترام "تقليل الحركة" على مستوى النظام: أظهر المحتوى مباشرة بلا تلاشٍ.
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      _controller.value = 1.0;
+      return;
+    }
 
     if (widget.delay == Duration.zero) {
       _controller.forward();

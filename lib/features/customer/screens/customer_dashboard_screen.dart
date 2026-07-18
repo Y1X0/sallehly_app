@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
+import '../../../models/service_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'create_request_screen.dart';
 import 'customer_requests_screen.dart';
@@ -101,20 +103,25 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _ActionCard(
-                        title: 'إنشاء طلب',
-                        subtitle: 'طلب صيانة جديد',
-                        icon: Icons.add_rounded,
-                        onTap: openCreate,
+                      child: FadeIn(
+                        child: _ActionCard(
+                          title: 'إنشاء طلب',
+                          subtitle: 'طلب صيانة جديد',
+                          icon: Icons.add_rounded,
+                          onTap: openCreate,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _ActionCard(
-                        title: 'طلباتي',
-                        subtitle: 'متابعة الطلبات',
-                        icon: Icons.receipt_long_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 60),
+                        child: _ActionCard(
+                          title: 'طلباتي',
+                          subtitle: 'متابعة الطلبات',
+                          icon: Icons.receipt_long_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                   ],
@@ -123,29 +130,38 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        title: 'طلباتي',
-                        value: '$total',
-                        icon: Icons.assignment_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 120),
+                        child: _StatCard(
+                          title: 'طلباتي',
+                          value: '$total',
+                          icon: Icons.assignment_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _StatCard(
-                        title: 'عروض',
-                        value: '$offers',
-                        icon: Icons.local_offer_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 180),
+                        child: _StatCard(
+                          title: 'عروض',
+                          value: '$offers',
+                          icon: Icons.local_offer_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: _StatCard(
-                        title: 'مكتملة',
-                        value: '$completed',
-                        icon: Icons.verified_rounded,
-                        onTap: openRequests,
+                      child: FadeIn(
+                        delay: const Duration(milliseconds: 240),
+                        child: _StatCard(
+                          title: 'مكتملة',
+                          value: '$completed',
+                          icon: Icons.verified_rounded,
+                          onTap: openRequests,
+                        ),
                       ),
                     ),
                   ],
@@ -276,7 +292,7 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-class _ActionCard extends StatelessWidget {
+class _ActionCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
@@ -290,66 +306,81 @@ class _ActionCard extends StatelessWidget {
   });
 
   @override
+  State<_ActionCard> createState() => _ActionCardState();
+}
+
+class _ActionCardState extends State<_ActionCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
       borderRadius: BorderRadius.circular(24),
-      onTap: onTap,
-      child: Container(
-        height: 104,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: AppColors.cardGradient,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(18),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          height: 104,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            gradient: AppColors.cardGradient,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(widget.icon, color: Colors.white, size: 30),
               ),
-              child: Icon(icon, color: Colors.white, size: 30),
-            ),
-            const SizedBox(width: 9),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
+class _StatCard extends StatefulWidget {
   final String title;
   final String value;
   final IconData icon;
@@ -363,46 +394,61 @@ class _StatCard extends StatelessWidget {
   });
 
   @override
+  State<_StatCard> createState() => _StatCardState();
+}
+
+class _StatCardState extends State<_StatCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
       borderRadius: BorderRadius.circular(22),
-      onTap: onTap,
-      child: Container(
-        height: 112,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.card.withValues(alpha: 0.88),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColors.primary, size: 24),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                height: 1.1,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Flexible(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          height: 112,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.card.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, color: AppColors.primary, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                widget.value,
                 style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
+                  color: AppColors.textPrimary,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Flexible(
+                child: Text(
+                  widget.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -462,60 +508,101 @@ class _ServicesGrid extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: services.map((service) {
-        return InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CreateRequestScreen()),
-            );
-          },
-          child: Container(
+    return FadeIn(
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: services.map((service) {
+          return _ServiceTile(
+            service: service,
             width: itemWidth,
             height: tileHeight,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.card.withValues(alpha: 0.88),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  service.icon ?? '🔧',
-                  style: const TextStyle(fontSize: 26),
-                ),
-                const Spacer(),
-                Text(
-                  service.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'اطلب الخدمة الآن',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateRequestScreen()),
+              );
+            },
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _ServiceTile extends StatefulWidget {
+  final ServiceModel service;
+  final double width;
+  final double height;
+  final VoidCallback onTap;
+
+  const _ServiceTile({
+    required this.service,
+    required this.width,
+    required this.height,
+    required this.onTap,
+  });
+
+  @override
+  State<_ServiceTile> createState() => _ServiceTileState();
+}
+
+class _ServiceTileState extends State<_ServiceTile> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: widget.onTap,
+      borderRadius: BorderRadius.circular(22),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          width: widget.width,
+          height: widget.height,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.card.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
           ),
-        );
-      }).toList(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.service.icon ?? '🔧',
+                style: const TextStyle(fontSize: 26),
+              ),
+              const Spacer(),
+              Text(
+                widget.service.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'اطلب الخدمة الآن',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

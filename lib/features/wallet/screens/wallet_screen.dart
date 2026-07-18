@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/wallet_provider.dart';
 import '../widgets/topup_card.dart';
@@ -61,34 +62,39 @@ class _WalletScreenState extends State<WalletScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: _ActionCard(
-                          title: 'شحن الرصيد',
-                          subtitle: 'اختر باقة وارفع الوصل',
-                          icon: Icons.add_card_rounded,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const PackagesScreen(),
-                              ),
-                            );
-                          },
+                        child: FadeIn(
+                          child: _ActionCard(
+                            title: 'شحن الرصيد',
+                            subtitle: 'اختر باقة وارفع الوصل',
+                            icon: Icons.add_card_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const PackagesScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _ActionCard(
-                          title: 'سجل العمليات',
-                          subtitle: 'كل حركات الرصيد',
-                          icon: Icons.receipt_long_rounded,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LedgerScreen(),
-                              ),
-                            );
-                          },
+                        child: FadeIn(
+                          delay: const Duration(milliseconds: 60),
+                          child: _ActionCard(
+                            title: 'سجل العمليات',
+                            subtitle: 'كل حركات الرصيد',
+                            icon: Icons.receipt_long_rounded,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LedgerScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],
@@ -118,10 +124,13 @@ class _WalletScreenState extends State<WalletScreen> {
                   else if (topups.isEmpty)
                     const _EmptyWalletState()
                   else
-                    ...topups.map(
-                          (e) => Padding(
+                    ...topups.asMap().entries.map(
+                          (entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: TopupCard(topup: e),
+                        child: FadeIn(
+                          delay: Duration(milliseconds: 60 * entry.key),
+                          child: TopupCard(topup: entry.value),
+                        ),
                       ),
                     ),
                 ],
@@ -199,7 +208,7 @@ class _BalanceCard extends StatelessWidget {
   }
 }
 
-class _ActionCard extends StatelessWidget {
+class _ActionCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final IconData icon;
@@ -213,39 +222,54 @@ class _ActionCard extends StatelessWidget {
   });
 
   @override
+  State<_ActionCard> createState() => _ActionCardState();
+}
+
+class _ActionCardState extends State<_ActionCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.onTap,
       borderRadius: BorderRadius.circular(24),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: AppColors.primary, size: 30),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w900,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onHighlightChanged: (value) => setState(() => _pressed = value),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(widget.icon, color: AppColors.primary, size: 30),
+              const SizedBox(height: 14),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 12,
-                height: 1.4,
+              const SizedBox(height: 6),
+              Text(
+                widget.subtitle,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

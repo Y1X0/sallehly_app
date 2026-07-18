@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../models/request_model.dart';
 import '../../requests/widgets/request_status_chip.dart';
 
-class CustomerRequestCard extends StatelessWidget {
+class CustomerRequestCard extends StatefulWidget {
   final RequestModel request;
   final VoidCallback onTap;
 
@@ -15,59 +15,77 @@ class CustomerRequestCard extends StatelessWidget {
   });
 
   @override
+  State<CustomerRequestCard> createState() => _CustomerRequestCardState();
+}
+
+class _CustomerRequestCardState extends State<CustomerRequestCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         borderRadius: BorderRadius.circular(28),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.16),
-                blurRadius: 24,
-                offset: const Offset(0, 14),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onHighlightChanged: (value) => setState(() => _pressed = value),
+        child: AnimatedScale(
+          scale: _pressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: Ink(
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              border: Border.all(color: AppColors.border),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.16),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Hero(
+                    tag: 'customer-request-status-${widget.request.id}',
+                    child: RequestStatusChip(status: widget.request.status),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.request.service,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${widget.request.city}${widget.request.area == null || widget.request.area!.isEmpty ? '' : ' - ${widget.request.area}'}',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.request.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-          child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RequestStatusChip(status: request.status),
-              const SizedBox(height: 12),
-              Text(
-                request.service,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                request.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
         ),
       ),
     );

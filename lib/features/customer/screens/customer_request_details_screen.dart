@@ -5,6 +5,7 @@ import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/fade_in.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../requests/widgets/request_status_chip.dart';
@@ -84,140 +85,164 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
           child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 66, 20, 20),
         children: [
-          RequestStatusChip(status: request.status),
+          Hero(
+            tag: 'customer-request-status-${request.id}',
+            child: RequestStatusChip(status: request.status),
+          ),
           const SizedBox(height: 18),
-          Text(
-            request.service,
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
+          FadeIn(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  request.service,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
           const SizedBox(height: 20),
-          _Box(
-            title: 'وصف المشكلة',
-            child: Text(
-              request.description,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                height: 1.6,
+          FadeIn(
+            delay: const Duration(milliseconds: 70),
+            child: _Box(
+              title: 'وصف المشكلة',
+              child: Text(
+                request.description,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
               ),
             ),
           ),
           if (request.problemImageUrl != null &&
               request.problemImageUrl!.isNotEmpty) ...[
             const SizedBox(height: 14),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: Image.network(
-                '${AppConfig.baseUrl}${request.problemImageUrl}',
-                // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
-                // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
-                // الهواتف العادية (العرض المرجعي 390).
-                height: MediaQuery.of(context).size.width * (220 / 390),
-                fit: BoxFit.cover,
-                errorBuilder: (_, error, stack) {
-                  return const SizedBox();
-                },
+            FadeIn(
+              delay: const Duration(milliseconds: 140),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.network(
+                  '${AppConfig.baseUrl}${request.problemImageUrl}',
+                  // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
+                  // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
+                  // الهواتف العادية (العرض المرجعي 390).
+                  height: MediaQuery.of(context).size.width * (220 / 390),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, error, stack) {
+                    return const SizedBox();
+                  },
+                ),
               ),
             ),
           ],
           const SizedBox(height: 22),
-          if (request.hasOffers || request.status == 'تم اختيار عرض')
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => OffersScreen(request: request),
+          FadeIn(
+            delay: const Duration(milliseconds: 210),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (request.hasOffers || request.status == 'تم اختيار عرض')
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OffersScreen(request: request),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.local_offer_outlined),
+                    label: const Text('عرض عروض الفنيين'),
                   ),
-                );
-              },
-              icon: const Icon(Icons.local_offer_outlined),
-              label: const Text('عرض عروض الفنيين'),
-            ),
-          if (request.isCancellable) ...[
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.danger,
-                side: BorderSide(color: AppColors.danger),
-              ),
-              onPressed: provider.loading ? null : () => _confirmAndCancel(context),
-              icon: const Icon(Icons.cancel_outlined),
-              label: const Text('إلغاء الطلب'),
-            ),
-          ],
-          if (request.status == 'قيد التنفيذ' ||
-              request.status == 'بانتظار تأكيد الدفع') ...[
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: provider.loading
-                  ? null
-                  : () async {
-                await provider.completeRequest(request.id);
-                if (context.mounted) Navigator.pop(context);
-              },
-              icon: const Icon(Icons.check_circle_outline),
-              label: const Text('إنهاء الطلب'),
-            ),
-          ],
-          if (request.status == 'مكتمل' && request.technicianId != null) ...[
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.warning,
-                foregroundColor: const Color(0xFF1A1200),
-              ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: AppColors.surface,
-                  isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(28)),
+                if (request.isCancellable) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                      side: BorderSide(color: AppColors.danger),
+                    ),
+                    onPressed: provider.loading ? null : () => _confirmAndCancel(context),
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text('إلغاء الطلب'),
                   ),
-                  builder: (_) => RateTechnicianSheet(
-                    requestId: request.id,
-                    technicianName: request.technicianName,
+                ],
+                if (request.status == 'قيد التنفيذ' ||
+                    request.status == 'بانتظار تأكيد الدفع') ...[
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: provider.loading
+                        ? null
+                        : () async {
+                      await provider.completeRequest(request.id);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('إنهاء الطلب'),
                   ),
-                );
-              },
-              icon: const Icon(Icons.star_rounded),
-              label: const Text('قيّم الفني'),
+                ],
+                if (request.status == 'مكتمل' && request.technicianId != null) ...[
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.warning,
+                      foregroundColor: const Color(0xFF1A1200),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.surface,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(28)),
+                        ),
+                        builder: (_) => RateTechnicianSheet(
+                          requestId: request.id,
+                          technicianName: request.technicianName,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.star_rounded),
+                    label: const Text('قيّم الفني'),
+                  ),
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                      side: BorderSide(color: AppColors.danger),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.surface,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(28)),
+                        ),
+                        builder: (_) => ComplaintSheet(
+                          requestId: request.id,
+                          technicianName: request.technicianName,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.report_problem_outlined),
+                    label: const Text('تقديم شكوى'),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.danger,
-                side: BorderSide(color: AppColors.danger),
-              ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: AppColors.surface,
-                  isScrollControlled: true,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(28)),
-                  ),
-                  builder: (_) => ComplaintSheet(
-                    requestId: request.id,
-                    technicianName: request.technicianName,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.report_problem_outlined),
-              label: const Text('تقديم شكوى'),
-            ),
-          ],
+          ),
         ],
           ),
         ),
