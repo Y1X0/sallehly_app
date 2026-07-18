@@ -8,6 +8,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/consent_checkbox.dart';
 import '../../../core/widgets/services_multi_select.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -32,6 +33,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
 
 
   bool hidePassword = true;
+  bool consentGiven = false;
   String? avatarPath;
   List<String> selectedServices = [];
   String? selectedCity;
@@ -93,6 +95,11 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
     }
     if (selectedServices.length > 5) {
       showError('الحد الأقصى 5 خدمات');
+      return;
+    }
+
+    if (!consentGiven) {
+      showError('يجب الموافقة على سياسة الخصوصية وشروط الاستخدام أولاً');
       return;
     }
 
@@ -313,7 +320,14 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
+                ConsentCheckbox(
+                  value: consentGiven,
+                  onChanged: (value) {
+                    setState(() => consentGiven = value);
+                  },
+                ),
+                const SizedBox(height: 14),
                 ElevatedButton(
                   onPressed: loading ? null : submit,
                   child: loading
