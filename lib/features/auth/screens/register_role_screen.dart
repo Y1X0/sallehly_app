@@ -24,69 +24,76 @@ class RegisterRoleScreen extends StatelessWidget {
     return Scaffold(
       body: AppBackground(
         padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_rounded),
-            ),
-            const SizedBox(height: 12),
-            const Center(
-              child: AppLogo(
-                size: 64,
-                showText: false,
+        // [FIX-RESPONSIVE-01] كانت Column بلا أي غلاف تمرير — على شاشات قصيرة
+        // أو مع إعدادات تكبير خط الوصولية، يفيض المحتوى بلا أي طريقة للوصول
+        // لما تحته (RenderFlex overflow). كل شاشة أخرى بالتطبيق فيها محتوى
+        // مشابه تستخدم SingleChildScrollView؛ هذا يوحّد السلوك بلا أي تغيير
+        // بصري عندما يكون المحتوى أصلاً أصغر من ارتفاع الشاشة.
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_rounded),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'اختر نوع الحساب',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
+              const SizedBox(height: 12),
+              const Center(
+                child: AppLogo(
+                  size: 64,
+                  showText: false,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                height: 1.6,
+              const SizedBox(height: 24),
+              Text(
+                'اختر نوع الحساب',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-            ),
-            const SizedBox(height: 28),
-            _RoleCard(
-              title: 'حساب عميل',
-              subtitle: 'اطلب خدمة صيانة واستقبل عروض الفنيين',
-              icon: Icons.home_repair_service_rounded,
-              gradient: AppColors.primaryGradient,
-              onTap: () {
-                goTo(
-                  context,
-                  const CustomerRegisterScreen(),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            _RoleCard(
-              title: 'حساب فني',
-              subtitle: 'استقبل طلبات العملاء وقدّم عروضك',
-              icon: Icons.engineering_rounded,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.card2,
-                  AppColors.surface,
-                ],
+              const SizedBox(height: 8),
+              Text(
+                'أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                ),
               ),
-              onTap: () {
-                goTo(
-                  context,
-                  const TechnicianRegisterScreen(),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 28),
+              _RoleCard(
+                title: 'حساب عميل',
+                subtitle: 'اطلب خدمة صيانة واستقبل عروض الفنيين',
+                icon: Icons.home_repair_service_rounded,
+                gradient: AppColors.primaryGradient,
+                onTap: () {
+                  goTo(
+                    context,
+                    const CustomerRegisterScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _RoleCard(
+                title: 'حساب فني',
+                subtitle: 'استقبل طلبات العملاء وقدّم عروضك',
+                icon: Icons.engineering_rounded,
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.card2,
+                    AppColors.surface,
+                  ],
+                ),
+                onTap: () {
+                  goTo(
+                    context,
+                    const TechnicianRegisterScreen(),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
