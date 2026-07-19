@@ -37,7 +37,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
         highlightColor: Colors.transparent,
         onHighlightChanged: (value) => setState(() => _pressed = value),
         child: AnimatedScale(
-          scale: _pressed ? 0.97 : 1.0,
+          scale: _pressed ? 0.96 : 1.0,
           duration: const Duration(milliseconds: 120),
           curve: Curves.easeOut,
           child: Ink(

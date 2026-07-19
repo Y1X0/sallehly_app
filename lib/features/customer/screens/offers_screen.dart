@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../core/widgets/success_feedback.dart';
 import '../../../models/request_model.dart';
 import '../../chat/screens/chat_room_screen.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -43,11 +44,7 @@ class _OffersScreenState extends State<OffersScreen> {
 
     if (!mounted || request == null) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('تم قبول العرض وفتح المحادثة'),
-      ),
-    );
+    showSuccessSnackBar(context, 'تم قبول العرض وفتح المحادثة');
 
     Navigator.pushReplacement(
       context,
