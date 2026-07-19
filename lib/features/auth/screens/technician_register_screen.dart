@@ -99,7 +99,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
     }
 
     if (!consentGiven) {
-      showError('يجب الموافقة على سياسة الخصوصية وشروط الاستخدام أولاً');
+      showError('يجب الموافقة على سياسة الخصوصية أولاً');
       return;
     }
 
@@ -249,6 +249,15 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'يُستخدم الرقم الوطني للتحقق من هوية الفني فقط، ولا يظهر للعملاء',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 ServicesMultiSelect(

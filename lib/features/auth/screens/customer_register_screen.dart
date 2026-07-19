@@ -48,7 +48,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     if (!formKey.currentState!.validate()) return;
 
     if (!consentGiven) {
-      showError('يجب الموافقة على سياسة الخصوصية وشروط الاستخدام أولاً');
+      showError('يجب الموافقة على سياسة الخصوصية أولاً');
       return;
     }
 
