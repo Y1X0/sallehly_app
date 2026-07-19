@@ -25,6 +25,15 @@ class CustomerLayout extends StatefulWidget {
 class _CustomerLayoutState extends State<CustomerLayout> {
   int currentIndex = 0;
 
+  // [PERF-HARDEN-01] كانت body: pages[currentIndex] تُدمِّر شاشة التبويب
+  // السابق وتُنشئ التبويب الجديد من الصفر بكل تبديل — initState() (وبالتالي
+  // نداء تحميل البيانات) يُعاد تنفيذه في كل مرة يعود فيها المستخدم لتبويب
+  // زاره سابقاً، رغم عدم وجود أي بيانات جديدة فعلياً. الحل: IndexedStack يُبقي
+  // كل تبويب زِيرَ مرة واحدة على الأقل حياً بالشجرة دائماً (بلا إعادة إنشاء)،
+  // مع placeholder فارغ للتبويبات التي لم تُزَر بعد بدل بنائها فوراً عند فتح
+  // التطبيق — تحميل عند أول زيارة فقط، بلا إعادة تحميل عند العودة إليها.
+  final Set<int> _visitedIndices = {0};
+
   late final List<Widget> pages = const [
     CustomerDashboardScreen(),
     CustomerRequestsScreen(),
@@ -49,6 +58,15 @@ class _CustomerLayoutState extends State<CustomerLayout> {
     super.dispose();
   }
 
+  /// [PERF-HARDEN-01] يبدّل التبويب ويُسجِّله كمزور — نقطة واحدة لكل تبديل
+  /// تبويب بهذه الشاشة، حتى لا يُنسى تحديث _visitedIndices بمكان جديد لاحقاً.
+  void _goToTab(int index) {
+    setState(() {
+      currentIndex = index;
+      _visitedIndices.add(index);
+    });
+  }
+
   /// يقرأ هدف التنقّل المعلّق من إشعار FCM ويطبّقه، ثم يستهلكه (يصفّره) حتى
   /// لا يُعاد تنفيذه بالخطأ لاحقاً (مثلاً بعد rebuild أو تسجيل خروج/دخول).
   void _handleDeepLink() {
@@ -60,10 +78,10 @@ class _CustomerLayoutState extends State<CustomerLayout> {
     switch (type) {
       case 'offer':
       case 'request':
-        setState(() => currentIndex = 1); // طلباتي
+        _goToTab(1); // طلباتي
         break;
       case 'chat':
-        setState(() => currentIndex = 2); // الدردشات
+        _goToTab(2); // الدردشات
         break;
       case 'support':
         // نفس سلوك أيقونة الدعم بالشريط السفلي تماماً: تُفتح فقط لو فيه
@@ -126,18 +144,27 @@ class _CustomerLayoutState extends State<CustomerLayout> {
         title: const Text('صلّحلي'),
         actions: [
           NotificationBell(
-            onOpenRequests: () => setState(() => currentIndex = 1),
+            onOpenRequests: () => _goToTab(1),
           ),
         ],
       ),
-      body: pages[currentIndex],
+      // [PERF-HARDEN-01] راجع تعليق _visitedIndices أعلى الكلاس. تبويب لم
+      // يُزَر بعد = placeholder فارغ بلا أي تكلفة (لا استدعاء API، لا بناء
+      // widget حقيقي) بدل تحميله مسبقاً بلا داعٍ.
+      body: IndexedStack(
+        index: currentIndex,
+        children: [
+          for (var i = 0; i < pages.length; i++)
+            _visitedIndices.contains(i) ? pages[i] : const SizedBox.shrink(),
+        ],
+      ),
       bottomNavigationBar: _GlassNav(
         selectedIndex: currentIndex,
         onTap: (index) {
           if (index == 2) {
             context.read<NotificationProvider>().markChatNotificationsRead();
           }
-          setState(() => currentIndex = index);
+          _goToTab(index);
         },
         // يُفتح فقط عند وجود تذكرة دعم مفتوحة → يأخذنا مباشرة للمحادثة.
         onTapSupport: openTicket == null
