@@ -122,6 +122,13 @@ class AppTheme {
             fontSize: 16,
             fontWeight: FontWeight.w900,
           ),
+        ).copyWith(
+          // [PREMIUM-TOUCH-01] إحساس لمسة خفيف عند الضغط (ظل بسيط يرتفع
+          // ثم يعود صفراً)، بدون أي تأثير على منطق onPressed لأي زر.
+          elevation: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) return 6;
+            return 0;
+          }),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(

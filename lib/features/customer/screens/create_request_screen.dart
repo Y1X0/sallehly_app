@@ -11,6 +11,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../core/widgets/success_feedback.dart';
 import '../../requests/provider/requests_provider.dart';
 
 class CreateRequestScreen extends StatefulWidget {
@@ -86,11 +87,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إنشاء الطلب بنجاح'),
-        ),
-      );
+      showSuccessSnackBar(context, 'تم إنشاء الطلب بنجاح');
 
       Navigator.pop(context);
     } on ApiException catch (e) {

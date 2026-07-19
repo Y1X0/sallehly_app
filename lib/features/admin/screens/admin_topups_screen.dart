@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/success_feedback.dart';
 import '../provider/admin_provider.dart';
 
 class AdminTopupsScreen extends StatefulWidget {
@@ -64,6 +65,12 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         status: status,
         note: controller.text,
       );
+
+      if (!mounted) return;
+
+      if (status == 'approved') {
+        showSuccessSnackBar(context, 'تم اعتماد شحن الرصيد بنجاح');
+      }
     } on ApiException catch (e) {
       showError(e.message);
     } catch (_) {

@@ -37,7 +37,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
         highlightColor: Colors.transparent,
         onHighlightChanged: (value) => setState(() => _pressed = value),
         child: AnimatedScale(
-          scale: _pressed ? 0.97 : 1.0,
+          scale: _pressed ? 0.96 : 1.0,
           duration: const Duration(milliseconds: 120),
           curve: Curves.easeOut,
           child: Ink(
@@ -100,18 +100,21 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 54,
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Icon(
-                          Icons.handyman_rounded,
-                          color: AppColors.primary,
-                          size: 28,
+                      Hero(
+                        tag: 'technician-request-image-${widget.request.id}',
+                        child: Container(
+                          width: 54,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Icon(
+                            Icons.handyman_rounded,
+                            color: AppColors.primary,
+                            size: 28,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),

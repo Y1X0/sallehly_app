@@ -91,21 +91,46 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           FadeIn(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  request.service,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
+                Hero(
+                  tag: 'customer-request-image-${request.id}',
+                  child: Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Icon(
+                      Icons.handyman_rounded,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
-                  style: TextStyle(color: AppColors.textSecondary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        request.service,
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
