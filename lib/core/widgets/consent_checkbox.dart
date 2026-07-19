@@ -42,7 +42,7 @@ class ConsentCheckbox extends StatelessWidget {
                   children: [
                     const TextSpan(text: 'أوافق على '),
                     TextSpan(
-                      text: 'سياسة الخصوصية وشروط الاستخدام',
+                      text: 'سياسة الخصوصية',
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w800,
