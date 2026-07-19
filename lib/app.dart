@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api/api_client.dart';
+import 'core/perf_trace/perf_trace.dart';
 import 'core/socket/socket_service.dart';
 import 'core/storage/app_storage.dart';
 import 'core/storage/token_storage.dart';
@@ -35,7 +36,13 @@ class SallehlyApp extends StatelessWidget {
     apiClient.onOnline = connectivityProvider.markOnline;
     apiClient.onOffline = connectivityProvider.markOffline;
     // [FIX-CONNECTIVITY-01] حالة منفصلة لبطء الخادم (وليس انقطاع الإنترنت).
-    apiClient.onServerSlow = connectivityProvider.markServerSlow;
+    apiClient.onServerSlow = (correlationId, path) {
+      connectivityProvider.markServerSlow();
+      // [TEMP-PERF-TRACE] لا يغيّر شرط/توقيت ظهور البانر إطلاقاً — نفس
+      // markServerSlow() أعلاه بالضبط، فقط سطر تسجيل إضافي لمعرفة أي طلب
+      // بالضبط تسبَّب بظهور البانر.
+      PerfTrace.bannerShown(correlationId: correlationId, path: path);
+    };
 
     return MultiProvider(
       providers: [

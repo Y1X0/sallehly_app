@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../config/app_config.dart';
+import '../perf_trace/perf_trace.dart';
 import '../storage/token_storage.dart';
 import 'api_exception.dart';
 
@@ -22,7 +23,10 @@ class ApiClient {
   /// [FIX-CONNECTIVITY-01] تُستدعى عند انتهاء مهلة الاتصال بينما الإنترنت
   /// نفسه قد يكون سليماً — الخادم فقط بطيء بالرد (مثلاً استيقاظ خادم Render
   /// المجاني بعد خمول). منفصلة تماماً عن onOffline لتفادي رسالة مضلِّلة.
-  void Function()? onServerSlow;
+  /// [TEMP-PERF-TRACE] الباراميترين الإضافيين (correlationId/path) لا يغيّران
+  /// شرط أو توقيت الاستدعاء إطلاقاً — فقط بيانات إضافية لربط ظهور البانر
+  /// بسجل الطلب الذي سبَّبه بالضبط.
+  void Function(String? correlationId, String? path)? onServerSlow;
 
   ApiClient(this.tokenStorage) {
     dio = Dio(
@@ -50,6 +54,21 @@ class ApiClient {
             options.headers.remove('Authorization');
           }
 
+          // [TEMP-PERF-TRACE] معرّف يربط هذا الطلب بسجل الـbackend + وقت
+          // الإرسال الفعلي (يُستخدَم بالخادم لحساب فارق الانتظار الحقيقي قبل
+          // بدء المعالجة). لا يؤثر على أي شرط/توقيت/مسار موجود بهذا الملف.
+          final correlationId = PerfTrace.newCorrelationId();
+          final sentAtMs = DateTime.now().millisecondsSinceEpoch;
+          options.extra['correlationId'] = correlationId;
+          options.extra['sentAtMs'] = sentAtMs;
+          options.headers['X-Request-Id'] = correlationId;
+          options.headers['X-Client-Sent-At'] = sentAtMs.toString();
+          PerfTrace.requestStart(
+            correlationId: correlationId,
+            method: options.method,
+            path: options.path,
+          );
+
           handler.next(options);
         },
         onResponse: (response, handler) async {
@@ -61,9 +80,34 @@ class ApiClient {
             await tokenStorage.saveToken(token);
           }
 
+          // [TEMP-PERF-TRACE]
+          final corrId = response.requestOptions.extra['correlationId'] as String?;
+          final sentAtMs = response.requestOptions.extra['sentAtMs'] as int?;
+          if (corrId != null && sentAtMs != null) {
+            PerfTrace.requestEnd(
+              correlationId: corrId,
+              path: response.requestOptions.path,
+              durationMs: DateTime.now().millisecondsSinceEpoch - sentAtMs,
+              statusCode: response.statusCode,
+            );
+          }
+
           handler.next(response);
         },
         onError: (error, handler) async {
+          // [TEMP-PERF-TRACE] يسجّل هذه المحاولة تحديداً (قد يتبعها إعادة
+          // محاولة أدناه — تلك تُسجَّل بشكل منفصل عبر PerfTrace.retryAttempt).
+          final corrId = error.requestOptions.extra['correlationId'] as String?;
+          final sentAtMs = error.requestOptions.extra['sentAtMs'] as int?;
+          if (corrId != null && sentAtMs != null) {
+            PerfTrace.requestError(
+              correlationId: corrId,
+              path: error.requestOptions.path,
+              durationMs: DateTime.now().millisecondsSinceEpoch - sentAtMs,
+              errorType: error.type.toString(),
+            );
+          }
+
           // وصل رد من الخادم (حتى لو خطأ) → نحن متصلون والخادم يستجيب.
           // [FIX-CONNECTIVITY-01] فصلنا "لا يوجد إنترنت فعلاً" عن "الخادم بطيء
           // بالرد فقط" — كانا يُعاملان كنفس الشيء سابقاً، ما ينتج رسالة خاطئة
@@ -81,7 +125,7 @@ class ApiClient {
           } else if (_isTrueOfflineError(error)) {
             onOffline?.call();
           } else if (_isServerTimeoutError(error)) {
-            onServerSlow?.call();
+            onServerSlow?.call(corrId, error.requestOptions.path);
           }
 
           // إعادة المحاولة تلقائياً عند فشل الشبكة أو بطء الخادم
@@ -102,6 +146,17 @@ class ApiClient {
 
             if (attempt < 3) {
               options.extra['retry_attempt'] = attempt + 1;
+              // [TEMP-PERF-TRACE] يصل للخادم كهيدر (X-Retry-Attempt) حتى
+              // يظهر بسجل الـbackend لنفس الطلب — بلا أي تأثير على منطق
+              // الخادم (يُستخدَم للتسجيل فقط، انظر middleware/perf-trace.js).
+              options.headers['X-Retry-Attempt'] = (attempt + 1).toString();
+              if (corrId != null) {
+                PerfTrace.retryAttempt(
+                  correlationId: corrId,
+                  path: options.path,
+                  attempt: attempt + 1,
+                );
+              }
 
               // انتظار متزايد: 1s ثم 2s ثم 4s قبل كل إعادة محاولة
               await Future.delayed(Duration(seconds: 1 << attempt));
@@ -118,6 +173,7 @@ class ApiClient {
                   ),
                 );
 
+                final retryStartMs = DateTime.now().millisecondsSinceEpoch;
                 final response = await retryDio.fetch(options);
                 // [FIX-RETRY-02] retryDio كائن منفصل بلا أي Interceptors —
                 // نجاح الطلب هنا لا يمر إطلاقاً عبر onResponse الأصلي أعلاه،
@@ -126,6 +182,17 @@ class ApiClient {
                 // بالصدفة عبر المسار الطبيعي. استدعاء صريح هنا يصحّح الحالة
                 // فوراً بمجرد أن نعرف يقيناً أن الخادم استجاب.
                 onOnline?.call();
+                // [TEMP-PERF-TRACE] نفس سبب استدعاء onOnline أعلاه بالضبط —
+                // retryDio بلا Interceptors فلن يمر بـonResponse.
+                if (corrId != null) {
+                  PerfTrace.requestEnd(
+                    correlationId: corrId,
+                    path: options.path,
+                    durationMs:
+                        DateTime.now().millisecondsSinceEpoch - retryStartMs,
+                    statusCode: response.statusCode,
+                  );
+                }
                 return handler.resolve(response);
               } catch (_) {
                 // فشلت إعادة المحاولة أيضاً — كمّل بمعالجة الخطأ العادية
