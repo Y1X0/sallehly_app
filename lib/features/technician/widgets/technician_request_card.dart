@@ -100,18 +100,21 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 54,
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Icon(
-                          Icons.handyman_rounded,
-                          color: AppColors.primary,
-                          size: 28,
+                      Hero(
+                        tag: 'technician-request-image-${widget.request.id}',
+                        child: Container(
+                          width: 54,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Icon(
+                            Icons.handyman_rounded,
+                            color: AppColors.primary,
+                            size: 28,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),

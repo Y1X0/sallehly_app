@@ -138,6 +138,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final loading = context.watch<AuthProvider>().loading;
     final meta = context.watch<RequestsProvider>().meta;
+    final userId = context.watch<AuthProvider>().user?.id ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -151,29 +152,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             children: [
               if (isTechnician) ...[
-                GestureDetector(
-                  onTap: loading ? null : pickAvatar,
-                  child: Container(
-                    width: 110,
-                    height: 110,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary, width: 2),
-                      image: avatarPath != null
-                          ? DecorationImage(
-                        image: FileImage(File(avatarPath!)),
-                        fit: BoxFit.cover,
+                Hero(
+                  tag: 'profile-avatar-$userId',
+                  child: GestureDetector(
+                    onTap: loading ? null : pickAvatar,
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.primary, width: 2),
+                        image: avatarPath != null
+                            ? DecorationImage(
+                          image: FileImage(File(avatarPath!)),
+                          fit: BoxFit.cover,
+                        )
+                            : null,
+                      ),
+                      child: avatarPath == null
+                          ? Icon(
+                        Icons.add_a_photo_rounded,
+                        color: AppColors.primary,
+                        size: 34,
                       )
                           : null,
                     ),
-                    child: avatarPath == null
-                        ? Icon(
-                      Icons.add_a_photo_rounded,
-                      color: AppColors.primary,
-                      size: 34,
-                    )
-                        : null,
                   ),
                 ),
                 const SizedBox(height: 8),

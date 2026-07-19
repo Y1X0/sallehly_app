@@ -233,6 +233,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               _ProfileHero(
+                userId: user?.id ?? 0,
                 name: user?.name ?? 'مستخدم صلّحلي',
                 email: user?.email ?? '-',
                 role: roleLabel(user?.role),
@@ -388,6 +389,7 @@ class _DeleteChecklistItem extends StatelessWidget {
 }
 
 class _ProfileHero extends StatelessWidget {
+  final int userId;
   final String name;
   final String email;
   final String role;
@@ -397,6 +399,7 @@ class _ProfileHero extends StatelessWidget {
   final bool isTechnician;
 
   const _ProfileHero({
+    required this.userId,
     required this.name,
     required this.email,
     required this.role,
@@ -416,15 +419,18 @@ class _ProfileHero extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 82,
-            height: 82,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+          Hero(
+            tag: 'profile-avatar-$userId',
+            child: Container(
+              width: 82,
+              height: 82,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+              ),
+              child: Icon(icon, color: Colors.white, size: 44),
             ),
-            child: Icon(icon, color: Colors.white, size: 44),
           ),
           const SizedBox(height: 12),
           Text(
