@@ -1,0 +1,77 @@
+# Technician: browse a real customer request and submit a price offer on it.
+#
+# Depends on customer/create_request.yaml having already run earlier in the
+# SAME `maestro test maestro/` invocation (config.yaml lists "customer/*"
+# before "technician/*", and every flow in one invocation shares the same
+# live backend/database — confirmed by maestro/README.md's description of
+# the run strategy) — that flow creates a "كهربائي" request in
+# عمّان/القويسمة with the exact description text tapped below. This flow is
+# NOT self-contained the way login.yaml/view_jobs.yaml are; if run in
+# isolation (`maestro test technician/send_offer.yaml` alone, no prior
+# customer flow in the same pass), there will be no matching request and it
+# will fail at the "tap the request card" step. This is a disclosed,
+# deliberate tradeoff — seeding a request via a second curl step in
+# qa-e2e.yml was considered but not done here to avoid changing already-
+# fragile, already-iterated-on CI seeding logic blind (no local Maestro/
+# emulator available to verify a change like that actually works).
+#
+# Selectors verified directly against source, not guessed:
+#   - lib/features/technician/screens/new_requests_screen.dart:52 —
+#     "طلبات العملاء" SectionTitle, and the request-card tap opens
+#     TechnicianRequestDetailsScreen (line ~78-90).
+#   - lib/features/technician/widgets/technician_request_card.dart:151 —
+#     the card renders request.description as visible text, which is how
+#     the exact description from customer/create_request.yaml is targeted
+#     below.
+#   - lib/features/technician/screens/technician_request_details_screen.dart:
+#     149-156 — "تقديم عرض سعر" ElevatedButton.icon opens SendOfferScreen.
+#   - lib/features/technician/screens/send_offer_screen.dart:123/183/199/
+#     216/230/56 — screen title, field labels, submit button, and the
+#     success SnackBar text.
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible: "تسجيل الدخول"
+    timeout: 20000
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "tech.elec.amman@sallehly.jo"
+- tapOn: "كلمة المرور"
+- inputText: "Tech@12345"
+- tapOn: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 20000
+
+- tapOn: "جديدة"
+- extendedWaitUntil:
+    visible: "طلبات العملاء"
+    timeout: 60000
+
+# Exact description text from customer/create_request.yaml's request.
+- extendedWaitUntil:
+    visible: "يوجد عطل كهربائي في المطبخ ويحتاج فني بسرعة"
+    timeout: 30000
+- tapOn: "يوجد عطل كهربائي في المطبخ ويحتاج فني بسرعة"
+
+- extendedWaitUntil:
+    visible: "تقديم عرض سعر"
+    timeout: 20000
+- tapOn: "تقديم عرض سعر"
+
+- assertVisible: "تقديم عرض"
+- tapOn: "السعر بالدينار"
+- inputText: "15"
+- tapOn: "مدة الوصول أو التنفيذ"
+- inputText: "خلال ساعة"
+- tapOn: "إرسال العرض"
+
+- extendedWaitUntil:
+    visible: "تم إرسال العرض بنجاح"
+    timeout: 15000

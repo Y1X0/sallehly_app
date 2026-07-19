@@ -1,0 +1,41 @@
+# Admin: confirm the user-management tab loads and its role filters render.
+# Read-only navigation check — no state assumptions beyond an already-
+# working backend (data may be empty and this still passes; the filter
+# chips are unconditional).
+#
+# Selectors verified directly against source:
+#   - lib/features/layout/admin_layout.dart:160 — "المستخدمين" bottom-nav
+#     tab, index 1 -> AdminUsersScreen.
+#   - lib/features/admin/screens/admin_users_screen.dart (build method,
+#     filter chip row) — "الكل"/"عملاء"/"فنيين"/"بانتظار التوثيق" role-filter
+#     chips are rendered unconditionally, regardless of loading/empty/error/
+#     populated state, unlike the user list itself below them. Using
+#     "بانتظار التوثيق" specifically since it's the least likely of the four
+#     to collide with unrelated text elsewhere on screen.
+appId: com.sallehly.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+
+- extendedWaitUntil:
+    visible: "تسجيل الدخول"
+    timeout: 20000
+- tapOn: "تسجيل الدخول"
+- assertVisible: "البريد الإلكتروني"
+- tapOn: "البريد الإلكتروني"
+- inputText: "admin-test@example.com"
+- tapOn: "كلمة المرور"
+- inputText: "AdminTestPass123"
+- tapOn: "تسجيل الدخول"
+- extendedWaitUntil:
+    visible: "الرئيسية"
+    timeout: 400000
+
+- tapOn: "المستخدمين"
+- extendedWaitUntil:
+    visible: "بانتظار التوثيق"
+    timeout: 30000
+- assertVisible: "عملاء"
+- assertVisible: "فنيين"
