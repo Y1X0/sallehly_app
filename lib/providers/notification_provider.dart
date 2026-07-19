@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/api/api_client.dart';
+import '../features/notifications/data/notifications_api.dart';
 import '../models/notification_model.dart';
 import '../models/user_model.dart';
 
 class NotificationProvider extends ChangeNotifier {
   UserModel? currentUser;
+
+  /// [NOTIF-FLUTTER-PHASE1] apiClient اختياري عمداً (وليس required كبقية
+  /// الـProviders الأخرى بهذا الملف مثل SupportProvider) — عدة اختبارات
+  /// حالية (test/models/new_requests_badge_test.dart،
+  /// test/widgets/splash_dedup_test.dart، test/widgets/nav_chat_badge_test.dart)
+  /// تبني `NotificationProvider()` بلا أي معامل. جعله اختيارياً يحافظ على كل
+  /// هذه المسارات كما هي بلا أي تعديل، بينما app.dart (التطبيق الفعلي) يمرّره
+  /// الآن فعلياً. بدون apiClient، الطرق الثلاث الجديدة أدناه لا تفعل شيئاً
+  /// بصمت (نفس فلسفة "فشل الشبكة لا يُسقط التطبيق").
+  final NotificationsApi? _api;
+
+  NotificationProvider({ApiClient? apiClient})
+      : _api = apiClient != null ? NotificationsApi(apiClient) : null;
 
   final List<NotificationModel> _items = [];
 
@@ -365,6 +380,73 @@ class NotificationProvider extends ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  // ─────────────── [NOTIF-FLUTTER-PHASE1] طبقة الخادم الدائمة ───────────────
+  // الطرق الثلاث أدناه تضيف قدرة على الاتصال بـ GET/POST /api/notifications
+  // (راجع notifications_api.dart) دون أي تعديل على السلوك المحلي اللحظي
+  // القائم على Socket.IO أعلاه (addNotification/handleX/mark...Read) —
+  // لا شيء يستدعيها بعد بهذه المرحلة (لا شاشة ولا مستمع socket)، فهي إضافة
+  // معزولة بالكامل حالياً، تمهيداً لربطها لاحقاً.
+
+  /// يجلب الإشعارات الدائمة من الخادم (صفحة واحدة، الأحدث أولاً) ويملأ بها
+  /// القائمة المحلية. فشل الشبكة يُمتَص بصمت — لا يُسقط التطبيق ولا يمسح أي
+  /// إشعار محلي موجود مسبقاً.
+  Future<void> loadNotifications({int page = 1, int limit = 20}) async {
+    if (_api == null) return;
+
+    try {
+      final result = await _api.getNotifications(page: page, limit: limit);
+
+      if (page <= 1) {
+        _items
+          ..clear()
+          ..addAll(result.items);
+      } else {
+        _items.addAll(result.items);
+      }
+
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق — القائمة المحلية الحالية تبقى كما هي.
+    }
+  }
+
+  /// يعلّم إشعاراً دائماً واحداً كمقروء على الخادم، ثم يحدّث نسخته المحلية
+  /// إن كانت موجودة بالقائمة. اسم مختلف عمداً عن markNotificationRead(String)
+  /// الحالية أعلاه (تعمل محلياً فقط بمعرّف نصي مُولَّد لحظياً) — Dart لا يسمح
+  /// بوجود دالتين بنفس الاسم بمعاملين مختلفي النوع بنفس الصنف، وmarkNotificationRead
+  /// الحالية مستخدَمة فعلياً بشاشة الإشعارات (notifications_screen.dart)
+  /// ويجب أن تبقى كما هي بالضبط (لا تعديل على الشاشة بهذه المرحلة).
+  Future<void> markNotificationReadOnServer(int id) async {
+    if (_api == null) return;
+
+    try {
+      final updated = await _api.markRead(id);
+      final index = _items.indexWhere((item) => item.id == updated.id);
+      if (index != -1) {
+        _items[index].read = true;
+      }
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق.
+    }
+  }
+
+  /// يعلّم كل إشعارات المستخدم الدائمة كمقروءة على الخادم، ثم يعكس نفس
+  /// الأثر محلياً على كل عناصر القائمة الحالية.
+  Future<void> markAllNotificationsRead() async {
+    if (_api == null) return;
+
+    try {
+      await _api.markAllRead();
+      for (final item in _items) {
+        item.read = true;
+      }
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق.
+    }
   }
 
   void clear() {

@@ -82,8 +82,11 @@ class SallehlyApp extends StatelessWidget {
             apiClient: apiClient,
           ),
         ),
+        // [NOTIF-FLUTTER-PHASE1] apiClient يبقى اختيارياً على مستوى الصنف
+        // نفسه (راجع تعليق NotificationProvider) — هنا بالتطبيق الفعلي نمرّره
+        // دائماً، بنفس نمط بقية الـProviders أعلاه تماماً.
         ChangeNotifierProvider(
-          create: (_) => NotificationProvider(),
+          create: (_) => NotificationProvider(apiClient: apiClient),
         ),
         ChangeNotifierProvider(
           create: (_) => SocketProvider(
