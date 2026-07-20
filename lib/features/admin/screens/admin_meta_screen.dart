@@ -371,7 +371,7 @@ class _MetaList extends StatelessWidget {
         const SizedBox(height: 16),
         if (loading && items.isEmpty)
           Padding(
-            padding: EdgeInsets.only(top: 120),
+            padding: const EdgeInsets.only(top: 120),
             child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
           )
         else if (error != null && items.isEmpty)
@@ -484,12 +484,14 @@ class _MetaList extends StatelessWidget {
                       ),
                     if (onEdit != null)
                       IconButton(
+                        tooltip: 'تعديل',
                         icon: Icon(Icons.edit_outlined,
                             color: AppColors.primary),
                         onPressed: () => onEdit!(e),
                       ),
                     if (onDelete != null)
                       IconButton(
+                        tooltip: 'حذف',
                         icon: Icon(Icons.delete_outline_rounded,
                             color: AppColors.danger),
                         onPressed: () => onDelete!(e),

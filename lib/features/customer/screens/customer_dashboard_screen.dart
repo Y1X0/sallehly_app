@@ -69,7 +69,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   _ServicesGrid(inSheet: true),
                 ],
               ),

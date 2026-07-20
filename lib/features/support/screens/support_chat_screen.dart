@@ -199,7 +199,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     return ListView(
       padding: const EdgeInsets.all(28),
       children: [
-        SizedBox(height: 120),
+        const SizedBox(height: 120),
         Center(
           child: Container(
             width: 84,
@@ -211,7 +211,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             child: Icon(Icons.forum_outlined, color: AppColors.primary, size: 40),
           ),
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         Text(
           'ابدأ المحادثة مع فريق الدعم',
           textAlign: TextAlign.center,
@@ -221,7 +221,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             fontSize: 16,
           ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
           'اكتب رسالتك في الأسفل وسيرد عليك الفريق',
           textAlign: TextAlign.center,
@@ -312,6 +312,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
+                tooltip: 'إرسال',
                 onPressed: sending ? null : send,
                 icon: sending
                     ? const SizedBox(

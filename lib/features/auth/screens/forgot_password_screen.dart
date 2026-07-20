@@ -233,6 +233,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 labelText: 'كلمة المرور الجديدة',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
+                  tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                   onPressed: () {
                     setState(() {
                       hidePassword = !hidePassword;

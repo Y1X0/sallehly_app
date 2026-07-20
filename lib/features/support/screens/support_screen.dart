@@ -90,7 +90,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       ? ListView(
                           padding: const EdgeInsets.all(28),
                           children: [
-                            SizedBox(height: 120),
+                            const SizedBox(height: 120),
                             Center(
                               child: Container(
                                 width: 84,
@@ -106,7 +106,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               'لا توجد تذاكر دعم بعد',
                               textAlign: TextAlign.center,
@@ -116,7 +116,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
                               'اضغط "تذكرة جديدة" للتواصل مع فريق الدعم',
                               textAlign: TextAlign.center,
@@ -284,7 +284,7 @@ class _TicketCard extends StatelessWidget {
               children: [
                 Icon(Icons.chat_bubble_outline_rounded,
                     size: 15, color: AppColors.primary),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   'فتح المحادثة',
                   style: TextStyle(

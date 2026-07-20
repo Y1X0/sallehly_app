@@ -301,6 +301,7 @@ class _TopBar extends StatelessWidget {
         children: [
           if (canPop)
             IconButton(
+              tooltip: 'رجوع',
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_rounded),
             )

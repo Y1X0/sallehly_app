@@ -762,6 +762,7 @@ class _ChatHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'رجوع',
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
@@ -819,7 +820,7 @@ class _ChatHeader extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.flag_outlined, color: AppColors.danger),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text('إبلاغ عن المحادثة'),
                   ],
                 ),

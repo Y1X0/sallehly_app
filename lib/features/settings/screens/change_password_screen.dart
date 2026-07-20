@@ -102,6 +102,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           labelText: 'كلمة المرور الحالية',
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
+                            tooltip: hideCurrent ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                             onPressed: () {
                               setState(() => hideCurrent = !hideCurrent);
                             },
@@ -128,6 +129,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           labelText: 'كلمة المرور الجديدة',
                           prefixIcon: const Icon(Icons.lock_reset_rounded),
                           suffixIcon: IconButton(
+                            tooltip: hideNew ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                             onPressed: () {
                               setState(() => hideNew = !hideNew);
                             },
