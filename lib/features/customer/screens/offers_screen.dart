@@ -94,6 +94,11 @@ class _OffersScreenState extends State<OffersScreen> {
                             ),
                           ),
                         )
+                      else if (provider.error != null && offers.isEmpty)
+                        _ErrorOffers(
+                          message: provider.error!,
+                          onRetry: () => provider.loadOffers(widget.request.id),
+                        )
                       else if (offers.isEmpty)
                         const _EmptyOffers()
                       else
@@ -214,6 +219,64 @@ class _HeroCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorOffers extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorOffers({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 44,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'تعذّر تحميل العروض',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 14),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
           ),
         ],
       ),
