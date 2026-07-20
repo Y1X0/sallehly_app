@@ -308,6 +308,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                     labelText: 'كلمة المرور',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
+                      tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                       onPressed: loading
                           ? null
                           : () {

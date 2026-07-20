@@ -96,13 +96,13 @@ class _PackagesScreenState extends State<PackagesScreen> {
                   ? ListView(
                 padding: const EdgeInsets.all(28),
                 children: [
-                  SizedBox(height: 180),
+                  const SizedBox(height: 180),
                   Icon(
                     Icons.inventory_2_outlined,
                     color: AppColors.primary,
                     size: 76,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'لا توجد باقات حالياً',
                     textAlign: TextAlign.center,

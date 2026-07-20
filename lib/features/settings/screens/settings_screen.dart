@@ -146,6 +146,7 @@ class SettingsScreen extends StatelessWidget {
                         decoration: InputDecoration(
                           labelText: 'كلمة المرور الحالية',
                           suffixIcon: IconButton(
+                            tooltip: obscure ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                             icon: Icon(
                               obscure
                                   ? Icons.visibility_off_rounded

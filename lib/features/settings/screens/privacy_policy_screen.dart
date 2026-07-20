@@ -252,7 +252,7 @@ class _BulletLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 6),
+            padding: const EdgeInsets.only(top: 6),
             child: Icon(Icons.circle, size: 6, color: AppColors.textMuted),
           ),
           const SizedBox(width: 10),

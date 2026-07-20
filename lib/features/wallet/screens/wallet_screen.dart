@@ -111,7 +111,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   const SizedBox(height: 12),
                   if (wallet.loading && topups.isEmpty)
                     Padding(
-                      padding: EdgeInsets.only(top: 80),
+                      padding: const EdgeInsets.only(top: 80),
                       child: Center(
                         child: CircularProgressIndicator(color: AppColors.primary),
                       ),
@@ -352,7 +352,7 @@ class _EmptyWalletState extends StatelessWidget {
             color: AppColors.primary,
             size: 54,
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Text(
             'لا توجد طلبات شحن بعد',
             style: TextStyle(
@@ -360,7 +360,7 @@ class _EmptyWalletState extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             'ابدأ باختيار باقة ورفع صورة إثبات الدفع.',
             textAlign: TextAlign.center,

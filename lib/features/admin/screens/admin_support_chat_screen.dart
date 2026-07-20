@@ -261,6 +261,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
+                tooltip: 'إرسال',
                 onPressed: sending ? null : send,
                 icon: sending
                     ? const SizedBox(

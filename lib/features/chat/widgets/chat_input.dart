@@ -95,6 +95,7 @@ class ChatInput extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
+              tooltip: 'إضافة مرفق',
               onPressed: sending ? null : () => openPlusMenu(context),
               icon: Icon(
                 Icons.add_circle_rounded,
@@ -177,6 +178,7 @@ class ChatInput extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
+                tooltip: recording ? 'إيقاف التسجيل وإرسال' : 'إرسال',
                 onPressed: sending ? null : (recording ? onRecord : onSend),
                 icon: sending
                     ? const SizedBox(

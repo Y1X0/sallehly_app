@@ -67,6 +67,11 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                       ],
                     ),
                   )
+                else if (provider.error != null && requests.isEmpty)
+                  _ErrorState(
+                    message: provider.error!,
+                    onRetry: provider.loadRequests,
+                  )
                 else if (requests.isEmpty)
                   const _EmptyState()
                 else
@@ -167,6 +172,64 @@ class _HeroCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.all(26),
+      child: Column(
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              color: AppColors.danger,
+              size: 44,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'تعذّر تحميل الطلبات',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 14),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
           ),
         ],
       ),

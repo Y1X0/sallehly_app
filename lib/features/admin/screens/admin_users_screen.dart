@@ -364,7 +364,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             const SizedBox(height: 18),
             if (admin.loading && users.isEmpty)
               Padding(
-                padding: EdgeInsets.only(top: 120),
+                padding: const EdgeInsets.only(top: 120),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),

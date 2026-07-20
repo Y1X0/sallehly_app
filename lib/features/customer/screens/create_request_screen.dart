@@ -310,6 +310,7 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'رجوع',
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
@@ -485,7 +486,7 @@ class _ImagePickerCard extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'ارفع صورة واضحة إن أمكن',
                   style: TextStyle(
@@ -527,7 +528,7 @@ class _SafeNote extends StatelessWidget {
             color: AppColors.success,
             size: 22,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.',

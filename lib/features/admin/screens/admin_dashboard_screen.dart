@@ -93,7 +93,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 20),
             if (isInitialLoading)
               Padding(
-                padding: EdgeInsets.only(top: 80),
+                padding: const EdgeInsets.only(top: 80),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),

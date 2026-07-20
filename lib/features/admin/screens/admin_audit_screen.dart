@@ -61,6 +61,7 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                 suffixIcon: _searchController.text.isEmpty
                     ? null
                     : IconButton(
+                        tooltip: 'مسح البحث',
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () {
                           _searchController.clear();

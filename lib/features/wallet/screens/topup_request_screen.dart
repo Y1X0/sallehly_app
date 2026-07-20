@@ -173,7 +173,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                       color: AppColors.primary,
                       size: 56,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       'ارفع صورة إثبات الدفع',
                       style: TextStyle(
@@ -181,7 +181,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       'صورة الوصل مطلوبة لمراجعة طلب الشحن',
                       textAlign: TextAlign.center,
