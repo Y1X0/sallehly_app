@@ -178,6 +178,18 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
       final authProvider = context.read<AuthProvider>();
       final chatProvider = context.read<ChatProvider>();
       authProvider.onAuthenticated = () async {
+        // [CRIT-FIX-02] أول شيء يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة
+        // جلسة — قبل أي شيء آخر. AuthProvider.login()/verifyOtp() يمسحان
+        // tokenStorage/appStorage دفاعياً بدايةً بغض النظر عن استدعاء
+        // logout() صراحة قبلهما أم لا (نفس النمط بالضبط بـ
+        // lib/providers/auth_provider.dart) — أي "تسجيل دخول" قد يكون فعلياً
+        // تبديل مستخدم على نفس الجهاز دون مرور صريح بمسار تسجيل خروج. قبل
+        // هذا الإصلاح، loadNotifications() (أدناه) كانت تدمج إشعارات
+        // المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة سابقاً) للمستخدم
+        // *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين حسابين مختلفين
+        // على نفس الجهاز. clear() هنا يضمن قائمة فارغة قبل أي تحميل جديد،
+        // بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل.
+        notificationProvider.clear();
         await socketProvider.reconnect();
         // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
         // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
@@ -192,7 +204,15 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
         // كل ما تراكم بينما كان غير متصل).
         await notificationProvider.loadNotifications();
       };
-      authProvider.onLoggedOut = () => socketProvider.disconnect();
+      authProvider.onLoggedOut = () {
+        socketProvider.disconnect();
+        // [CRIT-FIX-02] امسح فوراً عند تسجيل الخروج أيضاً (logout()،
+        // deleteAccount()، وhandleUnauthorized() عبر logout() الداخلي —
+        // الثلاثة تستدعي onLoggedOut) — لا تترك بيانات المستخدم الذي خرج
+        // للتو جالسة بالذاكرة حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق
+        // التطبيق بينهما.
+        notificationProvider.clear();
+      };
 
       // [FIX-AUTH-01] عند 401 حقيقي من أي طلب بالتطبيق (توكن منتهي فعلياً أو
       // حساب أُوقف)، نظّف الجلسة مركزياً بنفس مسار تسجيل الخروج المعتاد.
