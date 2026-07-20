@@ -356,14 +356,29 @@ class NotificationProvider extends ChangeNotifier {
   /// يعلّم إشعاراً واحداً فقط كمقروء.
   /// عند الضغط على إشعار واحد ينقص العداد بمقدار 1 فقط،
   /// ولا تتأثر بقية الإشعارات غير المقروءة.
+  /// [HIGH-FIX-READSYNC-01] الحالة المحلية تُحدَّث فوراً (نفس السلوك السابق
+  /// بالضبط — الواجهة لا تنتظر الشبكة إطلاقاً)، ثم يُطلَق مزامنة الخادم
+  /// بالخلفية دون انتظارها هنا (fire-and-forget) فقط لو للعنصر serverId
+  /// فعلي (أي أنه إشعار له نظير دائم بالخادم — راجع _persistedTypes/
+  /// NotificationModel.serverId). إشعارات محلية بحتة (chat/topup/service)
+  /// ليس لها serverId إطلاقاً فتبقى محلية فقط كما كانت دائماً.
   void markNotificationRead(String notificationId) {
     final index = _items.indexWhere((item) => item.id == notificationId);
     if (index == -1 || _items[index].read) return;
 
     _items[index].read = true;
     notifyListeners();
+
+    final serverId = _items[index].serverId;
+    if (serverId != null) _syncReadToServer(serverId);
   }
 
+  /// [HIGH-FIX-READSYNC-01] نفس المنطق: الحالة المحلية تتغيّر فوراً (كما كانت
+  /// قبل هذا الإصلاح تماماً)، ثم مزامنة الخادم بالخلفية. مزامنة "قراءة الكل"
+  /// بالخادم (POST /notifications/read-all) تشمل فقط الأنواع الدائمة أصلاً
+  /// (request/offer/wallet/support/complaint — راجع notify() بالخادم)، وهي
+  /// تماماً الأنواع غير-chat التي تُعلَّم هنا محلياً؛ لا تعارض مع chat/topup/
+  /// service المحلية البحتة التي لا نظير لها بالخادم أساساً.
   void markRequestNotificationsRead() {
     var changed = false;
     for (final item in _items) {
@@ -373,6 +388,33 @@ class NotificationProvider extends ChangeNotifier {
       }
     }
     if (changed) notifyListeners();
+    _syncAllReadToServer();
+  }
+
+  /// [HIGH-FIX-READSYNC-01] استدعاء خادم بالخلفية فقط — لا يُغيّر أي حالة
+  /// محلية (تلك غُيِّرت مسبقاً بالمستدعي أعلاه قبل استدعاء هذه الدالة). فشل
+  /// الشبكة (offline، انقطاع مؤقت...) يُمتَص بصمت هنا تماماً بنفس فلسفة
+  /// loadNotifications/markNotificationReadOnServer أعلاه — لا يرمي، ولا
+  /// يُسقط التطبيق، ولا يراجع الحالة المحلية (تبقى "مقروء" كما قرّر المستخدم
+  /// بجهازه حتى لو تعذّر إبلاغ الخادم هذه المرة).
+  Future<void> _syncReadToServer(int serverId) async {
+    if (_api == null) return;
+    try {
+      await _api.markRead(serverId);
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق ولا يراجع الحالة المحلية.
+    }
+  }
+
+  /// [HIGH-FIX-READSYNC-01] نظير markAllRead بنفس فلسفة _syncReadToServer
+  /// أعلاه تماماً — بالخلفية، لا يُغيّر حالة محلية، يمتص فشل الشبكة بصمت.
+  Future<void> _syncAllReadToServer() async {
+    if (_api == null) return;
+    try {
+      await _api.markAllRead();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق ولا يراجع الحالة المحلية.
+    }
   }
 
   void markChatNotificationsRead() {
