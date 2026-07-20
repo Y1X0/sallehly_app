@@ -75,7 +75,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: Colors.white,
                     size: 50,
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       'إدارة صلّحلي\nتحكم كامل بالمنصة',

@@ -60,9 +60,9 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                     child: Column(
                       children: const [
                         RequestCardSkeleton(),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         RequestCardSkeleton(),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         RequestCardSkeleton(),
                       ],
                     ),

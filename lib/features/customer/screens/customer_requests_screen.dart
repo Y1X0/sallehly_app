@@ -82,9 +82,9 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
                       children: const [
                         RequestCardSkeleton(),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         RequestCardSkeleton(),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         RequestCardSkeleton(),
                       ],
                     ),

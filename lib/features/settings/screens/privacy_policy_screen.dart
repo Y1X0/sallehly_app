@@ -24,7 +24,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
             children: const [
               _PrivacyIntro(),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               _PrivacySection(
                 icon: Icons.checklist_rounded,
                 title: 'البيانات التي نجمعها ولماذا',
@@ -113,7 +113,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                     'لأي استفسار بخصوص هذه السياسة أو بياناتك، تواصل معنا عبر '
                     'الدعم الفني داخل التطبيق.',
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               _LastUpdated(),
             ],
           ),
@@ -137,7 +137,7 @@ class _PrivacyIntro extends StatelessWidget {
       child: const Row(
         children: [
           Icon(Icons.privacy_tip_rounded, color: Colors.white, size: 34),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Text(
               'هذه الصفحة توضّح كيف تجمع منصة صلّحلي بياناتك وتستخدمها '
