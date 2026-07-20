@@ -22,6 +22,26 @@ class NotificationProvider extends ChangeNotifier {
   NotificationProvider({ApiClient? apiClient})
       : _api = apiClient != null ? NotificationsApi(apiClient) : null;
 
+  // ─────────────── [NOTIF-FLUTTER-PHASE2B] منع تكرار الإشعارات ───────────────
+  // الأنواع التالية فقط لها نظير دائم بالخادم (راجع notify() بـ
+  // routes/support.routes.js، routes/requests.routes.js، routes/offers.routes.js،
+  // routes/topups.routes.js) — 'chat'/'topup'/'service' لحظية بحتة (لا يوجد
+  // أي صف خادم لها إطلاقاً)، فمنطق منع التكرار أدناه لا يمسّها نهائياً؛ تبقى
+  // تُدرَج دائماً كما كانت قبل هذه المرحلة بالضبط.
+  static const Set<String> _persistedTypes = {
+    'request',
+    'offer',
+    'wallet',
+    'support',
+    'complaint',
+  };
+
+  // نافذة زمنية ضيقة عمداً — الهدف الوحيد التقاط سباق التوقيت الحقيقي (وصول
+  // Socket.IO ثم تحميل الخادم لنفس الحدث، أو العكس، خلال ثوانٍ قليلة)، وليس
+  // منع حدثين مختلفين فعلياً بنفس النوع (مثلاً عرضان منفصلان من فنيين
+  // مختلفين على نفس الطلب) من الظهور كلاهما.
+  static const Duration _dedupWindow = Duration(seconds: 30);
+
   final List<NotificationModel> _items = [];
 
   List<NotificationModel> get items => List.unmodifiable(_items);
@@ -75,6 +95,14 @@ class NotificationProvider extends ChangeNotifier {
     int? requestId,
     bool sound = true,
   }) {
+    // [NOTIF-FLUTTER-PHASE2B] لو كان الخادم أرسل بالفعل (بتحميل سابق) إشعاراً
+    // دائماً لنفس هذا الحدث تحديداً — سباق توقيت واقعي: استئناف التطبيق
+    // يُطلق loadNotifications() في نفس اللحظة تقريباً التي يصل فيها حدث
+    // Socket.IO اللحظي لنفس الحدث — لا تُنشئ نسخة ثانية هنا. مقصورة على
+    // الأنواع التي لها نظير خادم فعلاً (_persistedTypes)؛ 'chat'/'topup'/
+    // 'service' غير متأثرة إطلاقاً وتستمر بالسلوك القديم بالضبط.
+    if (_hasRecentPersistedMatch(type: type, requestId: requestId)) return;
+
     _items.insert(
       0,
       NotificationModel(
@@ -96,6 +124,28 @@ class NotificationProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] هل توجد بالقائمة (من أي مصدر) نسخة حديثة جداً
+  /// (خلال _dedupWindow) بنفس type — ونفس requestId لو توفّر على الطرفين —
+  /// تمثّل على الأرجح نفس الحدث؟ راجع _findUnpersistedMatchIndex للاتجاه
+  /// المقابل (خادم يصل بعد إشعار لحظي موجود مسبقاً).
+  bool _hasRecentPersistedMatch({required String type, int? requestId}) {
+    if (!_persistedTypes.contains(type)) return false;
+
+    final now = DateTime.now();
+    for (final item in _items) {
+      if (item.type != type) continue;
+      if (now.difference(item.createdAt).abs() > _dedupWindow) continue;
+
+      if (requestId != null && item.requestId != null) {
+        if (item.requestId != requestId) continue;
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   void handleNewRequest(dynamic data) {
@@ -389,9 +439,12 @@ class NotificationProvider extends ChangeNotifier {
   // لا شيء يستدعيها بعد بهذه المرحلة (لا شاشة ولا مستمع socket)، فهي إضافة
   // معزولة بالكامل حالياً، تمهيداً لربطها لاحقاً.
 
-  /// يجلب الإشعارات الدائمة من الخادم (صفحة واحدة، الأحدث أولاً) ويملأ بها
-  /// القائمة المحلية. فشل الشبكة يُمتَص بصمت — لا يُسقط التطبيق ولا يمسح أي
-  /// إشعار محلي موجود مسبقاً.
+  /// يجلب الإشعارات الدائمة من الخادم (صفحة واحدة، الأحدث أولاً) ويدمجها مع
+  /// القائمة المحلية الحالية (راجع _mergeServerItems) بدل استبدالها بالكامل —
+  /// [NOTIF-FLUTTER-PHASE2B] الاستبدال الكامل كان يمسح بصمت أي إشعار لحظي
+  /// (Socket.IO) من نوع لا نظير له بالخادم (chat/topup/service) وصل بين
+  /// تحميلين. فشل الشبكة يُمتَص بصمت — لا يُسقط التطبيق ولا يمسح أي إشعار
+  /// محلي موجود مسبقاً.
   Future<void> loadNotifications({int page = 1, int limit = 20}) async {
     if (_api == null) return;
 
@@ -399,17 +452,83 @@ class NotificationProvider extends ChangeNotifier {
       final result = await _api.getNotifications(page: page, limit: limit);
 
       if (page <= 1) {
-        _items
-          ..clear()
-          ..addAll(result.items);
+        _mergeServerItems(result.items);
       } else {
-        _items.addAll(result.items);
+        // صفحات لاحقة (تمرير للخلف بالتاريخ) — عناصر أقدم بالتعريف، لا يمكن
+        // أن تكون موجودة محلياً كإشعار لحظي (تلك تكون دائماً حديثة). إضافة
+        // بسيطة فقط، مع حماية ضد ازدواج غير محتمل عبر serverId.
+        for (final serverItem in result.items) {
+          final alreadyKnown = serverItem.serverId != null &&
+              _items.any((i) => i.serverId == serverItem.serverId);
+          if (!alreadyKnown) _items.add(serverItem);
+        }
       }
 
       notifyListeners();
     } catch (_) {
       // فشل الشبكة لا يُسقط التطبيق — القائمة المحلية الحالية تبقى كما هي.
     }
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] يدمج صفحة إشعارات من الخادم (الأحدث أولاً) مع
+  /// _items الحالية دون فقدان أي عنصر محلي غير متعلّق (chat/topup/service،
+  /// أو إشعار لحظي أقدم من نافذة الدمج). لكل عنصر خادم:
+  ///  1) لو له صف مطابق بالقائمة مسبقاً (نفس serverId — تحميل سابق) → حدّث
+  ///     حالة "مقروء" فقط (OR منطقي، لا يُرجع "غير مقروء" شيئاً قرأه المستخدم).
+  ///  2) وإلا لو يوجد إشعار لحظي محلي (serverId==null) يمثّل على الأرجح نفس
+  ///     الحدث (نفس type، ونفس requestId لو توفّر، ضمن _dedupWindow) →
+  ///     استبدله بالنسخة الرسمية من الخادم في نفس موضعه (لا نسخة ثانية).
+  ///  3) وإلا فهو عنصر جديد كلياً → يُدرَج بالمقدمة (الأحدث أولاً، بنفس منطق
+  ///     addNotification).
+  void _mergeServerItems(List<NotificationModel> serverItems) {
+    // نمرّ من الأقدم للأحدث وندرج كل عنصر جديد بالمقدمة (index 0) — بنهاية
+    // الحلقة يكون الأحدث هو آخر ما أُدرِج، فيستقر بالمقدمة فعلياً كما يجب.
+    for (final serverItem in serverItems.reversed) {
+      final existingIndex = serverItem.serverId == null
+          ? -1
+          : _items.indexWhere((i) => i.serverId == serverItem.serverId);
+
+      if (existingIndex != -1) {
+        _items[existingIndex].read =
+            _items[existingIndex].read || serverItem.read;
+        continue;
+      }
+
+      final localMatchIndex = _findUnpersistedMatchIndex(serverItem);
+      if (localMatchIndex != -1) {
+        serverItem.read = serverItem.read || _items[localMatchIndex].read;
+        _items[localMatchIndex] = serverItem;
+        continue;
+      }
+
+      _items.insert(0, serverItem);
+    }
+
+    if (_items.length > 80) {
+      _items.removeRange(80, _items.length);
+    }
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] يبحث عن إشعار لحظي محلي (serverId == null) غير
+  /// مرتبط بعد بأي صف خادم، يمثّل على الأرجح نفس الحدث الذي يمثّله serverItem.
+  /// راجع تعليق _dedupWindow/_persistedTypes أعلاه لتفسير حدود هذه المطابقة.
+  int _findUnpersistedMatchIndex(NotificationModel serverItem) {
+    for (var i = 0; i < _items.length; i++) {
+      final local = _items[i];
+      if (local.serverId != null) continue;
+      if (local.type != serverItem.type) continue;
+
+      final timeDiff = serverItem.createdAt.difference(local.createdAt).abs();
+      if (timeDiff > _dedupWindow) continue;
+
+      if (serverItem.requestId != null && local.requestId != null) {
+        if (serverItem.requestId != local.requestId) continue;
+      }
+
+      return i;
+    }
+
+    return -1;
   }
 
   /// يعلّم إشعاراً دائماً واحداً كمقروء على الخادم، ثم يحدّث نسخته المحلية

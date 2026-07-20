@@ -16,6 +16,15 @@ class NotificationModel {
   /// offerId/complaintId/ticketId) — اختيارية بالكامل لنفس السبب أعلاه.
   final Map<String, dynamic>? data;
 
+  /// [NOTIF-FLUTTER-PHASE2B] معرّف الصف الرقمي بجدول notifications بالخادم —
+  /// null دائماً للإشعارات اللحظية المحلية (Socket.IO عبر addNotification)،
+  /// ويُملأ فقط من fromJson. هذا هو الفارق الوحيد الموثوق بين "إشعار جاء من
+  /// الخادم فعلاً" و"إشعار لحظي لم يُطابَق بعد بأي صف خادم" — id النصي وحده
+  /// لا يكفي للتمييز لأن كليهما نص رقمي فعلياً (id اللحظي مصدره
+  /// microsecondsSinceEpoch.toString()). يُستخدَم فقط لمنع التكرار عند الدمج
+  /// (راجع NotificationProvider._mergeServerItems).
+  final int? serverId;
+
   NotificationModel({
     required this.id,
     required this.title,
@@ -26,6 +35,7 @@ class NotificationModel {
     this.read = false,
     this.ticketId,
     this.data,
+    this.serverId,
   });
 
   bool get isChat => type == 'chat';
@@ -47,9 +57,10 @@ class NotificationModel {
     final rawRequestId = json['request_id'];
     final rawTicketId = json['ticket_id'];
     final rawData = json['data'];
+    final rawId = json['id'];
 
     return NotificationModel(
-      id: '${json['id'] ?? ''}',
+      id: '${rawId ?? ''}',
       title: '${json['title'] ?? ''}',
       body: '${json['body'] ?? ''}',
       type: '${json['type'] ?? ''}',
@@ -60,6 +71,7 @@ class NotificationModel {
       createdAt:
           DateTime.tryParse('${json['created_at'] ?? ''}') ?? DateTime.now(),
       read: json['is_read'] == true || json['is_read'] == 1,
+      serverId: rawId == null ? null : int.tryParse('$rawId'),
     );
   }
 }
