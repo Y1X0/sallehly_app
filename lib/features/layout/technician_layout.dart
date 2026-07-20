@@ -28,6 +28,17 @@ class TechnicianLayout extends StatefulWidget {
 class _TechnicianLayoutState extends State<TechnicianLayout> {
   int currentIndex = 0;
 
+  // [PERF-HARDEN-01] راجع نفس التعليق بـcustomer_layout.dart — يمنع إعادة
+  // إنشاء/تحميل تبويب زُيِّر سابقاً عند كل تبديل، مع تحميل عند أول زيارة فقط.
+  final Set<int> _visitedIndices = {0};
+
+  void _goToTab(int index) {
+    setState(() {
+      currentIndex = index;
+      _visitedIndices.add(index);
+    });
+  }
+
   // الصفحات الثابتة (بدون الدعم). أيقونة الدعم تظهر فقط عند وجود تذكرة مفتوحة.
   late final List<Widget> pages = const [
     TechnicianDashboardScreen(),
@@ -65,13 +76,13 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
 
     switch (type) {
       case 'offer_accepted':
-        setState(() => currentIndex = 2); // طلباتي
+        _goToTab(2); // طلباتي
         break;
       case 'chat':
-        setState(() => currentIndex = 3); // الدردشات
+        _goToTab(3); // الدردشات
         break;
       case 'topup':
-        setState(() => currentIndex = 4); // المحفظة
+        _goToTab(4); // المحفظة
         break;
       case 'support':
         // [FIX-DEEPLINK-01] تحقّق أن التذكرة المفتوحة محمّلة فعلاً قبل القفز
@@ -80,7 +91,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
         // سيُرجع currentIndex تلقائياً لـ0 بالإطار التالي فيظهر "ارتداد"
         // مرئي مزعج للمستخدم. تجاهل التنقّل هنا أفضل من ارتداد ظاهر.
         if (context.read<SupportProvider>().hasOpenTicket) {
-          setState(() => currentIndex = supportIndex);
+          _goToTab(supportIndex);
         }
         break;
       default:
@@ -124,14 +135,15 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
     // إذا اختفت أيقونة الدعم بينما المستخدم واقف عليها، نرجعه للرئيسية.
     if (!hasSupport && currentIndex == supportIndex) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => currentIndex = 0);
+        if (mounted) _goToTab(0);
       });
     }
 
-    // الصفحة المعروضة: إذا كان على الدعم نعرض شاشة الدعم، وإلا الصفحة العادية.
-    final Widget currentPage = (currentIndex == supportIndex && hasSupport)
-        ? const SupportScreen()
-        : pages[currentIndex.clamp(0, pages.length - 1)];
+    // [PERF-HARDEN-01] فهرس العرض الفعلي بـIndexedStack أدناه — نفس منطق
+    // currentPage القديم، لكن كفهرس بدل widget جاهز (IndexedStack يحتاج فهرساً).
+    final int displayIndex = (currentIndex == supportIndex && hasSupport)
+        ? supportIndex
+        : currentIndex.clamp(0, pages.length - 1);
 
     // إخفاء الـ AppBar في الرئيسية (0) والإعدادات (5) فقط.
     final bool hideAppBar = currentIndex == 0 || currentIndex == 5;
@@ -180,11 +192,23 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
         title: const Text('لوحة الفني'),
         actions: [
           NotificationBell(
-            onOpenRequests: () => setState(() => currentIndex = 1),
+            onOpenRequests: () => _goToTab(1),
           ),
         ],
       ),
-      body: currentPage,
+      // [PERF-HARDEN-01] راجع نفس التعليق بـcustomer_layout.dart — يشمل هنا
+      // خانة إضافية (7ة) لشاشة الدعم، لأن فهرسها (supportIndex=6) خارج نطاق
+      // pages الأساسية (0..5).
+      body: IndexedStack(
+        index: displayIndex,
+        children: [
+          for (var i = 0; i < pages.length; i++)
+            _visitedIndices.contains(i) ? pages[i] : const SizedBox.shrink(),
+          hasSupport && _visitedIndices.contains(supportIndex)
+              ? const SupportScreen()
+              : const SizedBox.shrink(),
+        ],
+      ),
       bottomNavigationBar: _GlassNav(
         selectedIndex: currentIndex,
         onTap: (index) {
@@ -197,9 +221,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
             context.read<NotificationProvider>().markSupportNotificationsRead();
           }
 
-          setState(() {
-            currentIndex = index;
-          });
+          _goToTab(index);
         },
         items: navItems,
       ),

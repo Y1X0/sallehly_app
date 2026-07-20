@@ -35,6 +35,15 @@ class _SplashScreenState extends State<SplashScreen>
   // — يضاعف الحمل على الخادم في أضعف لحظة له (خادم يستيقظ من الخمول).
   Future<void>? _loadMeFuture;
 
+  // [PERF-HARDEN-01] المستخدم يرى سبينر صامتاً فقط طوال الـ25 ثانية المذكورة
+  // أعلاه، بلا أي تمييز بين "الاتصال عادي وقيد التحميل" و"الخادم بطيء
+  // لأنه يستيقظ من الخمول" — قد يظن المستخدم أن التطبيق تجمّد ويغلقه يدوياً
+  // قبل أن يُتاح له فرصة الاكتمال فعلياً. تلميح نصي يظهر فقط بعد تأخير ملحوظ
+  // (6 ثوانٍ) دون إخفاء حالة الفشل الحقيقية أصلاً (تبقى تظهر عند تجاوز الـ25
+  // ثانية كما هي تماماً، بلا أي تغيير بمنطق ذلك).
+  bool _showSlowHint = false;
+  Timer? _slowHintTimer;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +62,16 @@ class _SplashScreenState extends State<SplashScreen>
     if (mounted && _showRetry) {
       setState(() => _showRetry = false);
     }
+
+    // [PERF-HARDEN-01] ابدأ عدّاد التلميح من جديد بكل محاولة (إقلاع أول أو
+    // ضغط "إعادة المحاولة" يدوياً) — يُلغى فوراً لو انتهت العملية قبل ظهوره.
+    _slowHintTimer?.cancel();
+    if (mounted && _showSlowHint) {
+      setState(() => _showSlowHint = false);
+    }
+    _slowHintTimer = Timer(const Duration(seconds: 6), () {
+      if (mounted) setState(() => _showSlowHint = true);
+    });
 
     // [FIX-AUTH-02] كانت المهلة السابقة (8 ثوانٍ) تقود لقرار خاطئ: عند
     // انتهائها كانت الشاشة تنتقل فوراً لـLandingScreen بافتراض عدم وجود
@@ -74,8 +93,12 @@ class _SplashScreenState extends State<SplashScreen>
     try {
       await loadMeFuture.timeout(const Duration(seconds: 25));
     } on TimeoutException {
+      _slowHintTimer?.cancel();
       if (!mounted) return;
-      setState(() => _showRetry = true);
+      setState(() {
+        _showRetry = true;
+        _showSlowHint = false;
+      });
       return;
     } catch (_) {
       // أي خطأ آخر متبقٍّ هنا غير متعلق بحالة الجلسة (auth.loadMe() تتعامل
@@ -102,6 +125,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
+    _slowHintTimer?.cancel();
     controller.dispose();
     super.dispose();
   }
@@ -147,7 +171,7 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 38),
                 if (_showRetry)
                   _RetryButton(onPressed: checkAuth)
-                else
+                else ...[
                   Container(
                     width: 42,
                     height: 42,
@@ -162,6 +186,18 @@ class _SplashScreenState extends State<SplashScreen>
                       color: AppColors.secondary,
                     ),
                   ),
+                  if (_showSlowHint) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'الخادم قد يستغرق وقتاً أطول من المعتاد للاستيقاظ، يرجى الانتظار...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
               ],
             ),
           ),
