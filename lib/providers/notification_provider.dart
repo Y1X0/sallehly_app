@@ -44,6 +44,15 @@ class NotificationProvider extends ChangeNotifier {
 
   final List<NotificationModel> _items = [];
 
+  /// [HIGH-FIX-STALEGEN-01] يُزاد فقط داخل clear() — أي انتقال مصادقة
+  /// (تسجيل دخول/خروج/تبديل مستخدم، راجع app.dart) يمر عبرها دائماً. يلتقط
+  /// loadNotifications() هذه القيمة قبل انتظار الشبكة، فلو تغيّرت أثناء
+  /// الانتظار (أي حدث clear() آخر — حساب مختلف بدأ جلسته) فهذا يعني أن الرد
+  /// الآن ملك حساب سابق قديم؛ يُهمَل بصمت بدل دمجه بقائمة الحساب الحالي. راجع
+  /// شرح كامل بالمراجعة النهائية للنظام (سباق تبديل حساب سريع + شبكة بطيئة
+  /// كان يعيد تسريب إشعارات حساب سابق للحساب الجديد رغم تفعيل clear()).
+  int _generation = 0;
+
   List<NotificationModel> get items => List.unmodifiable(_items);
 
   List<NotificationModel> get requestItems {
@@ -490,8 +499,16 @@ class NotificationProvider extends ChangeNotifier {
   Future<void> loadNotifications({int page = 1, int limit = 20}) async {
     if (_api == null) return;
 
+    // [HIGH-FIX-STALEGEN-01] يُلتقَط قبل await — لو حصل clear() (تسجيل
+    // خروج/دخول لحساب آخر) أثناء انتظار هذا الطلب، سيختلف _generation عن
+    // capturedGeneration أدناه بعد عودة الرد، فيُهمَل الرد كاملاً بدل دمجه
+    // بقائمة حساب مختلف تماماً عن الذي طلبه أصلاً.
+    final capturedGeneration = _generation;
+
     try {
       final result = await _api.getNotifications(page: page, limit: limit);
+
+      if (capturedGeneration != _generation) return;
 
       if (page <= 1) {
         _mergeServerItems(result.items);
@@ -611,6 +628,7 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void clear() {
+    _generation++;
     _items.clear();
     notifyListeners();
   }
