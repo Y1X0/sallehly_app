@@ -127,45 +127,51 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FadeIn(
-                        delay: const Duration(milliseconds: 120),
-                        child: _StatCard(
-                          title: 'طلباتي',
-                          value: '$total',
-                          icon: Icons.assignment_rounded,
-                          onTap: openRequests,
+                if (provider.error != null && provider.requests.isEmpty)
+                  _DashboardErrorNotice(
+                    message: provider.error!,
+                    onRetry: provider.loadRequests,
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FadeIn(
+                          delay: const Duration(milliseconds: 120),
+                          child: _StatCard(
+                            title: 'طلباتي',
+                            value: '$total',
+                            icon: Icons.assignment_rounded,
+                            onTap: openRequests,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FadeIn(
-                        delay: const Duration(milliseconds: 180),
-                        child: _StatCard(
-                          title: 'عروض',
-                          value: '$offers',
-                          icon: Icons.local_offer_rounded,
-                          onTap: openRequests,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FadeIn(
+                          delay: const Duration(milliseconds: 180),
+                          child: _StatCard(
+                            title: 'عروض',
+                            value: '$offers',
+                            icon: Icons.local_offer_rounded,
+                            onTap: openRequests,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FadeIn(
-                        delay: const Duration(milliseconds: 240),
-                        child: _StatCard(
-                          title: 'مكتملة',
-                          value: '$completed',
-                          icon: Icons.verified_rounded,
-                          onTap: openRequests,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: FadeIn(
+                          delay: const Duration(milliseconds: 240),
+                          child: _StatCard(
+                            title: 'مكتملة',
+                            value: '$completed',
+                            icon: Icons.verified_rounded,
+                            onTap: openRequests,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 const SizedBox(height: 22),
                 Row(
                   children: [
@@ -190,6 +196,60 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DashboardErrorNotice extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _DashboardErrorNotice({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: AppColors.danger),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'تعذّر تحميل بياناتك',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: const Text('إعادة المحاولة'),
+          ),
+        ],
       ),
     );
   }

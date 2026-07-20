@@ -436,8 +436,8 @@ class _ImagePickerCard extends StatelessWidget {
                   onTap: loading ? null : onRemove,
                   borderRadius: BorderRadius.circular(100),
                   child: Container(
-                    width: 38,
-                    height: 38,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.55),
                       shape: BoxShape.circle,
