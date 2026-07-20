@@ -82,9 +82,9 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
                       children: const [
                         RequestCardSkeleton(),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         RequestCardSkeleton(),
-                        SizedBox(height: 14),
+                        const SizedBox(height: 14),
                         RequestCardSkeleton(),
                       ],
                     ),
@@ -301,6 +301,7 @@ class _TopBar extends StatelessWidget {
         children: [
           if (canPop)
             IconButton(
+              tooltip: 'رجوع',
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_rounded),
             )

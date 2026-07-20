@@ -75,7 +75,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: Colors.white,
                     size: 50,
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       'إدارة صلّحلي\nتحكم كامل بالمنصة',
@@ -93,7 +93,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             const SizedBox(height: 20),
             if (isInitialLoading)
               Padding(
-                padding: EdgeInsets.only(top: 80),
+                padding: const EdgeInsets.only(top: 80),
                 child: Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),

@@ -465,7 +465,7 @@ class _ImageMessage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.broken_image_outlined, color: Colors.white70),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       'تعذّر تحميل الصورة',
                       style: TextStyle(color: Colors.white70, fontSize: 12),

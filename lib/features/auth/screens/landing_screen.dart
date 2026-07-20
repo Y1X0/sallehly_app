@@ -124,15 +124,15 @@ class _HeroPreview extends StatelessWidget {
           Row(
             children: [
               Expanded(child: _MiniStat(title: 'طلب', value: '+120', icon: Icons.assignment_rounded)),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(child: _MiniStat(title: 'فني', value: '+50', icon: Icons.engineering_rounded)),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(child: _MiniStat(title: 'محادثة', value: 'آمنة', icon: Icons.chat_rounded)),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(child: _MiniStat(title: 'موقعك', value: 'قريب', icon: Icons.location_on_rounded)),
             ],
           ),

@@ -210,6 +210,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     labelText: 'كلمة المرور',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
+                      tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
                       onPressed: () {
                         setState(() {
                           hidePassword = !hidePassword;

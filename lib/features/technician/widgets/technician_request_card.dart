@@ -82,7 +82,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                               color: AppColors.primary,
                               size: 16,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
                               'جديد',
                               style: TextStyle(

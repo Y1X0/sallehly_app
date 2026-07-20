@@ -139,6 +139,7 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'رجوع',
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),

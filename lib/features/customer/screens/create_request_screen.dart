@@ -310,6 +310,7 @@ class _TopBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'رجوع',
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
@@ -368,7 +369,7 @@ class _HeroCard extends StatelessWidget {
                 color: Colors.white,
                 size: 38,
               ),
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               Text(
                 'احكِ لنا المشكلة\nونجيبلك الفني المناسب',
                 style: TextStyle(
@@ -378,7 +379,7 @@ class _HeroCard extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'بعد نشر الطلب، سيظهر للفنيين القريبين منك وستبدأ باستقبال العروض.',
                 style: TextStyle(
@@ -485,7 +486,7 @@ class _ImagePickerCard extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'ارفع صورة واضحة إن أمكن',
                   style: TextStyle(
@@ -527,7 +528,7 @@ class _SafeNote extends StatelessWidget {
             color: AppColors.success,
             size: 22,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.',
