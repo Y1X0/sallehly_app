@@ -82,8 +82,11 @@ class SallehlyApp extends StatelessWidget {
             apiClient: apiClient,
           ),
         ),
+        // [NOTIF-FLUTTER-PHASE1] apiClient يبقى اختيارياً على مستوى الصنف
+        // نفسه (راجع تعليق NotificationProvider) — هنا بالتطبيق الفعلي نمرّره
+        // دائماً، بنفس نمط بقية الـProviders أعلاه تماماً.
         ChangeNotifierProvider(
-          create: (_) => NotificationProvider(),
+          create: (_) => NotificationProvider(apiClient: apiClient),
         ),
         ChangeNotifierProvider(
           create: (_) => SocketProvider(
@@ -104,8 +107,47 @@ class _SocketBootstrapper extends StatefulWidget {
   State<_SocketBootstrapper> createState() => _SocketBootstrapperState();
 }
 
-class _SocketBootstrapperState extends State<_SocketBootstrapper> {
+class _SocketBootstrapperState extends State<_SocketBootstrapper>
+    with WidgetsBindingObserver {
   bool _bound = false;
+
+  // [NOTIF-FLUTTER-PHASE2A] حماية بسيطة ضد أكثر من تحديث خلال فترة قصيرة —
+  // نظام التشغيل قد يُصدر أكثر من resumed متتالٍ بلحظات متقاربة. هذا ليس
+  // استقصاءً دورياً (polling)؛ فقط تحديث واحد فعلي لكل عودة حقيقية من الخلفية.
+  DateTime _lastResumeRefresh = DateTime.fromMillisecondsSinceEpoch(0);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2A] عند عودة التطبيق من الخلفية (وليس أي انتقال
+  /// آخر مثل inactive/paused/detached) ووجود مستخدم مسجّل دخوله فعلاً، اسحب
+  /// الإشعارات الدائمة من الخادم — يغطي ما وصل بينما كان التطبيق بالخلفية
+  /// وربما فات المستخدم أي Push مرتبط به. loadNotifications() نفسها تمتص
+  /// أي فشل شبكة بصمت (راجع notification_provider.dart) فلا داعي لأي
+  /// try/catch إضافي هنا.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    if (!mounted) return;
+
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isLoggedIn) return;
+
+    final now = DateTime.now();
+    if (now.difference(_lastResumeRefresh).inSeconds < 10) return;
+    _lastResumeRefresh = now;
+
+    context.read<NotificationProvider>().loadNotifications();
+  }
 
   @override
   void didChangeDependencies() {
@@ -118,12 +160,13 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper> {
       if (!mounted) return;
 
       final socketProvider = context.read<SocketProvider>();
+      final notificationProvider = context.read<NotificationProvider>();
 
       // اربط كل الـproviders مرة واحدة حتى يحدّثها السوكت لحظياً.
       socketProvider.bindProviders(
         requestsProvider: context.read<RequestsProvider>(),
         chatProvider: context.read<ChatProvider>(),
-        notificationProvider: context.read<NotificationProvider>(),
+        notificationProvider: notificationProvider,
         authProvider: context.read<AuthProvider>(),
         adminProvider: context.read<AdminProvider>(),
         walletProvider: context.read<WalletProvider>(),
@@ -135,6 +178,18 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper> {
       final authProvider = context.read<AuthProvider>();
       final chatProvider = context.read<ChatProvider>();
       authProvider.onAuthenticated = () async {
+        // [CRIT-FIX-02] أول شيء يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة
+        // جلسة — قبل أي شيء آخر. AuthProvider.login()/verifyOtp() يمسحان
+        // tokenStorage/appStorage دفاعياً بدايةً بغض النظر عن استدعاء
+        // logout() صراحة قبلهما أم لا (نفس النمط بالضبط بـ
+        // lib/providers/auth_provider.dart) — أي "تسجيل دخول" قد يكون فعلياً
+        // تبديل مستخدم على نفس الجهاز دون مرور صريح بمسار تسجيل خروج. قبل
+        // هذا الإصلاح، loadNotifications() (أدناه) كانت تدمج إشعارات
+        // المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة سابقاً) للمستخدم
+        // *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين حسابين مختلفين
+        // على نفس الجهاز. clear() هنا يضمن قائمة فارغة قبل أي تحميل جديد،
+        // بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل.
+        notificationProvider.clear();
         await socketProvider.reconnect();
         // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
         // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
@@ -143,8 +198,21 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper> {
         // دخول/استعادة جلسة) يضمن ظهور الشارة الصحيحة فوراً من اللحظة
         // الأولى — يشمل إعادة تشغيل التطبيق واستعادة الجلسة المحفوظة تماماً.
         await chatProvider.loadChats(silent: true);
+        // [NOTIF-FLUTTER-PHASE2A] نفس المنطق تماماً لإشعارات الخادم الدائمة —
+        // اسحبها فوراً بعد كل تسجيل دخول/تسجيل حساب/استعادة جلسة، بدل انتظار
+        // وصول أول حدث Socket.IO حي (الذي قد لا يصل لفترة، أو يفوت المستخدم
+        // كل ما تراكم بينما كان غير متصل).
+        await notificationProvider.loadNotifications();
       };
-      authProvider.onLoggedOut = () => socketProvider.disconnect();
+      authProvider.onLoggedOut = () {
+        socketProvider.disconnect();
+        // [CRIT-FIX-02] امسح فوراً عند تسجيل الخروج أيضاً (logout()،
+        // deleteAccount()، وhandleUnauthorized() عبر logout() الداخلي —
+        // الثلاثة تستدعي onLoggedOut) — لا تترك بيانات المستخدم الذي خرج
+        // للتو جالسة بالذاكرة حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق
+        // التطبيق بينهما.
+        notificationProvider.clear();
+      };
 
       // [FIX-AUTH-01] عند 401 حقيقي من أي طلب بالتطبيق (توكن منتهي فعلياً أو
       // حساب أُوقف)، نظّف الجلسة مركزياً بنفس مسار تسجيل الخروج المعتاد.

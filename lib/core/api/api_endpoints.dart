@@ -74,4 +74,9 @@ class ApiEndpoints {
   static String adminRequestStatus(int id) => '/requests/$id/status';
 
   static String supportStatus(int id) => '/support/$id/status';
+
+  // [NOTIF-FLUTTER-PHASE1]
+  static const String notifications = '/notifications';
+  static String notificationRead(int id) => '/notifications/$id/read';
+  static const String notificationsReadAll = '/notifications/read-all';
 }

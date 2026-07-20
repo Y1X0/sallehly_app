@@ -1,13 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/api/api_client.dart';
+import '../features/notifications/data/notifications_api.dart';
 import '../models/notification_model.dart';
 import '../models/user_model.dart';
 
 class NotificationProvider extends ChangeNotifier {
   UserModel? currentUser;
 
+  /// [NOTIF-FLUTTER-PHASE1] apiClient اختياري عمداً (وليس required كبقية
+  /// الـProviders الأخرى بهذا الملف مثل SupportProvider) — عدة اختبارات
+  /// حالية (test/models/new_requests_badge_test.dart،
+  /// test/widgets/splash_dedup_test.dart، test/widgets/nav_chat_badge_test.dart)
+  /// تبني `NotificationProvider()` بلا أي معامل. جعله اختيارياً يحافظ على كل
+  /// هذه المسارات كما هي بلا أي تعديل، بينما app.dart (التطبيق الفعلي) يمرّره
+  /// الآن فعلياً. بدون apiClient، الطرق الثلاث الجديدة أدناه لا تفعل شيئاً
+  /// بصمت (نفس فلسفة "فشل الشبكة لا يُسقط التطبيق").
+  final NotificationsApi? _api;
+
+  NotificationProvider({ApiClient? apiClient})
+      : _api = apiClient != null ? NotificationsApi(apiClient) : null;
+
+  // ─────────────── [NOTIF-FLUTTER-PHASE2B] منع تكرار الإشعارات ───────────────
+  // الأنواع التالية فقط لها نظير دائم بالخادم (راجع notify() بـ
+  // routes/support.routes.js، routes/requests.routes.js، routes/offers.routes.js،
+  // routes/topups.routes.js) — 'chat'/'topup'/'service' لحظية بحتة (لا يوجد
+  // أي صف خادم لها إطلاقاً)، فمنطق منع التكرار أدناه لا يمسّها نهائياً؛ تبقى
+  // تُدرَج دائماً كما كانت قبل هذه المرحلة بالضبط.
+  static const Set<String> _persistedTypes = {
+    'request',
+    'offer',
+    'wallet',
+    'support',
+    'complaint',
+  };
+
+  // نافذة زمنية ضيقة عمداً — الهدف الوحيد التقاط سباق التوقيت الحقيقي (وصول
+  // Socket.IO ثم تحميل الخادم لنفس الحدث، أو العكس، خلال ثوانٍ قليلة)، وليس
+  // منع حدثين مختلفين فعلياً بنفس النوع (مثلاً عرضان منفصلان من فنيين
+  // مختلفين على نفس الطلب) من الظهور كلاهما.
+  static const Duration _dedupWindow = Duration(seconds: 30);
+
   final List<NotificationModel> _items = [];
+
+  /// [HIGH-FIX-STALEGEN-01] يُزاد فقط داخل clear() — أي انتقال مصادقة
+  /// (تسجيل دخول/خروج/تبديل مستخدم، راجع app.dart) يمر عبرها دائماً. يلتقط
+  /// loadNotifications() هذه القيمة قبل انتظار الشبكة، فلو تغيّرت أثناء
+  /// الانتظار (أي حدث clear() آخر — حساب مختلف بدأ جلسته) فهذا يعني أن الرد
+  /// الآن ملك حساب سابق قديم؛ يُهمَل بصمت بدل دمجه بقائمة الحساب الحالي. راجع
+  /// شرح كامل بالمراجعة النهائية للنظام (سباق تبديل حساب سريع + شبكة بطيئة
+  /// كان يعيد تسريب إشعارات حساب سابق للحساب الجديد رغم تفعيل clear()).
+  int _generation = 0;
 
   List<NotificationModel> get items => List.unmodifiable(_items);
 
@@ -60,6 +104,14 @@ class NotificationProvider extends ChangeNotifier {
     int? requestId,
     bool sound = true,
   }) {
+    // [NOTIF-FLUTTER-PHASE2B] لو كان الخادم أرسل بالفعل (بتحميل سابق) إشعاراً
+    // دائماً لنفس هذا الحدث تحديداً — سباق توقيت واقعي: استئناف التطبيق
+    // يُطلق loadNotifications() في نفس اللحظة تقريباً التي يصل فيها حدث
+    // Socket.IO اللحظي لنفس الحدث — لا تُنشئ نسخة ثانية هنا. مقصورة على
+    // الأنواع التي لها نظير خادم فعلاً (_persistedTypes)؛ 'chat'/'topup'/
+    // 'service' غير متأثرة إطلاقاً وتستمر بالسلوك القديم بالضبط.
+    if (_hasRecentPersistedMatch(type: type, requestId: requestId)) return;
+
     _items.insert(
       0,
       NotificationModel(
@@ -81,6 +133,28 @@ class NotificationProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] هل توجد بالقائمة (من أي مصدر) نسخة حديثة جداً
+  /// (خلال _dedupWindow) بنفس type — ونفس requestId لو توفّر على الطرفين —
+  /// تمثّل على الأرجح نفس الحدث؟ راجع _findUnpersistedMatchIndex للاتجاه
+  /// المقابل (خادم يصل بعد إشعار لحظي موجود مسبقاً).
+  bool _hasRecentPersistedMatch({required String type, int? requestId}) {
+    if (!_persistedTypes.contains(type)) return false;
+
+    final now = DateTime.now();
+    for (final item in _items) {
+      if (item.type != type) continue;
+      if (now.difference(item.createdAt).abs() > _dedupWindow) continue;
+
+      if (requestId != null && item.requestId != null) {
+        if (item.requestId != requestId) continue;
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   void handleNewRequest(dynamic data) {
@@ -291,14 +365,29 @@ class NotificationProvider extends ChangeNotifier {
   /// يعلّم إشعاراً واحداً فقط كمقروء.
   /// عند الضغط على إشعار واحد ينقص العداد بمقدار 1 فقط،
   /// ولا تتأثر بقية الإشعارات غير المقروءة.
+  /// [HIGH-FIX-READSYNC-01] الحالة المحلية تُحدَّث فوراً (نفس السلوك السابق
+  /// بالضبط — الواجهة لا تنتظر الشبكة إطلاقاً)، ثم يُطلَق مزامنة الخادم
+  /// بالخلفية دون انتظارها هنا (fire-and-forget) فقط لو للعنصر serverId
+  /// فعلي (أي أنه إشعار له نظير دائم بالخادم — راجع _persistedTypes/
+  /// NotificationModel.serverId). إشعارات محلية بحتة (chat/topup/service)
+  /// ليس لها serverId إطلاقاً فتبقى محلية فقط كما كانت دائماً.
   void markNotificationRead(String notificationId) {
     final index = _items.indexWhere((item) => item.id == notificationId);
     if (index == -1 || _items[index].read) return;
 
     _items[index].read = true;
     notifyListeners();
+
+    final serverId = _items[index].serverId;
+    if (serverId != null) _syncReadToServer(serverId);
   }
 
+  /// [HIGH-FIX-READSYNC-01] نفس المنطق: الحالة المحلية تتغيّر فوراً (كما كانت
+  /// قبل هذا الإصلاح تماماً)، ثم مزامنة الخادم بالخلفية. مزامنة "قراءة الكل"
+  /// بالخادم (POST /notifications/read-all) تشمل فقط الأنواع الدائمة أصلاً
+  /// (request/offer/wallet/support/complaint — راجع notify() بالخادم)، وهي
+  /// تماماً الأنواع غير-chat التي تُعلَّم هنا محلياً؛ لا تعارض مع chat/topup/
+  /// service المحلية البحتة التي لا نظير لها بالخادم أساساً.
   void markRequestNotificationsRead() {
     var changed = false;
     for (final item in _items) {
@@ -308,6 +397,33 @@ class NotificationProvider extends ChangeNotifier {
       }
     }
     if (changed) notifyListeners();
+    _syncAllReadToServer();
+  }
+
+  /// [HIGH-FIX-READSYNC-01] استدعاء خادم بالخلفية فقط — لا يُغيّر أي حالة
+  /// محلية (تلك غُيِّرت مسبقاً بالمستدعي أعلاه قبل استدعاء هذه الدالة). فشل
+  /// الشبكة (offline، انقطاع مؤقت...) يُمتَص بصمت هنا تماماً بنفس فلسفة
+  /// loadNotifications/markNotificationReadOnServer أعلاه — لا يرمي، ولا
+  /// يُسقط التطبيق، ولا يراجع الحالة المحلية (تبقى "مقروء" كما قرّر المستخدم
+  /// بجهازه حتى لو تعذّر إبلاغ الخادم هذه المرة).
+  Future<void> _syncReadToServer(int serverId) async {
+    if (_api == null) return;
+    try {
+      await _api.markRead(serverId);
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق ولا يراجع الحالة المحلية.
+    }
+  }
+
+  /// [HIGH-FIX-READSYNC-01] نظير markAllRead بنفس فلسفة _syncReadToServer
+  /// أعلاه تماماً — بالخلفية، لا يُغيّر حالة محلية، يمتص فشل الشبكة بصمت.
+  Future<void> _syncAllReadToServer() async {
+    if (_api == null) return;
+    try {
+      await _api.markAllRead();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق ولا يراجع الحالة المحلية.
+    }
   }
 
   void markChatNotificationsRead() {
@@ -367,7 +483,152 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ─────────────── [NOTIF-FLUTTER-PHASE1] طبقة الخادم الدائمة ───────────────
+  // الطرق الثلاث أدناه تضيف قدرة على الاتصال بـ GET/POST /api/notifications
+  // (راجع notifications_api.dart) دون أي تعديل على السلوك المحلي اللحظي
+  // القائم على Socket.IO أعلاه (addNotification/handleX/mark...Read) —
+  // لا شيء يستدعيها بعد بهذه المرحلة (لا شاشة ولا مستمع socket)، فهي إضافة
+  // معزولة بالكامل حالياً، تمهيداً لربطها لاحقاً.
+
+  /// يجلب الإشعارات الدائمة من الخادم (صفحة واحدة، الأحدث أولاً) ويدمجها مع
+  /// القائمة المحلية الحالية (راجع _mergeServerItems) بدل استبدالها بالكامل —
+  /// [NOTIF-FLUTTER-PHASE2B] الاستبدال الكامل كان يمسح بصمت أي إشعار لحظي
+  /// (Socket.IO) من نوع لا نظير له بالخادم (chat/topup/service) وصل بين
+  /// تحميلين. فشل الشبكة يُمتَص بصمت — لا يُسقط التطبيق ولا يمسح أي إشعار
+  /// محلي موجود مسبقاً.
+  Future<void> loadNotifications({int page = 1, int limit = 20}) async {
+    if (_api == null) return;
+
+    // [HIGH-FIX-STALEGEN-01] يُلتقَط قبل await — لو حصل clear() (تسجيل
+    // خروج/دخول لحساب آخر) أثناء انتظار هذا الطلب، سيختلف _generation عن
+    // capturedGeneration أدناه بعد عودة الرد، فيُهمَل الرد كاملاً بدل دمجه
+    // بقائمة حساب مختلف تماماً عن الذي طلبه أصلاً.
+    final capturedGeneration = _generation;
+
+    try {
+      final result = await _api.getNotifications(page: page, limit: limit);
+
+      if (capturedGeneration != _generation) return;
+
+      if (page <= 1) {
+        _mergeServerItems(result.items);
+      } else {
+        // صفحات لاحقة (تمرير للخلف بالتاريخ) — عناصر أقدم بالتعريف، لا يمكن
+        // أن تكون موجودة محلياً كإشعار لحظي (تلك تكون دائماً حديثة). إضافة
+        // بسيطة فقط، مع حماية ضد ازدواج غير محتمل عبر serverId.
+        for (final serverItem in result.items) {
+          final alreadyKnown = serverItem.serverId != null &&
+              _items.any((i) => i.serverId == serverItem.serverId);
+          if (!alreadyKnown) _items.add(serverItem);
+        }
+      }
+
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق — القائمة المحلية الحالية تبقى كما هي.
+    }
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] يدمج صفحة إشعارات من الخادم (الأحدث أولاً) مع
+  /// _items الحالية دون فقدان أي عنصر محلي غير متعلّق (chat/topup/service،
+  /// أو إشعار لحظي أقدم من نافذة الدمج). لكل عنصر خادم:
+  ///  1) لو له صف مطابق بالقائمة مسبقاً (نفس serverId — تحميل سابق) → حدّث
+  ///     حالة "مقروء" فقط (OR منطقي، لا يُرجع "غير مقروء" شيئاً قرأه المستخدم).
+  ///  2) وإلا لو يوجد إشعار لحظي محلي (serverId==null) يمثّل على الأرجح نفس
+  ///     الحدث (نفس type، ونفس requestId لو توفّر، ضمن _dedupWindow) →
+  ///     استبدله بالنسخة الرسمية من الخادم في نفس موضعه (لا نسخة ثانية).
+  ///  3) وإلا فهو عنصر جديد كلياً → يُدرَج بالمقدمة (الأحدث أولاً، بنفس منطق
+  ///     addNotification).
+  void _mergeServerItems(List<NotificationModel> serverItems) {
+    // نمرّ من الأقدم للأحدث وندرج كل عنصر جديد بالمقدمة (index 0) — بنهاية
+    // الحلقة يكون الأحدث هو آخر ما أُدرِج، فيستقر بالمقدمة فعلياً كما يجب.
+    for (final serverItem in serverItems.reversed) {
+      final existingIndex = serverItem.serverId == null
+          ? -1
+          : _items.indexWhere((i) => i.serverId == serverItem.serverId);
+
+      if (existingIndex != -1) {
+        _items[existingIndex].read =
+            _items[existingIndex].read || serverItem.read;
+        continue;
+      }
+
+      final localMatchIndex = _findUnpersistedMatchIndex(serverItem);
+      if (localMatchIndex != -1) {
+        serverItem.read = serverItem.read || _items[localMatchIndex].read;
+        _items[localMatchIndex] = serverItem;
+        continue;
+      }
+
+      _items.insert(0, serverItem);
+    }
+
+    if (_items.length > 80) {
+      _items.removeRange(80, _items.length);
+    }
+  }
+
+  /// [NOTIF-FLUTTER-PHASE2B] يبحث عن إشعار لحظي محلي (serverId == null) غير
+  /// مرتبط بعد بأي صف خادم، يمثّل على الأرجح نفس الحدث الذي يمثّله serverItem.
+  /// راجع تعليق _dedupWindow/_persistedTypes أعلاه لتفسير حدود هذه المطابقة.
+  int _findUnpersistedMatchIndex(NotificationModel serverItem) {
+    for (var i = 0; i < _items.length; i++) {
+      final local = _items[i];
+      if (local.serverId != null) continue;
+      if (local.type != serverItem.type) continue;
+
+      final timeDiff = serverItem.createdAt.difference(local.createdAt).abs();
+      if (timeDiff > _dedupWindow) continue;
+
+      if (serverItem.requestId != null && local.requestId != null) {
+        if (serverItem.requestId != local.requestId) continue;
+      }
+
+      return i;
+    }
+
+    return -1;
+  }
+
+  /// يعلّم إشعاراً دائماً واحداً كمقروء على الخادم، ثم يحدّث نسخته المحلية
+  /// إن كانت موجودة بالقائمة. اسم مختلف عمداً عن markNotificationRead(String)
+  /// الحالية أعلاه (تعمل محلياً فقط بمعرّف نصي مُولَّد لحظياً) — Dart لا يسمح
+  /// بوجود دالتين بنفس الاسم بمعاملين مختلفي النوع بنفس الصنف، وmarkNotificationRead
+  /// الحالية مستخدَمة فعلياً بشاشة الإشعارات (notifications_screen.dart)
+  /// ويجب أن تبقى كما هي بالضبط (لا تعديل على الشاشة بهذه المرحلة).
+  Future<void> markNotificationReadOnServer(int id) async {
+    if (_api == null) return;
+
+    try {
+      final updated = await _api.markRead(id);
+      final index = _items.indexWhere((item) => item.id == updated.id);
+      if (index != -1) {
+        _items[index].read = true;
+      }
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق.
+    }
+  }
+
+  /// يعلّم كل إشعارات المستخدم الدائمة كمقروءة على الخادم، ثم يعكس نفس
+  /// الأثر محلياً على كل عناصر القائمة الحالية.
+  Future<void> markAllNotificationsRead() async {
+    if (_api == null) return;
+
+    try {
+      await _api.markAllRead();
+      for (final item in _items) {
+        item.read = true;
+      }
+      notifyListeners();
+    } catch (_) {
+      // فشل الشبكة لا يُسقط التطبيق.
+    }
+  }
+
   void clear() {
+    _generation++;
     _items.clear();
     notifyListeners();
   }
