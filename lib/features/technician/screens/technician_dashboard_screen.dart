@@ -78,25 +78,31 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
               },
             ),
             const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatCard(
-                    title: 'طلبات جديدة',
-                    value: '$newRequests',
-                    icon: Icons.campaign_rounded,
+            if (provider.error != null && provider.requests.isEmpty)
+              _DashboardErrorNotice(
+                message: provider.error!,
+                onRetry: provider.loadRequests,
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatCard(
+                      title: 'طلبات جديدة',
+                      value: '$newRequests',
+                      icon: Icons.campaign_rounded,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
-                    title: 'طلباتي',
-                    value: '$myOrders',
-                    icon: Icons.assignment_turned_in_rounded,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _StatCard(
+                      title: 'طلباتي',
+                      value: '$myOrders',
+                      icon: Icons.assignment_turned_in_rounded,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const SizedBox(height: 12),
             _StatCard(
               title: 'الرصيد الحالي',
@@ -136,6 +142,60 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
         ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DashboardErrorNotice extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _DashboardErrorNotice({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: AppColors.danger),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'تعذّر تحميل بياناتك',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: const Text('إعادة المحاولة'),
+          ),
+        ],
       ),
     );
   }
