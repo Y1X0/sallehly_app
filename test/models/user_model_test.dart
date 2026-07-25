@@ -136,5 +136,23 @@ void main() {
       });
       expect(user.isSuperAdmin, true);
     });
+
+    // [FIX-OFFERBALANCE-01] كانت شاشة تقديم العرض تُظهر تحذير "رصيد غير كافٍ"
+    // بمجرد انتهاء الفرص المجانية بغضّ النظر عن الرصيد الفعلي، لأن active_commission
+    // لم تكن تُقرأ إطلاقاً من استجابة السيرفر رغم إرسالها فعلياً بـ GET /me.
+    test('active_commission يُحلَّل بشكل صحيح من السيرفر', () {
+      final user = UserModel.fromJson({
+        'id': 1, 'role': 'technician', 'name': 'test', 'email': 'a@a.com', 'phone': '0791111111',
+        'active_commission': 3.5,
+      });
+      expect(user.activeCommission, 3.5);
+    });
+
+    test('active_commission مفقودة ترجع 2 افتراضياً (نفس افتراض السيرفر)', () {
+      final user = UserModel.fromJson({
+        'id': 1, 'role': 'technician', 'name': 'test', 'email': 'a@a.com', 'phone': '0791111111',
+      });
+      expect(user.activeCommission, 2);
+    });
   });
 }

@@ -28,6 +28,14 @@ class UserModel {
   final int freeOffersUsed;
   final int freeOffersRemaining;
 
+  /// [FIX-OFFERBALANCE-01] العمولة المطلوبة عن كل طلب بعد استهلاك الفرصتين
+  /// المجانيتين — تختلف باختلاف الباقة المُفعَّلة (راجع commission_per_order
+  /// بجدول packages). كانت غير مقروءة إطلاقاً بالواجهة رغم إرسال السيرفر لها
+  /// فعلياً (active_commission ضمن GET /me)، فكانت شاشة تقديم العرض تُظهر
+  /// تحذير "رصيد غير كافٍ" فقط بناءً على انتهاء الفرص المجانية بغضّ النظر عن
+  /// الرصيد الفعلي — مضلِّل لأي فني رصيده أكبر من العمولة المطلوبة فعلياً.
+  final double activeCommission;
+
   /// [FIX-SUPERADMIN-01] صحيحة فقط لحساب الإدارة الوحيد المُهيَّأ من .env —
   /// تتحكم بظهور القدرات الأشد حساسية (تغيير دور مستخدم) بواجهة الأدمن.
   final bool isSuperAdmin;
@@ -48,6 +56,7 @@ class UserModel {
     required this.active,
     this.freeOffersUsed = 0,
     this.freeOffersRemaining = 0,
+    this.activeCommission = 2,
     this.isSuperAdmin = false,
   });
 
@@ -80,6 +89,8 @@ class UserModel {
       freeOffersUsed: int.tryParse('${json['free_offers_used'] ?? 0}') ?? 0,
       freeOffersRemaining:
           int.tryParse('${json['free_offers_remaining'] ?? 0}') ?? 0,
+      activeCommission:
+          double.tryParse('${json['active_commission'] ?? 2}') ?? 2,
       isSuperAdmin: json['is_super_admin'] == 1 || json['is_super_admin'] == true,
     );
   }
@@ -101,6 +112,7 @@ class UserModel {
       'active': active,
       'free_offers_used': freeOffersUsed,
       'free_offers_remaining': freeOffersRemaining,
+      'active_commission': activeCommission,
     };
   }
 

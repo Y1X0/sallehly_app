@@ -11,6 +11,8 @@ class SocketEvents {
   static const String newRequestCreated = 'new-request-created';
   static const String offerCreated = 'offer-created';
   static const String offerAccepted = 'offer-accepted';
+  static const String rateRequestPrompt = 'rate-request-prompt';
+  static const String ratingUpdated = 'rating-updated';
 
   static const String requestsUpdated = 'requests-updated';
   static const String requestStatusUpdated = 'request-status-updated';

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../models/review_model.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/socket_provider.dart';
 
 class MyReviewsScreen extends StatefulWidget {
   const MyReviewsScreen({super.key});
@@ -18,10 +20,34 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
   String? error;
   List<ReviewModel> reviews = [];
 
+  SocketProvider? _socketProvider;
+  Function(dynamic)? _ratingListener;
+
   @override
   void initState() {
     super.initState();
     load();
+
+    // [FIX-RATINGLIVE-01] حدّث قائمة التقييمات وعدّها فوراً لو وصل تقييم جديد
+    // بينما هذه الشاشة مفتوحة فعلاً — بدل الاعتماد فقط على إعادة فتحها لاحقاً.
+    Future.microtask(() {
+      if (!mounted) return;
+      _socketProvider = context.read<SocketProvider>();
+      _ratingListener = (_) => load();
+      _socketProvider!.socketService.on(
+        SocketEvents.ratingUpdated,
+        _ratingListener!,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_ratingListener != null) {
+      _socketProvider?.socketService
+          .off(SocketEvents.ratingUpdated, _ratingListener);
+    }
+    super.dispose();
   }
 
   Future<void> load() async {

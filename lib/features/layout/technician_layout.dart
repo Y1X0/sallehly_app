@@ -40,7 +40,12 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
   }
 
   // الصفحات الثابتة (بدون الدعم). أيقونة الدعم تظهر فقط عند وجود تذكرة مفتوحة.
-  late final List<Widget> pages = const [
+  // [FIX-THEME-01] لم تعد const/late final — راجع نفس التعليق المفصَّل بـ
+  // customer_layout.dart: عناصر const مُخزَّنة مرة واحدة تمنع Flutter من إعادة
+  // بناء أي تبويب زُيِّر سابقاً عند تبديل الوضع الفاتح/الداكن، فتبقى بألوان
+  // قديمة حتى إعادة تشغيل التطبيق بالكامل. الحالة (State) تبقى محفوظة تماماً
+  // رغم إزالة const (نفس النوع بنفس الموضع ضمن IndexedStack أدناه).
+  List<Widget> get pages => [
     TechnicianDashboardScreen(),
     NewRequestsScreen(),
     TechnicianOrdersScreen(),

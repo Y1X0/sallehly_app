@@ -6,6 +6,7 @@ import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../models/service_model.dart';
+import '../../notifications/widgets/notification_bell.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'create_request_screen.dart';
 import 'customer_requests_screen.dart';
@@ -98,7 +99,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 14, 20, 120),
               children: [
-                const _HeroCard(),
+                _HeroCard(onOpenRequests: openRequests),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -256,7 +257,9 @@ class _DashboardErrorNotice extends StatelessWidget {
 }
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard();
+  final VoidCallback onOpenRequests;
+
+  const _HeroCard({required this.onOpenRequests});
 
   @override
   Widget build(BuildContext context) {
@@ -322,6 +325,11 @@ class _HeroCard extends StatelessWidget {
                       fontSize: 30,
                       fontWeight: FontWeight.w900,
                     ),
+                  ),
+                  const Spacer(),
+                  NotificationBell(
+                    color: Colors.white,
+                    onOpenRequests: onOpenRequests,
                   ),
                 ],
               ),

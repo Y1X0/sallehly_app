@@ -24,7 +24,11 @@ class AdminLayout extends StatefulWidget {
 class _AdminLayoutState extends State<AdminLayout> {
   int currentIndex = 0;
 
-  late final List<Widget> pages = const [
+  // [FIX-THEME-01] لم تعد const/late final — راجع نفس التعليق المفصَّل بـ
+  // customer_layout.dart: عنصر const مُخزَّن مرة واحدة يمنع Flutter من إعادة
+  // بناء التبويب الحالي عند تبديل الوضع الفاتح/الداكن، فيبقى بألوان قديمة
+  // حتى إعادة تشغيل التطبيق بالكامل.
+  List<Widget> get pages => [
     AdminDashboardScreen(),
     AdminUsersScreen(),
     AdminTopupsScreen(),
