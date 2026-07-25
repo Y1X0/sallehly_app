@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -34,6 +35,7 @@ class NotificationProvider extends ChangeNotifier {
     'wallet',
     'support',
     'complaint',
+    'rate_request',
   };
 
   // نافذة زمنية ضيقة عمداً — الهدف الوحيد التقاط سباق التوقيت الحقيقي (وصول
@@ -65,7 +67,9 @@ class NotificationProvider extends ChangeNotifier {
   /// "الشحن" بلوحة الأدمن، فتجنّبنا نفس النمط هون من جذوره.
   int get requestUnreadCount {
     return _items
-        .where((e) => !e.read && (e.isRequest || e.isOffer || e.isWallet))
+        .where((e) =>
+            !e.read &&
+            (e.isRequest || e.isOffer || e.isWallet || e.isRateRequest))
         .length;
   }
 
@@ -323,6 +327,25 @@ class NotificationProvider extends ChangeNotifier {
     );
   }
 
+  /// [FIX-RATEPROMPT-01] يصل للعميل فور اكتمال طلبه — يدعوه لتقييم الفني فوراً
+  /// (الزر نفسه موجود مسبقاً بشاشة تفاصيل الطلب، هذا فقط يضمن وصول دعوة حيّة).
+  void handleRateRequest(dynamic data) {
+    final user = currentUser;
+    if (user == null || !user.isCustomer) return;
+
+    final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
+    final service = '${data?['service'] ?? ''}';
+
+    addNotification(
+      title: 'قيّم تجربتك ⭐',
+      body: service.isEmpty
+          ? 'اكتمل طلبك — شاركنا رأيك بتقييم الفني'
+          : 'اكتمل طلب $service — شاركنا رأيك بتقييم الفني',
+      type: 'rate_request',
+      requestId: requestId,
+    );
+  }
+
   void handleChatBadges(dynamic data) {
     // تحديث شارة الرسائل غير المقروءة في القوائم دون صوت/إشعار مرئي.
     notifyListeners();
@@ -464,7 +487,10 @@ class NotificationProvider extends ChangeNotifier {
   void markSupportNotificationsReadForTicket(int ticketId) {
     var changed = false;
     for (final item in _items) {
-      if (item.isSupport && item.requestId == ticketId && !item.read) {
+      // [FIX-SUPPORTBADGE-01] effectiveTicketId بدل requestId مباشرة — راجع
+      // تعليق NotificationModel.effectiveTicketId لتفسير الفرق بين مصدرَي
+      // الإشعار (لحظي مقابل دائم من الخادم).
+      if (item.isSupport && item.effectiveTicketId == ticketId && !item.read) {
         item.read = true;
         changed = true;
       }
@@ -580,8 +606,13 @@ class NotificationProvider extends ChangeNotifier {
       final timeDiff = serverItem.createdAt.difference(local.createdAt).abs();
       if (timeDiff > _dedupWindow) continue;
 
-      if (serverItem.requestId != null && local.requestId != null) {
-        if (serverItem.requestId != local.requestId) continue;
+      // [FIX-SUPPORTBADGE-01] effectiveTicketId بدل requestId الخام — إشعارات
+      // الدعم القادمة من الخادم تحمل معرّف التذكرة بـticketId (عمود منفصل)
+      // وليس requestId، فمقارنة requestId فقط كانت تُفشل هذا التطابق دائماً
+      // لنوع 'support' تحديداً (راجع NotificationModel.effectiveTicketId).
+      if (serverItem.effectiveTicketId != null &&
+          local.effectiveTicketId != null) {
+        if (serverItem.effectiveTicketId != local.effectiveTicketId) continue;
       }
 
       return i;
@@ -630,6 +661,16 @@ class NotificationProvider extends ChangeNotifier {
   void clear() {
     _generation++;
     _items.clear();
+    notifyListeners();
+  }
+
+  /// [FIX-SUPPORTBADGE-01] منفذ اختباري فقط — يحقن عنصراً جاهزاً (مثلاً إشعار
+  /// دائم كما يصل فعلياً من الخادم، بحقول serverId/ticketId مضبوطة مسبقاً) دون
+  /// المرور بـaddNotification (التي تولّد id/createdAt لحظياً وتفترض دوماً
+  /// إشعاراً لحظياً محلياً).
+  @visibleForTesting
+  void addTestItem(NotificationModel item) {
+    _items.insert(0, item);
     notifyListeners();
   }
 }

@@ -34,7 +34,15 @@ class _CustomerLayoutState extends State<CustomerLayout> {
   // التطبيق — تحميل عند أول زيارة فقط، بلا إعادة تحميل عند العودة إليها.
   final Set<int> _visitedIndices = {0};
 
-  late final List<Widget> pages = const [
+  // [FIX-THEME-01] لم تعد const/late final — كانت كل شاشة تُبنى مرة واحدة
+  // فقط وتُعاد الإشارة لنفس الكائن (const) بكل استدعاء build() لاحق، فيرى
+  // Flutter نفس مرجع الـWidget (identical) ويتجاهل إعادة بنائه كلياً — حتى
+  // عند تبديل الوضع الفاتح/الداكن من الإعدادات (ThemeController، الجذر
+  // _SocketBootstrapperState بـapp.dart). النتيجة: الألوان الجديدة لا تصل
+  // أي تبويب زُيِّر سابقاً إلا بعد إعادة تشغيل التطبيق بالكامل. الحل: قائمة
+  // جديدة بكل build() — الحالة (State) تبقى محفوظة تماماً كما كانت (نفس
+  // النوع بنفس الموضع ضمن IndexedStack)، فقط build() تُستدعى فعلياً من جديد.
+  List<Widget> get pages => [
     CustomerDashboardScreen(),
     CustomerRequestsScreen(),
     ChatsScreen(),
@@ -78,7 +86,8 @@ class _CustomerLayoutState extends State<CustomerLayout> {
     switch (type) {
       case 'offer':
       case 'request':
-        _goToTab(1); // طلباتي
+      case 'rate_request':
+        _goToTab(1); // طلباتي — زر "قيّم الفني" يظهر هناك فور اكتمال الطلب
         break;
       case 'chat':
         _goToTab(2); // الدردشات

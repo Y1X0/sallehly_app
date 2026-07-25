@@ -123,7 +123,11 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = item.isOffer ? AppColors.success : AppColors.primary;
+    final color = item.isOffer
+        ? AppColors.success
+        : item.isRateRequest
+            ? AppColors.warning
+            : AppColors.primary;
 
     return InkWell(
       onTap: onTap,
@@ -144,7 +148,9 @@ class _NotificationCard extends StatelessWidget {
             Icon(
               item.isOffer
                   ? Icons.local_offer_rounded
-                  : Icons.assignment_rounded,
+                  : item.isRateRequest
+                      ? Icons.star_rounded
+                      : Icons.assignment_rounded,
               color: color,
               size: 32,
             ),

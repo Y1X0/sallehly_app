@@ -38,6 +38,16 @@ class NotificationModel {
     this.serverId,
   });
 
+  /// [FIX-SUPPORTBADGE-01] معرّف "التذكرة/الطلب" الفعلي بغضّ النظر عن مصدر
+  /// الإشعار — اللحظي (Socket.IO عبر handleSupportMessage) يخزّنه بـ[requestId]،
+  /// بينما الدائم من الخادم (GET /api/notifications) يخزّنه بعمود منفصل
+  /// ticket_id → [ticketId] (راجع notify() بـutils/notification.js: request_id
+  /// وticket_id عمودان مختلفان). بدون هذا التوحيد، أي إشعار دعم وصل عبر
+  /// التحميل الدائم (loadNotifications في app.dart) كان request_id فيه null
+  /// دائماً، فتفشل مطابقته بـmarkSupportNotificationsReadForTicket (تقارن
+  /// requestId فقط) ويبقى "غير مقروء" للأبد رغم فتح المحادثة فعلياً.
+  int? get effectiveTicketId => requestId ?? ticketId;
+
   bool get isChat => type == 'chat';
   bool get isRequest => type == 'request';
   bool get isOffer => type == 'offer';
@@ -47,6 +57,7 @@ class NotificationModel {
   bool get isComplaint => type == 'complaint';
   bool get isWallet => type == 'wallet';
   bool get isService => type == 'service';
+  bool get isRateRequest => type == 'rate_request';
 
   /// [NOTIF-FLUTTER-PHASE1] يحوّل استجابة GET /api/notifications (أو نتيجة
   /// POST /:id/read) إلى NotificationModel. id الخادم رقمي — يُحوَّل لنص

@@ -6,6 +6,7 @@ import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../providers/auth_provider.dart';
+import '../../notifications/widgets/notification_bell.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../support/screens/support_screen.dart';
 import '../screens/my_reviews_screen.dart';
@@ -57,6 +58,14 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
             _HeroCard(
               name: user?.name ?? 'فني صلّحلي',
               balance: user?.balance ?? 0,
+              onOpenRequests: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const NewRequestsScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 18),
             _MainActionCard(
@@ -204,10 +213,12 @@ class _DashboardErrorNotice extends StatelessWidget {
 class _HeroCard extends StatelessWidget {
   final String name;
   final double balance;
+  final VoidCallback onOpenRequests;
 
   const _HeroCard({
     required this.name,
     required this.balance,
+    required this.onOpenRequests,
   });
 
   @override
@@ -275,6 +286,10 @@ class _HeroCard extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
+                  ),
+                  NotificationBell(
+                    color: Colors.white,
+                    onOpenRequests: onOpenRequests,
                   ),
                 ],
               ),

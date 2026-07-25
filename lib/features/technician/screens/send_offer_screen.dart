@@ -114,8 +114,20 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   @override
   Widget build(BuildContext context) {
     final loading = context.watch<RequestsProvider>().loading;
-    final freeOffersRemaining =
-        context.watch<AuthProvider>().user?.freeOffersRemaining ?? 0;
+    final user = context.watch<AuthProvider>().user;
+    final freeOffersRemaining = user?.freeOffersRemaining ?? 0;
+
+    // [FIX-OFFERBALANCE-01] كانت هذه الشاشة تُظهر تحذيراً مخيفاً ("يحتاج
+    // رصيداً كافياً") بمجرد انتهاء الفرصتين المجانيتين، بغضّ النظر عن الرصيد
+    // الفعلي — فني رصيده 12 د.أ والعمولة المطلوبة 2 د.أ فقط كان يرى تحذيراً
+    // مضلِّلاً رغم أن العرض سينجح فعلياً (والسيرفر يسمح به بحق، فرصيده كافٍ).
+    // الآن نقارن الرصيد الحقيقي بالعمولة المطلوبة فعلياً، ونمنع الإرسال محلياً
+    // (زر معطَّل + رسالة واحدة واضحة) فقط عندما يكون الرصيد فعلاً غير كافٍ،
+    // بدل الاعتماد فقط على رفض السيرفر 402 بعد محاولة إرسال فعلية.
+    final requiredCommission = user?.activeCommission ?? 2;
+    final balance = user?.balance ?? 0;
+    final hasSufficientBalance =
+        freeOffersRemaining > 0 || balance >= requiredCommission;
 
     return Scaffold(
       appBar: AppBar(
@@ -159,16 +171,18 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: (freeOffersRemaining > 0 ? AppColors.primary : AppColors.danger)
+                    color: (hasSufficientBalance ? AppColors.primary : AppColors.danger)
                         .withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     freeOffersRemaining > 0
                         ? 'لديك $freeOffersRemaining من العروض المجانية متبقية'
-                        : 'استُهلكت فرصتاك المجانيتان — هذا العرض يحتاج رصيداً كافياً',
+                        : hasSufficientBalance
+                            ? 'استُهلكت فرصتاك المجانيتان — سيتم خصم ${requiredCommission.toStringAsFixed(requiredCommission.truncateToDouble() == requiredCommission ? 0 : 2)} د.أ من رصيدك عند اكتمال هذا الطلب'
+                            : 'رصيدك الحالي (${balance.toStringAsFixed(balance.truncateToDouble() == balance ? 0 : 2)} د.أ) غير كافٍ — تحتاج ${requiredCommission.toStringAsFixed(requiredCommission.truncateToDouble() == requiredCommission ? 0 : 2)} د.أ على الأقل لتقديم عرض جديد',
                     style: TextStyle(
-                      color: freeOffersRemaining > 0 ? AppColors.primary : AppColors.danger,
+                      color: hasSufficientBalance ? AppColors.primary : AppColors.danger,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -221,19 +235,37 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: loading ? null : submit,
+                  onPressed: (loading || !hasSufficientBalance) ? null : submit,
                   child: loading
                       ? const CircularProgressIndicator(
                     color: Colors.white,
                   )
-                      : const Text(
-                    'إرسال العرض',
-                    style: TextStyle(
+                      : Text(
+                    hasSufficientBalance ? 'إرسال العرض' : 'رصيد غير كافٍ',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
                   ),
                 ),
+                if (!hasSufficientBalance) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PackagesScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.account_balance_wallet_outlined),
+                      label: const Text('شحن الرصيد'),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
