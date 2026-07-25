@@ -52,6 +52,12 @@ NotificationModel _serverSupportItem({required int ticketId, bool read = false})
 }
 
 void main() {
+  // handleSupportMessage -> addNotification يستدعي SystemSound.play()، الذي
+  // يحتاج قناة منصّة (platform channel) مُهيَّأة — غير متوفرة تلقائياً بدوال
+  // test() العادية (بعكس testWidgets()). بلا هذا، الاختبار ينهار بخطأ "Binding
+  // has not yet been initialized" قبل أن يصل لأي assertion فعلية.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('[FIX-SUPPORTBADGE-01] NotificationModel.effectiveTicketId', () {
     test('يفضّل requestId (المصدر اللحظي) عند وجوده', () {
       final item = _liveSupportItem(ticketId: 7);
