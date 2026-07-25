@@ -30,9 +30,16 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
 
     // [FIX-RATINGLIVE-01] حدّث قائمة التقييمات وعدّها فوراً لو وصل تقييم جديد
     // بينما هذه الشاشة مفتوحة فعلاً — بدل الاعتماد فقط على إعادة فتحها لاحقاً.
+    // SocketProvider غير متوفر دائماً (مثلاً بعض اختبارات الواجهة تبني هذه
+    // الشاشة بأقل شجرة Provider ممكنة عمداً) — غيابه لا يجوز أن يُسقط الشاشة
+    // كلياً، فقط يُعطّل هذا التحديث اللحظي الإضافي تحديداً.
     Future.microtask(() {
       if (!mounted) return;
-      _socketProvider = context.read<SocketProvider>();
+      try {
+        _socketProvider = context.read<SocketProvider>();
+      } catch (_) {
+        return;
+      }
       _ratingListener = (_) => load();
       _socketProvider!.socketService.on(
         SocketEvents.ratingUpdated,

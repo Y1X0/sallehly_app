@@ -7,7 +7,19 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sallehly_app/models/notification_model.dart';
+import 'package:sallehly_app/models/user_model.dart';
 import 'package:sallehly_app/providers/notification_provider.dart';
+
+const _technicianUser = UserModel(
+  id: 42,
+  role: 'technician',
+  name: 'فني تجريبي',
+  email: 'tech@test.com',
+  phone: '0790000000',
+  rating: 0,
+  balance: 0,
+  active: true,
+);
 
 NotificationModel _liveSupportItem({required int ticketId, bool read = false}) {
   // كما تُنشئها NotificationProvider.handleSupportMessage فعلياً — تخزّن
@@ -54,7 +66,7 @@ void main() {
 
   group('[FIX-SUPPORTBADGE-01] NotificationProvider.markSupportNotificationsReadForTicket', () {
     test('يصفّر عدّاد الدعم لإشعار لحظي (requestId) بنفس التذكرة', () {
-      final provider = NotificationProvider();
+      final provider = NotificationProvider()..setCurrentUser(_technicianUser);
       provider.handleSupportMessage({'ticketId': 5, 'body': 'رد جديد', 'senderId': 999});
 
       expect(provider.supportUnreadCount, 1);
