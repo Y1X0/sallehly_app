@@ -19,8 +19,18 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+  // حركة النبض الأصلية (الشعار + المحتوى) — بلا أي تغيير بمدتها أو منطقها.
   late final AnimationController controller;
+
+  // حركة الميلان ثلاثي الأبعاد الخفيف للشعار — دورة بطيئة ومستمرة.
+  late final AnimationController _tiltController;
+
+  // حركة اللمعة العابرة فوق الشعار — نبضة واحدة تتكرر بفاصل هادئ.
+  late final AnimationController _shimmerController;
+
+  // ظهور تدريجي ناعم للنص عند إقلاع الشاشة فقط (لا يتكرر).
+  late final AnimationController _fadeController;
 
   // [FIX-AUTH-02] لا مزيد من "انتظر للأبد" ولا "خمّن وانتقل خطأً" — حالة
   // ثالثة صريحة: تعذّر التحقق خلال مهلة معقولة، فنعرض ذلك بوضوح مع خيار
@@ -52,6 +62,21 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..repeat(reverse: true);
+
+    _tiltController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3200),
+    )..repeat(reverse: true);
+
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2600),
+    )..repeat();
+
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
 
     Future.delayed(const Duration(milliseconds: 600), checkAuth);
   }
@@ -127,6 +152,9 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _slowHintTimer?.cancel();
     controller.dispose();
+    _tiltController.dispose();
+    _shimmerController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -147,25 +175,47 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const AppLogo(
-                  size: 92,
-                  showText: false,
+                _TiltGlowLogo(
+                  tiltController: _tiltController,
+                  shimmerController: _shimmerController,
                 ),
                 const SizedBox(height: 22),
-                Text(
-                  'صلّحلي',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w900,
+                FadeTransition(
+                  opacity: CurvedAnimation(
+                    parent: _fadeController,
+                    curve: Curves.easeOut,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'منصة خدمات الصيانة في الأردن',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 15,
+                  child: SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(0, 0.15),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: _fadeController,
+                            curve: Curves.easeOutCubic,
+                          ),
+                        ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'صلّحلي',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 42,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'منصة خدمات الصيانة في الأردن',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 38),
@@ -203,6 +253,77 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
       ),
+    );
+  }
+}
+
+/// شعار يطفو بميلان ثلاثي الأبعاد خفيف ومستمر، مع هالة ضوئية تنبض خلفه
+/// ولمعة ضوء واحدة تعبره بشكل دوري — حركات خفيفة لا تُثقل الشاشة ولا تؤخر
+/// فحص الجلسة الفعلي في [checkAuth].
+class _TiltGlowLogo extends StatelessWidget {
+  final AnimationController tiltController;
+  final AnimationController shimmerController;
+
+  const _TiltGlowLogo({
+    required this.tiltController,
+    required this.shimmerController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([tiltController, shimmerController]),
+      builder: (context, child) {
+        final tilt = Curves.easeInOut.transform(tiltController.value);
+        final angleY = (tilt - 0.5) * 0.5;
+        final angleX = (tilt - 0.5) * -0.22;
+        final glowOpacity = 0.18 + tilt * 0.22;
+        final shimmerT = shimmerController.value;
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.secondary.withValues(alpha: glowOpacity),
+                    blurRadius: 48,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+            ),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.0018)
+                ..rotateX(angleX)
+                ..rotateY(angleY),
+              child: ShaderMask(
+                blendMode: BlendMode.srcATop,
+                shaderCallback: (bounds) {
+                  final center = -1.4 + 3.4 * shimmerT;
+                  return LinearGradient(
+                    begin: Alignment(center - 0.5, -1),
+                    end: Alignment(center + 0.5, 1),
+                    colors: [
+                      Colors.white.withValues(alpha: 0),
+                      Colors.white.withValues(alpha: 0.5),
+                      Colors.white.withValues(alpha: 0),
+                    ],
+                    stops: const [0.35, 0.5, 0.65],
+                  ).createShader(bounds);
+                },
+                child: const AppLogo(size: 92, showText: false),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

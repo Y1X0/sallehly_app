@@ -7,10 +7,12 @@ import '../screens/notifications_screen.dart';
 
 class NotificationBell extends StatelessWidget {
   final VoidCallback? onOpenRequests;
+  final Color? color;
 
   const NotificationBell({
     super.key,
     this.onOpenRequests,
+    this.color,
   });
 
   @override
@@ -32,7 +34,7 @@ class NotificationBell extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.notifications_none_rounded),
+          icon: Icon(Icons.notifications_none_rounded, color: color),
         ),
         if (count > 0)
           Positioned(

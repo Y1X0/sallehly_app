@@ -199,6 +199,21 @@ class SocketProvider extends ChangeNotifier {
       _notificationProvider?.handleOfferAccepted(data);
     });
 
+    // [FIX-RATEPROMPT-01] دعوة فورية للعميل لتقييم الفني فور اكتمال طلبه —
+    // بلا هذا، العميل (وهو غالباً من نفّذ الإكمال بنفسه) لا يرى أي إشعار حي
+    // يذكّره بالتقييم، ولا يظهر إلا لاحقاً عبر السجل الدائم بعد إعادة تحميل.
+    socketService.on(SocketEvents.rateRequestPrompt, (data) {
+      _notificationProvider?.handleRateRequest(data);
+    });
+
+    // [FIX-RATINGLIVE-01] فور تقييم العميل للفني — حدّث متوسط تقييم الفني
+    // وعدد تقييماته فوراً بواجهته (بدل انتظار إعادة تشغيل التطبيق). refreshUser()
+    // يجلب /me من جديد فيحمل rating_avg الجديد؛ MyReviewsScreen يستمع لنفس
+    // الحدث بشكل منفصل (إن كانت مفتوحة) لتحديث قائمة التقييمات وعدّها مباشرة.
+    socketService.on(SocketEvents.ratingUpdated, (data) async {
+      await _authProvider?.refreshUser();
+    });
+
     // ─────────────── الدردشة ───────────────
     socketService.on(SocketEvents.chatMessageNotify, (data) {
       _notificationProvider?.handleChatNotify(data);
