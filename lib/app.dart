@@ -147,6 +147,18 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
     _lastResumeRefresh = now;
 
     context.read<NotificationProvider>().loadNotifications();
+
+    // [BW-FIX-01] محاولات إعادة الاتصال بالسوكت أصبحت محدودة الآن (15
+    // محاولة، راجع socket_service.dart) بدل 9999 — بعد عطل حقيقي أطول من
+    // نافذة المحاولات، يتوقف السوكت عن المحاولة تلقائياً. بدون هذا التحقق
+    // هنا، مستخدم يعيد فتح التطبيق بعد عطل طويل كان سيبقى بلا اتصال لحظي
+    // (شات/إشعارات فورية) حتى يسجّل خروج ودخول من جديد. لا يفعل شيئاً إن
+    // كان السوكت متصلاً أصلاً — لا يُعيد إنشاءه بلا داعٍ عند كل عودة عادية
+    // للمقدمة.
+    final socketProvider = context.read<SocketProvider>();
+    if (!socketProvider.connected) {
+      socketProvider.connect();
+    }
   }
 
   @override
