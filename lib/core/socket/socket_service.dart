@@ -23,12 +23,25 @@ class SocketService {
     _socket = io.io(
       AppConfig.baseUrl,
       io.OptionBuilder()
-          .setTransports(['websocket', 'polling'])
+          // [BW-FIX-01] websocket فقط — يطابق تماماً تقييد transports بالخادم
+          // (services/socket.js). بدون 'polling' هنا، العميل لا يحاول حتى
+          // الاتصال بـHTTP long-polling إطلاقاً (لا مصافحة polling أولى ولا
+          // أي طلب HTTP متكرر لاحق) — الاتصال إما WebSocket مباشرة أو يفشل
+          // بوضوح، بدل التوليد الصامت لحجم طلبات ضخم كل ~25 ثانية لكل عميل.
+          .setTransports(['websocket'])
           .disableAutoConnect()
           .enableReconnection()
-          .setReconnectionAttempts(9999)
+          // [BW-FIX-01] كانت 9999 محاولة فعلياً بلا حد عملي — أي عطل حقيقي
+          // بالسيرفر (وليس مجرد استيقاظ عادي من الخمول) كان يعني محاولة
+          // اتصال جديدة كل 2-8 ثوانٍ إلى ما لا نهاية تقريباً، لكل جهاز متصل،
+          // طوال مدة العطل. 15 محاولة بحد أقصى 30 ثانية بين كل محاولتين
+          // يعطي نافذة معقولة (~6 دقائق) لتجاوز استيقاظ خادم Render الطبيعي
+          // من الخمول، ثم يتوقف — didChangeAppLifecycleState بـapp.dart يعيد
+          // محاولة الاتصال عند عودة التطبيق للمقدمة إن كان لا يزال منقطعاً،
+          // فلا يبقى المستخدم عالقاً بلا اتصال لحظي بعد عطل أطول من ذلك.
+          .setReconnectionAttempts(15)
           .setReconnectionDelay(2000)
-          .setReconnectionDelayMax(8000)
+          .setReconnectionDelayMax(30000)
           .setAuth({'token': token})
           .setExtraHeaders({'Authorization': 'Bearer $token'})
           // [FIX-SOCKET-01] بدون هذا، حزمة socket_io_client تعيد استخدام نفس
