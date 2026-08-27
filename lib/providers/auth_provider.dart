@@ -78,6 +78,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -121,6 +122,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -165,6 +167,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -182,6 +185,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -207,6 +211,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -350,6 +355,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {
@@ -372,6 +378,7 @@ class AuthProvider extends ChangeNotifier {
       _error = e.message;
       rethrow;
     } catch (_) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض بعدة شاشات مصادقة (login #47، customer_register #57، technician_register #67، forgot_password #61، change_password #48، edit_profile #49). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       _error = 'حدث خطأ غير متوقع';
       rethrow;
     } finally {

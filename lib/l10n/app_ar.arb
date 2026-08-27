@@ -339,6 +339,91 @@
   "@chatStopRecordingAndSendTooltip": {
     "description": "تلميح زر إيقاف التسجيل الصوتي وإرساله"
   },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "تسمية تبويب الرئيسية بالشريط السفلي"
+  },
+  "navMyRequests": "طلباتي",
+  "@navMyRequests": {
+    "description": "تسمية تبويب طلباتي بالشريط السفلي"
+  },
+  "navChats": "الدردشات",
+  "@navChats": {
+    "description": "تسمية تبويب الدردشات بالشريط السفلي"
+  },
+  "navSettings": "الإعدادات",
+  "@navSettings": {
+    "description": "تسمية تبويب الإعدادات بالشريط السفلي"
+  },
+  "navSupport": "الدعم",
+  "@navSupport": {
+    "description": "تسمية تبويب الدعم بالشريط السفلي"
+  },
+  "navNewRequests": "جديدة",
+  "@navNewRequests": {
+    "description": "تسمية تبويب الطلبات الجديدة بالشريط السفلي (جهة الفني)"
+  },
+  "navWallet": "المحفظة",
+  "@navWallet": {
+    "description": "تسمية تبويب المحفظة بالشريط السفلي (جهة الفني)"
+  },
+  "technicianDashboardTitle": "لوحة الفني",
+  "@technicianDashboardTitle": {
+    "description": "عنوان شريط تطبيق لوحة الفني الرئيسية"
+  },
+  "myReviewsTitle": "تقييماتي",
+  "@myReviewsTitle": {
+    "description": "عنوان شاشة تقييمات الفني"
+  },
+  "myReviewsEmptyMessage": "لا توجد تقييمات بعد.\nستظهر هنا بعد أن يقيّمك العملاء",
+  "@myReviewsEmptyMessage": {
+    "description": "رسالة حالة عدم وجود تقييمات بعد"
+  },
+  "myReviewsBasedOnCount": "{count, plural, =1{بناءً على آخر تقييم واحد} =2{بناءً على آخر تقييمين} few{بناءً على آخر {count} تقييمات} many{بناءً على آخر {count} تقييماً} other{بناءً على آخر {count} تقييم}}",
+  "@myReviewsBasedOnCount": {
+    "description": "نص متوسط التقييم مع عدد التقييمات المعتمَد عليها",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myReviewsNoReviewsShort": "لا توجد تقييمات بعد",
+  "@myReviewsNoReviewsShort": {
+    "description": "نص قصير لعدم وجود تقييمات (داخل بطاقة الملخص)"
+  },
+  "customerFallbackName": "عميل",
+  "@customerFallbackName": {
+    "description": "اسم احتياطي لعميل بلا اسم محدَّد"
+  },
+  "adminAuditTitle": "سجل العمليات",
+  "@adminAuditTitle": {
+    "description": "عنوان شاشة سجل العمليات الإدارية (Audit Log)"
+  },
+  "adminAuditSearchHint": "ابحث في العمليات (اسم، نوع، تفاصيل)",
+  "@adminAuditSearchHint": {
+    "description": "نص تلميح حقل بحث سجل العمليات"
+  },
+  "adminAuditClearSearchTooltip": "مسح البحث",
+  "@adminAuditClearSearchTooltip": {
+    "description": "تلميح زر مسح نص البحث بسجل العمليات"
+  },
+  "adminAuditEmptyTitle": "لا توجد عمليات مسجّلة",
+  "@adminAuditEmptyTitle": {
+    "description": "عنوان حالة عدم وجود عمليات مسجّلة"
+  },
+  "adminAuditEmptySubtitle": "ستظهر هنا كل العمليات الإدارية على المنصة",
+  "@adminAuditEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود عمليات مسجّلة"
+  },
+  "adminAuditLoadFailedTitle": "تعذّر تحميل سجل العمليات",
+  "@adminAuditLoadFailedTitle": {
+    "description": "عنوان فشل تحميل سجل العمليات"
+  },
+  "systemFallbackName": "النظام",
+  "@systemFallbackName": {
+    "description": "اسم احتياطي لفاعل عملية بسجل العمليات عندما تكون العملية آلية (بلا مستخدم محدَّد)"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

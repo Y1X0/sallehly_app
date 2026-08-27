@@ -5,6 +5,7 @@ import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/review_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/socket_provider.dart';
@@ -63,6 +64,10 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
     final user = auth.user;
 
     if (user == null) {
+      // [L10N-TODO] load() تُستدعى مباشرة من initState() (بلا await قبلها) —
+      // AppLocalizations.of(context) غير آمن هناك (الاعتماد على InheritedWidget
+      // قد لا يكون مكتملاً بعد بهذه اللحظة تحديداً). يُترحَّل عند إعادة هيكلة
+      // مصدر رسائل هذه الشاشة لاحقاً. راجع L10N_PROGRESS.md §9.
       setState(() {
         loading = false;
         error = 'تعذّر تحديد الحساب';
@@ -84,6 +89,7 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
       });
     } catch (_) {
       if (!mounted) return;
+      // [L10N-TODO] نفس ملاحظة الاستدعاء أعلاه — راجع L10N_PROGRESS.md §9.
       setState(() {
         loading = false;
         error = 'تعذّر تحميل التقييمات';
@@ -93,12 +99,13 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final user = context.watch<AuthProvider>().user;
     final ratingAvg = user?.rating ?? 0;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تقييماتي'),
+        title: Text(t.myReviewsTitle),
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
@@ -130,9 +137,9 @@ class _MyReviewsScreenState extends State<MyReviewsScreen> {
                             onRetry: load,
                           )
                         else if (reviews.isEmpty)
-                          const _MessageBox(
+                          _MessageBox(
                             icon: Icons.star_outline_rounded,
-                            text: 'لا توجد تقييمات بعد.\nستظهر هنا بعد أن يقيّمك العملاء',
+                            text: t.myReviewsEmptyMessage,
                           )
                         else
                           ...reviews.map((r) => _ReviewCard(review: r)),
@@ -154,6 +161,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -191,7 +199,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            count > 0 ? 'بناءً على آخر $count تقييم' : 'لا توجد تقييمات بعد',
+            count > 0 ? t.myReviewsBasedOnCount(count) : t.myReviewsNoReviewsShort,
             style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
         ],
@@ -228,7 +236,7 @@ class _ReviewCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  review.customerName ?? 'عميل',
+                  review.customerName ?? AppLocalizations.of(context)!.customerFallbackName,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -292,7 +300,7 @@ class _MessageBox extends StatelessWidget {
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context)!.retryButton),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],

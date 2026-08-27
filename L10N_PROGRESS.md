@@ -589,11 +589,11 @@ mirroring due in that same file).
 - [x] 28. `lib/features/auth/screens/register_role_screen.dart` — role-selection copy; §3 back-icon → `DirectionalIcons.back`, and the `_RoleCard` trailing chevron (same forward-into-content pattern as #8/#77) → `DirectionalIcons.forwardIosStyle`
 - [x] 29. `lib/features/auth/screens/verify_otp_screen.dart` — resolved the #19 deferral: `VerifyOtpResult.message` is now nullable, fallback supplied here via `AppLocalizations`; otp screen copy migrated
 - [x] 30. `lib/features/chat/widgets/chat_input.dart` — attachment sheet + input bar copy, reused `audioMessageLabel`/`sendButtonTooltip`
-- [ ] 31. `lib/features/layout/customer_layout.dart`
-- [ ] 32. `lib/features/technician/screens/my_reviews_screen.dart`
-- [ ] 33. `lib/providers/auth_provider.dart`
-- [ ] 34. `lib/features/admin/screens/admin_audit_screen.dart`
-- [ ] 35. `lib/features/layout/technician_layout.dart`
+- [x] 31. `lib/features/layout/customer_layout.dart` — nav keys (`navHome/MyRequests/Chats/Settings/Support`), reused `appWordmark`
+- [x] 32. `lib/features/technician/screens/my_reviews_screen.dart` — the two `error =` fallbacks are set synchronously from `initState()` (unsafe to call `AppLocalizations.of(context)` there), deferred/commented; everything else migrated including a real ARB plural (`myReviewsBasedOnCount`); fixed `my_reviews_error_state_test.dart` (same missing-Localizations gap as batch 4)
+- [x] 33. `lib/providers/auth_provider.dart` — all 7 identical `_error` fallbacks deferred (consumed by many auth screens later in the queue), commented
+- [x] 34. `lib/features/admin/screens/admin_audit_screen.dart` — distinct `adminAuditTitle` key (not reusing `ledgerTitle` — same Arabic wording today, different concept, likely to diverge in English)
+- [x] 35. `lib/features/layout/technician_layout.dart` — reused `navHome/MyRequests/Chats/Settings/Support`, new `navNewRequests`/`navWallet`/`technicianDashboardTitle`
 - [ ] 36. `lib/features/admin/screens/admin_support_screen.dart`
 - [ ] 37. `lib/features/auth/screens/landing_screen.dart`
 - [ ] 38. `lib/features/chat/provider/chat_provider.dart`

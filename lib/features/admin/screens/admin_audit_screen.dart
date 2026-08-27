@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 
 class AdminAuditScreen extends StatefulWidget {
@@ -32,14 +33,15 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'سجل العمليات',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          t.adminAuditTitle,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
       extendBodyBehindAppBar: true,
@@ -56,12 +58,12 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
               onSubmitted: (value) =>
                   context.read<AdminProvider>().loadAuditLogs(search: value),
               decoration: InputDecoration(
-                hintText: 'ابحث في العمليات (اسم، نوع، تفاصيل)',
+                hintText: t.adminAuditSearchHint,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _searchController.text.isEmpty
                     ? null
                     : IconButton(
-                        tooltip: 'مسح البحث',
+                        tooltip: t.adminAuditClearSearchTooltip,
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () {
                           _searchController.clear();
@@ -145,7 +147,7 @@ class _EmptyAuditState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'لا توجد عمليات مسجّلة',
+              AppLocalizations.of(context)!.adminAuditEmptyTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -154,7 +156,7 @@ class _EmptyAuditState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'ستظهر هنا كل العمليات الإدارية على المنصة',
+              AppLocalizations.of(context)!.adminAuditEmptySubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textSecondary,
@@ -200,7 +202,7 @@ class _AuditErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'تعذّر تحميل سجل العمليات',
+              AppLocalizations.of(context)!.adminAuditLoadFailedTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -220,7 +222,7 @@ class _AuditErrorState extends StatelessWidget {
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context)!.retryButton),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],
@@ -267,7 +269,7 @@ class _AuditCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final action = '${log['action'] ?? ''}';
-    final actorName = '${log['actor_name'] ?? 'النظام'}';
+    final actorName = '${log['actor_name'] ?? AppLocalizations.of(context)!.systemFallbackName}';
     final details = '${log['details'] ?? ''}';
     final targetType = '${log['target_type'] ?? ''}';
     final createdAt = _formatDate(log['created_at'] as String?);

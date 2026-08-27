@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/notify_pulse.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../chat/provider/chat_provider.dart';
@@ -131,6 +132,7 @@ class _CustomerLayoutState extends State<CustomerLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final notify = context.watch<NotificationProvider>();
     final support = context.watch<SupportProvider>();
     final openTicket = support.openTicket;
@@ -150,7 +152,7 @@ class _CustomerLayoutState extends State<CustomerLayout> {
         // بعد تسجيل الدخول ولا يجب أن يظهر عليها أي سهم رجوع تلقائي مهما كان
         // محتوى مكدّس الـ Navigator خلفها.
         automaticallyImplyLeading: false,
-        title: const Text('صلّحلي'),
+        title: Text(t.appWordmark),
         actions: [
           NotificationBell(
             onOpenRequests: () => _goToTab(1),
@@ -187,20 +189,20 @@ class _CustomerLayoutState extends State<CustomerLayout> {
                 );
               },
         items: [
-          _NavItem(Icons.dashboard_outlined, Icons.dashboard, 'الرئيسية', 0),
+          _NavItem(Icons.dashboard_outlined, Icons.dashboard, t.navHome, 0),
           _NavItem(
             Icons.assignment_outlined,
             Icons.assignment,
-            'طلباتي',
+            t.navMyRequests,
             notify.requestUnreadCount,
           ),
           _NavItem(
             Icons.chat_bubble_outline,
             Icons.chat,
-            'الدردشات',
+            t.navChats,
             chatUnread,
           ),
-          _NavItem(Icons.settings_outlined, Icons.settings, 'الإعدادات', 0),
+          _NavItem(Icons.settings_outlined, Icons.settings, t.navSettings, 0),
         ],
       ),
     );
@@ -222,6 +224,7 @@ class _GlassNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final showSupport = onTapSupport != null;
 
     return SafeArea(
@@ -309,7 +312,7 @@ class _GlassNav extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'الدعم',
+                          t.navSupport,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 11,
