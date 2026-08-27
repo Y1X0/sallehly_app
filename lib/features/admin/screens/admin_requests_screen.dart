@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 
 class AdminRequestsScreen extends StatefulWidget {
@@ -13,6 +14,11 @@ class AdminRequestsScreen extends StatefulWidget {
 }
 
 class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
+  // [L10N-TODO] قيم سلكية تُقارَن مباشرة بـRequestModel.status، بنفس نمط
+  // Phase 3 المؤجَّل (بما فيها 'الكل' — حالة فلترة زائفة لا تطابق أي قيمة
+  // سلكية حقيقية، لكنها مدمَجة هنا بنفس القائمة، فلا يمكن فصل عرضها عن
+  // قيمتها بمعزل بدون إعادة هيكلة كما فُعِل بـ _RequestsFilter enum
+  // بـcustomer_requests_screen.dart). غير مُترجَمة عمداً، لا تغيير وظيفي.
   String _filter = 'الكل';
 
   static const List<String> _statuses = [
@@ -41,22 +47,23 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
   }
 
   Future<void> _confirmCancel(Map<String, dynamic> req) async {
+    final t = AppLocalizations.of(context)!;
     final reasonController = TextEditingController();
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) {
         return AlertDialog(
           backgroundColor: AppColors.card,
-          title: const Text(
-            'إلغاء الطلب إدارياً',
-            style: TextStyle(fontWeight: FontWeight.w900),
+          title: Text(
+            t.adminCancelRequestDialogTitle,
+            style: const TextStyle(fontWeight: FontWeight.w900),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'سيتم إلغاء الطلب رقم ${req['id']}. هذا الإجراء يُسجَّل في سجل العمليات.',
+                t.adminCancelRequestConfirmMessage(req['id'] as int),
                 style: TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 14),
@@ -64,7 +71,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                 controller: reasonController,
                 maxLength: 300,
                 decoration: InputDecoration(
-                  hintText: 'سبب الإلغاء (اختياري)',
+                  hintText: t.cancelReasonHint,
                   filled: true,
                   fillColor: AppColors.background,
                   border: OutlineInputBorder(
@@ -78,14 +85,14 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('تراجع'),
+              child: Text(t.goBackButton),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.danger,
               ),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('تأكيد الإلغاء'),
+              child: Text(t.confirmCancelButton),
             ),
           ],
         );
@@ -101,7 +108,7 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إلغاء الطلب')),
+        SnackBar(content: Text(t.requestCancelledMessage)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -118,7 +125,9 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
     try {
       await context.read<AdminProvider>().changeRequestStatus(id: req['id'] as int, status: status);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تم تغيير الحالة إلى: $status')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.statusChangedMessage(status))),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -129,15 +138,16 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
     final filtered = _applyFilter(admin.allRequests);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'إدارة الطلبات',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          t.manageRequestsActionTitle,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
       extendBodyBehindAppBar: true,
@@ -240,7 +250,7 @@ class _EmptyRequestsState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'لا توجد طلبات',
+              AppLocalizations.of(context)!.noRequestsFoundTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -265,6 +275,7 @@ class _RequestsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -286,7 +297,7 @@ class _RequestsErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'تعذّر تحميل الطلبات',
+              t.newRequestsLoadFailedTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -306,7 +317,7 @@ class _RequestsErrorState extends StatelessWidget {
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(t.retryButton),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],
@@ -343,6 +354,7 @@ class _RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final status = '${req['status'] ?? ''}';
     final canCancel = status != 'مكتمل' && status != 'ملغي';
 
@@ -396,11 +408,11 @@ class _RequestCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          _infoRow(Icons.person_rounded, 'العميل', '${req['customer_name'] ?? '-'}'),
+          _infoRow(Icons.person_rounded, t.customerLabel, '${req['customer_name'] ?? '-'}'),
           if (req['technician_name'] != null)
-            _infoRow(Icons.engineering_rounded, 'الفني',
+            _infoRow(Icons.engineering_rounded, t.technicianLabel,
                 '${req['technician_name']}'),
-          _infoRow(Icons.location_on_rounded, 'المدينة',
+          _infoRow(Icons.location_on_rounded, t.cityLabel,
               '${req['city'] ?? '-'}${req['area'] != null ? ' - ${req['area']}' : ''}'),
           if (canCancel) ...[
             const SizedBox(height: 12),
@@ -408,7 +420,7 @@ class _RequestCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: PopupMenuButton<String>(
-                    tooltip: 'تغيير حالة الطلب',
+                    tooltip: t.changeRequestStatusTooltip,
                     onSelected: onChangeStatus,
                     itemBuilder: (context) => _statusOptions
                         .where((s) => s != status)
@@ -418,7 +430,7 @@ class _RequestCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.sync_alt_rounded, size: 18),
-                        label: const Text('تغيير الحالة'),
+                        label: Text(t.changeStatusButton),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           side: BorderSide(color: AppColors.primary),
@@ -433,7 +445,7 @@ class _RequestCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onCancel,
                     icon: const Icon(Icons.cancel_rounded, size: 18),
-                    label: const Text('إلغاء الطلب'),
+                    label: Text(t.cancelRequestButton),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.danger,
                       side: BorderSide(color: AppColors.danger),

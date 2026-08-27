@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/admin_stats_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_audit_screen.dart';
@@ -31,6 +34,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
     final stats = admin.stats;
     // [FIX-DASHBOARD-01] لا يوجد "تحميل أول مرة" منفصل بهذا الـmodel (على
@@ -68,18 +72,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.admin_panel_settings_rounded,
                     color: Colors.white,
                     size: 50,
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      'إدارة صلّحلي\nتحكم كامل بالمنصة',
-                      style: TextStyle(
+                      t.adminHeroTitle,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         height: 1.35,
@@ -113,32 +117,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 childAspectRatio: 1.05,
                 children: [
                   _StatCard(
-                    title: 'العملاء',
+                    title: t.customersStatLabel,
                     value: stats.customers,
                     icon: Icons.people_alt_rounded,
                   ),
                   _StatCard(
-                    title: 'الفنيين',
+                    title: t.techniciansStatLabel,
                     value: stats.technicians,
                     icon: Icons.engineering_rounded,
                   ),
                   _StatCard(
-                    title: 'الطلبات',
+                    title: t.requestsStatLabel,
                     value: stats.requests,
                     icon: Icons.assignment_rounded,
                   ),
                   _StatCard(
-                    title: 'شحن معلق',
+                    title: t.pendingTopupsStatLabel,
                     value: stats.pendingTopups,
                     icon: Icons.payments_rounded,
                   ),
                   _StatCard(
-                    title: 'مكتملة',
+                    title: t.statCompletedLabel,
                     value: stats.completed,
                     icon: Icons.verified_rounded,
                   ),
                   _StatCard(
-                    title: 'ملغاة',
+                    title: t.statCancelledLabel,
                     value: stats.cancelled,
                     icon: Icons.cancel_rounded,
                   ),
@@ -150,15 +154,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   Expanded(
                     child: _MetricTile(
-                      title: 'إجمالي الإيرادات',
-                      value: '${stats.revenue.toStringAsFixed(2)} د.أ',
+                      title: t.totalRevenueLabel,
+                      value: formatJod(context, stats.revenue),
                       icon: Icons.account_balance_wallet_rounded,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _MetricTile(
-                      title: 'معدل الإلغاء',
+                      title: t.cancelRateLabel,
                       value: '${stats.cancelRate.toStringAsFixed(1)}%',
                       icon: Icons.trending_down_rounded,
                     ),
@@ -170,7 +174,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   Expanded(
                     child: _MetricTile(
-                      title: 'حسابات موقوفة',
+                      title: t.suspendedAccountsLabel,
                       value: '${stats.suspendedUsers}',
                       icon: Icons.block_rounded,
                     ),
@@ -178,7 +182,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _MetricTile(
-                      title: 'بانتظار التوثيق',
+                      title: t.pendingVerificationLabel,
                       value: '${stats.pendingVerification}',
                       icon: Icons.verified_outlined,
                     ),
@@ -188,22 +192,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               // [FIX-STATS-01] نشاط الفترات الزمنية — طلبات/مستخدمون جدد وإيراد
               // كل فترة، بلا أي مكتبة رسوم بيانية إضافية (أرقام واضحة تكفي هنا).
               const SizedBox(height: 20),
-              Text('النشاط', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w900)),
+              Text(t.activityHeading, style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w900)),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(child: _ActivityCard(title: 'اليوم', activity: stats.dailyActivity)),
+                  Expanded(child: _ActivityCard(title: t.todayLabel, activity: stats.dailyActivity)),
                   const SizedBox(width: 10),
-                  Expanded(child: _ActivityCard(title: '٧ أيام', activity: stats.weeklyActivity)),
+                  Expanded(child: _ActivityCard(title: t.last7DaysLabel, activity: stats.weeklyActivity)),
                   const SizedBox(width: 10),
-                  Expanded(child: _ActivityCard(title: '٣٠ يوماً', activity: stats.monthlyActivity)),
+                  Expanded(child: _ActivityCard(title: t.last30DaysLabel, activity: stats.monthlyActivity)),
                 ],
               ),
             ],
             if (!isInitialLoading && !hasError && stats.topServices.isNotEmpty) ...[
               const SizedBox(height: 20),
               Text(
-                'أكثر الخدمات طلباً',
+                t.mostRequestedServicesTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -228,7 +232,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             if (!isInitialLoading && !hasError && stats.topTechs.isNotEmpty) ...[
               const SizedBox(height: 20),
               Text(
-                'أفضل الفنيين أداءً',
+                t.topPerformingTechniciansTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -245,10 +249,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 child: Column(
                   children: stats.topTechs
-                      .map((t) => _RankRow(
-                            title: t.name,
-                            trailing:
-                                '${t.completedJobs} عمل • ⭐ ${t.ratingAvg.toStringAsFixed(1)}',
+                      .map((tech) => _RankRow(
+                            title: tech.name,
+                            trailing: t.completedJobsWithRating(
+                              tech.completedJobs,
+                              tech.ratingAvg.toStringAsFixed(1),
+                            ),
                           ))
                       .toList(),
                 ),
@@ -258,8 +264,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             FadeIn(
               child: _ActionCard(
                 icon: Icons.assignment_rounded,
-                title: 'إدارة الطلبات',
-                subtitle: 'عرض كل الطلبات والتدخّل الإداري عند النزاعات',
+                title: t.manageRequestsActionTitle,
+                subtitle: t.manageRequestsActionSubtitle,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -274,8 +280,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               delay: const Duration(milliseconds: 60),
               child: _ActionCard(
                 icon: Icons.shield_rounded,
-                title: 'المراقبة والشكاوى',
-                subtitle: 'مخالفات الشات وشكاوى العملاء',
+                title: t.moderationActionTitle,
+                subtitle: t.moderationActionSubtitle,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -290,8 +296,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               delay: const Duration(milliseconds: 120),
               child: _ActionCard(
                 icon: Icons.history_rounded,
-                title: 'سجل العمليات',
-                subtitle: 'تتبّع كل العمليات الإدارية على المنصة',
+                title: t.adminAuditTitle,
+                subtitle: t.auditActionSubtitle,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -307,8 +313,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               delay: const Duration(milliseconds: 180),
               child: _ActionCard(
                 icon: Icons.receipt_long_rounded,
-                title: 'دفتر الحساب',
-                subtitle: 'كل الحركات المالية عبر المنصة',
+                title: t.ledgerActionTitle,
+                subtitle: t.ledgerActionSubtitle,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -332,6 +338,7 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -344,9 +351,9 @@ class _ActivityCard extends StatelessWidget {
         children: [
           Text(title, style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w800, fontSize: 12)),
           const SizedBox(height: 8),
-          Text('${activity.newRequests} طلب', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 15)),
-          Text('${activity.newUsers} مستخدم', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-          Text('${activity.revenue.toStringAsFixed(1)} د.أ', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700)),
+          Text(t.activityRequestsCount(activity.newRequests), style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 15)),
+          Text(t.activityUsersCount(activity.newUsers), style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text(formatJod(context, activity.revenue), style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -361,6 +368,7 @@ class _DashboardErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 60),
       child: Column(
@@ -376,7 +384,7 @@ class _DashboardErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'تعذّر تحميل الإحصائيات',
+            t.statsLoadFailedTitle,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 8),
@@ -385,7 +393,7 @@ class _DashboardErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
         ],
@@ -469,7 +477,7 @@ class _ActionCardState extends State<_ActionCard> {
                 ),
               ),
               Icon(
-                Icons.arrow_back_ios_new_rounded,
+                DirectionalIcons.forwardIosStyle(context),
                 color: AppColors.textSecondary,
                 size: 16,
               ),
@@ -616,6 +624,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w700,

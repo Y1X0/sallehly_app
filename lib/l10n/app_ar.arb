@@ -1653,5 +1653,265 @@
   "safeChatNoteMessage": "لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.",
   "@safeChatNoteMessage": {
     "description": "ملاحظة طمأنة أسفل نموذج إنشاء الطلب حول أمان التواصل"
+  },
+  "supportScreenTitle": "الدعم الفني",
+  "@supportScreenTitle": {
+    "description": "عنوان شاشة تذاكر الدعم الفني"
+  },
+  "newTicketButton": "تذكرة جديدة",
+  "@newTicketButton": {
+    "description": "زر عائم لفتح نموذج تذكرة دعم جديدة"
+  },
+  "noSupportTicketsYetTitle": "لا توجد تذاكر دعم بعد",
+  "@noSupportTicketsYetTitle": {
+    "description": "عنوان الحالة الفارغة قبل إنشاء أي تذكرة دعم"
+  },
+  "noSupportTicketsYetSubtitle": "اضغط \"تذكرة جديدة\" للتواصل مع فريق الدعم",
+  "@noSupportTicketsYetSubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لتذاكر الدعم"
+  },
+  "openChatLabel": "فتح المحادثة",
+  "@openChatLabel": {
+    "description": "نص دعوة لفتح محادثة تذكرة الدعم أسفل كل بطاقة تذكرة"
+  },
+  "newSupportTicketTitle": "تذكرة دعم جديدة",
+  "@newSupportTicketTitle": {
+    "description": "عنوان نافذة إنشاء تذكرة دعم جديدة"
+  },
+  "issueTypeFieldLabel": "نوع المشكلة",
+  "@issueTypeFieldLabel": {
+    "description": "تسمية قائمة اختيار نوع مشكلة تذكرة الدعم المنسدلة"
+  },
+  "titleFieldLabel": "العنوان",
+  "@titleFieldLabel": {
+    "description": "تسمية حقل عنوان عام (مستخدَمة بعدة نماذج)"
+  },
+  "titleRequiredValidation": "أدخل عنواناً واضحاً",
+  "@titleRequiredValidation": {
+    "description": "رسالة تحقق عند إدخال عنوان قصير جداً"
+  },
+  "issueDetailsFieldLabel": "تفاصيل المشكلة",
+  "@issueDetailsFieldLabel": {
+    "description": "تسمية حقل تفاصيل مشكلة تذكرة الدعم"
+  },
+  "submitTicketButton": "إرسال التذكرة",
+  "@submitTicketButton": {
+    "description": "زر إرسال تذكرة الدعم الجديدة"
+  },
+  "ticketCreateFailedMessage": "تعذر إنشاء التذكرة",
+  "@ticketCreateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء تذكرة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "avatarRequiredMessage": "مطلوب صورة شخصية للفني",
+  "@avatarRequiredMessage": {
+    "description": "رسالة تحذير عند محاولة إنشاء حساب فني بلا صورة شخصية"
+  },
+  "technicianRegisterTitle": "حساب فني جديد",
+  "@technicianRegisterTitle": {
+    "description": "عنوان شاشة تسجيل حساب فني جديد"
+  },
+  "technicianRegisterHeading": "إنشاء حساب فني",
+  "@technicianRegisterHeading": {
+    "description": "العنوان الرئيسي بداخل شاشة تسجيل حساب فني، وزر إرسال النموذج"
+  },
+  "technicianRegisterSubtitle": "أضف بياناتك حتى يتمكن العملاء من اختيارك بثقة",
+  "@technicianRegisterSubtitle": {
+    "description": "النص الفرعي بشاشة تسجيل حساب فني"
+  },
+  "nationalNumberFieldLabel": "الرقم الوطني",
+  "@nationalNumberFieldLabel": {
+    "description": "تسمية حقل الرقم الوطني للفني"
+  },
+  "nationalNumberFormatValidation": "الرقم الوطني يجب أن يكون 10 أرقام",
+  "@nationalNumberFormatValidation": {
+    "description": "رسالة تحقق عند إدخال رقم وطني بصيغة غير صحيحة"
+  },
+  "nationalNumberPrivacyNote": "يُستخدم الرقم الوطني للتحقق من هوية الفني فقط، ولا يظهر للعملاء",
+  "@nationalNumberPrivacyNote": {
+    "description": "ملاحظة خصوصية أسفل حقل الرقم الوطني"
+  },
+  "workAreaDropdownLabel": "منطقة العمل",
+  "@workAreaDropdownLabel": {
+    "description": "تسمية قائمة اختيار منطقة عمل الفني المنسدلة"
+  },
+  "avatarSelectedLabel": "تم اختيار الصورة الشخصية",
+  "@avatarSelectedLabel": {
+    "description": "نص بطاقة اختيار الصورة الشخصية بعد اختيار صورة"
+  },
+  "selectAvatarLabel": "اختر صورة شخصية",
+  "@selectAvatarLabel": {
+    "description": "نص بطاقة اختيار الصورة الشخصية قبل اختيار أي صورة"
+  },
+  "avatarRequiredNote": "الصورة مطلوبة لإنشاء حساب فني",
+  "@avatarRequiredNote": {
+    "description": "ملاحظة أسفل بطاقة اختيار الصورة الشخصية توضّح أنها مطلوبة"
+  },
+  "adminHeroTitle": "إدارة صلّحلي\nتحكم كامل بالمنصة",
+  "@adminHeroTitle": {
+    "description": "العنوان الرئيسي ببطاقة هيرو لوحة الأدمن الرئيسية"
+  },
+  "customersStatLabel": "العملاء",
+  "@customersStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد العملاء"
+  },
+  "techniciansStatLabel": "الفنيين",
+  "@techniciansStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الفنيين"
+  },
+  "requestsStatLabel": "الطلبات",
+  "@requestsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الطلبات"
+  },
+  "pendingTopupsStatLabel": "شحن معلق",
+  "@pendingTopupsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: طلبات شحن معلقة"
+  },
+  "totalRevenueLabel": "إجمالي الإيرادات",
+  "@totalRevenueLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: إجمالي الإيرادات"
+  },
+  "cancelRateLabel": "معدل الإلغاء",
+  "@cancelRateLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: نسبة إلغاء الطلبات"
+  },
+  "suspendedAccountsLabel": "حسابات موقوفة",
+  "@suspendedAccountsLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الحسابات الموقوفة"
+  },
+  "pendingVerificationLabel": "بانتظار التوثيق",
+  "@pendingVerificationLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: فنيون بانتظار توثيق الهوية"
+  },
+  "activityHeading": "النشاط",
+  "@activityHeading": {
+    "description": "عنوان قسم بطاقات نشاط الفترات الزمنية بلوحة الأدمن"
+  },
+  "todayLabel": "اليوم",
+  "@todayLabel": {
+    "description": "عنوان بطاقة نشاط اليوم"
+  },
+  "last7DaysLabel": "٧ أيام",
+  "@last7DaysLabel": {
+    "description": "عنوان بطاقة نشاط آخر 7 أيام"
+  },
+  "last30DaysLabel": "٣٠ يوماً",
+  "@last30DaysLabel": {
+    "description": "عنوان بطاقة نشاط آخر 30 يوماً"
+  },
+  "activityRequestsCount": "{count, plural, one{طلب واحد} two{طلبان} few{{count} طلبات} many{{count} طلباً} other{{count} طلب}}",
+  "@activityRequestsCount": {
+    "description": "عدد الطلبات الجديدة ببطاقة نشاط فترة زمنية",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "activityUsersCount": "{count, plural, one{مستخدم واحد} two{مستخدمان} few{{count} مستخدمين} many{{count} مستخدماً} other{{count} مستخدم}}",
+  "@activityUsersCount": {
+    "description": "عدد المستخدمين الجدد ببطاقة نشاط فترة زمنية",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "statsLoadFailedTitle": "تعذّر تحميل الإحصائيات",
+  "@statsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل إحصائيات لوحة الأدمن الرئيسية"
+  },
+  "manageRequestsActionTitle": "إدارة الطلبات",
+  "@manageRequestsActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشاشة إدارة كل الطلبات بلوحة الأدمن"
+  },
+  "manageRequestsActionSubtitle": "عرض كل الطلبات والتدخّل الإداري عند النزاعات",
+  "@manageRequestsActionSubtitle": {
+    "description": "نص فرعي ببطاقة إدارة الطلبات"
+  },
+  "moderationActionTitle": "المراقبة والشكاوى",
+  "@moderationActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشاشة المراقبة والشكاوى بلوحة الأدمن"
+  },
+  "moderationActionSubtitle": "مخالفات الشات وشكاوى العملاء",
+  "@moderationActionSubtitle": {
+    "description": "نص فرعي ببطاقة المراقبة والشكاوى"
+  },
+  "auditActionSubtitle": "تتبّع كل العمليات الإدارية على المنصة",
+  "@auditActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لسجل العمليات (العنوان نفسه يُعاد استخدام adminAuditTitle)"
+  },
+  "ledgerActionTitle": "دفتر الحساب",
+  "@ledgerActionTitle": {
+    "description": "عنوان بطاقة الانتقال لدفتر الحساب الشامل بلوحة الأدمن"
+  },
+  "ledgerActionSubtitle": "كل الحركات المالية عبر المنصة",
+  "@ledgerActionSubtitle": {
+    "description": "نص فرعي ببطاقة دفتر الحساب"
+  },
+  "mostRequestedServicesTitle": "أكثر الخدمات طلباً",
+  "@mostRequestedServicesTitle": {
+    "description": "عنوان قسم أكثر الخدمات طلباً بلوحة الأدمن الرئيسية"
+  },
+  "topPerformingTechniciansTitle": "أفضل الفنيين أداءً",
+  "@topPerformingTechniciansTitle": {
+    "description": "عنوان قسم أفضل الفنيين أداءً بلوحة الأدمن الرئيسية"
+  },
+  "completedJobsWithRating": "{count, plural, one{عمل واحد} two{عملان} few{{count} أعمال} many{{count} عملاً} other{{count} عمل}} • ⭐ {rating}",
+  "@completedJobsWithRating": {
+    "description": "عدد الأعمال المكتملة مع التقييم بجانب اسم كل فني بترتيب الأفضل أداءً",
+    "placeholders": {
+      "count": {"type": "num"},
+      "rating": {"type": "String"}
+    }
+  },
+  "adminCancelRequestDialogTitle": "إلغاء الطلب إدارياً",
+  "@adminCancelRequestDialogTitle": {
+    "description": "عنوان نافذة تأكيد إلغاء الأدمن لطلب"
+  },
+  "adminCancelRequestConfirmMessage": "سيتم إلغاء الطلب رقم {id}. هذا الإجراء يُسجَّل في سجل العمليات.",
+  "@adminCancelRequestConfirmMessage": {
+    "description": "نص نافذة تأكيد إلغاء الأدمن لطلب",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "cancelReasonHint": "سبب الإلغاء (اختياري)",
+  "@cancelReasonHint": {
+    "description": "نص تلميحي داخل حقل سبب إلغاء الطلب من لوحة الأدمن"
+  },
+  "confirmCancelButton": "تأكيد الإلغاء",
+  "@confirmCancelButton": {
+    "description": "زر تأكيد إلغاء الطلب بنافذة التأكيد"
+  },
+  "requestCancelledMessage": "تم إلغاء الطلب",
+  "@requestCancelledMessage": {
+    "description": "رسالة تأكيد بعد إلغاء الأدمن لطلب"
+  },
+  "statusChangedMessage": "تم تغيير الحالة إلى: {status}",
+  "@statusChangedMessage": {
+    "description": "رسالة تأكيد بعد تغيير الأدمن لحالة طلب. [L10N-TODO] {status} قيمة سلكية (RequestModel.status) لم تُترجَم بعد — مؤجَّلة لـPhase 3، ستبقى عربية حتى ذلك الحين حتى بالواجهة الإنجليزية.",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "noRequestsFoundTitle": "لا توجد طلبات",
+  "@noRequestsFoundTitle": {
+    "description": "عنوان الحالة الفارغة عند عدم وجود طلبات مطابقة (لوحة الأدمن)"
+  },
+  "customerLabel": "العميل",
+  "@customerLabel": {
+    "description": "تسمية عامة لحقل اسم العميل"
+  },
+  "technicianLabel": "الفني",
+  "@technicianLabel": {
+    "description": "تسمية عامة لحقل اسم الفني"
+  },
+  "cityLabel": "المدينة",
+  "@cityLabel": {
+    "description": "تسمية عامة لحقل المدينة (أقصر من cityFieldLabel المستخدَم بنماذج التسجيل)"
+  },
+  "changeRequestStatusTooltip": "تغيير حالة الطلب",
+  "@changeRequestStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تغيير حالة الطلب من لوحة الأدمن"
+  },
+  "changeStatusButton": "تغيير الحالة",
+  "@changeStatusButton": {
+    "description": "زر فتح قائمة تغيير حالة الطلب من لوحة الأدمن"
   }
 }
