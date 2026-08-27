@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../core/utils/currency_format.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../l10n/app_localizations.dart';
@@ -18,11 +20,11 @@ import 'privacy_policy_screen.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  String roleLabel(String? role) {
-    if (role == 'customer') return 'عميل';
-    if (role == 'technician') return 'فني';
-    if (role == 'admin') return 'أدمن';
-    return 'مستخدم';
+  String roleLabel(AppLocalizations t, String? role) {
+    if (role == 'customer') return t.customerFallbackName;
+    if (role == 'technician') return t.technicianFallbackName;
+    if (role == 'admin') return t.adminRoleLabel;
+    return t.genericUserRoleLabel;
   }
 
   IconData roleIcon(String? role) {
@@ -32,21 +34,22 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> logout(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل أنت متأكد أنك تريد تسجيل الخروج؟'),
+        title: Text(t.logoutTitle),
+        content: Text(t.logoutConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
+            child: Text(t.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('خروج'),
+            child: Text(t.logoutButton),
           ),
         ],
       ),
@@ -68,6 +71,7 @@ class SettingsScreen extends StatelessWidget {
   /// حذف الحساب نهائياً (متطلّب سياسة Google Play لحذف الحساب).
   /// يطلب كلمة السر الحالية للتأكيد، ثم يستدعي AuthProvider.deleteAccount().
   Future<void> deleteAccountFlow(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
     final passwordController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     bool obscure = true;
@@ -84,8 +88,8 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColors.danger,
                 size: 36,
               ),
-              title: const Text(
-                'حذف الحساب نهائياً',
+              title: Text(
+                t.deleteAccountPermanentlyTitle,
                 textAlign: TextAlign.center,
               ),
               content: Form(
@@ -105,7 +109,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'هذا الإجراء نهائي ولا يمكن التراجع عنه إطلاقاً.',
+                          t.actionIsPermanentWarning,
                           style: TextStyle(
                             color: AppColors.danger,
                             fontWeight: FontWeight.w900,
@@ -115,7 +119,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'عند التأكيد، سيتم حذف التالي فوراً ونهائياً:',
+                        t.deleteAccountWillDeleteIntro,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w800,
@@ -123,14 +127,13 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const _DeleteChecklistItem('اسمك، بريدك، ورقم هاتفك'),
-                      const _DeleteChecklistItem('كلمة المرور وبيانات الدخول'),
-                      const _DeleteChecklistItem('صورتك الشخصية'),
-                      const _DeleteChecklistItem('معرّف إشعارات جهازك'),
+                      _DeleteChecklistItem(t.deleteChecklistNameEmailPhone),
+                      _DeleteChecklistItem(t.deleteChecklistPasswordCredentials),
+                      _DeleteChecklistItem(t.deleteChecklistProfilePhoto),
+                      _DeleteChecklistItem(t.deleteChecklistDeviceToken),
                       const SizedBox(height: 4),
                       Text(
-                        'محادثات الشات القديمة تبقى ظاهرة للطرف الآخر (بدون اسمك) '
-                        'للحفاظ على سجل الطلب، لكن دون أي بيانات تعرّف بك.',
+                        t.deleteAccountChatRetentionNote,
                         style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11.5,
@@ -138,7 +141,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'أدخل كلمة مرورك الحالية لتأكيد أن هذا الطلب منك:',
+                        t.enterCurrentPasswordToConfirmMessage,
                         style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                       ),
                       const SizedBox(height: 10),
@@ -147,9 +150,9 @@ class SettingsScreen extends StatelessWidget {
                         obscureText: obscure,
                         autofocus: true,
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور الحالية',
+                          labelText: t.currentPasswordFieldLabel,
                           suffixIcon: IconButton(
-                            tooltip: obscure ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                            tooltip: obscure ? t.showPasswordTooltip : t.hidePasswordTooltip,
                             icon: Icon(
                               obscure
                                   ? Icons.visibility_off_rounded
@@ -160,7 +163,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                         validator: (v) =>
-                            (v == null || v.isEmpty) ? 'أدخل كلمة المرور' : null,
+                            (v == null || v.isEmpty) ? t.passwordRequiredValidation : null,
                       ),
                     ],
                   ),
@@ -169,7 +172,7 @@ class SettingsScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext, false),
-                  child: const Text('إلغاء'),
+                  child: Text(t.cancelButton),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -178,7 +181,7 @@ class SettingsScreen extends StatelessWidget {
                   },
                   style:
                       ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-                  child: const Text('حذف نهائياً'),
+                  child: Text(t.deleteForeverPermanentlyButton),
                 ),
               ],
             );
@@ -208,7 +211,7 @@ class SettingsScreen extends StatelessWidget {
     } catch (_) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text('تعذر حذف الحساب، حاول مرة أخرى'),
+          content: Text(t.deleteAccountFailedMessage),
           backgroundColor: AppColors.danger,
         ),
       );
@@ -217,6 +220,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final user = context.watch<AuthProvider>().user;
     final isTech = user?.role == 'technician';
 
@@ -228,7 +232,7 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 120),
             children: [
               Text(
-                'الإعدادات',
+                t.navSettings,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 28,
@@ -238,9 +242,9 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 14),
               _ProfileHero(
                 userId: user?.id ?? 0,
-                name: user?.name ?? 'مستخدم صلّحلي',
+                name: user?.name ?? t.sallehlyUserFallbackName,
                 email: user?.email ?? '-',
-                role: roleLabel(user?.role),
+                role: roleLabel(t, user?.role),
                 icon: roleIcon(user?.role),
                 rating: user?.rating ?? 0,
                 balance: user?.balance ?? 0,
@@ -248,37 +252,37 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _SectionCard(
-                title: 'معلومات الحساب',
+                title: t.accountInfoSectionTitle,
                 children: [
-                  _InfoTile(Icons.person_outline_rounded, 'الاسم', user?.name ?? '-'),
-                  _InfoTile(Icons.email_outlined, 'البريد الإلكتروني', user?.email ?? '-'),
-                  _InfoTile(Icons.phone_outlined, 'الهاتف', user?.phone ?? '-'),
-                  _InfoTile(Icons.location_city_outlined, 'المدينة', user?.city ?? '-', bidi: true),
-                  _InfoTile(Icons.place_outlined, 'المنطقة', user?.area ?? '-', bidi: true),
+                  _InfoTile(Icons.person_outline_rounded, t.nameFieldLabel, user?.name ?? '-'),
+                  _InfoTile(Icons.email_outlined, t.emailFieldLabel, user?.email ?? '-'),
+                  _InfoTile(Icons.phone_outlined, t.phoneLabel, user?.phone ?? '-'),
+                  _InfoTile(Icons.location_city_outlined, t.cityLabel, user?.city ?? '-', bidi: true),
+                  _InfoTile(Icons.place_outlined, t.areaDropdownLabel, user?.area ?? '-', bidi: true),
                 ],
               ),
               if (isTech) ...[
                 const SizedBox(height: 14),
                 _SectionCard(
-                  title: 'معلومات الفني',
+                  title: t.technicianInfoSectionTitle,
                   children: [
-                    _InfoTile(Icons.handyman_outlined, 'الخدمة', user?.serviceName ?? 'فني صيانة'),
-                    _InfoTile(Icons.badge_outlined, 'الرقم الوطني', user?.nationalNumber ?? '-'),
-                    _InfoTile(Icons.star_outline_rounded, 'التقييم', '${(user?.rating ?? 0).toStringAsFixed(1)} ⭐'),
-                    _InfoTile(Icons.account_balance_wallet_outlined, 'الرصيد', '${(user?.balance ?? 0).toStringAsFixed(2)} د.أ'),
+                    _InfoTile(Icons.handyman_outlined, t.serviceLabel, user?.serviceName ?? t.maintenanceTechnicianFallback),
+                    _InfoTile(Icons.badge_outlined, t.nationalNumberFieldLabel, user?.nationalNumber ?? '-'),
+                    _InfoTile(Icons.star_outline_rounded, t.ratingLabel, '${(user?.rating ?? 0).toStringAsFixed(1)} ⭐'),
+                    _InfoTile(Icons.account_balance_wallet_outlined, t.balanceButtonLabel, formatJod(context, user?.balance ?? 0)),
                   ],
                 ),
               ],
               const SizedBox(height: 14),
               _SectionCard(
-                title: 'الحساب والخصوصية',
+                title: t.accountAndPrivacySectionTitle,
                 children: [
                   _ActionTile(
                     Icons.edit_outlined,
-                    'تعديل الملف الشخصي',
+                    t.editProfileActionTitle,
                     isTech
-                        ? 'الاسم، الهاتف، المنطقة، والصورة'
-                        : 'الاسم، الهاتف، المنطقة',
+                        ? t.editProfileWithPhotoSubtitle
+                        : t.editProfileWithoutPhotoSubtitle,
                     () {
                       Navigator.push(
                         context,
@@ -290,8 +294,8 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   _ActionTile(
                     Icons.password_rounded,
-                    'تغيير كلمة المرور',
-                    'حدّث كلمة المرور الخاصة بحسابك',
+                    t.changePasswordActionTitle,
+                    t.changePasswordActionSubtitle,
                     () {
                       Navigator.push(
                         context,
@@ -303,8 +307,8 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   _ActionTile(
                     Icons.privacy_tip_outlined,
-                    'سياسة الخصوصية',
-                    'كيف نجمع بياناتك ونحميها',
+                    t.privacyPolicyTitle,
+                    t.privacyPolicyActionSubtitle,
                     () {
                       Navigator.push(
                         context,
@@ -324,8 +328,8 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   _ActionTile(
                     Icons.logout_rounded,
-                    'تسجيل الخروج',
-                    'يمكنك الدخول مرة أخرى بنفس بياناتك',
+                    t.logoutTitle,
+                    t.logoutActionSubtitle,
                     () => logout(context),
                     danger: true,
                   ),
@@ -334,11 +338,11 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               _SectionCard(
-                title: 'التطبيق',
+                title: t.appSectionTitle,
                 children: [
                   const _ThemeModeTile(),
                   const _LanguageTile(),
-                  _ActionTile(Icons.support_agent_rounded, 'الدعم الفني', 'تواصل معنا عند وجود مشكلة', () {
+                  _ActionTile(Icons.support_agent_rounded, t.supportScreenTitle, t.supportActionSubtitle, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -346,12 +350,12 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     );
                   }),
-                  _ActionTile(Icons.info_outline_rounded, 'حول صلّحلي', 'منصة خدمات الصيانة في الأردن', () {
+                  _ActionTile(Icons.info_outline_rounded, t.aboutSallehlyTitle, t.maintenancePlatformInJordanTagline, () {
                     showAboutDialog(
                       context: context,
-                      applicationName: 'صلّحلي',
+                      applicationName: t.appWordmark,
                       applicationVersion: '1.0.0',
-                      applicationLegalese: 'منصة خدمات الصيانة في الأردن',
+                      applicationLegalese: t.maintenancePlatformInJordanTagline,
                     );
                   }),
                 ],
@@ -464,7 +468,7 @@ class _ProfileHero extends StatelessWidget {
             children: [
               _HeroChip(Icons.verified_user_rounded, role),
               if (isTechnician) _HeroChip(Icons.star_rounded, rating.toStringAsFixed(1)),
-              if (isTechnician) _HeroChip(Icons.wallet_rounded, '${balance.toStringAsFixed(1)} د.أ'),
+              if (isTechnician) _HeroChip(Icons.wallet_rounded, formatJod(context, balance)),
             ],
           ),
         ],
@@ -633,7 +637,7 @@ class _ActionTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: danger ? AppColors.danger.withValues(alpha: 0.6) : AppColors.textMuted),
+            Icon(DirectionalIcons.forwardIosStyle(context), size: 16, color: danger ? AppColors.danger.withValues(alpha: 0.6) : AppColors.textMuted),
           ],
         ),
       ),
@@ -650,6 +654,7 @@ class _ThemeModeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = context.watch<ThemeController>().isLight;
+    final t = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -662,12 +667,12 @@ class _ThemeModeTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الوضع الفاتح',
+                  t.lightModeLabel,
                   style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  isLight ? 'خلفية بيضاء لكل الشاشات' : 'مفعّل حالياً الوضع الداكن',
+                  isLight ? t.lightModeOnSubtitle : t.darkModeOnSubtitle,
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 ),
               ],
@@ -787,7 +792,7 @@ class _DeleteAccountTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'حذف الحساب نهائياً',
+                      AppLocalizations.of(context)!.deleteAccountPermanentlyTitle,
                       style: TextStyle(
                         color: AppColors.danger,
                         fontWeight: FontWeight.w900,
@@ -796,7 +801,7 @@ class _DeleteAccountTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'إجراء نهائي لا يمكن التراجع عنه',
+                      AppLocalizations.of(context)!.permanentIrreversibleActionSubtitle,
                       style: TextStyle(
                         color: AppColors.danger.withValues(alpha: 0.75),
                         fontSize: 11.5,

@@ -10,9 +10,11 @@ import 'package:record/record.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/ui/directional_icons.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/notification_provider.dart';
@@ -106,7 +108,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, 'تعذر إرسال الرسالة: $e');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.sendMessageFailedMessage('$e'));
     }
   }
 
@@ -126,7 +128,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, 'تعذر إرسال الصورة: $e');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.sendImageFailedMessage('$e'));
     }
   }
 
@@ -134,14 +136,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     // [FIX-DISCLOSURE-01] اشرح سبب الحاجة للموقع قبل أي طلب صلاحية فعلي —
     // مرة واحدة فقط بهذه الجلسة. إن ألغى المستخدم، لا نطلب الصلاحية إطلاقاً.
     if (!_locationRationaleShown) {
+      final t = AppLocalizations.of(context)!;
       final proceed = await _showPermissionRationale(
         context,
         icon: Icons.location_on_rounded,
-        title: 'مشاركة موقعك',
-        message:
-            'سنستخدم موقعك الجغرافي فقط لإرساله للطرف الآخر بهذه المحادثة '
-            'ليتمكن من الوصول لمكان الخدمة. لن يُستخدم موقعك لأي غرض آخر، '
-            'ولن نصل إليه إلا عند ضغطك على هذا الزر تحديداً.',
+        title: t.shareLocationTitle,
+        message: t.shareLocationRationaleMessage,
       );
       if (!mounted) return;
       _locationRationaleShown = true;
@@ -152,7 +152,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        showErrorSnackBar(context, 'فعّل خدمة الموقع GPS من إعدادات الهاتف');
+        showErrorSnackBar(context, AppLocalizations.of(context)!.enableGpsMessage);
         return;
       }
 
@@ -164,19 +164,18 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       if (permission == LocationPermission.deniedForever) {
         if (!mounted) return;
+        final t = AppLocalizations.of(context)!;
         await _showOpenSettingsDialog(
           context,
           icon: Icons.location_on_rounded,
-          title: 'صلاحية الموقع مرفوضة',
-          message:
-              'رفضت صلاحية الموقع بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. '
-              'لمشاركة موقعك، فعّل صلاحية الموقع يدوياً من إعدادات التطبيق.',
+          title: t.locationPermissionDeniedTitle,
+          message: t.locationPermissionDeniedForeverMessage,
         );
         return;
       }
 
       if (permission == LocationPermission.denied) {
-        showErrorSnackBar(context, 'لم يتم السماح بالوصول للموقع');
+        showErrorSnackBar(context, AppLocalizations.of(context)!.locationAccessDeniedMessage);
         return;
       }
 
@@ -194,7 +193,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (position == null) {
-        showErrorSnackBar(context, 'تعذر تحديد الموقع، افتح GPS وجرب مرة ثانية');
+        showErrorSnackBar(context, AppLocalizations.of(context)!.locationDeterminationFailedMessage);
         return;
       }
 
@@ -210,7 +209,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, 'تعذر إرسال الموقع: $e');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.sendLocationFailedMessage('$e'));
     }
   }
 
@@ -231,12 +230,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
 
         if (path == null || path.isEmpty) {
-          showErrorSnackBar(context, 'لم يتم حفظ التسجيل');
+          showErrorSnackBar(context, AppLocalizations.of(context)!.recordingNotSavedMessage);
           return;
         }
 
         if (duration < 1) {
-          showErrorSnackBar(context, 'التسجيل قصير جداً');
+          showErrorSnackBar(context, AppLocalizations.of(context)!.recordingTooShortMessage);
           return;
         }
 
@@ -252,14 +251,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       // [FIX-DISCLOSURE-01] اشرح سبب الحاجة للميكروفون قبل أي طلب صلاحية فعلي.
       if (!_micRationaleShown) {
+        final t = AppLocalizations.of(context)!;
         final proceed = await _showPermissionRationale(
           context,
           icon: Icons.mic_rounded,
-          title: 'تسجيل رسالة صوتية',
-          message:
-              'سنستخدم الميكروفون فقط أثناء ضغطك المستمر على زر التسجيل، '
-              'لإرسال رسالة صوتية بهذه المحادثة. لا يتم أي تسجيل بالخلفية '
-              'ولا بأي وقت آخر.',
+          title: t.recordVoiceMessageTitle,
+          message: t.recordVoiceMessageRationaleMessage,
         );
         if (!mounted) return;
         _micRationaleShown = true;
@@ -280,17 +277,15 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         if (!mounted) return;
 
         if (micStatus.isPermanentlyDenied) {
+          final t = AppLocalizations.of(context)!;
           await _showOpenSettingsDialog(
             context,
             icon: Icons.mic_rounded,
-            title: 'صلاحية الميكروفون مرفوضة',
-            message:
-                'رفضت صلاحية الميكروفون بشكل دائم، ولا يمكن للتطبيق طلبها '
-                'مجدداً. لتسجيل رسالة صوتية، فعّل الصلاحية يدوياً من '
-                'إعدادات التطبيق.',
+            title: t.micPermissionDeniedTitle,
+            message: t.micPermissionDeniedForeverMessage,
           );
         } else {
-          showErrorSnackBar(context, 'لم يتم السماح بتسجيل الصوت');
+          showErrorSnackBar(context, AppLocalizations.of(context)!.micAccessDeniedMessage);
         }
         return;
       }
@@ -351,7 +346,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
       }
 
-      showErrorSnackBar(context, 'تعذر تسجيل الصوت: $e');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.recordAudioFailedMessage('$e'));
     }
   }
 
@@ -382,24 +377,22 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   // [FIX-UGC-01] حظر/إلغاء حظر الطرف الآخر بهذه المحادثة (سياسة UGC).
   Future<void> blockUserFlow() async {
+    final t = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('حظر هذا المستخدم'),
-        content: const Text(
-          'لن يتمكن أي منكما من إرسال رسائل للآخر بهذا الطلب بعد الحظر. '
-          'يمكنك إلغاء الحظر لاحقاً في أي وقت.',
-        ),
+        title: Text(t.blockThisUserTitle),
+        content: Text(t.blockUserConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
+            child: Text(t.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('حظر'),
+            child: Text(t.blockButton),
           ),
         ],
       ),
@@ -411,23 +404,24 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     try {
       await context.read<ChatProvider>().blockUser(widget.request.id);
       if (!mounted) return;
-      showInfo('تم حظر هذا المستخدم');
+      showInfo(t.userBlockedMessage);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تنفيذ الحظر، حاول مرة أخرى');
+      showErrorSnackBar(context, t.blockActionFailedMessage);
     }
   }
 
   Future<void> unblockUserFlow() async {
+    final t = AppLocalizations.of(context)!;
     try {
       await context.read<ChatProvider>().unblockUser(widget.request.id);
       if (!mounted) return;
-      showInfo('تم إلغاء الحظر');
+      showInfo(t.userUnblockedMessage);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إلغاء الحظر، حاول مرة أخرى');
+      showErrorSnackBar(context, t.unblockActionFailedMessage);
     }
   }
 
@@ -448,7 +442,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إرسال البلاغ، حاول مرة أخرى');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.reportFailedMessage);
     }
   }
 
@@ -469,12 +463,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إرسال البلاغ، حاول مرة أخرى');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.reportFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final currentUser = context.watch<AuthProvider>().user;
     final chatProvider = context.watch<ChatProvider>();
     final messages = chatProvider.messagesFor(widget.request.id);
@@ -509,8 +504,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   child: Text(
                     (blockStatus?.blockedByMe ?? false)
-                        ? '🚫 لقد حظرت هذا المستخدم — لا يمكن تبادل الرسائل بينكما'
-                        : '🚫 لا يمكنك إرسال رسائل لهذا المستخدم حالياً',
+                        ? t.blockedByMeBannerMessage
+                        : t.blockedByOtherBannerMessage,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.danger,
@@ -583,7 +578,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                   padding: const EdgeInsets.all(16),
                   color: AppColors.surface,
                   child: Text(
-                    'التواصل معطّل حالياً بسبب الحظر',
+                    t.communicationDisabledDueToBlockMessage,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
@@ -618,6 +613,7 @@ Future<bool> _showPermissionRationale(
   required String title,
   required String message,
 }) async {
+  final t = AppLocalizations.of(context)!;
   final result = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -625,18 +621,18 @@ Future<bool> _showPermissionRationale(
       icon: Icon(icon, color: AppColors.primary, size: 32),
       title: Text(title, textAlign: TextAlign.center),
       content: Text(
-        '$message\n\nهذه الميزة اختيارية بالكامل — يمكنك دائماً إلغاء الأمر.',
+        '$message\n\n${t.optionalFeatureNote}',
         textAlign: TextAlign.center,
         style: TextStyle(color: AppColors.textSecondary, height: 1.6),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('إلغاء'),
+          child: Text(t.cancelButton),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('متابعة'),
+          child: Text(t.continueButton),
         ),
       ],
     ),
@@ -655,6 +651,7 @@ Future<void> _showOpenSettingsDialog(
   required String title,
   required String message,
 }) async {
+  final t = AppLocalizations.of(context)!;
   await showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
@@ -669,14 +666,14 @@ Future<void> _showOpenSettingsDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('إلغاء'),
+          child: Text(t.cancelButton),
         ),
         ElevatedButton(
           onPressed: () async {
             Navigator.pop(ctx);
             await openAppSettings();
           },
-          child: const Text('فتح إعدادات التطبيق'),
+          child: Text(t.openAppSettingsButton),
         ),
       ],
     ),
@@ -684,6 +681,12 @@ Future<void> _showOpenSettingsDialog(
 }
 
 Future<String?> _pickReportReason(BuildContext context) {
+  final t = AppLocalizations.of(context)!;
+  // [L10N-TODO] هذه القيم عربية لأنها تُرسَل كما هي إلى الخادم كسبب البلاغ
+  // (ChatProvider.reportMessage → ChatApi.reportMessage(reason:))، وتُخزَّن
+  // بجدول البلاغات — نفس اتفاقية RequestModel.status: القيمة المعروضة هي
+  // نفسها الـwire value، فتُترك حتى Phase 3. عنوان الورقة نفسه (ليس قيمة
+  // مُرسَلة) مُترجَم عادياً أدناه.
   const reasons = [
     'محتوى مسيء أو غير لائق',
     'مضايقة أو تهديد',
@@ -707,7 +710,7 @@ Future<String?> _pickReportReason(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'سبب الإبلاغ',
+                t.reportReasonSheetTitle,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -749,6 +752,7 @@ class _ChatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 14, 10),
       decoration: BoxDecoration(
@@ -760,9 +764,9 @@ class _ChatHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            tooltip: 'رجوع',
+            tooltip: t.backButtonTooltip,
             onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded),
+            icon: Icon(DirectionalIcons.back(context)),
           ),
           Container(
             width: 46,
@@ -819,7 +823,7 @@ class _ChatHeader extends StatelessWidget {
                   children: [
                     Icon(Icons.flag_outlined, color: AppColors.danger),
                     const SizedBox(width: 10),
-                    Text('إبلاغ عن المحادثة'),
+                    Text(t.reportConversationMenuLabel),
                   ],
                 ),
               ),
@@ -834,7 +838,7 @@ class _ChatHeader extends StatelessWidget {
                       color: AppColors.danger,
                     ),
                     const SizedBox(width: 10),
-                    Text(isBlockedByMe ? 'إلغاء حظر المستخدم' : 'حظر المستخدم'),
+                    Text(isBlockedByMe ? t.unblockUserMenuLabel : t.blockUserMenuLabel),
                   ],
                 ),
               ),
@@ -881,7 +885,7 @@ class _ChatErrorState extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                'تعذّر تحميل الرسائل',
+                AppLocalizations.of(context)!.supportChatLoadFailedTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -902,7 +906,7 @@ class _ChatErrorState extends StatelessWidget {
               TextButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
+                label: Text(AppLocalizations.of(context)!.retryButton),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
                 ),
@@ -944,7 +948,7 @@ class _EmptyChat extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                'لا توجد رسائل بعد',
+                AppLocalizations.of(context)!.noMessagesYetTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -954,7 +958,7 @@ class _EmptyChat extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'ابدأ المحادثة الآن بخصوص الطلب. يمكنك إرسال رسالة، موقع، صورة، أو تسجيل صوتي.',
+                AppLocalizations.of(context)!.startConversationHintMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textSecondary,

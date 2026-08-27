@@ -2652,5 +2652,317 @@
   "optionalBadgeLabel": "اختيارية",
   "@optionalBadgeLabel": {
     "description": "شارة توضّح أن حقل بيانات اختياري بجدول البيانات"
+  },
+  "sendMessageFailedMessage": "تعذر إرسال الرسالة: {error}",
+  "@sendMessageFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال رسالة نصية بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "sendImageFailedMessage": "تعذر إرسال الصورة: {error}",
+  "@sendImageFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال صورة بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "shareLocationTitle": "مشاركة موقعك",
+  "@shareLocationTitle": {
+    "description": "عنوان حوار توضيح صلاحية الموقع قبل طلبها بالمحادثة"
+  },
+  "shareLocationRationaleMessage": "سنستخدم موقعك الجغرافي فقط لإرساله للطرف الآخر بهذه المحادثة ليتمكن من الوصول لمكان الخدمة. لن يُستخدم موقعك لأي غرض آخر، ولن نصل إليه إلا عند ضغطك على هذا الزر تحديداً.",
+  "@shareLocationRationaleMessage": {
+    "description": "نص شرح استخدام صلاحية الموقع قبل طلبها بالمحادثة"
+  },
+  "enableGpsMessage": "فعّل خدمة الموقع GPS من إعدادات الهاتف",
+  "@enableGpsMessage": {
+    "description": "رسالة توجيه لتفعيل GPS عند محاولة مشاركة الموقع بالمحادثة"
+  },
+  "locationPermissionDeniedTitle": "صلاحية الموقع مرفوضة",
+  "@locationPermissionDeniedTitle": {
+    "description": "عنوان حوار رفض صلاحية الموقع بشكل دائم بالمحادثة"
+  },
+  "locationPermissionDeniedForeverMessage": "رفضت صلاحية الموقع بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لمشاركة موقعك، فعّل صلاحية الموقع يدوياً من إعدادات التطبيق.",
+  "@locationPermissionDeniedForeverMessage": {
+    "description": "نص حوار رفض صلاحية الموقع بشكل دائم بالمحادثة"
+  },
+  "locationAccessDeniedMessage": "لم يتم السماح بالوصول للموقع",
+  "@locationAccessDeniedMessage": {
+    "description": "رسالة قصيرة عند رفض صلاحية الموقع (غير دائم) بالمحادثة"
+  },
+  "locationDeterminationFailedMessage": "تعذر تحديد الموقع، افتح GPS وجرب مرة ثانية",
+  "@locationDeterminationFailedMessage": {
+    "description": "رسالة فشل تحديد إحداثيات الموقع بالمحادثة"
+  },
+  "sendLocationFailedMessage": "تعذر إرسال الموقع: {error}",
+  "@sendLocationFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال الموقع بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "recordingNotSavedMessage": "لم يتم حفظ التسجيل",
+  "@recordingNotSavedMessage": {
+    "description": "رسالة فشل حفظ تسجيل صوتي بالمحادثة"
+  },
+  "recordingTooShortMessage": "التسجيل قصير جداً",
+  "@recordingTooShortMessage": {
+    "description": "رسالة رفض تسجيل صوتي أقصر من ثانية واحدة بالمحادثة"
+  },
+  "recordVoiceMessageTitle": "تسجيل رسالة صوتية",
+  "@recordVoiceMessageTitle": {
+    "description": "عنوان حوار توضيح صلاحية الميكروفون قبل طلبها بالمحادثة"
+  },
+  "recordVoiceMessageRationaleMessage": "سنستخدم الميكروفون فقط أثناء ضغطك المستمر على زر التسجيل، لإرسال رسالة صوتية بهذه المحادثة. لا يتم أي تسجيل بالخلفية ولا بأي وقت آخر.",
+  "@recordVoiceMessageRationaleMessage": {
+    "description": "نص شرح استخدام صلاحية الميكروفون قبل طلبها بالمحادثة"
+  },
+  "micPermissionDeniedTitle": "صلاحية الميكروفون مرفوضة",
+  "@micPermissionDeniedTitle": {
+    "description": "عنوان حوار رفض صلاحية الميكروفون بشكل دائم بالمحادثة"
+  },
+  "micPermissionDeniedForeverMessage": "رفضت صلاحية الميكروفون بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لتسجيل رسالة صوتية، فعّل الصلاحية يدوياً من إعدادات التطبيق.",
+  "@micPermissionDeniedForeverMessage": {
+    "description": "نص حوار رفض صلاحية الميكروفون بشكل دائم بالمحادثة"
+  },
+  "micAccessDeniedMessage": "لم يتم السماح بتسجيل الصوت",
+  "@micAccessDeniedMessage": {
+    "description": "رسالة قصيرة عند رفض صلاحية الميكروفون (غير دائم) بالمحادثة"
+  },
+  "recordAudioFailedMessage": "تعذر تسجيل الصوت: {error}",
+  "@recordAudioFailedMessage": {
+    "description": "رسالة خطأ عامة فشل تسجيل الصوت بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "blockThisUserTitle": "حظر هذا المستخدم",
+  "@blockThisUserTitle": {
+    "description": "عنوان حوار تأكيد حظر الطرف الآخر بالمحادثة"
+  },
+  "blockUserConfirmMessage": "لن يتمكن أي منكما من إرسال رسائل للآخر بهذا الطلب بعد الحظر. يمكنك إلغاء الحظر لاحقاً في أي وقت.",
+  "@blockUserConfirmMessage": {
+    "description": "نص تأكيد حظر الطرف الآخر بالمحادثة"
+  },
+  "blockButton": "حظر",
+  "@blockButton": {
+    "description": "زر تأكيد حظر مستخدم بمربع الحوار"
+  },
+  "userBlockedMessage": "تم حظر هذا المستخدم",
+  "@userBlockedMessage": {
+    "description": "رسالة نجاح حظر الطرف الآخر بالمحادثة"
+  },
+  "blockActionFailedMessage": "تعذر تنفيذ الحظر، حاول مرة أخرى",
+  "@blockActionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حظر مستخدم بالمحادثة"
+  },
+  "userUnblockedMessage": "تم إلغاء الحظر",
+  "@userUnblockedMessage": {
+    "description": "رسالة نجاح إلغاء حظر الطرف الآخر بالمحادثة"
+  },
+  "unblockActionFailedMessage": "تعذر إلغاء الحظر، حاول مرة أخرى",
+  "@unblockActionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إلغاء حظر مستخدم بالمحادثة"
+  },
+  "reportFailedMessage": "تعذر إرسال البلاغ، حاول مرة أخرى",
+  "@reportFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال بلاغ عن رسالة أو محادثة"
+  },
+  "optionalFeatureNote": "هذه الميزة اختيارية بالكامل — يمكنك دائماً إلغاء الأمر.",
+  "@optionalFeatureNote": {
+    "description": "ملاحظة تُلحَق بنص حوار توضيح صلاحية (موقع/ميكروفون) لتأكيد أنها اختيارية"
+  },
+  "continueButton": "متابعة",
+  "@continueButton": {
+    "description": "زر متابعة عام بحوار توضيح صلاحية"
+  },
+  "reportReasonSheetTitle": "سبب الإبلاغ",
+  "@reportReasonSheetTitle": {
+    "description": "عنوان الورقة السفلية لاختيار سبب الإبلاغ"
+  },
+  "reportConversationMenuLabel": "إبلاغ عن المحادثة",
+  "@reportConversationMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة للإبلاغ عن المحادثة كاملة"
+  },
+  "unblockUserMenuLabel": "إلغاء حظر المستخدم",
+  "@unblockUserMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة لإلغاء حظر الطرف الآخر"
+  },
+  "blockUserMenuLabel": "حظر المستخدم",
+  "@blockUserMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة لحظر الطرف الآخر"
+  },
+  "blockedByMeBannerMessage": "🚫 لقد حظرت هذا المستخدم — لا يمكن تبادل الرسائل بينكما",
+  "@blockedByMeBannerMessage": {
+    "description": "شريط تنبيه أعلى المحادثة عندما أنا من حظرت الطرف الآخر"
+  },
+  "blockedByOtherBannerMessage": "🚫 لا يمكنك إرسال رسائل لهذا المستخدم حالياً",
+  "@blockedByOtherBannerMessage": {
+    "description": "شريط تنبيه أعلى المحادثة عندما الطرف الآخر (أو النظام) منع التواصل"
+  },
+  "communicationDisabledDueToBlockMessage": "التواصل معطّل حالياً بسبب الحظر",
+  "@communicationDisabledDueToBlockMessage": {
+    "description": "نص بديل عن حقل الإدخال أسفل المحادثة عند وجود حظر فعّال"
+  },
+  "noMessagesYetTitle": "لا توجد رسائل بعد",
+  "@noMessagesYetTitle": {
+    "description": "عنوان الحالة الفارغة لمحادثة بلا رسائل بعد"
+  },
+  "startConversationHintMessage": "ابدأ المحادثة الآن بخصوص الطلب. يمكنك إرسال رسالة، موقع، صورة، أو تسجيل صوتي.",
+  "@startConversationHintMessage": {
+    "description": "نص إرشادي بالحالة الفارغة لمحادثة بلا رسائل بعد"
+  },
+  "genericUserRoleLabel": "مستخدم",
+  "@genericUserRoleLabel": {
+    "description": "تسمية دور احتياطية لدور غير معروف بشاشة الإعدادات (customer/technician/admin مغطّاة بمفاتيح أخرى)"
+  },
+  "logoutTitle": "تسجيل الخروج",
+  "@logoutTitle": {
+    "description": "عنوان حوار/زر تسجيل الخروج، وعنوان بطاقة إجراء تسجيل الخروج بشاشة الإعدادات"
+  },
+  "logoutConfirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "@logoutConfirmMessage": {
+    "description": "نص تأكيد تسجيل الخروج"
+  },
+  "logoutButton": "خروج",
+  "@logoutButton": {
+    "description": "زر تأكيد تسجيل الخروج بمربع الحوار"
+  },
+  "deleteAccountPermanentlyTitle": "حذف الحساب نهائياً",
+  "@deleteAccountPermanentlyTitle": {
+    "description": "عنوان حوار حذف الحساب النهائي، وعنوان بطاقة إجراء حذف الحساب بشاشة الإعدادات"
+  },
+  "actionIsPermanentWarning": "هذا الإجراء نهائي ولا يمكن التراجع عنه إطلاقاً.",
+  "@actionIsPermanentWarning": {
+    "description": "تحذير بارز أعلى حوار حذف الحساب"
+  },
+  "deleteAccountWillDeleteIntro": "عند التأكيد، سيتم حذف التالي فوراً ونهائياً:",
+  "@deleteAccountWillDeleteIntro": {
+    "description": "مقدمة قائمة العناصر التي ستُحذف عند حذف الحساب"
+  },
+  "deleteChecklistNameEmailPhone": "اسمك، بريدك، ورقم هاتفك",
+  "@deleteChecklistNameEmailPhone": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistPasswordCredentials": "كلمة المرور وبيانات الدخول",
+  "@deleteChecklistPasswordCredentials": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistProfilePhoto": "صورتك الشخصية",
+  "@deleteChecklistProfilePhoto": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistDeviceToken": "معرّف إشعارات جهازك",
+  "@deleteChecklistDeviceToken": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteAccountChatRetentionNote": "محادثات الشات القديمة تبقى ظاهرة للطرف الآخر (بدون اسمك) للحفاظ على سجل الطلب، لكن دون أي بيانات تعرّف بك.",
+  "@deleteAccountChatRetentionNote": {
+    "description": "ملاحظة بشأن استبقاء محادثات الشات القديمة بشكل مجهول بعد حذف الحساب"
+  },
+  "enterCurrentPasswordToConfirmMessage": "أدخل كلمة مرورك الحالية لتأكيد أن هذا الطلب منك:",
+  "@enterCurrentPasswordToConfirmMessage": {
+    "description": "توضيح حقل كلمة المرور بحوار حذف الحساب"
+  },
+  "deleteForeverPermanentlyButton": "حذف نهائياً",
+  "@deleteForeverPermanentlyButton": {
+    "description": "زر تأكيد حذف الحساب نهائياً بمربع الحوار (مختلف عن deleteForeverButton المستخدَم بلوحة الأدمن)"
+  },
+  "deleteAccountFailedMessage": "تعذر حذف الحساب، حاول مرة أخرى",
+  "@deleteAccountFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حذف الحساب"
+  },
+  "sallehlyUserFallbackName": "مستخدم صلّحلي",
+  "@sallehlyUserFallbackName": {
+    "description": "اسم بديل لبطاقة الملف الشخصي بشاشة الإعدادات عند غياب اسم المستخدم"
+  },
+  "accountInfoSectionTitle": "معلومات الحساب",
+  "@accountInfoSectionTitle": {
+    "description": "عنوان قسم معلومات الحساب بشاشة الإعدادات"
+  },
+  "technicianInfoSectionTitle": "معلومات الفني",
+  "@technicianInfoSectionTitle": {
+    "description": "عنوان قسم معلومات الفني بشاشة الإعدادات"
+  },
+  "accountAndPrivacySectionTitle": "الحساب والخصوصية",
+  "@accountAndPrivacySectionTitle": {
+    "description": "عنوان قسم إجراءات الحساب والخصوصية بشاشة الإعدادات"
+  },
+  "appSectionTitle": "التطبيق",
+  "@appSectionTitle": {
+    "description": "عنوان قسم إعدادات التطبيق العامة (المظهر/اللغة/الدعم) بشاشة الإعدادات"
+  },
+  "phoneLabel": "الهاتف",
+  "@phoneLabel": {
+    "description": "تسمية قصيرة لحقل الهاتف بشاشة الإعدادات (مختلف عن phoneFieldLabel=\"رقم الهاتف\" بنماذج التسجيل)"
+  },
+  "serviceLabel": "الخدمة",
+  "@serviceLabel": {
+    "description": "تسمية حقل خدمة الفني بشاشة الإعدادات"
+  },
+  "maintenanceTechnicianFallback": "فني صيانة",
+  "@maintenanceTechnicianFallback": {
+    "description": "اسم خدمة بديل عند غياب اسم خدمة الفني الفعلي"
+  },
+  "ratingLabel": "التقييم",
+  "@ratingLabel": {
+    "description": "تسمية حقل تقييم الفني بشاشة الإعدادات"
+  },
+  "editProfileActionTitle": "تعديل الملف الشخصي",
+  "@editProfileActionTitle": {
+    "description": "عنوان بطاقة إجراء تعديل الملف الشخصي بشاشة الإعدادات"
+  },
+  "editProfileWithPhotoSubtitle": "الاسم، الهاتف، المنطقة، والصورة",
+  "@editProfileWithPhotoSubtitle": {
+    "description": "توضيح بطاقة تعديل الملف الشخصي للفنيين (يشمل الصورة)"
+  },
+  "editProfileWithoutPhotoSubtitle": "الاسم، الهاتف، المنطقة",
+  "@editProfileWithoutPhotoSubtitle": {
+    "description": "توضيح بطاقة تعديل الملف الشخصي للعملاء (بلا صورة)"
+  },
+  "changePasswordActionTitle": "تغيير كلمة المرور",
+  "@changePasswordActionTitle": {
+    "description": "عنوان بطاقة إجراء تغيير كلمة المرور بشاشة الإعدادات"
+  },
+  "changePasswordActionSubtitle": "حدّث كلمة المرور الخاصة بحسابك",
+  "@changePasswordActionSubtitle": {
+    "description": "توضيح بطاقة إجراء تغيير كلمة المرور"
+  },
+  "privacyPolicyActionSubtitle": "كيف نجمع بياناتك ونحميها",
+  "@privacyPolicyActionSubtitle": {
+    "description": "توضيح بطاقة إجراء سياسة الخصوصية بشاشة الإعدادات"
+  },
+  "logoutActionSubtitle": "يمكنك الدخول مرة أخرى بنفس بياناتك",
+  "@logoutActionSubtitle": {
+    "description": "توضيح بطاقة إجراء تسجيل الخروج، يؤكد أنه قابل للتراجع"
+  },
+  "lightModeLabel": "الوضع الفاتح",
+  "@lightModeLabel": {
+    "description": "عنوان مفتاح تبديل الوضع الفاتح/الداكن بشاشة الإعدادات"
+  },
+  "lightModeOnSubtitle": "خلفية بيضاء لكل الشاشات",
+  "@lightModeOnSubtitle": {
+    "description": "توضيح مفتاح المظهر عندما الوضع الفاتح مفعّل"
+  },
+  "darkModeOnSubtitle": "مفعّل حالياً الوضع الداكن",
+  "@darkModeOnSubtitle": {
+    "description": "توضيح مفتاح المظهر عندما الوضع الداكن مفعّل"
+  },
+  "supportActionSubtitle": "تواصل معنا عند وجود مشكلة",
+  "@supportActionSubtitle": {
+    "description": "توضيح بطاقة إجراء الدعم الفني بشاشة الإعدادات"
+  },
+  "aboutSallehlyTitle": "حول صلّحلي",
+  "@aboutSallehlyTitle": {
+    "description": "عنوان بطاقة إجراء \"حول التطبيق\" بشاشة الإعدادات"
+  },
+  "maintenancePlatformInJordanTagline": "منصة خدمات الصيانة في الأردن",
+  "@maintenancePlatformInJordanTagline": {
+    "description": "الوصف التسويقي الموجز للتطبيق، يُستخدم كتوضيح بطاقة \"حول صلّحلي\" وكـapplicationLegalese بحوار about الرسمي"
+  },
+  "permanentIrreversibleActionSubtitle": "إجراء نهائي لا يمكن التراجع عنه",
+  "@permanentIrreversibleActionSubtitle": {
+    "description": "توضيح موجز أسفل بطاقة حذف الحساب بشاشة الإعدادات"
   }
 }
