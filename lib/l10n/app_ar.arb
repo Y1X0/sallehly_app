@@ -1988,9 +1988,9 @@
       "count": {"type": "int"}
     }
   },
-  "offersSectionTitle": "العروض ({count})",
-  "@offersSectionTitle": {
-    "description": "عنوان قسم عروض الفني بشاشة تفاصيل المستخدم، مع عدّاد",
+  "userOffersSectionTitle": "العروض ({count})",
+  "@userOffersSectionTitle": {
+    "description": "عنوان قسم عروض الفني بشاشة تفاصيل المستخدم، مع عدّاد (مختلف عن offersSectionTitle المستخدَم بشاشة عروض العميل، بلا عدّاد)",
     "placeholders": {
       "count": {"type": "int"}
     }
@@ -2223,10 +2223,6 @@
   "violationFallbackLabel": "مخالفة",
   "@violationFallbackLabel": {
     "description": "عنوان بديل لبطاقة مخالفة إن لم يتوفر سبب محدد من الخادم"
-  },
-  "userFallbackName": "مستخدم",
-  "@userFallbackName": {
-    "description": "اسم بديل عام لمستخدم غير معروف الاسم"
   },
   "serviceLabelWithValue": "الخدمة: {service}",
   "@serviceLabelWithValue": {

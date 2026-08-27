@@ -196,7 +196,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                             _SectionTitle(t.requestsAsTechnicianSectionTitle((detail['requestsAsTechnician'] as List).length)),
                             ..._requestTiles(context, detail['requestsAsTechnician'] as List),
                             const SizedBox(height: 20),
-                            _SectionTitle(t.offersSectionTitle((detail['offers'] as List).length)),
+                            _SectionTitle(t.userOffersSectionTitle((detail['offers'] as List).length)),
                             ...(detail['offers'] as List).map((o) => _SimpleTile(
                                   title: formatJod(context, double.tryParse('${o['price']}') ?? 0),
                                   subtitle: '${t.requestNumberLabel(o['request_id'] as int)} • ${o['status']}',
