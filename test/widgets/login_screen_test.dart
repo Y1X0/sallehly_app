@@ -113,12 +113,22 @@ void main() {
     // فقط أن LoginScreen استدعت AuthProvider.login بالقيم الصحيحة، وليس
     // سلوك الشاشة التالية بعد التنقل. أي استثناء ناتج عن غياب تلك الشجرة
     // متوقَّع تماماً ويُستهلَك هنا بأمان.
-    await _pumpAnimated(tester, 3);
-    // CustomerLayout يقرأ NotificationProvider في مكانين منفصلين (build()
-    // متزامناً عبر context.watch، وaddPostFrameCallback لاحقاً عبر
-    // context.read) — أي منهما بلا الشجرة الكاملة يُطلق ProviderNotFoundException
-    // مستقلاً، فقد يتراكم أكثر من استثناء معلَّق واحد. استهلك الكل، لا واحداً
-    // فقط، وإلا فشل الاختبار لاحقاً بسبب استثناء متبقٍّ غير مُستهلَك.
+    //
+    // ملاحظة مهمة (اكتُشفت بعد فشل CI فعلياً): استثناء يُطلَق من داخل
+    // addPostFrameCallback بمرحلة "scheduler" (هنا: CustomerLayout.didChangeDependencies)
+    // لا يُخزَّن بصمت بطابور tester.takeException() لاستهلاكه لاحقاً — بل
+    // يُعاد رميه مباشرة عبر استدعاء await tester.pump() نفسه. لذا try/catch
+    // حول نداء الـpump هو الآلية الصحيحة هنا، وليس تفريغ الطابور بعد انتهائه
+    // (المحاولة السابقة بـwhile(tester.takeException()...) لم تُنفَّذ أصلاً
+    // لأن الاستثناء أوقف التنفيذ عند await قبل الوصول لها).
+    try {
+      await _pumpAnimated(tester, 3);
+    } catch (_) {
+      // متوقَّع تماماً — راجع التعليق أعلاه.
+    }
+    // تفريغ أي استثناء إضافي مُسجَّل بصمت (CustomerLayout يقرأ NotificationProvider
+    // في مكانين منفصلين: build() عبر context.watch، وaddPostFrameCallback عبر
+    // context.read — فقد يتراكم أكثر من واحد)، بلا تكرار العدد إلى رقم ثابت.
     while (tester.takeException() != null) {}
 
     verify(() => mockAuthApi.login(email: 'user@example.com', password: 'secret123')).called(1);
