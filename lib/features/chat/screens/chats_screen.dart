@@ -5,6 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/chat_summary_model.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -87,9 +89,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
               children: [
                 _HeaderCard(count: chats.length, totalUnread: chatProvider.totalUnread),
                 const SizedBox(height: 22),
-                const SectionTitle(
-                  title: 'المحادثات',
-                  subtitle: 'كل محادثات الطلبات المقبولة في مكان واحد',
+                SectionTitle(
+                  title: AppLocalizations.of(context)!.chatsSectionTitle,
+                  subtitle: AppLocalizations.of(context)!.chatsSectionSubtitle,
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && chats.isEmpty)
@@ -155,6 +157,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       radius: 30,
       gradient: AppColors.primaryGradient,
@@ -180,7 +183,7 @@ class _HeaderCard extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                count == 0 ? 'لا توجد محادثات' : '$count محادثة نشطة',
+                count == 0 ? t.chatsNoneTitle : t.chatsActiveCount(count),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 27,
@@ -190,8 +193,8 @@ class _HeaderCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 totalUnread > 0
-                    ? 'لديك $totalUnread رسالة غير مقروءة'
-                    : 'تواصل بأمان داخل التطبيق بدون مشاركة أرقام الهاتف.',
+                    ? t.chatsUnreadCount(totalUnread)
+                    : t.chatsSecureSubtitle,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.82),
                   fontSize: 14,
@@ -219,12 +222,12 @@ class _ChatCard extends StatelessWidget {
 
   /// [FIX-CHATUNREAD-01] معاينة آخر رسالة — تحوّل حمولات الصورة/الصوت/الموقع
   /// الداخلية إلى نص عربي مفهوم بدل عرض الرابط الخام.
-  String _previewText(String? lastBody) {
+  String _previewText(AppLocalizations t, String? lastBody) {
     final body = (lastBody ?? '').trim();
-    if (body.isEmpty) return 'ابدأ المحادثة الآن';
-    if (body.startsWith('[image]')) return '📷 صورة';
-    if (body.startsWith('[audio]')) return '🎤 رسالة صوتية${_audioDurationSuffix(body)}';
-    if (body.startsWith('[location]')) return '📍 موقع';
+    if (body.isEmpty) return t.chatPreviewStartNow;
+    if (body.startsWith('[image]')) return t.chatPreviewImage;
+    if (body.startsWith('[audio]')) return '${t.chatPreviewAudio}${_audioDurationSuffix(body)}';
+    if (body.startsWith('[location]')) return t.chatPreviewLocation;
     return body;
   }
 
@@ -255,6 +258,7 @@ class _ChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final location =
         '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}';
     final unreadCount = summary?.unreadCount ?? 0;
@@ -340,7 +344,7 @@ class _ChatCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _previewText(summary?.lastBody),
+                  _previewText(t, summary?.lastBody),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -373,7 +377,7 @@ class _ChatCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'محادثة آمنة',
+                    t.chatSecureBadge,
                     style: TextStyle(
                       color: AppColors.success,
                       fontSize: 11,
@@ -386,7 +390,7 @@ class _ChatCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Icon(
-            Icons.arrow_forward_ios_rounded,
+            DirectionalIcons.forwardIosStyle(context),
             color: AppColors.textMuted,
             size: 17,
           ),
@@ -407,6 +411,7 @@ class _ChatsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -426,7 +431,7 @@ class _ChatsErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'تعذّر تحميل المحادثات',
+            t.chatsLoadFailedTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -446,7 +451,7 @@ class _ChatsErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.primary,
             ),
@@ -462,6 +467,7 @@ class _EmptyChats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -481,7 +487,7 @@ class _EmptyChats extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'لا توجد محادثات حالياً',
+            t.chatsEmptyTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -490,7 +496,7 @@ class _EmptyChats extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'بعد قبول عرض أو بدء طلب، ستظهر المحادثة هنا.',
+            t.chatsEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textSecondary,

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../requests/widgets/request_status_chip.dart';
@@ -26,17 +27,16 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
   /// عنه (السيرفر يرفض الطلبات المعلَّمة "ملغي" لاحقاً)، فلا يجوز تنفيذه
   /// بضغطة واحدة عرضية.
   Future<void> _confirmAndCancel(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('إلغاء الطلب؟'),
-        content: const Text(
-          'سيتم إلغاء هذا الطلب نهائياً ولن يتمكن أي فني من التقدّم بعروض عليه بعد الآن. هل أنت متأكد؟',
-        ),
+        title: Text(t.cancelRequestDialogTitle),
+        content: Text(t.cancelRequestConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('تراجع'),
+            child: Text(t.goBackButton),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -44,7 +44,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('نعم، ألغِ الطلب'),
+            child: Text(t.confirmCancelRequestButton),
           ),
         ],
       ),
@@ -65,19 +65,20 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: AppColors.danger, content: Text('تعذر إلغاء الطلب')),
+        SnackBar(backgroundColor: AppColors.danger, content: Text(t.cancelRequestFailedMessage)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('طلب رقم ${request.id}'),
+        title: Text(t.customerRequestDetailsTitle(request.id)),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -140,7 +141,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
           FadeIn(
             delay: const Duration(milliseconds: 70),
             child: _Box(
-              title: 'وصف المشكلة',
+              title: t.requestProblemDescriptionLabel,
               child: BidiText(
                 request.description,
                 style: TextStyle(
@@ -188,7 +189,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.local_offer_outlined),
-                    label: const Text('عرض عروض الفنيين'),
+                    label: Text(t.viewOffersButton),
                   ),
                 if (request.isCancellable) ...[
                   const SizedBox(height: 12),
@@ -199,7 +200,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                     ),
                     onPressed: provider.loading ? null : () => _confirmAndCancel(context),
                     icon: const Icon(Icons.cancel_outlined),
-                    label: const Text('إلغاء الطلب'),
+                    label: Text(t.cancelRequestButton),
                   ),
                 ],
                 if (request.status == 'قيد التنفيذ' ||
@@ -213,7 +214,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                       if (context.mounted) Navigator.pop(context);
                     },
                     icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('إنهاء الطلب'),
+                    label: Text(t.completeRequestButton),
                   ),
                 ],
                 if (request.status == 'مكتمل' && request.technicianId != null) ...[
@@ -239,7 +240,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.star_rounded),
-                    label: const Text('قيّم الفني'),
+                    label: Text(t.rateTechnicianButton),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
@@ -263,7 +264,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.report_problem_outlined),
-                    label: const Text('تقديم شكوى'),
+                    label: Text(t.complaintSheetTitle),
                   ),
                 ],
               ],

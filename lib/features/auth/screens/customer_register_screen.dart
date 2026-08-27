@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/consent_checkbox.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import 'verify_otp_screen.dart';
 import '../../../core/widgets/success_feedback.dart';
@@ -48,8 +49,10 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
+
     if (!consentGiven) {
-      showErrorSnackBar(context, 'يجب الموافقة على سياسة الخصوصية أولاً');
+      showErrorSnackBar(context, t.consentRequiredMessage);
       return;
     }
 
@@ -85,18 +88,19 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'حدث خطأ أثناء إنشاء الحساب');
+      showErrorSnackBar(context, t.registerGenericErrorMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('حساب عميل جديد'),
+        title: Text(t.customerRegisterTitle),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -115,7 +119,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'إنشاء حساب عميل',
+                  t.customerRegisterHeading,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 25,
@@ -125,11 +129,11 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                 const SizedBox(height: 28),
                 _field(
                   controller: nameController,
-                  label: 'الاسم الكامل',
+                  label: t.fullNameFieldLabel,
                   icon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.trim().length < 2) {
-                      return 'الرجاء إدخال الاسم الكامل';
+                      return t.pleaseEnterFullNameValidation;
                     }
                     return null;
                   },
@@ -137,14 +141,14 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                 const SizedBox(height: 14),
                 _field(
                   controller: emailController,
-                  label: 'البريد الإلكتروني',
+                  label: t.emailFieldLabel,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final email = value?.trim() ?? '';
                     if (!email.contains('@')) {
-                      return 'البريد الإلكتروني غير صحيح';
+                      return t.emailInvalidValidation;
                     }
                     return null;
                   },
@@ -152,21 +156,21 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                 const SizedBox(height: 14),
                 _field(
                   controller: phoneController,
-                  label: 'رقم الهاتف',
+                  label: t.phoneFieldLabel,
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final phone = value?.trim() ?? '';
                     if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
-                      return 'رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام';
+                      return t.phoneFormatValidation;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 14),
                 _dropdown(
-                  label: 'المحافظة',
+                  label: t.cityFieldLabel,
                   icon: Icons.location_city_outlined,
                   value: selectedCity,
                   items: AppConstants.cities,
@@ -181,7 +185,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                 ),
                 const SizedBox(height: 14),
                 _dropdown(
-                  label: 'المنطقة',
+                  label: t.areaDropdownLabel,
                   icon: Icons.place_outlined,
                   value: selectedArea,
                   items: availableAreas,
@@ -199,10 +203,10 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   obscureText: hidePassword,
                   textDirection: TextDirection.ltr,
                   decoration: InputDecoration(
-                    labelText: 'كلمة المرور',
+                    labelText: t.passwordFieldLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                      tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
                       onPressed: () {
                         setState(() {
                           hidePassword = !hidePassword;
@@ -217,7 +221,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.length < 8) {
-                      return 'كلمة السر يجب أن تكون 8 أحرف على الأقل';
+                      return t.registerPasswordMinLengthValidation;
                     }
                     return null;
                   },
@@ -236,9 +240,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                       ? const CircularProgressIndicator(
                     color: Colors.white,
                   )
-                      : const Text(
-                    'إنشاء الحساب',
-                    style: TextStyle(
+                      : Text(
+                    t.createAccountButton,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
@@ -296,7 +300,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'اختر $label';
+          return AppLocalizations.of(context)!.selectFieldValidation(label);
         }
         return null;
       },

@@ -1204,5 +1204,267 @@
   "rejectButton": "رفض",
   "@rejectButton": {
     "description": "زر رفض طلب شحن"
+  },
+  "cancelRequestDialogTitle": "إلغاء الطلب؟",
+  "@cancelRequestDialogTitle": {
+    "description": "عنوان نافذة تأكيد إلغاء طلب العميل"
+  },
+  "cancelRequestConfirmMessage": "سيتم إلغاء هذا الطلب نهائياً ولن يتمكن أي فني من التقدّم بعروض عليه بعد الآن. هل أنت متأكد؟",
+  "@cancelRequestConfirmMessage": {
+    "description": "نص نافذة تأكيد إلغاء طلب العميل، يوضّح أن الإجراء نهائي"
+  },
+  "goBackButton": "تراجع",
+  "@goBackButton": {
+    "description": "زر التراجع عن نافذة تأكيد (بمعنى \"لا تفعل هذا\"، أدق من إلغاء عام)"
+  },
+  "confirmCancelRequestButton": "نعم، ألغِ الطلب",
+  "@confirmCancelRequestButton": {
+    "description": "زر تأكيد إلغاء الطلب بنافذة التأكيد"
+  },
+  "cancelRequestFailedMessage": "تعذر إلغاء الطلب",
+  "@cancelRequestFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إلغاء الطلب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "customerRequestDetailsTitle": "طلب رقم {id}",
+  "@customerRequestDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل الطلب للعميل",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "viewOffersButton": "عرض عروض الفنيين",
+  "@viewOffersButton": {
+    "description": "زر الانتقال لعرض عروض الفنيين على الطلب"
+  },
+  "cancelRequestButton": "إلغاء الطلب",
+  "@cancelRequestButton": {
+    "description": "زر بدء إجراء إلغاء الطلب (يفتح نافذة التأكيد)"
+  },
+  "completeRequestButton": "إنهاء الطلب",
+  "@completeRequestButton": {
+    "description": "زر تحديد العميل أن الطلب اكتمل"
+  },
+  "rateTechnicianButton": "قيّم الفني",
+  "@rateTechnicianButton": {
+    "description": "زر فتح نافذة تقييم الفني"
+  },
+  "consentRequiredMessage": "يجب الموافقة على سياسة الخصوصية أولاً",
+  "@consentRequiredMessage": {
+    "description": "رسالة تحذير عند محاولة إنشاء حساب بلا الموافقة على سياسة الخصوصية"
+  },
+  "registerGenericErrorMessage": "حدث خطأ أثناء إنشاء الحساب",
+  "@registerGenericErrorMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء الحساب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "customerRegisterTitle": "حساب عميل جديد",
+  "@customerRegisterTitle": {
+    "description": "عنوان شاشة تسجيل حساب عميل جديد"
+  },
+  "customerRegisterHeading": "إنشاء حساب عميل",
+  "@customerRegisterHeading": {
+    "description": "العنوان الرئيسي بداخل شاشة تسجيل حساب عميل"
+  },
+  "pleaseEnterFullNameValidation": "الرجاء إدخال الاسم الكامل",
+  "@pleaseEnterFullNameValidation": {
+    "description": "رسالة تحقق عند إدخال اسم أقصر من حرفين (صياغة شاشة تسجيل العميل، أرسمي قليلاً من fullNameRequiredValidation)"
+  },
+  "areaDropdownLabel": "المنطقة",
+  "@areaDropdownLabel": {
+    "description": "تسمية قائمة اختيار المنطقة المنسدلة (أقصر من areaFieldLabel النصي الحر)"
+  },
+  "registerPasswordMinLengthValidation": "كلمة السر يجب أن تكون 8 أحرف على الأقل",
+  "@registerPasswordMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة سر أقصر من 8 أحرف (صياغة \"كلمة السر\"، مختلفة عن newPasswordMinLengthValidation بصياغة \"كلمة المرور\")"
+  },
+  "createAccountButton": "إنشاء الحساب",
+  "@createAccountButton": {
+    "description": "زر إرسال نموذج إنشاء حساب"
+  },
+  "selectFieldValidation": "اختر {field}",
+  "@selectFieldValidation": {
+    "description": "رسالة تحقق عامة عند عدم اختيار قيمة بقائمة منسدلة، مع اسم الحقل نفسه",
+    "placeholders": {
+      "field": {"type": "String"}
+    }
+  },
+  "chatsSectionTitle": "المحادثات",
+  "@chatsSectionTitle": {
+    "description": "عنوان قسم قائمة المحادثات"
+  },
+  "chatsSectionSubtitle": "كل محادثات الطلبات المقبولة في مكان واحد",
+  "@chatsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم المحادثات"
+  },
+  "chatsNoneTitle": "لا توجد محادثات",
+  "@chatsNoneTitle": {
+    "description": "نص بطاقة الهيرو عندما لا توجد أي محادثات (count == 0)"
+  },
+  "chatsActiveCount": "{count, plural, one{محادثة نشطة واحدة} two{محادثتان نشطتان} few{{count} محادثات نشطة} many{{count} محادثة نشطة} other{{count} محادثة نشطة}}",
+  "@chatsActiveCount": {
+    "description": "نص بطاقة الهيرو بعدد المحادثات النشطة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "chatsSecureSubtitle": "تواصل بأمان داخل التطبيق بدون مشاركة أرقام الهاتف.",
+  "@chatsSecureSubtitle": {
+    "description": "نص فرعي تسويقي ببطاقة هيرو المحادثات عندما لا توجد رسائل غير مقروءة"
+  },
+  "chatsUnreadCount": "{count, plural, one{لديك رسالة واحدة غير مقروءة} two{لديك رسالتان غير مقروءتان} few{لديك {count} رسائل غير مقروءة} many{لديك {count} رسالة غير مقروءة} other{لديك {count} رسالة غير مقروءة}}",
+  "@chatsUnreadCount": {
+    "description": "نص بطاقة الهيرو بعدد الرسائل غير المقروءة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "chatPreviewStartNow": "ابدأ المحادثة الآن",
+  "@chatPreviewStartNow": {
+    "description": "نص معاينة آخر رسالة عندما لا توجد أي رسائل بعد بهذه المحادثة"
+  },
+  "chatPreviewImage": "📷 صورة",
+  "@chatPreviewImage": {
+    "description": "نص معاينة آخر رسالة عندما تكون صورة"
+  },
+  "chatPreviewAudio": "🎤 رسالة صوتية",
+  "@chatPreviewAudio": {
+    "description": "نص معاينة آخر رسالة عندما تكون رسالة صوتية (قد يُضاف بعده لاحقة مدة مُنسَّقة بالأرقام فقط، غير قابلة للترجمة)"
+  },
+  "chatPreviewLocation": "📍 موقع",
+  "@chatPreviewLocation": {
+    "description": "نص معاينة آخر رسالة عندما تكون مشاركة موقع"
+  },
+  "chatSecureBadge": "محادثة آمنة",
+  "@chatSecureBadge": {
+    "description": "وسم صغير على بطاقة كل محادثة يؤكّد أنها آمنة"
+  },
+  "chatsLoadFailedTitle": "تعذّر تحميل المحادثات",
+  "@chatsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة المحادثات"
+  },
+  "chatsEmptyTitle": "لا توجد محادثات حالياً",
+  "@chatsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة المحادثات"
+  },
+  "chatsEmptySubtitle": "بعد قبول عرض أو بدء طلب، ستظهر المحادثة هنا.",
+  "@chatsEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة المحادثات"
+  },
+  "dashboardAllServicesTitle": "كل الخدمات",
+  "@dashboardAllServicesTitle": {
+    "description": "عنوان النافذة المنبثقة بكل الخدمات المتاحة"
+  },
+  "createRequestActionTitle": "إنشاء طلب",
+  "@createRequestActionTitle": {
+    "description": "عنوان بطاقة الانتقال لإنشاء طلب جديد"
+  },
+  "createRequestActionSubtitle": "طلب صيانة جديد",
+  "@createRequestActionSubtitle": {
+    "description": "نص فرعي ببطاقة إنشاء طلب جديد"
+  },
+  "myRequestsActionTitle": "طلباتي",
+  "@myRequestsActionTitle": {
+    "description": "عنوان بطاقة الانتقال لقائمة طلبات العميل، وتسمية إحصائية إجمالي الطلبات"
+  },
+  "myRequestsActionSubtitle": "متابعة الطلبات",
+  "@myRequestsActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لقائمة طلبات العميل"
+  },
+  "dashboardLoadFailedTitle": "تعذّر تحميل بياناتك",
+  "@dashboardLoadFailedTitle": {
+    "description": "عنوان إشعار فشل تحميل بيانات لوحة العميل الرئيسية"
+  },
+  "statOffersLabel": "عروض",
+  "@statOffersLabel": {
+    "description": "تسمية إحصائية: عدد العروض"
+  },
+  "dashboardServicesHeading": "خدمات صلّحلي",
+  "@dashboardServicesHeading": {
+    "description": "عنوان قسم شبكة الخدمات بلوحة العميل الرئيسية"
+  },
+  "viewAllButton": "عرض الكل",
+  "@viewAllButton": {
+    "description": "زر عرض كل العناصر (خدمات، قائمة، إلخ) عند وجود قائمة مختصرة معروضة جزئياً"
+  },
+  "dashboardHeroSubtitle": "اطلب الفني الأقرب إليك واستقبل العروض بسرعة وبشكل آمن.",
+  "@dashboardHeroSubtitle": {
+    "description": "النص التسويقي الفرعي ببطاقة الهيرو بلوحة العميل الرئيسية"
+  },
+  "noServicesAvailableMessage": "لا توجد خدمات متاحة حالياً",
+  "@noServicesAvailableMessage": {
+    "description": "رسالة عند عدم وجود أي خدمة فعّالة بكتالوج الخدمات"
+  },
+  "requestServiceNowLabel": "اطلب الخدمة الآن",
+  "@requestServiceNowLabel": {
+    "description": "نص دعوة لاتخاذ إجراء أسفل كل بطاقة خدمة"
+  },
+  "offerSentSuccessMessage": "تم إرسال العرض بنجاح",
+  "@offerSentSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إرسال عرض الفني"
+  },
+  "offerSendFailedMessage": "تعذر إرسال العرض",
+  "@offerSendFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال العرض لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "freeOffersExhaustedTitle": "استُهلكت فرصتاك المجانيتان",
+  "@freeOffersExhaustedTitle": {
+    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد"
+  },
+  "laterButton": "لاحقاً",
+  "@laterButton": {
+    "description": "زر تأجيل إجراء (بمعنى \"ليس الآن\")"
+  },
+  "submitOfferTitle": "تقديم عرض",
+  "@submitOfferTitle": {
+    "description": "عنوان شاشة تقديم عرض على طلب"
+  },
+  "freeOffersRemainingCount": "{count, plural, one{لديك عرض مجاني واحد متبقٍ} two{لديك عرضان مجانيان متبقيان} few{لديك {count} عروض مجانية متبقية} many{لديك {count} عرضاً مجانياً متبقياً} other{لديك {count} عرض مجاني متبقٍ}}",
+  "@freeOffersRemainingCount": {
+    "description": "نص عدد الفرص المجانية المتبقية لتقديم عروض بلا عمولة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "commissionWillBeDeductedMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم {amount} من رصيدك عند اكتمال هذا الطلب",
+  "@commissionWillBeDeductedMessage": {
+    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "insufficientBalanceMessage": "رصيدك الحالي ({balance}) غير كافٍ — تحتاج {required} على الأقل لتقديم عرض جديد",
+  "@insufficientBalanceMessage": {
+    "description": "رسالة تنبيه عند عدم كفاية الرصيد لتقديم عرض جديد (balance وrequired مُنسَّقان مسبقاً بـformatJod)",
+    "placeholders": {
+      "balance": {"type": "String"},
+      "required": {"type": "String"}
+    }
+  },
+  "priceFieldLabel": "السعر بالدينار",
+  "@priceFieldLabel": {
+    "description": "تسمية حقل سعر العرض بالدينار الأردني"
+  },
+  "validPriceValidation": "أدخل سعر صحيح",
+  "@validPriceValidation": {
+    "description": "رسالة تحقق عند إدخال سعر غير صحيح أو أقل من 1"
+  },
+  "durationFieldLabel": "مدة الوصول أو التنفيذ",
+  "@durationFieldLabel": {
+    "description": "تسمية حقل مدة الوصول أو التنفيذ بشاشة تقديم العرض"
+  },
+  "durationFieldHint": "مثلاً: خلال ساعة",
+  "@durationFieldHint": {
+    "description": "نص تلميحي داخل حقل مدة الوصول أو التنفيذ"
+  },
+  "durationRequiredValidation": "أدخل مدة الوصول أو التنفيذ",
+  "@durationRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل مدة الوصول أو التنفيذ فارغاً"
+  },
+  "submitOfferButton": "إرسال العرض",
+  "@submitOfferButton": {
+    "description": "زر إرسال العرض عندما يكون الرصيد كافياً"
+  },
+  "insufficientBalanceButton": "رصيد غير كافٍ",
+  "@insufficientBalanceButton": {
+    "description": "نص الزر المعطَّل عندما يكون الرصيد غير كافٍ لإرسال العرض"
   }
 }
