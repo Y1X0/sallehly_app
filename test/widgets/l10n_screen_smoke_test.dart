@@ -211,11 +211,12 @@ void main() {
     for (final locale in _locales) {
       for (final viewport in _viewports.entries) {
         final key = '${screenCase.name}|${locale.languageCode}|${viewport.key}';
+        // سبب التخطي (عند وجوده) موثَّق أعلاه بـ_knownPreexistingOverflow
+        // وبـL10N_PROGRESS.md — معامل skip هنا bool فقط (لا يقبل نص السبب
+        // مباشرةً بهذا الإصدار من Flutter، خلافاً لما افترضته أول مرة).
         testWidgets(
           '[FIX-L10N-04] ${screenCase.name} — locale=${locale.languageCode} — ${viewport.key}: بلا استثناء',
-          skip: _knownPreexistingOverflow.contains(key)
-              ? 'باگ فيضان نص موجود مسبقاً (غير متعلّق بالترجمة) — راجع L10N_PROGRESS.md'
-              : false,
+          skip: _knownPreexistingOverflow.contains(key),
           (tester) async {
             tester.view.physicalSize = viewport.value;
             tester.view.devicePixelRatio = 1.0;
