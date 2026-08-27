@@ -278,6 +278,151 @@ both are flagged for a separate fix, out of scope for the localization work.
 - No `TextAlign.right` found anywhere in `lib/`.
 - No asymmetric `Positioned(left:/right:)` found.
 
+### Arabic content renders on the wrong side under `locale=en` (bidi mismatch)
+
+Found via the real-font CI screenshots (see "Visual regression net" below), confirmed
+in 4 places initially, then swept for every other site with the same root cause.
+
+**Mechanism:** a `Text` widget with no explicit `textDirection` inherits
+`Directionality.of(context)` as its paragraph base direction. Under `locale=en`
+that's now `TextDirection.ltr` (correctly — Phase 1 removed the hardcoded RTL
+override). When the widget's *content* is still Arabic, trailing punctuation
+(a sentence-ending period, in every case caught) visually jumps to the
+**start** of the line instead of staying at the end — e.g. `.اطلب الفني
+الأقرب إليك` instead of `اطلب الفني الأقرب إليك.`. This is a real instance of
+"an element stuck on the wrong side after the LTR flip," not a font/rendering
+artifact — confirmed by eye in the screenshots at
+`l10n-screenshots-latest`.
+
+This splits into two categories with different fixes:
+
+**A. Transitional — resolves on its own once Phase 2 migrates the string.**
+These are hardcoded Arabic *UI labels* that become real English text under
+`locale=en` once extracted to ARB; a genuinely-English string in an LTR
+paragraph has no bidi mismatch to begin with.
+- `customer_dashboard_screen.dart:348` — `_HeroCard` subtitle
+- `technician_dashboard_screen.dart:308` — hero subtitle
+- `chats_screen.dart:194` — empty-state subtitle
+
+No action needed on these beyond their normal Phase 2 migration.
+
+**B. Needs a content-direction fix — stays Arabic regardless of locale.**
+This is content Phase 2 does **not** migrate (by earlier decisions in this
+doc — see §5): it's real Arabic text embedded in a UI whose *ambient*
+direction can now be LTR. Swept the codebase for every render site, grouped
+by source (not limited to the 4 the screenshots happened to catch):
+
+- **User-generated text** (§5 already lists these categories; these are the
+  concrete render sites):
+  - `RequestModel.description` — `customer_request_details_screen.dart:144`,
+    `technician_request_details_screen.dart:131`,
+    `customer_request_card.dart:108`, `technician_request_card.dart:154`
+  - Chat messages (`MessageModel.body`) — `chat_bubble.dart:211`
+  - Support ticket messages (`SupportMessageModel.body`) —
+    `support_chat_screen.dart:373`, `admin_support_chat_screen.dart:322`
+  - Support ticket title/body (`SupportTicketModel.title`/`.body`) —
+    `support_screen.dart:238,274`, `admin_support_screen.dart:220,253`
+  - Review comments (`ReviewModel.comment`) — `my_reviews_screen.dart:253`
+  - Offer duration/note (`OfferModel.duration`/`.note`, technician-entered
+    free text) — `offer_card.dart:58,64`
+  - *Considered, not included:* `UserModel.name`. Names are short,
+    single-token in practice, and none of the screenshots showed a
+    mis-placed name — lower priority, your call whether to include it.
+- **Place names from `app_constants.dart`** (client-side constant, excluded
+  from migration per §5) — rendered standalone or as the recurring
+  `'${city}${area == null ? '' : ' - $area'}'` composite:
+  `customer_request_details_screen.dart:129`,
+  `technician_request_details_screen.dart:114`,
+  `customer_request_card.dart:96`, `technician_request_card.dart:29`,
+  `chat_room_screen.dart:495`, `send_offer_screen.dart:163`,
+  `settings_screen.dart:255-256` (standalone, not composite). Unlike the
+  user-generated category, these don't strictly need runtime *detection*
+  (they're always Arabic) — a hardcoded `TextDirection.rtl` would work just
+  as well; grouping them with the same helper is for consistency, not
+  necessity.
+- **Backend error messages** (`ApiException.message`, §5) — rendered through
+  two recurring duplicated-per-screen patterns, not one shared widget:
+  - A local `showError(String)` method → `SnackBar(content: Text(message))`,
+    duplicated in 18 files: `chat_room_screen.dart`,
+    `topup_request_screen.dart`, `send_offer_screen.dart`,
+    `support_chat_screen.dart`, `edit_profile_screen.dart`,
+    `change_password_screen.dart`, `complaint_sheet.dart`,
+    `create_request_screen.dart`, `forgot_password_screen.dart`,
+    `login_screen.dart`, `technician_register_screen.dart`,
+    `verify_otp_screen.dart`, `customer_register_screen.dart`,
+    `admin_meta_screen.dart`, `admin_support_chat_screen.dart`,
+    `admin_topups_screen.dart`, `admin_user_detail_screen.dart`,
+    `admin_users_screen.dart`.
+  - A local `_XxxErrorState`/`_XxxNotice` private widget reading
+    `provider.error` for a persistent inline banner (not a toast),
+    duplicated in 16 files: `chat_room_screen.dart`, `wallet_screen.dart`,
+    `new_requests_screen.dart`, `technician_dashboard_screen.dart`,
+    `technician_orders_screen.dart`, `support_screen.dart`,
+    `customer_dashboard_screen.dart`, `customer_requests_screen.dart`,
+    `offers_screen.dart`, `chats_screen.dart`, `admin_dashboard_screen.dart`,
+    `admin_ledger_screen.dart`, `admin_requests_screen.dart`,
+    `admin_user_detail_screen.dart`, `admin_users_screen.dart`,
+    `admin_audit_screen.dart`.
+  - This matches the "~40+ call sites" already noted on `ApiException.message`
+    itself — the fix is the same one-line change at each site (wrap the
+    `Text(message)`), not a refactor of the duplication itself (that's a
+    separate, unrelated cleanup this doc isn't proposing).
+
+**Proposed fix (not implemented — for the user to schedule before or during
+Phase 2):** a single shared widget, e.g. `BidiText` in
+`lib/core/widgets/bidi_text.dart`, that picks `textDirection` from the
+*content* instead of the ambient `Directionality`:
+
+```dart
+import 'package:intl/intl.dart' as intl;
+import 'package:flutter/material.dart';
+
+class BidiText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  const BidiText(
+    this.text, {
+    super.key,
+    this.style,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      textDirection: intl.Bidi.detectRtlDirectionality(text)
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      style: style,
+      textAlign: textAlign,
+      maxLines: maxLines,
+      overflow: overflow,
+    );
+  }
+}
+```
+
+`package:intl` is already a dependency (`pubspec.yaml`, added in Phase 1) —
+no new dependency needed. `Bidi.detectRtlDirectionality` checks the first
+strong-directionality character, which is enough for the punctuation-jump
+case seen here; `Bidi.estimateDirectionOfText` (whole-string heuristic) is
+the alternative if genuinely mixed-script content — an English brand name
+inside an otherwise-Arabic review comment, say — turns out to need better
+handling than first-character detection once this is actually tried against
+real user-generated content. Either way this is a drop-in replacement for
+`Text(...)` at each site listed above — same parameters, so applying it is
+a mechanical per-file change, not a redesign. Where a call site also needs
+`textAlign`, it should track the SAME detected direction (start-align for
+the detected direction, not a hardcoded `TextAlign.right`), or the text will
+correctly re-orient but sit oddly aligned within its container.
+
 ### Needs a design call, not a code bug
 
 - `Alignment.centerLeft : Alignment.centerRight` used for **"is this my chat bubble"** placement (`chat_bubble.dart:161`, `support_chat_screen.dart:345`, `admin_support_chat_screen.dart:294`) and one **section-title alignment** (`settings_screen.dart:525`, `package_card.dart:59`, bonus badge). Chat-bubble side-by-sender is arguably fine to keep absolute (WhatsApp-style: "my messages" stay on one visual side regardless of language) — flagging for your call before Phase 2 touches those 5 files, since converting to `AlignmentDirectional` would flip bubble sides between AR and EN.
@@ -327,3 +472,23 @@ Jordan's 12 governorates and ~153 areas are proper nouns. Standard practice is a
 - [ ] CI green (`flutter analyze` + `flutter test` + build) — pending, this repo has no local Flutter SDK so verification happens via GitHub Actions same as every prior change this session
 
 Phase 2 will then proceed through the 77-file table below, smallest first, ≤3 files per turn, each followed by `flutter analyze` and a checkbox tick here. **Not started.**
+
+---
+
+## 7. Visual regression net — re-run after every Phase 2 batch
+
+`.github/workflows/l10n-screenshots.yml` captures a real PNG (real Arabic
+font, not `flutter test`'s placeholder font — see the `CustomerDashboardScreen`
+entry above for why that distinction matters) for every screen in
+`test/support/l10n_screen_cases.dart`, both locales, both widths (48 images).
+This is now the standing visual check for Phase 2, not a one-off diagnostic —
+**re-run it after each Phase 2 batch** (triggers automatically on push to
+this branch if the workflow/test files change, or manually via Actions →
+"L10N Screenshots" → Run workflow) and skim the results for the four things
+it's good at catching that `l10n_screen_smoke_test.dart` structurally can't:
+text overflow/clipping, icons pointing the wrong way, elements on the wrong
+side after the LTR flip, anything that just looks broken. Results: a
+downloadable zip (Actions artifact) and the `l10n-screenshots-latest` branch
+(force-pushed each run, images only, no history — the artifact zip is the
+one to keep if a specific run's images need to be preserved past the
+14-day artifact retention).
