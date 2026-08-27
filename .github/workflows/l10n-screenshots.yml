@@ -62,3 +62,22 @@ jobs:
           path: build/l10n_screenshots/*.png
           retention-days: 14
           if-no-files-found: error
+
+      # Actions-artifact downloads go through Azure Blob Storage, which this
+      # session's egress proxy can't reach — pushing to a branch lets review
+      # happen over plain `git`/github.com instead. Force-pushed each run;
+      # this branch holds only the latest screenshots, not history.
+      - name: Publish screenshots to a review branch (git-fetchable, not just the zip artifact)
+        run: |
+          set -e
+          git config user.name "l10n-screenshots-ci"
+          git config user.email "noreply@github.com"
+          rm -rf /tmp/screenshots_publish
+          mkdir -p /tmp/screenshots_publish
+          cp build/l10n_screenshots/*.png /tmp/screenshots_publish/
+          git checkout --orphan l10n-screenshots-latest
+          git rm -rf . > /dev/null 2>&1 || true
+          cp /tmp/screenshots_publish/*.png .
+          git add ./*.png
+          git commit -m "L10N screenshots from run ${{ github.run_id }}"
+          git push origin HEAD:l10n-screenshots-latest --force
