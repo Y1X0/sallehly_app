@@ -6,6 +6,8 @@ name: Font Diagnostic (temporary, HERO CARD investigation)
 # CI الفعلي (android-build.yml) بأي شكل.
 on:
   workflow_dispatch:
+  push:
+    branches: [ claude/flutter-ui-consistency-vzb65s ]
 
 jobs:
   font-diagnostic:
