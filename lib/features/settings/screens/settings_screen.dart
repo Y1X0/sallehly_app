@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/locale_provider.dart';
@@ -252,8 +253,8 @@ class SettingsScreen extends StatelessWidget {
                   _InfoTile(Icons.person_outline_rounded, 'الاسم', user?.name ?? '-'),
                   _InfoTile(Icons.email_outlined, 'البريد الإلكتروني', user?.email ?? '-'),
                   _InfoTile(Icons.phone_outlined, 'الهاتف', user?.phone ?? '-'),
-                  _InfoTile(Icons.location_city_outlined, 'المدينة', user?.city ?? '-'),
-                  _InfoTile(Icons.place_outlined, 'المنطقة', user?.area ?? '-'),
+                  _InfoTile(Icons.location_city_outlined, 'المدينة', user?.city ?? '-', bidi: true),
+                  _InfoTile(Icons.place_outlined, 'المنطقة', user?.area ?? '-', bidi: true),
                 ],
               ),
               if (isTech) ...[
@@ -548,11 +549,20 @@ class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
+  // [FIX-BIDI-01] true فقط للقيم اللي تبقى عربية بغضّ النظر عن اللغة (مدينة/
+  // منطقة من app_constants.dart) — راجع L10N_PROGRESS.md §3. باقي القيم
+  // (الاسم/البريد/الهاتف/الخدمة...) ليست مشمولة حالياً، فتبقى false افتراضياً.
+  final bool bidi;
 
-  const _InfoTile(this.icon, this.title, this.value);
+  const _InfoTile(this.icon, this.title, this.value, {this.bidi = false});
 
   @override
   Widget build(BuildContext context) {
+    final valueStyle = TextStyle(
+      color: AppColors.textPrimary,
+      fontWeight: FontWeight.w800,
+    );
+    final displayValue = value.isEmpty ? '-' : value;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       child: Row(
@@ -566,15 +576,19 @@ class _InfoTile extends StatelessWidget {
             ),
           ),
           Flexible(
-            child: Text(
-              value.isEmpty ? '-' : value,
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
+            child: bidi
+                ? BidiText(
+                    displayValue,
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                    style: valueStyle,
+                  )
+                : Text(
+                    displayValue,
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                    style: valueStyle,
+                  ),
           ),
         ],
       ),

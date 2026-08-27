@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/offer_model.dart';
 
 class OfferCard extends StatelessWidget {
@@ -54,13 +55,24 @@ class OfferCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            'الوقت: ${offer.duration}',
-            style: TextStyle(color: AppColors.textSecondary),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'الوقت: ',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+              Expanded(
+                child: BidiText(
+                  offer.duration,
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ),
+            ],
           ),
           if (offer.note != null && offer.note!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(
+            BidiText(
               offer.note!,
               style: TextStyle(color: AppColors.textSecondary),
             ),

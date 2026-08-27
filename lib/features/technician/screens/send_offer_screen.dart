@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -151,7 +152,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                BidiText(
                   '${widget.request.city} - ${widget.request.area ?? ''}',
                   style: TextStyle(
                     color: AppColors.textSecondary,

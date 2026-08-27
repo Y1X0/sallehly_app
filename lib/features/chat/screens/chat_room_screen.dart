@@ -11,6 +11,7 @@ import 'package:record/record.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
@@ -791,7 +792,7 @@ class _ChatHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(
+                BidiText(
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
