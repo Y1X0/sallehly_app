@@ -569,12 +569,12 @@ downloadable zip (Actions artifact) and the `l10n-screenshots-latest` branch
 one to keep if a specific run's images need to be preserved past the
 14-day artifact retention).
 
-## 8. CI status-polling lag — three apparent hangs in one session
+## 8. CI status-polling lag — four apparent hangs in one session
 
 While verifying the BidiText commits, `android-build.yml` runs appeared
-stuck three separate times when polled via the GitHub Actions API/tooling
-used in this session. Recorded here because three occurrences in one
-session is worth having written down, even though two of the three turned
+stuck four separate times when polled via the GitHub Actions API/tooling
+used in this session. Recorded here because four occurrences in one
+session is worth having written down, even though three of the four turned
 out to be a polling artifact rather than the CI itself:
 
 1. **Run 33088056716** (BidiText widget + tests commit, `b87ace1`) —
@@ -596,14 +596,29 @@ out to be a polling artifact rather than the CI itself:
    symptom, `Setup Flutter` reported `in_progress` for 18+ minutes. Left
    it running without polling further. **Confirmed reporting lag**, same
    as #2: real total time ~9m54s, `Setup Flutter` itself 26s.
+4. **Run 33097721540** (BidiText batch 2 commit, `b375aed`) — same
+   symptom, but far more extreme: polling kept reporting each step as
+   `in_progress` (moving forward one step every few polls, never catching
+   up) for **over an hour** of wall-clock time, including a stretch where
+   `Build Android App Bundle` looked stuck for 45+ minutes. Left it
+   running the whole time, no cancel. **Confirmed reporting lag**: the run
+   had actually completed in ~8m56s total (17:18:24–17:27:20), fully
+   within baseline — the polling tool was just extremely delayed catching
+   up to real state, worse than incidents 2 and 3 by a wide margin.
 
 **Takeaway:** the job/step `status` field returned by this session's
-GitHub Actions polling can lag real state by 10+ minutes — cross-check
-against the run's actual `started_at`/`completed_at` timestamps (or just
-wait longer and re-check) before concluding a run is actually stuck.
-Incident 1 is the one open question: whether the underlying infrastructure
-can genuinely hang, or every apparent hang this session was reporting lag,
-is not settled — there's only one data point either way. If a future run
-shows the same symptom, let it run past 20 minutes before treating it as
-a real hang, and prefer checking `run_started_at`/`completed_at` over
-step-level polling.
+GitHub Actions polling can lag real state by 10 minutes to well over an
+hour — cross-check against the run's actual `started_at`/`completed_at`
+timestamps (or just wait longer and re-check) before concluding a run is
+actually stuck. Incident 4 sets a useful upper bound: even 60+ minutes of
+"stuck" polling turned out to be lag, not a real hang, once checked
+against real timestamps — so a long apparent stall on its own is no
+longer strong evidence of a genuine CI problem here. Incident 1 remains
+the one open question: it was cancelled before it could resolve either
+way, so whether the underlying infrastructure can genuinely hang, or
+every apparent hang this session was reporting lag, is still not fully
+settled — but incident 4 makes "it was also just lag" the more likely
+read in hindsight. If a future run shows the same symptom, let it run
+well past 20 minutes (ideally to completion) before treating it as a real
+hang, and prefer checking `run_started_at`/`completed_at` over step-level
+polling.
