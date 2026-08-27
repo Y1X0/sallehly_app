@@ -268,7 +268,7 @@ class _HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Container(
-      height: 238,
+      constraints: const BoxConstraints(minHeight: 238),
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
@@ -337,7 +337,7 @@ class _HeroCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 18),
               Text(
                 t.landingHeroTitle,
                 style: const TextStyle(
@@ -397,7 +397,7 @@ class _ActionCardState extends State<_ActionCard> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: Container(
-          height: 104,
+          constraints: const BoxConstraints(minHeight: 104),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: AppColors.cardGradient,
@@ -418,12 +418,13 @@ class _ActionCardState extends State<_ActionCard> {
               const SizedBox(width: 9),
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.title,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textPrimary,
@@ -434,7 +435,7 @@ class _ActionCardState extends State<_ActionCard> {
                     const SizedBox(height: 4),
                     Text(
                       widget.subtitle,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -485,7 +486,7 @@ class _StatCardState extends State<_StatCard> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: Container(
-          height: 112,
+          constraints: const BoxConstraints(minHeight: 112),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.card.withValues(alpha: 0.88),
@@ -511,7 +512,8 @@ class _StatCardState extends State<_StatCard> {
               Flexible(
                 child: Text(
                   widget.title,
-                  maxLines: 1,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textSecondary,
