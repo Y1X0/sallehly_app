@@ -568,3 +568,42 @@ downloadable zip (Actions artifact) and the `l10n-screenshots-latest` branch
 (force-pushed each run, images only, no history — the artifact zip is the
 one to keep if a specific run's images need to be preserved past the
 14-day artifact retention).
+
+## 8. CI status-polling lag — three apparent hangs in one session
+
+While verifying the BidiText commits, `android-build.yml` runs appeared
+stuck three separate times when polled via the GitHub Actions API/tooling
+used in this session. Recorded here because three occurrences in one
+session is worth having written down, even though two of the three turned
+out to be a polling artifact rather than the CI itself:
+
+1. **Run 33088056716** (BidiText widget + tests commit, `b87ace1`) —
+   `Build Android App Bundle` step reported `in_progress` for ~55 minutes
+   (baseline: ~7 min). Cancelled it rather than keep waiting. **Unresolved
+   — genuinely inconclusive.** Unlike the two incidents below, this run
+   was cancelled before it could either finish or keep hanging, so there's
+   no confirmation either way. Given the pattern found in incidents 2 and
+   3, it's plausible this one was also just reporting lag and got
+   cancelled prematurely — but that's a guess, not a finding.
+2. **Run 33089613655** (error-widget consolidation commit, `f84b432`) —
+   `Setup Flutter` reported `in_progress` for 10+ minutes (baseline: ~30s).
+   Left it running. **Confirmed reporting lag**: the run had actually
+   completed in ~9m27s total, with `Setup Flutter` itself taking 27s per
+   its real timestamps — the polling tool was just returning a stale
+   snapshot for several minutes after the step (and eventually the whole
+   run) had already finished.
+3. **Run 33090744776** (BidiText batch 1 commit, `2f07c1c`) — same
+   symptom, `Setup Flutter` reported `in_progress` for 18+ minutes. Left
+   it running without polling further. **Confirmed reporting lag**, same
+   as #2: real total time ~9m54s, `Setup Flutter` itself 26s.
+
+**Takeaway:** the job/step `status` field returned by this session's
+GitHub Actions polling can lag real state by 10+ minutes — cross-check
+against the run's actual `started_at`/`completed_at` timestamps (or just
+wait longer and re-check) before concluding a run is actually stuck.
+Incident 1 is the one open question: whether the underlying infrastructure
+can genuinely hang, or every apparent hang this session was reporting lag,
+is not settled — there's only one data point either way. If a future run
+shows the same symptom, let it run past 20 minutes before treating it as
+a real hang, and prefer checking `run_started_at`/`completed_at` over
+step-level polling.
