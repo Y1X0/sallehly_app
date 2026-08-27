@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/review_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/socket_provider.dart';
@@ -249,7 +250,7 @@ class _ReviewCard extends StatelessWidget {
           ),
           if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
-            Text(
+            BidiText(
               review.comment!,
               style: TextStyle(
                 color: AppColors.textSecondary,

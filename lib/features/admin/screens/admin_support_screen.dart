@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/support_ticket_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_support_chat_screen.dart';
@@ -216,7 +217,7 @@ class _TicketCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: BidiText(
                     ticket.title.isEmpty ? 'تذكرة دعم' : ticket.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
@@ -249,7 +250,7 @@ class _TicketCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text(
+            BidiText(
               ticket.body,
               style: TextStyle(
                 fontSize: 13,

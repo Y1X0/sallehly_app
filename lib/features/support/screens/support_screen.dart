@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/support_ticket_model.dart';
 import '../provider/support_provider.dart';
 import 'support_chat_screen.dart';
@@ -234,7 +235,7 @@ class _TicketCard extends StatelessWidget {
                     color: AppColors.primary),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: BidiText(
                     ticket.title,
                     style: TextStyle(
                       color: AppColors.textPrimary,
@@ -270,7 +271,7 @@ class _TicketCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            BidiText(
               ticket.body,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

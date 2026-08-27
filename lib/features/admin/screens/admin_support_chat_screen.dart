@@ -5,6 +5,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/support_message_model.dart';
 import '../../../models/support_ticket_model.dart';
 import '../../../providers/auth_provider.dart';
@@ -313,7 +314,7 @@ class _Bubble extends StatelessWidget {
                   ),
                 ),
               ),
-            Text(
+            BidiText(
               message.body,
               style: TextStyle(
                 color: isMine ? Colors.white : AppColors.textPrimary,
