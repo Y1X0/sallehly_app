@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// شاشة سياسة الخصوصية داخل التطبيق — بديل عن الـ Bottom Sheet السابق، بنفس
 /// لغة تصميم التطبيق تماماً (AppColors، Material 3، نفس الخطوط والمسافات
@@ -15,106 +16,85 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('سياسة الخصوصية')),
+      appBar: AppBar(title: Text(t.privacyPolicyTitle)),
       body: AppBackground(
         safeArea: false,
         child: SafeArea(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
-            children: const [
-              _PrivacyIntro(),
-              SizedBox(height: 18),
+            children: [
+              const _PrivacyIntro(),
+              const SizedBox(height: 18),
               _PrivacySection(
                 icon: Icons.checklist_rounded,
-                title: 'البيانات التي نجمعها ولماذا',
-                child: _DataTable(),
+                title: t.dataWeCollectSectionTitle,
+                child: const _DataTable(),
               ),
               _PrivacySection(
                 icon: Icons.lock_outline_rounded,
-                title: 'أين تُخزَّن بياناتك وكيف تُحمى',
-                body:
-                    'تُخزَّن بياناتك على خوادمنا، ويكون كل اتصال بين التطبيق '
-                    'والخادم مشفّراً عبر HTTPS. كلمة مرورك تُحفظ بصيغة مشفّرة '
-                    '(Hash) لا يمكن لأحد بمن فيهم فريقنا استرجاعها. رسائل '
-                    'المحادثة محفوظة بقاعدة بياناتنا لعرضها لك ولطرف المحادثة '
-                    'الآخر، ويُراجعها فريق الإدارة فقط عند وجود شكوى أو '
-                    'مخالفة تستدعي ذلك.',
+                title: t.dataStorageSectionTitle,
+                body: t.dataStorageSectionBody,
               ),
               _PrivacySection(
                 icon: Icons.handshake_outlined,
-                title: 'مشاركة البيانات مع أطراف ثالثة',
-                body:
-                    'لا نبيع بياناتك ولا نشاركها مع أي جهة إعلانية. الاستثناء '
-                    'الوحيد هو خدمة Firebase Cloud Messaging (التابعة لـ '
-                    'Google) التي نستخدمها حصراً لإرسال الإشعارات لجهازك، '
-                    'وهذا يتطلب مشاركة معرّف جهاز الإشعارات معها فقط، دون أي '
-                    'بيانات أخرى.',
+                title: t.thirdPartySharingSectionTitle,
+                body: t.thirdPartySharingSectionBody,
               ),
               _PrivacySection(
                 icon: Icons.vpn_key_outlined,
-                title: 'صلاحيات التطبيق ولماذا نطلبها',
+                title: t.appPermissionsSectionTitle,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _PermissionRow(
                       icon: Icons.location_on_outlined,
-                      title: 'الموقع الجغرافي',
-                      body:
-                          'فقط عند ضغطك زر "مشاركة الموقع" داخل محادثة طلب — '
-                          'لن يُستخدم بأي وقت آخر ولا بالخلفية.',
+                      title: t.permissionLocationTitle,
+                      body: t.permissionLocationBody,
                     ),
                     _PermissionRow(
                       icon: Icons.mic_none_rounded,
-                      title: 'الميكروفون',
-                      body: 'فقط عند تسجيلك رسالة صوتية داخل محادثة طلب.',
+                      title: t.permissionMicTitle,
+                      body: t.permissionMicBody,
                     ),
                     _PermissionRow(
                       icon: Icons.camera_alt_outlined,
-                      title: 'الكاميرا / معرض الصور',
-                      body:
-                          'فقط عند اختيارك إرفاق صورة (صورتك الشخصية، أو صورة '
-                          'توضّح المشكلة الفنية).',
+                      title: t.permissionCameraTitle,
+                      body: t.permissionCameraBody,
                     ),
                     _PermissionRow(
                       icon: Icons.notifications_none_rounded,
-                      title: 'الإشعارات',
-                      body:
-                          'لتنبيهك بعروض جديدة، رسائل، وتحديثات طلباتك فوراً.',
+                      title: t.permissionNotificationsTitle,
+                      body: t.permissionNotificationsBody,
                     ),
                   ],
                 ),
               ),
               _PrivacySection(
                 icon: Icons.verified_user_outlined,
-                title: 'حقوقك',
+                title: t.yourRightsSectionTitle,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _BulletLine('الاطلاع على بياناتك وتعديلها في أي وقت من الإعدادات.'),
-                    _BulletLine('تغيير كلمة مرورك في أي وقت.'),
-                    _BulletLine('طلب حذف حسابك وبياناتك بالكامل من نفس صفحة الإعدادات.'),
+                    _BulletLine(t.rightsBulletAccessData),
+                    _BulletLine(t.rightsBulletChangePassword),
+                    _BulletLine(t.rightsBulletDeleteAccount),
                   ],
                 ),
               ),
               _PrivacySection(
                 icon: Icons.folder_delete_outlined,
-                title: 'الاحتفاظ بالبيانات',
-                body:
-                    'نحتفظ ببياناتك طالما حسابك فعّال. عند حذف حسابك، تُحذف '
-                    'بياناتك الشخصية نهائياً من قاعدة بياناتنا فوراً (باستثناء '
-                    'حالات وجود طلب نشط أو رصيد غير مصفّى، والتي تمنع الحذف '
-                    'حتى تُسوَّى أولاً).',
+                title: t.dataRetentionSectionTitle,
+                body: t.dataRetentionSectionBody,
               ),
               _PrivacySection(
                 icon: Icons.mail_outline_rounded,
-                title: 'تواصل معنا',
-                body:
-                    'لأي استفسار بخصوص هذه السياسة أو بياناتك، تواصل معنا عبر '
-                    'الدعم الفني داخل التطبيق.',
+                title: t.contactUsSectionTitle,
+                body: t.contactUsSectionBody,
               ),
-              SizedBox(height: 6),
-              _LastUpdated(),
+              const SizedBox(height: 6),
+              _LastUpdated(text: t.privacyLastUpdatedLabel),
             ],
           ),
         ),
@@ -134,15 +114,14 @@ class _PrivacyIntro extends StatelessWidget {
         gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(28),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.privacy_tip_rounded, color: Colors.white, size: 34),
-          SizedBox(width: 14),
+          const Icon(Icons.privacy_tip_rounded, color: Colors.white, size: 34),
+          const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'هذه الصفحة توضّح كيف تجمع منصة صلّحلي بياناتك وتستخدمها '
-              'وتحميها.',
-              style: TextStyle(
+              AppLocalizations.of(context)!.privacyIntroText,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
                 height: 1.6,
@@ -156,13 +135,15 @@ class _PrivacyIntro extends StatelessWidget {
 }
 
 class _LastUpdated extends StatelessWidget {
-  const _LastUpdated();
+  final String text;
+
+  const _LastUpdated({required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Text(
-        'آخر تحديث: 2026',
+        text,
         style: TextStyle(color: AppColors.textMuted, fontSize: 12),
       ),
     );
@@ -325,23 +306,23 @@ class _PermissionRow extends StatelessWidget {
 class _DataTable extends StatelessWidget {
   const _DataTable();
 
-  static const _rows = [
-    ('الاسم، البريد، رقم الهاتف', 'إنشاء الحساب والتواصل بخصوص طلباتك', true),
-    ('كلمة المرور', 'حماية حسابك (مشفّرة، لا يمكن استرجاعها)', true),
-    ('المدينة والمنطقة', 'ربطك بأقرب فني متاح', true),
-    ('الرقم الوطني (فنيين)', 'التحقق من هوية الفني الحقيقية قبل تفعيل حسابه، لبناء ثقة العملاء', true),
-    ('الصورة الشخصية (فنيين)', 'بناء الثقة بين العميل والفني', true),
-    ('الموقع الجغرافي', 'فقط عند مشاركته داخل محادثة طلب', false),
-    ('صور/صوت المحادثة', 'توضيح المشكلة الفنية', false),
-    ('معرّف إشعارات الجهاز', 'إرسال إشعارات فورية', false),
-    ('معاملات المحفظة', 'إدارة رصيد الفني (للفنيين فقط)', true),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final rows = [
+      (t.dataTableNameLabel, t.dataTableNameReason, true),
+      (t.dataTablePasswordLabel, t.dataTablePasswordReason, true),
+      (t.dataTableCityAreaLabel, t.dataTableCityAreaReason, true),
+      (t.dataTableNationalNumberLabel, t.dataTableNationalNumberReason, true),
+      (t.dataTableProfilePhotoLabel, t.dataTableProfilePhotoReason, true),
+      (t.dataTableLocationLabel, t.dataTableLocationReason, false),
+      (t.dataTableChatMediaLabel, t.dataTableChatMediaReason, false),
+      (t.dataTableDeviceTokenLabel, t.dataTableDeviceTokenReason, false),
+      (t.dataTableWalletLabel, t.dataTableWalletReason, true),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: _rows.map((row) {
+      children: rows.map((row) {
         final (label, reason, required) = row;
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -382,7 +363,7 @@ class _DataTable extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  required ? 'إلزامية' : 'اختيارية',
+                  required ? t.requiredBadgeLabel : t.optionalBadgeLabel,
                   style: TextStyle(
                     color: required ? AppColors.warning : AppColors.success,
                     fontWeight: FontWeight.w900,

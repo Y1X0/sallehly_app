@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 import '../../../core/widgets/success_feedback.dart';
 
@@ -25,6 +27,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
   }
 
   Future<void> addService() async {
+    final t = AppLocalizations.of(context)!;
     final name = TextEditingController();
     final icon = TextEditingController(text: '🔧');
 
@@ -32,20 +35,20 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('إضافة مهنة'),
+          title: Text(t.addProfessionTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم المهنة')),
+                TextField(controller: name, decoration: InputDecoration(labelText: t.professionNameFieldLabel)),
                 const SizedBox(height: 10),
-                TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
+                TextField(controller: icon, decoration: InputDecoration(labelText: t.iconFieldLabel)),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('إضافة')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(t.addButton)),
           ],
         );
       },
@@ -67,6 +70,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
   /// [FIX-SERVICES-03] تعديل اسم/أيقونة مهنة موجودة — نفس نمط addService()
   /// تماماً، مع تحميل القيم الحالية مسبقاً والتحقق قبل الحفظ.
   Future<void> editService(Map<String, dynamic> existing) async {
+    final t = AppLocalizations.of(context)!;
     final name = TextEditingController(text: '${existing['name'] ?? ''}');
     final icon = TextEditingController(text: '${existing['icon'] ?? '🔧'}');
     final formKey = GlobalKey<FormState>();
@@ -75,7 +79,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('تعديل المهنة'),
+          title: Text(t.editProfessionTitle),
           content: SingleChildScrollView(
             child: Form(
               key: formKey,
@@ -84,25 +88,25 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
                 children: [
                   TextFormField(
                     controller: name,
-                    decoration: const InputDecoration(labelText: 'اسم المهنة'),
+                    decoration: InputDecoration(labelText: t.professionNameFieldLabel),
                     validator: (v) => (v == null || v.trim().length < 2)
-                        ? 'اسم المهنة قصير جداً'
+                        ? t.professionNameTooShortValidation
                         : null,
                   ),
                   const SizedBox(height: 10),
-                  TextField(controller: icon, decoration: const InputDecoration(labelText: 'الأيقونة')),
+                  TextField(controller: icon, decoration: InputDecoration(labelText: t.iconFieldLabel)),
                 ],
               ),
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
             ElevatedButton(
               onPressed: () {
                 if (!(formKey.currentState?.validate() ?? false)) return;
                 Navigator.pop(context, true);
               },
-              child: const Text('حفظ'),
+              child: Text(t.saveButton),
             ),
           ],
         );
@@ -120,16 +124,17 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تحديث المهنة بنجاح')),
+        SnackBar(content: Text(t.professionUpdatedMessage)),
       );
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تعديل المهنة');
+      showErrorSnackBar(context, t.editProfessionFailedMessage);
     }
   }
 
   Future<void> addPackage({Map<String, dynamic>? existing}) async {
+    final t = AppLocalizations.of(context)!;
     final isEdit = existing != null;
     final name = TextEditingController(text: isEdit ? '${existing['name'] ?? ''}' : '');
     final amount = TextEditingController(
@@ -146,23 +151,23 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text(isEdit ? 'تعديل باقة' : 'إضافة باقة'),
+          title: Text(isEdit ? t.editPackageTitle : t.addPackageTitle),
           content: SingleChildScrollView(
             child: Column(
               children: [
-                TextField(controller: name, decoration: const InputDecoration(labelText: 'اسم الباقة')),
+                TextField(controller: name, decoration: InputDecoration(labelText: t.packageNameFieldLabel)),
                 const SizedBox(height: 10),
-                TextField(controller: amount, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'القيمة')),
+                TextField(controller: amount, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.amountFieldLabel)),
                 const SizedBox(height: 10),
-                TextField(controller: bonus, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'البونص')),
+                TextField(controller: bonus, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.bonusFieldLabel)),
                 const SizedBox(height: 10),
-                TextField(controller: commission, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'عمولة الطلب')),
+                TextField(controller: commission, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t.commissionPerOrderFieldLabel)),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(isEdit ? 'حفظ' : 'إضافة')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(isEdit ? t.saveButton : t.addButton)),
           ],
         );
       },
@@ -198,20 +203,21 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
     required String name,
     required Future<void> Function() onConfirm,
   }) async {
+    final t = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: Text(title),
-        content: Text('هل أنت متأكد من حذف "$name"؟ لا يمكن التراجع عن هذا الإجراء.'),
+        content: Text(t.deleteConfirmMessage(name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
+            child: Text(t.cancelButton),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('حذف', style: TextStyle(color: AppColors.danger)),
+            child: Text(t.deleteButton, style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -224,17 +230,18 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
       await onConfirm();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم الحذف بنجاح')),
+        SnackBar(content: Text(t.deletedSuccessMessage)),
       );
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر الحذف');
+      showErrorSnackBar(context, t.deleteFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
 
     // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
@@ -253,8 +260,8 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.primary,
               tabs: [
-                Tab(text: 'المهن'),
-                Tab(text: 'الباقات'),
+                Tab(text: t.professionsTabLabel),
+                Tab(text: t.packagesTabLabel),
               ],
             ),
           ),
@@ -266,12 +273,12 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               error: admin.error,
               onRetry: () => admin.loadMeta(),
               items: admin.services,
-              empty: 'لا توجد مهن',
+              empty: t.noProfessionsFoundTitle,
               onAdd: addService,
               titleBuilder: (e) => '${e['icon'] ?? '🔧'}  ${e['name'] ?? ''}',
               subtitleBuilder: (e) => (e['is_active'] == 0)
-                  ? 'معطّلة — لا تظهر بالتسجيل أو إنشاء الطلبات'
-                  : 'مهنة متاحة في التطبيق',
+                  ? t.professionDisabledSubtitle
+                  : t.professionActiveSubtitle,
               isActiveGetter: (e) => e['is_active'] != 0,
               onToggle: (e) => admin.toggleService(
                 int.tryParse('${e['id']}') ?? 0,
@@ -279,7 +286,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               ),
               onEdit: (e) => editService(e),
               onDelete: (e) => confirmDelete(
-                title: 'حذف المهنة',
+                title: t.deleteProfessionTitle,
                 name: '${e['name'] ?? ''}',
                 onConfirm: () => admin.deleteService(
                   int.tryParse('${e['id']}') ?? 0,
@@ -291,22 +298,22 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
               error: admin.error,
               onRetry: () => admin.loadMeta(),
               items: admin.packages,
-              empty: 'لا توجد باقات',
+              empty: t.noPackagesFoundTitle,
               onAdd: addPackage,
               titleBuilder: (e) => '${e['name'] ?? ''}',
               subtitleBuilder: (e) {
                 final amount = double.tryParse('${e['amount'] ?? 0}') ?? 0;
                 final bonus = double.tryParse('${e['bonus'] ?? 0}') ?? 0;
                 final activeText = (e['is_active'] == 0)
-                    ? 'معطّلة — لا تظهر بشاشة شحن الفنيين'
-                    : '${amount.toStringAsFixed(2)} د.أ • بونص ${bonus.toStringAsFixed(2)}';
+                    ? t.packageDisabledSubtitle
+                    : t.packageAmountBonusSubtitle(formatJod(context, amount), formatJod(context, bonus));
                 return activeText;
               },
               isActiveGetter: (e) => e['is_active'] != 0,
               onToggle: (e) => admin.togglePackageActive(e),
               onEdit: (e) => addPackage(existing: e),
               onDelete: (e) => confirmDelete(
-                title: 'حذف الباقة',
+                title: t.deletePackageTitle,
                 name: '${e['name'] ?? ''}',
                 onConfirm: () => admin.deletePackage(
                   int.tryParse('${e['id']}') ?? 0,
@@ -354,13 +361,14 @@ class _MetaList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
       children: [
         ElevatedButton.icon(
           onPressed: onAdd,
           icon: const Icon(Icons.add_rounded),
-          label: const Text('إضافة جديد'),
+          label: Text(t.addNewButton),
         ),
         const SizedBox(height: 16),
         if (loading && items.isEmpty)
@@ -385,7 +393,7 @@ class _MetaList extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'تعذّر تحميل القائمة',
+                  t.metaListLoadFailedTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -403,7 +411,7 @@ class _MetaList extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة المحاولة'),
+                    label: Text(t.retryButton),
                     style:
                         TextButton.styleFrom(foregroundColor: AppColors.primary),
                   ),
@@ -478,14 +486,14 @@ class _MetaList extends StatelessWidget {
                       ),
                     if (onEdit != null)
                       IconButton(
-                        tooltip: 'تعديل',
+                        tooltip: t.editTooltip,
                         icon: Icon(Icons.edit_outlined,
                             color: AppColors.primary),
                         onPressed: () => onEdit!(e),
                       ),
                     if (onDelete != null)
                       IconButton(
-                        tooltip: 'حذف',
+                        tooltip: t.deleteButton,
                         icon: Icon(Icons.delete_outline_rounded,
                             color: AppColors.danger),
                         onPressed: () => onDelete!(e),

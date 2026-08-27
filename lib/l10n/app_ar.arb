@@ -1913,5 +1913,748 @@
   "changeStatusButton": "تغيير الحالة",
   "@changeStatusButton": {
     "description": "زر فتح قائمة تغيير حالة الطلب من لوحة الأدمن"
+  },
+  "technicianVerifiedMessage": "تم توثيق الفني",
+  "@technicianVerifiedMessage": {
+    "description": "رسالة نجاح توثيق الفني من شاشة تفاصيل المستخدم بلوحة الأدمن"
+  },
+  "verifyTechnicianFailedMessage": "تعذر توثيق الفني",
+  "@verifyTechnicianFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل توثيق الفني"
+  },
+  "convertToTechnicianLabel": "تحويل إلى فني",
+  "@convertToTechnicianLabel": {
+    "description": "زر/عنوان تحويل حساب عميل إلى فني (super admin فقط)"
+  },
+  "convertToCustomerLabel": "تحويل إلى عميل",
+  "@convertToCustomerLabel": {
+    "description": "زر/عنوان تحويل حساب فني إلى عميل (super admin فقط)"
+  },
+  "convertToTechnicianRequirementsMessage": "يتطلّب رقماً وطنياً وخدمة ومنطقة واحدة على الأقل، وأن تكون لدى الحساب صورة شخصية مسبقاً. سيُرفض التحويل إن كان للعميل طلب نشط.",
+  "@convertToTechnicianRequirementsMessage": {
+    "description": "شرح شروط تحويل عميل إلى فني بمربع حوار التأكيد"
+  },
+  "convertToCustomerRequirementsMessage": "سيُرفض التحويل إن كان لدى الفني رصيد أو أعمال مكتملة أو عروض معلّقة أو طلب نشط — صفِّ هذه الأمور أولاً.",
+  "@convertToCustomerRequirementsMessage": {
+    "description": "شرح شروط تحويل فني إلى عميل بمربع حوار التأكيد"
+  },
+  "nationalNumberDigitsFieldLabel": "الرقم الوطني (10 أرقام)",
+  "@nationalNumberDigitsFieldLabel": {
+    "description": "تسمية حقل الرقم الوطني بمربع حوار تحويل الدور، تشمل تلميح عدد الأرقام"
+  },
+  "servicesCommaSeparatedLabel": "الخدمات (مفصولة بفاصلة)",
+  "@servicesCommaSeparatedLabel": {
+    "description": "تسمية حقل إدخال الخدمات كنص حر مفصول بفواصل بمربع حوار تحويل الدور"
+  },
+  "areasCommaSeparatedLabel": "المناطق (مفصولة بفاصلة)",
+  "@areasCommaSeparatedLabel": {
+    "description": "تسمية حقل إدخال المناطق كنص حر مفصول بفواصل بمربع حوار تحويل الدور"
+  },
+  "convertButton": "تحويل",
+  "@convertButton": {
+    "description": "زر تأكيد تحويل الدور بمربع الحوار"
+  },
+  "roleChangedMessage": "تم تحويل الدور بنجاح",
+  "@roleChangedMessage": {
+    "description": "رسالة نجاح تحويل دور المستخدم"
+  },
+  "changeRoleFailedMessage": "تعذر تحويل الدور",
+  "@changeRoleFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحويل الدور"
+  },
+  "userDetailsTitle": "تفاصيل المستخدم",
+  "@userDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل المستخدم بلوحة الأدمن، يُستخدم كبديل قبل توفر اسم المستخدم"
+  },
+  "verifyThisTechnicianLabel": "توثيق هذا الفني",
+  "@verifyThisTechnicianLabel": {
+    "description": "زر إجراء سريع لتوثيق الفني من شاشة تفاصيله"
+  },
+  "superAdminOnlyLabel": "Super Admin فقط",
+  "@superAdminOnlyLabel": {
+    "description": "توضيح أن إجراء تحويل الدور مقيَّد بـsuper admin فقط"
+  },
+  "requestsAsCustomerSectionTitle": "طلبات كعميل ({count})",
+  "@requestsAsCustomerSectionTitle": {
+    "description": "عنوان قسم طلبات المستخدم كعميل بشاشة تفاصيله، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "requestsAsTechnicianSectionTitle": "طلبات كفني ({count})",
+  "@requestsAsTechnicianSectionTitle": {
+    "description": "عنوان قسم طلبات المستخدم كفني بشاشة تفاصيله، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "offersSectionTitle": "العروض ({count})",
+  "@offersSectionTitle": {
+    "description": "عنوان قسم عروض الفني بشاشة تفاصيل المستخدم، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "ledgerSectionTitleWithCount": "دفتر الحساب ({count})",
+  "@ledgerSectionTitleWithCount": {
+    "description": "عنوان قسم دفتر الحساب بشاشة تفاصيل المستخدم، مع عدّاد (مختلف عن ledgerTitle بلا عدّاد)",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "monitoringSectionTitle": "المراقبة",
+  "@monitoringSectionTitle": {
+    "description": "عنوان قسم مؤشرات المراقبة (مخالفات/بلاغات/شكاوى) بشاشة تفاصيل المستخدم"
+  },
+  "requestNumberLabel": "طلب #{id}",
+  "@requestNumberLabel": {
+    "description": "تسمية عامة لعرض رقم الطلب ضمن نص، مثل سطر فرعي بقائمة عروض",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "noneLabel": "لا يوجد",
+  "@noneLabel": {
+    "description": "نص عام لقائمة فارغة (لا عناصر لعرضها)"
+  },
+  "violationsSentLabel": "مخالفات شات أرسلها",
+  "@violationsSentLabel": {
+    "description": "عدّاد مخالفات الشات التي أرسلها المستخدم بشاشة تفاصيله"
+  },
+  "reportsAgainstLabel": "بلاغات ضده",
+  "@reportsAgainstLabel": {
+    "description": "عدّاد البلاغات المقدَّمة ضد المستخدم بشاشة تفاصيله"
+  },
+  "complaintsFiledLabel": "شكاوى قدّمها",
+  "@complaintsFiledLabel": {
+    "description": "عدّاد الشكاوى التي قدّمها المستخدم بشاشة تفاصيله"
+  },
+  "suspensionReasonLabel": "سبب الإيقاف: {reason}",
+  "@suspensionReasonLabel": {
+    "description": "سبب إيقاف حساب المستخدم، معروض ببطاقة الملخص",
+    "placeholders": {
+      "reason": {"type": "String"}
+    }
+  },
+  "balanceWithAmountLabel": "الرصيد: {amount}",
+  "@balanceWithAmountLabel": {
+    "description": "رصيد الفني بالدينار، amount مهيَّأ مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "ratingSummaryLabel": "التقييم: {rating} ({count}) • مكتملة: {completed}",
+  "@ratingSummaryLabel": {
+    "description": "ملخص تقييم الفني وعدد الأعمال المكتملة ببطاقة ملخص المستخدم",
+    "placeholders": {
+      "rating": {"type": "String"},
+      "count": {"type": "String"},
+      "completed": {"type": "String"}
+    }
+  },
+  "userLoadFailedTitle": "تعذّر تحميل بيانات المستخدم",
+  "@userLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل تفاصيل مستخدم بلوحة الأدمن"
+  },
+  "addProfessionTitle": "إضافة مهنة",
+  "@addProfessionTitle": {
+    "description": "عنوان مربع حوار إضافة مهنة جديدة بشاشة إدارة البيانات الوصفية"
+  },
+  "professionNameFieldLabel": "اسم المهنة",
+  "@professionNameFieldLabel": {
+    "description": "تسمية حقل اسم المهنة"
+  },
+  "iconFieldLabel": "الأيقونة",
+  "@iconFieldLabel": {
+    "description": "تسمية حقل رمز الأيقونة (إيموجي) للمهنة"
+  },
+  "addButton": "إضافة",
+  "@addButton": {
+    "description": "زر عام لتأكيد إضافة عنصر"
+  },
+  "editProfessionTitle": "تعديل المهنة",
+  "@editProfessionTitle": {
+    "description": "عنوان مربع حوار تعديل مهنة موجودة"
+  },
+  "professionNameTooShortValidation": "اسم المهنة قصير جداً",
+  "@professionNameTooShortValidation": {
+    "description": "رسالة تحقق عند قصر اسم المهنة عن حرفين"
+  },
+  "saveButton": "حفظ",
+  "@saveButton": {
+    "description": "زر عام لحفظ التعديلات"
+  },
+  "professionUpdatedMessage": "تم تحديث المهنة بنجاح",
+  "@professionUpdatedMessage": {
+    "description": "رسالة نجاح تحديث بيانات مهنة"
+  },
+  "editProfessionFailedMessage": "تعذر تعديل المهنة",
+  "@editProfessionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل مهنة"
+  },
+  "editPackageTitle": "تعديل باقة",
+  "@editPackageTitle": {
+    "description": "عنوان مربع حوار تعديل باقة موجودة"
+  },
+  "addPackageTitle": "إضافة باقة",
+  "@addPackageTitle": {
+    "description": "عنوان مربع حوار إضافة باقة جديدة"
+  },
+  "packageNameFieldLabel": "اسم الباقة",
+  "@packageNameFieldLabel": {
+    "description": "تسمية حقل اسم الباقة"
+  },
+  "amountFieldLabel": "القيمة",
+  "@amountFieldLabel": {
+    "description": "تسمية حقل قيمة الباقة بالدينار"
+  },
+  "bonusFieldLabel": "البونص",
+  "@bonusFieldLabel": {
+    "description": "تسمية حقل بونص الباقة بالدينار"
+  },
+  "commissionPerOrderFieldLabel": "عمولة الطلب",
+  "@commissionPerOrderFieldLabel": {
+    "description": "تسمية حقل نسبة العمولة لكل طلب ضمن الباقة"
+  },
+  "deleteProfessionTitle": "حذف المهنة",
+  "@deleteProfessionTitle": {
+    "description": "عنوان مربع حوار تأكيد حذف مهنة"
+  },
+  "deletePackageTitle": "حذف الباقة",
+  "@deletePackageTitle": {
+    "description": "عنوان مربع حوار تأكيد حذف باقة"
+  },
+  "deleteConfirmMessage": "هل أنت متأكد من حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+  "@deleteConfirmMessage": {
+    "description": "نص تأكيد حذف عنصر عام (مهنة أو باقة)، غير قابل للتراجع",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteButton": "حذف",
+  "@deleteButton": {
+    "description": "زر/تلميح عام لحذف عنصر"
+  },
+  "deletedSuccessMessage": "تم الحذف بنجاح",
+  "@deletedSuccessMessage": {
+    "description": "رسالة نجاح عامة بعد حذف عنصر"
+  },
+  "deleteFailedMessage": "تعذر الحذف",
+  "@deleteFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل الحذف"
+  },
+  "professionsTabLabel": "المهن",
+  "@professionsTabLabel": {
+    "description": "تبويب قائمة المهن بشاشة إدارة البيانات الوصفية"
+  },
+  "packagesTabLabel": "الباقات",
+  "@packagesTabLabel": {
+    "description": "تبويب قائمة الباقات بشاشة إدارة البيانات الوصفية"
+  },
+  "noProfessionsFoundTitle": "لا توجد مهن",
+  "@noProfessionsFoundTitle": {
+    "description": "حالة فارغة لقائمة المهن"
+  },
+  "noPackagesFoundTitle": "لا توجد باقات",
+  "@noPackagesFoundTitle": {
+    "description": "حالة فارغة لقائمة الباقات"
+  },
+  "addNewButton": "إضافة جديد",
+  "@addNewButton": {
+    "description": "زر إضافة عنصر جديد أعلى قائمة المهن/الباقات"
+  },
+  "metaListLoadFailedTitle": "تعذّر تحميل القائمة",
+  "@metaListLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل قائمة المهن أو الباقات"
+  },
+  "professionDisabledSubtitle": "معطّلة — لا تظهر بالتسجيل أو إنشاء الطلبات",
+  "@professionDisabledSubtitle": {
+    "description": "توضيح أن المهنة معطّلة ولن تظهر بالتسجيل أو إنشاء الطلبات"
+  },
+  "professionActiveSubtitle": "مهنة متاحة في التطبيق",
+  "@professionActiveSubtitle": {
+    "description": "توضيح أن المهنة مفعّلة ومتاحة بالتطبيق"
+  },
+  "packageDisabledSubtitle": "معطّلة — لا تظهر بشاشة شحن الفنيين",
+  "@packageDisabledSubtitle": {
+    "description": "توضيح أن الباقة معطّلة ولن تظهر بشاشة شحن الفنيين"
+  },
+  "packageAmountBonusSubtitle": "{amount} • بونص {bonus}",
+  "@packageAmountBonusSubtitle": {
+    "description": "قيمة الباقة وبونصها، amount وbonus مهيّآن مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"},
+      "bonus": {"type": "String"}
+    }
+  },
+  "editTooltip": "تعديل",
+  "@editTooltip": {
+    "description": "تلميح زر تعديل عنصر"
+  },
+  "moderationScreenTitle": "المراقبة والشكاوى",
+  "@moderationScreenTitle": {
+    "description": "عنوان شاشة المراقبة (مخالفات الشات والشكاوى وبلاغات الرسائل) بلوحة الأدمن"
+  },
+  "chatViolationsTabLabel": "مخالفات الشات ({count})",
+  "@chatViolationsTabLabel": {
+    "description": "تبويب مخالفات الشات، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "complaintsTabLabel": "الشكاوى ({count})",
+  "@complaintsTabLabel": {
+    "description": "تبويب الشكاوى، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "messageReportsTabLabel": "بلاغات الرسائل ({count})",
+  "@messageReportsTabLabel": {
+    "description": "تبويب بلاغات الرسائل، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noViolationsFoundTitle": "لا توجد مخالفات",
+  "@noViolationsFoundTitle": {
+    "description": "حالة فارغة لقائمة مخالفات الشات"
+  },
+  "violationFallbackLabel": "مخالفة",
+  "@violationFallbackLabel": {
+    "description": "عنوان بديل لبطاقة مخالفة إن لم يتوفر سبب محدد من الخادم"
+  },
+  "userFallbackName": "مستخدم",
+  "@userFallbackName": {
+    "description": "اسم بديل عام لمستخدم غير معروف الاسم"
+  },
+  "serviceLabelWithValue": "الخدمة: {service}",
+  "@serviceLabelWithValue": {
+    "description": "تسمية الخدمة ضمن سطر معلومات بطاقة مخالفة",
+    "placeholders": {
+      "service": {"type": "String"}
+    }
+  },
+  "noComplaintsFoundTitle": "لا توجد شكاوى",
+  "@noComplaintsFoundTitle": {
+    "description": "حالة فارغة لقائمة الشكاوى"
+  },
+  "complaintFromLabel": "شكوى من {name}",
+  "@complaintFromLabel": {
+    "description": "عنوان بطاقة شكوى، name هو اسم العميل مقدّم الشكوى أو customerFallbackName",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintAgainstTechnicianLabel": "بحق الفني: {name}",
+  "@complaintAgainstTechnicianLabel": {
+    "description": "توضيح الفني المشتكى عليه ببطاقة الشكوى",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "customerPhoneLabel": "هاتف العميل: {phone}",
+  "@customerPhoneLabel": {
+    "description": "رقم هاتف العميل ضمن سطر معلومات بطاقة الشكوى",
+    "placeholders": {
+      "phone": {"type": "String"}
+    }
+  },
+  "noMessageReportsFoundTitle": "لا توجد بلاغات رسائل",
+  "@noMessageReportsFoundTitle": {
+    "description": "حالة فارغة لقائمة بلاغات الرسائل"
+  },
+  "reportFallbackLabel": "بلاغ",
+  "@reportFallbackLabel": {
+    "description": "عنوان بديل لبطاقة بلاغ رسالة إن لم يتوفر سبب محدد من الخادم"
+  },
+  "reportedUserLabel": "المُبلَّغ عنه: {name}",
+  "@reportedUserLabel": {
+    "description": "اسم المستخدم المُبلَّغ عنه ببطاقة بلاغ رسالة",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "noSpecificMessageIndicatedLabel": "(لم تُحدَّد رسالة معيّنة)",
+  "@noSpecificMessageIndicatedLabel": {
+    "description": "نص بديل لجسم بطاقة بلاغ رسالة عند عدم ربط البلاغ برسالة محددة"
+  },
+  "reporterLabel": "المُبلِّغ: {name}",
+  "@reporterLabel": {
+    "description": "اسم مقدّم بلاغ الرسالة ضمن سطر معلومات البطاقة",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintStatusOpenLabel": "مفتوحة",
+  "@complaintStatusOpenLabel": {
+    "description": "تسمية عرض حالة الشكوى 'open' (مفتاح enum إنجليزي ثابت من الخادم، آمن للترجمة لأن القيمة المرسلة هي المفتاح لا التسمية)"
+  },
+  "complaintStatusInReviewLabel": "قيد المراجعة",
+  "@complaintStatusInReviewLabel": {
+    "description": "تسمية عرض حالة الشكوى 'in_review'"
+  },
+  "complaintStatusResolvedLabel": "تم الحل",
+  "@complaintStatusResolvedLabel": {
+    "description": "تسمية عرض حالة الشكوى 'resolved'"
+  },
+  "complaintStatusRejectedLabel": "مرفوضة",
+  "@complaintStatusRejectedLabel": {
+    "description": "تسمية عرض حالة الشكوى 'rejected'"
+  },
+  "changeComplaintStatusTooltip": "تغيير حالة الشكوى",
+  "@changeComplaintStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تغيير حالة شكوى"
+  },
+  "updateComplaintStatusFailedMessage": "تعذر تحديث حالة الشكوى",
+  "@updateComplaintStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة شكوى"
+  },
+  "statusUpdatedMessage": "تم تحديث الحالة إلى: {status}",
+  "@statusUpdatedMessage": {
+    "description": "رسالة نجاح عامة بتحديث حالة عنصر (شكوى/مخالفة/بلاغ رسالة) بلوحة المراقبة. لـ_ViolationStatusMenu وMessageReportStatusMenu تُمرَّر التسمية العربية الخام كما هي [L10N-TODO] — القيمة نفسها المخزَّنة بالخادم (wire value)، Phase 3",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "updateViolationStatusTooltip": "تحديث حالة المخالفة",
+  "@updateViolationStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تحديث حالة مخالفة"
+  },
+  "updateViolationStatusFailedMessage": "تعذر تحديث حالة المخالفة",
+  "@updateViolationStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة مخالفة"
+  },
+  "updateMessageReportStatusTooltip": "تحديث حالة البلاغ",
+  "@updateMessageReportStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تحديث حالة بلاغ رسالة"
+  },
+  "updateMessageReportStatusFailedMessage": "تعذر تحديث حالة البلاغ",
+  "@updateMessageReportStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة بلاغ رسالة"
+  },
+  "activateAccountTitle": "تفعيل الحساب",
+  "@activateAccountTitle": {
+    "description": "عنوان مربع حوار/زر تفعيل حساب مستخدم موقوف بلوحة الأدمن"
+  },
+  "activateAccountConfirmMessage": "هل تريد تفعيل حساب {name}؟",
+  "@activateAccountConfirmMessage": {
+    "description": "رسالة تأكيد تفعيل حساب مستخدم",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "accountUpdateFailedMessage": "تعذر تحديث الحساب",
+  "@accountUpdateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تفعيل/إيقاف حساب مستخدم"
+  },
+  "suspendAccountTitle": "إيقاف الحساب",
+  "@suspendAccountTitle": {
+    "description": "عنوان مربع حوار/زر إيقاف حساب مستخدم نشط بلوحة الأدمن"
+  },
+  "suspensionReasonPromptMessage": "سبب إيقاف حساب {name} (اختياري، يُسجَّل بسجل الحساب):",
+  "@suspensionReasonPromptMessage": {
+    "description": "توضيح حقل سبب الإيقاف بمربع حوار إيقاف حساب",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "reasonFieldLabel": "السبب",
+  "@reasonFieldLabel": {
+    "description": "تسمية حقل سبب الإيقاف"
+  },
+  "suspendButton": "إيقاف",
+  "@suspendButton": {
+    "description": "زر تأكيد إيقاف الحساب بمربع الحوار"
+  },
+  "editDataTitle": "تعديل البيانات",
+  "@editDataTitle": {
+    "description": "عنوان مربع حوار تعديل بيانات مستخدم (الاسم والمدينة) بلوحة الأدمن"
+  },
+  "nameFieldLabel": "الاسم",
+  "@nameFieldLabel": {
+    "description": "تسمية حقل الاسم القصير (مختلف عن fullNameFieldLabel المستخدَم بنماذج التسجيل)"
+  },
+  "dataSavedMessage": "تم حفظ البيانات",
+  "@dataSavedMessage": {
+    "description": "رسالة نجاح حفظ تعديل بيانات مستخدم"
+  },
+  "editDataFailedMessage": "تعذر تعديل البيانات",
+  "@editDataFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل بيانات مستخدم"
+  },
+  "adjustBalanceTitle": "تعديل الرصيد",
+  "@adjustBalanceTitle": {
+    "description": "عنوان مربع حوار تعديل رصيد فني بلوحة الأدمن"
+  },
+  "currentBalanceLabel": "الرصيد الحالي: {amount}",
+  "@currentBalanceLabel": {
+    "description": "الرصيد الحالي للفني بمربع حوار تعديل الرصيد، amount مهيَّأ مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "deductChipLabel": "خصم",
+  "@deductChipLabel": {
+    "description": "خيار خصم مبلغ من الرصيد بمربع حوار تعديل الرصيد"
+  },
+  "amountJodFieldLabel": "المبلغ",
+  "@amountJodFieldLabel": {
+    "description": "تسمية حقل إدخال مبلغ التعديل بالدينار (مختلف عن amountFieldLabel المستخدَم بشاشة الباقات)"
+  },
+  "adjustmentReasonRequiredFieldLabel": "سبب التعديل (إلزامي)",
+  "@adjustmentReasonRequiredFieldLabel": {
+    "description": "تسمية حقل سبب تعديل الرصيد، إلزامي"
+  },
+  "executeButton": "تنفيذ",
+  "@executeButton": {
+    "description": "زر تنفيذ تعديل الرصيد بمربع الحوار"
+  },
+  "enterValidAmountMessage": "أدخل مبلغاً صحيحاً",
+  "@enterValidAmountMessage": {
+    "description": "رسالة تحقق عند إدخال مبلغ غير صالح بمربع حوار تعديل الرصيد"
+  },
+  "balanceAdjustedMessage": "تم تعديل الرصيد",
+  "@balanceAdjustedMessage": {
+    "description": "رسالة نجاح تعديل رصيد فني"
+  },
+  "adjustBalanceFailedMessage": "تعذر تعديل الرصيد",
+  "@adjustBalanceFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل الرصيد"
+  },
+  "deleteUserTitle": "حذف المستخدم",
+  "@deleteUserTitle": {
+    "description": "عنوان مربع حوار/زر حذف حساب مستخدم نهائياً بلوحة الأدمن"
+  },
+  "deleteUserConfirmMessage": "سيتم حذف حساب {name} نهائياً وإيقاف وصوله. لا يمكن التراجع. هذا الإجراء يُسجَّل في سجل العمليات.",
+  "@deleteUserConfirmMessage": {
+    "description": "رسالة تأكيد حذف حساب مستخدم نهائياً",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteForeverButton": "حذف نهائي",
+  "@deleteForeverButton": {
+    "description": "زر تأكيد الحذف النهائي لحساب مستخدم"
+  },
+  "userDeletedMessage": "تم حذف المستخدم",
+  "@userDeletedMessage": {
+    "description": "رسالة نجاح حذف حساب مستخدم"
+  },
+  "deleteUserFailedMessage": "تعذر حذف المستخدم",
+  "@deleteUserFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حذف حساب مستخدم"
+  },
+  "allFilterLabel": "الكل",
+  "@allFilterLabel": {
+    "description": "تبويب/رقاقة فلترة لعرض كل المستخدمين بلا تصفية دور"
+  },
+  "customersFilterLabel": "عملاء",
+  "@customersFilterLabel": {
+    "description": "رقاقة فلترة المستخدمين حسب دور العميل"
+  },
+  "techniciansFilterLabel": "فنيين",
+  "@techniciansFilterLabel": {
+    "description": "رقاقة فلترة المستخدمين حسب دور الفني"
+  },
+  "activeStatusLabel": "نشط",
+  "@activeStatusLabel": {
+    "description": "شارة حالة حساب مستخدم نشط"
+  },
+  "suspendedStatusLabel": "موقوف",
+  "@suspendedStatusLabel": {
+    "description": "شارة حالة حساب مستخدم موقوف"
+  },
+  "balanceButtonLabel": "الرصيد",
+  "@balanceButtonLabel": {
+    "description": "زر فتح مربع حوار تعديل رصيد فني ببطاقة المستخدم"
+  },
+  "noUsersFoundTitle": "لا يوجد مستخدمين",
+  "@noUsersFoundTitle": {
+    "description": "حالة فارغة لقائمة المستخدمين"
+  },
+  "usersLoadFailedTitle": "تعذّر تحميل المستخدمين",
+  "@usersLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل قائمة المستخدمين"
+  },
+  "adminRoleLabel": "أدمن",
+  "@adminRoleLabel": {
+    "description": "تسمية دور الأدمن، تحل محل AdminUserModel.roleAr (نُقل منطق العرض لطبقة الودجت لأنه يحتاج BuildContext)"
+  },
+  "privacyIntroText": "هذه الصفحة توضّح كيف تجمع منصة صلّحلي بياناتك وتستخدمها وتحميها.",
+  "@privacyIntroText": {
+    "description": "نص المقدمة أعلى شاشة سياسة الخصوصية"
+  },
+  "dataWeCollectSectionTitle": "البيانات التي نجمعها ولماذا",
+  "@dataWeCollectSectionTitle": {
+    "description": "عنوان قسم جدول البيانات المجمَّعة بشاشة سياسة الخصوصية"
+  },
+  "dataStorageSectionTitle": "أين تُخزَّن بياناتك وكيف تُحمى",
+  "@dataStorageSectionTitle": {
+    "description": "عنوان قسم تخزين وحماية البيانات بشاشة سياسة الخصوصية"
+  },
+  "dataStorageSectionBody": "تُخزَّن بياناتك على خوادمنا، ويكون كل اتصال بين التطبيق والخادم مشفّراً عبر HTTPS. كلمة مرورك تُحفظ بصيغة مشفّرة (Hash) لا يمكن لأحد بمن فيهم فريقنا استرجاعها. رسائل المحادثة محفوظة بقاعدة بياناتنا لعرضها لك ولطرف المحادثة الآخر، ويُراجعها فريق الإدارة فقط عند وجود شكوى أو مخالفة تستدعي ذلك.",
+  "@dataStorageSectionBody": {
+    "description": "نص شرح تخزين وحماية البيانات بشاشة سياسة الخصوصية"
+  },
+  "thirdPartySharingSectionTitle": "مشاركة البيانات مع أطراف ثالثة",
+  "@thirdPartySharingSectionTitle": {
+    "description": "عنوان قسم مشاركة البيانات مع طرف ثالث بشاشة سياسة الخصوصية"
+  },
+  "thirdPartySharingSectionBody": "لا نبيع بياناتك ولا نشاركها مع أي جهة إعلانية. الاستثناء الوحيد هو خدمة Firebase Cloud Messaging (التابعة لـ Google) التي نستخدمها حصراً لإرسال الإشعارات لجهازك، وهذا يتطلب مشاركة معرّف جهاز الإشعارات معها فقط، دون أي بيانات أخرى.",
+  "@thirdPartySharingSectionBody": {
+    "description": "نص شرح مشاركة البيانات مع طرف ثالث بشاشة سياسة الخصوصية"
+  },
+  "appPermissionsSectionTitle": "صلاحيات التطبيق ولماذا نطلبها",
+  "@appPermissionsSectionTitle": {
+    "description": "عنوان قسم صلاحيات التطبيق بشاشة سياسة الخصوصية"
+  },
+  "permissionLocationTitle": "الموقع الجغرافي",
+  "@permissionLocationTitle": {
+    "description": "عنوان صلاحية الموقع الجغرافي بشاشة سياسة الخصوصية"
+  },
+  "permissionLocationBody": "فقط عند ضغطك زر \"مشاركة الموقع\" داخل محادثة طلب — لن يُستخدم بأي وقت آخر ولا بالخلفية.",
+  "@permissionLocationBody": {
+    "description": "شرح استخدام صلاحية الموقع الجغرافي"
+  },
+  "permissionMicTitle": "الميكروفون",
+  "@permissionMicTitle": {
+    "description": "عنوان صلاحية الميكروفون بشاشة سياسة الخصوصية"
+  },
+  "permissionMicBody": "فقط عند تسجيلك رسالة صوتية داخل محادثة طلب.",
+  "@permissionMicBody": {
+    "description": "شرح استخدام صلاحية الميكروفون"
+  },
+  "permissionCameraTitle": "الكاميرا / معرض الصور",
+  "@permissionCameraTitle": {
+    "description": "عنوان صلاحية الكاميرا/معرض الصور بشاشة سياسة الخصوصية"
+  },
+  "permissionCameraBody": "فقط عند اختيارك إرفاق صورة (صورتك الشخصية، أو صورة توضّح المشكلة الفنية).",
+  "@permissionCameraBody": {
+    "description": "شرح استخدام صلاحية الكاميرا/معرض الصور"
+  },
+  "permissionNotificationsTitle": "الإشعارات",
+  "@permissionNotificationsTitle": {
+    "description": "عنوان صلاحية الإشعارات بشاشة سياسة الخصوصية"
+  },
+  "permissionNotificationsBody": "لتنبيهك بعروض جديدة، رسائل، وتحديثات طلباتك فوراً.",
+  "@permissionNotificationsBody": {
+    "description": "شرح استخدام صلاحية الإشعارات"
+  },
+  "yourRightsSectionTitle": "حقوقك",
+  "@yourRightsSectionTitle": {
+    "description": "عنوان قسم حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletAccessData": "الاطلاع على بياناتك وتعديلها في أي وقت من الإعدادات.",
+  "@rightsBulletAccessData": {
+    "description": "أول بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletChangePassword": "تغيير كلمة مرورك في أي وقت.",
+  "@rightsBulletChangePassword": {
+    "description": "ثاني بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletDeleteAccount": "طلب حذف حسابك وبياناتك بالكامل من نفس صفحة الإعدادات.",
+  "@rightsBulletDeleteAccount": {
+    "description": "ثالث بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "dataRetentionSectionTitle": "الاحتفاظ بالبيانات",
+  "@dataRetentionSectionTitle": {
+    "description": "عنوان قسم الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
+  },
+  "dataRetentionSectionBody": "نحتفظ ببياناتك طالما حسابك فعّال. عند حذف حسابك، تُحذف بياناتك الشخصية نهائياً من قاعدة بياناتنا فوراً (باستثناء حالات وجود طلب نشط أو رصيد غير مصفّى، والتي تمنع الحذف حتى تُسوَّى أولاً).",
+  "@dataRetentionSectionBody": {
+    "description": "نص شرح الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
+  },
+  "contactUsSectionTitle": "تواصل معنا",
+  "@contactUsSectionTitle": {
+    "description": "عنوان قسم التواصل بشاشة سياسة الخصوصية"
+  },
+  "contactUsSectionBody": "لأي استفسار بخصوص هذه السياسة أو بياناتك، تواصل معنا عبر الدعم الفني داخل التطبيق.",
+  "@contactUsSectionBody": {
+    "description": "نص قسم التواصل بشاشة سياسة الخصوصية"
+  },
+  "privacyLastUpdatedLabel": "آخر تحديث: 2026",
+  "@privacyLastUpdatedLabel": {
+    "description": "تاريخ آخر تحديث لسياسة الخصوصية، أسفل الشاشة"
+  },
+  "dataTableNameLabel": "الاسم، البريد، رقم الهاتف",
+  "@dataTableNameLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableNameReason": "إنشاء الحساب والتواصل بخصوص طلباتك",
+  "@dataTableNameReason": {
+    "description": "سبب جمع الاسم/البريد/الهاتف بجدول البيانات"
+  },
+  "dataTablePasswordLabel": "كلمة المرور",
+  "@dataTablePasswordLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTablePasswordReason": "حماية حسابك (مشفّرة، لا يمكن استرجاعها)",
+  "@dataTablePasswordReason": {
+    "description": "سبب جمع كلمة المرور بجدول البيانات"
+  },
+  "dataTableCityAreaLabel": "المدينة والمنطقة",
+  "@dataTableCityAreaLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableCityAreaReason": "ربطك بأقرب فني متاح",
+  "@dataTableCityAreaReason": {
+    "description": "سبب جمع المدينة/المنطقة بجدول البيانات"
+  },
+  "dataTableNationalNumberLabel": "الرقم الوطني (فنيين)",
+  "@dataTableNationalNumberLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableNationalNumberReason": "التحقق من هوية الفني الحقيقية قبل تفعيل حسابه، لبناء ثقة العملاء",
+  "@dataTableNationalNumberReason": {
+    "description": "سبب جمع الرقم الوطني بجدول البيانات"
+  },
+  "dataTableProfilePhotoLabel": "الصورة الشخصية (فنيين)",
+  "@dataTableProfilePhotoLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableProfilePhotoReason": "بناء الثقة بين العميل والفني",
+  "@dataTableProfilePhotoReason": {
+    "description": "سبب جمع الصورة الشخصية بجدول البيانات"
+  },
+  "dataTableLocationLabel": "الموقع الجغرافي",
+  "@dataTableLocationLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' (نص مطابق لـpermissionLocationTitle، سياق مختلف)"
+  },
+  "dataTableLocationReason": "فقط عند مشاركته داخل محادثة طلب",
+  "@dataTableLocationReason": {
+    "description": "سبب جمع الموقع الجغرافي بجدول البيانات"
+  },
+  "dataTableChatMediaLabel": "صور/صوت المحادثة",
+  "@dataTableChatMediaLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableChatMediaReason": "توضيح المشكلة الفنية",
+  "@dataTableChatMediaReason": {
+    "description": "سبب جمع صور/صوت المحادثة بجدول البيانات"
+  },
+  "dataTableDeviceTokenLabel": "معرّف إشعارات الجهاز",
+  "@dataTableDeviceTokenLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableDeviceTokenReason": "إرسال إشعارات فورية",
+  "@dataTableDeviceTokenReason": {
+    "description": "سبب جمع معرّف إشعارات الجهاز بجدول البيانات"
+  },
+  "dataTableWalletLabel": "معاملات المحفظة",
+  "@dataTableWalletLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableWalletReason": "إدارة رصيد الفني (للفنيين فقط)",
+  "@dataTableWalletReason": {
+    "description": "سبب جمع بيانات معاملات المحفظة بجدول البيانات"
+  },
+  "requiredBadgeLabel": "إلزامية",
+  "@requiredBadgeLabel": {
+    "description": "شارة توضّح أن حقل بيانات إلزامي بجدول البيانات"
+  },
+  "optionalBadgeLabel": "اختيارية",
+  "@optionalBadgeLabel": {
+    "description": "شارة توضّح أن حقل بيانات اختياري بجدول البيانات"
   }
 }

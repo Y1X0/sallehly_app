@@ -14,7 +14,6 @@ void main() {
       expect(u.active, true);
       expect(u.balance, 15.5);
       expect(u.isTechnician, true);
-      expect(u.roleAr, 'فني');
     });
 
     test('مستخدم موقوف (is_active=0)', () {
@@ -23,21 +22,25 @@ void main() {
         'balance': 0, 'is_active': 0, 'rating_avg': 0, 'rating_count': 0, 'completed_jobs': 0,
       });
       expect(u.active, false);
-      expect(u.roleAr, 'عميل');
+      expect(u.isCustomer, true);
     });
 
-    test('roleAr للأدمن وللدور غير المعروف', () {
+    test('isCustomer/isTechnician/isAdmin للأدمن وللدور غير المعروف', () {
       final admin = AdminUserModel.fromJson({
         'id': 1, 'role': 'admin', 'name': 'a', 'email': 'a@a.com', 'phone': 'p', 'balance': 0, 'is_active': 1,
         'rating_avg': 0, 'rating_count': 0, 'completed_jobs': 0,
       });
-      expect(admin.roleAr, 'أدمن');
+      expect(admin.isAdmin, true);
 
       final unknown = AdminUserModel.fromJson({
         'id': 1, 'role': 'weird_role', 'name': 'a', 'email': 'a@a.com', 'phone': 'p', 'balance': 0, 'is_active': 1,
         'rating_avg': 0, 'rating_count': 0, 'completed_jobs': 0,
       });
-      expect(unknown.roleAr, 'weird_role'); // يرجع القيمة الخام لو غير معروفة
+      // لا isCustomer ولا isTechnician ولا isAdmin لدور غير معروف
+      expect(unknown.isCustomer, false);
+      expect(unknown.isTechnician, false);
+      expect(unknown.isAdmin, false);
+      expect(unknown.role, 'weird_role');
     });
 
     test('city/areas/services مفقودة ترجع null بدل خطأ', () {

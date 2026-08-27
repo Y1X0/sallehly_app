@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/admin_provider.dart';
 import '../../../core/widgets/success_feedback.dart';
@@ -45,17 +47,19 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
   }
 
   Future<void> verify() async {
+    final t = AppLocalizations.of(context)!;
     try {
       await context.read<AdminProvider>().verifyTechnician(widget.userId);
-      showSuccess('تم توثيق الفني');
+      showSuccess(t.technicianVerifiedMessage);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر توثيق الفني');
+      showErrorSnackBar(context, t.verifyTechnicianFailedMessage);
     }
   }
 
   Future<void> changeRole(String currentRole) async {
+    final t = AppLocalizations.of(context)!;
     final targetRole = currentRole == 'technician' ? 'customer' : 'technician';
     final nationalNumberController = TextEditingController();
     final servicesController = TextEditingController();
@@ -66,7 +70,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.card,
         title: Text(
-          targetRole == 'technician' ? 'تحويل إلى فني' : 'تحويل إلى عميل',
+          targetRole == 'technician' ? t.convertToTechnicianLabel : t.convertToCustomerLabel,
           style: const TextStyle(fontWeight: FontWeight.w900),
         ),
         content: SingleChildScrollView(
@@ -76,8 +80,8 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             children: [
               Text(
                 targetRole == 'technician'
-                    ? 'يتطلّب رقماً وطنياً وخدمة ومنطقة واحدة على الأقل، وأن تكون لدى الحساب صورة شخصية مسبقاً. سيُرفض التحويل إن كان للعميل طلب نشط.'
-                    : 'سيُرفض التحويل إن كان لدى الفني رصيد أو أعمال مكتملة أو عروض معلّقة أو طلب نشط — صفِّ هذه الأمور أولاً.',
+                    ? t.convertToTechnicianRequirementsMessage
+                    : t.convertToCustomerRequirementsMessage,
                 style: TextStyle(color: AppColors.textSecondary, height: 1.6),
               ),
               if (targetRole == 'technician') ...[
@@ -85,26 +89,26 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                 TextField(
                   controller: nationalNumberController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'الرقم الوطني (10 أرقام)'),
+                  decoration: InputDecoration(labelText: t.nationalNumberDigitsFieldLabel),
                 ),
                 TextField(
                   controller: servicesController,
-                  decoration: const InputDecoration(labelText: 'الخدمات (مفصولة بفاصلة)'),
+                  decoration: InputDecoration(labelText: t.servicesCommaSeparatedLabel),
                 ),
                 TextField(
                   controller: areasController,
-                  decoration: const InputDecoration(labelText: 'المناطق (مفصولة بفاصلة)'),
+                  decoration: InputDecoration(labelText: t.areasCommaSeparatedLabel),
                 ),
               ],
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('تحويل'),
+            child: Text(t.convertButton),
           ),
         ],
       ),
@@ -120,11 +124,11 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             services: targetRole == 'technician' ? servicesController.text : null,
             areas: targetRole == 'technician' ? areasController.text : null,
           );
-      showSuccess('تم تحويل الدور بنجاح');
+      showSuccess(t.roleChangedMessage);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تحويل الدور');
+      showErrorSnackBar(context, t.changeRoleFailedMessage);
     }
   }
 
@@ -139,6 +143,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
     final isSuperAdmin = context.watch<AuthProvider>().user?.isSuperAdmin ?? false;
     final detail = admin.userDetail;
@@ -147,7 +152,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(user?['name']?.toString() ?? 'تفاصيل المستخدم', style: const TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(user?['name']?.toString() ?? t.userDetailsTitle, style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -170,7 +175,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                             _ActionTile(
                               icon: Icons.verified_rounded,
                               color: AppColors.success,
-                              title: 'توثيق هذا الفني',
+                              title: t.verifyThisTechnicianLabel,
                               onTap: admin.actionLoading ? null : verify,
                             ),
                           if (isSuperAdmin && user['role'] != 'admin') ...[
@@ -178,46 +183,46 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                             _ActionTile(
                               icon: Icons.swap_horiz_rounded,
                               color: AppColors.warning,
-                              title: user['role'] == 'technician' ? 'تحويل إلى عميل' : 'تحويل إلى فني',
-                              subtitle: 'Super Admin فقط',
+                              title: user['role'] == 'technician' ? t.convertToCustomerLabel : t.convertToTechnicianLabel,
+                              subtitle: t.superAdminOnlyLabel,
                               onTap: admin.actionLoading ? null : () => changeRole(user['role'].toString()),
                             ),
                           ],
                           const SizedBox(height: 20),
-                          _SectionTitle('طلبات كعميل (${(detail['requestsAsCustomer'] as List).length})'),
-                          ..._requestTiles(detail['requestsAsCustomer'] as List),
+                          _SectionTitle(t.requestsAsCustomerSectionTitle((detail['requestsAsCustomer'] as List).length)),
+                          ..._requestTiles(context, detail['requestsAsCustomer'] as List),
                           if (user['role'] == 'technician') ...[
                             const SizedBox(height: 20),
-                            _SectionTitle('طلبات كفني (${(detail['requestsAsTechnician'] as List).length})'),
-                            ..._requestTiles(detail['requestsAsTechnician'] as List),
+                            _SectionTitle(t.requestsAsTechnicianSectionTitle((detail['requestsAsTechnician'] as List).length)),
+                            ..._requestTiles(context, detail['requestsAsTechnician'] as List),
                             const SizedBox(height: 20),
-                            _SectionTitle('العروض (${(detail['offers'] as List).length})'),
+                            _SectionTitle(t.offersSectionTitle((detail['offers'] as List).length)),
                             ...(detail['offers'] as List).map((o) => _SimpleTile(
-                                  title: '${o['price']} د.أ',
-                                  subtitle: 'طلب #${o['request_id']} • ${o['status']}',
+                                  title: formatJod(context, double.tryParse('${o['price']}') ?? 0),
+                                  subtitle: '${t.requestNumberLabel(o['request_id'] as int)} • ${o['status']}',
                                   trailing: _formatDate(o['created_at']?.toString()),
                                 )),
                           ],
                           const SizedBox(height: 20),
-                          _SectionTitle('دفتر الحساب (${(detail['ledger'] as List).length})'),
+                          _SectionTitle(t.ledgerSectionTitleWithCount((detail['ledger'] as List).length)),
                           ...(detail['ledger'] as List).map((l) => _SimpleTile(
                                 title: l['type']?.toString() ?? '',
                                 subtitle: l['note']?.toString() ?? '',
-                                trailing: '${l['amount']}',
+                                trailing: formatJod(context, double.tryParse('${l['amount']}') ?? 0),
                                 trailingColor: (double.tryParse('${l['amount']}') ?? 0) >= 0 ? AppColors.success : AppColors.danger,
                               )),
                           const SizedBox(height: 20),
-                          _SectionTitle('المراقبة'),
+                          _SectionTitle(t.monitoringSectionTitle),
                           _SimpleTile(
-                            title: 'مخالفات شات أرسلها',
+                            title: t.violationsSentLabel,
                             trailing: '${(detail['moderation'] as Map)['violationsCount']}',
                           ),
                           _SimpleTile(
-                            title: 'بلاغات ضده',
+                            title: t.reportsAgainstLabel,
                             trailing: '${(detail['moderation'] as Map)['reportsAgainstCount']}',
                           ),
                           _SimpleTile(
-                            title: 'شكاوى قدّمها',
+                            title: t.complaintsFiledLabel,
                             trailing: '${(detail['moderation'] as Map)['complaintsFiledCount']}',
                           ),
                         ],
@@ -228,12 +233,12 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
     );
   }
 
-  List<Widget> _requestTiles(List requests) {
+  List<Widget> _requestTiles(BuildContext context, List requests) {
     if (requests.isEmpty) {
       return [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text('لا يوجد', style: TextStyle(color: AppColors.textMuted)),
+          child: Text(AppLocalizations.of(context)!.noneLabel, style: TextStyle(color: AppColors.textMuted)),
         ),
       ];
     }
@@ -272,8 +277,11 @@ class _SummaryCard extends StatelessWidget {
           Text('${user['city'] ?? ''}', style: TextStyle(color: AppColors.textSecondary)),
           if (user['role'] == 'technician') ...[
             const SizedBox(height: 10),
-            Text('الرصيد: ${user['balance']} د.أ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900)),
-            Text('التقييم: ${user['rating_avg']} (${user['rating_count']}) • مكتملة: ${user['completed_jobs']}',
+            Text(AppLocalizations.of(context)!.balanceWithAmountLabel(formatJod(context, double.tryParse('${user['balance']}') ?? 0)),
+                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900)),
+            Text(
+                AppLocalizations.of(context)!.ratingSummaryLabel(
+                    '${user['rating_avg']}', '${user['rating_count']}', '${user['completed_jobs']}'),
                 style: TextStyle(color: AppColors.textSecondary)),
           ],
           if (!active && suspensionReason != null && suspensionReason.isNotEmpty) ...[
@@ -284,7 +292,7 @@ class _SummaryCard extends StatelessWidget {
                 color: AppColors.danger.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text('سبب الإيقاف: $suspensionReason',
+              child: Text(AppLocalizations.of(context)!.suspensionReasonLabel(suspensionReason),
                   style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700)),
             ),
           ],
@@ -405,7 +413,7 @@ class _ErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'تعذّر تحميل بيانات المستخدم',
+              AppLocalizations.of(context)!.userLoadFailedTitle,
               style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
             ),
             const SizedBox(height: 8),
@@ -414,7 +422,7 @@ class _ErrorState extends StatelessWidget {
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(AppLocalizations.of(context)!.retryButton),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],

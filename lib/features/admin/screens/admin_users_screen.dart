@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/admin_user_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_user_detail_screen.dart';
@@ -37,15 +39,16 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   // [FIX-SUSPEND-01] الإيقاف الآن يطلب سبباً (يُسجَّل ويظهر بتفاصيل الحساب) —
   // التفعيل يبقى بضغطة تأكيد واحدة كما كان بالضبط.
   Future<void> toggleUser(AdminUserModel user) async {
+    final t = AppLocalizations.of(context)!;
     if (!user.active) {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('تفعيل الحساب'),
-          content: Text('هل تريد تفعيل حساب ${user.name}؟'),
+          title: Text(t.activateAccountTitle),
+          content: Text(t.activateAccountConfirmMessage(user.name)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('تأكيد')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text(t.confirmButton)),
           ],
         ),
       );
@@ -55,7 +58,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       } on ApiException catch (e) {
         showErrorSnackBar(context, e.message);
       } catch (_) {
-        showErrorSnackBar(context, 'تعذر تحديث الحساب');
+        showErrorSnackBar(context, t.accountUpdateFailedMessage);
       }
       return;
     }
@@ -65,30 +68,30 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.card,
-        title: const Text('إيقاف الحساب', style: TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(t.suspendAccountTitle, style: const TextStyle(fontWeight: FontWeight.w900)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('سبب إيقاف حساب ${user.name} (اختياري، يُسجَّل بسجل الحساب):',
+              Text(t.suspensionReasonPromptMessage(user.name),
                   style: TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: 8),
               TextField(
                 controller: reasonController,
                 maxLength: 300,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'السبب'),
+                decoration: InputDecoration(labelText: t.reasonFieldLabel),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('إلغاء')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancelButton)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('إيقاف'),
+            child: Text(t.suspendButton),
           ),
         ],
       ),
@@ -100,11 +103,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تحديث الحساب');
+      showErrorSnackBar(context, t.accountUpdateFailedMessage);
     }
   }
 
   Future<void> editProfile(AdminUserModel user) async {
+    final t = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: user.name);
     final cityController = TextEditingController(text: user.city ?? '');
     final saved = await showDialog<bool>(
@@ -112,31 +116,31 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       builder: (_) {
         return AlertDialog(
           backgroundColor: AppColors.card,
-          title: const Text('تعديل البيانات',
-              style: TextStyle(fontWeight: FontWeight.w900)),
+          title: Text(t.editDataTitle,
+              style: const TextStyle(fontWeight: FontWeight.w900)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
                 maxLength: 60,
-                decoration: const InputDecoration(labelText: 'الاسم'),
+                decoration: InputDecoration(labelText: t.nameFieldLabel),
               ),
               TextField(
                 controller: cityController,
                 maxLength: 60,
-                decoration: const InputDecoration(labelText: 'المدينة'),
+                decoration: InputDecoration(labelText: t.cityLabel),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('إلغاء'),
+              child: Text(t.cancelButton),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('حفظ'),
+              child: Text(t.saveButton),
             ),
           ],
         );
@@ -152,17 +156,18 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حفظ البيانات')),
+          SnackBar(content: Text(t.dataSavedMessage)),
         );
       }
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تعديل البيانات');
+      showErrorSnackBar(context, t.editDataFailedMessage);
     }
   }
 
   Future<void> adjustBalance(AdminUserModel user) async {
+    final t = AppLocalizations.of(context)!;
     final amountController = TextEditingController();
     final reasonController = TextEditingController();
     bool isAdd = true;
@@ -174,14 +179,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           builder: (context, setLocal) {
             return AlertDialog(
               backgroundColor: AppColors.card,
-              title: const Text('تعديل الرصيد',
-                  style: TextStyle(fontWeight: FontWeight.w900)),
+              title: Text(t.adjustBalanceTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w900)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('الرصيد الحالي: ${user.balance.toStringAsFixed(2)} د.أ',
+                    Text(t.currentBalanceLabel(formatJod(context, user.balance)),
                         style: TextStyle(
                             color: AppColors.textSecondary,
                             fontWeight: FontWeight.w700)),
@@ -190,7 +195,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       children: [
                         Expanded(
                           child: ChoiceChip(
-                            label: const Text('إضافة'),
+                            label: Text(t.addButton),
                             selected: isAdd,
                             onSelected: (_) => setLocal(() => isAdd = true),
                             selectedColor: AppColors.success,
@@ -199,7 +204,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ChoiceChip(
-                            label: const Text('خصم'),
+                            label: Text(t.deductChipLabel),
                             selected: !isAdd,
                             onSelected: (_) => setLocal(() => isAdd = false),
                             selectedColor: AppColors.danger,
@@ -212,13 +217,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: amountController,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'المبلغ'),
+                      decoration: InputDecoration(labelText: t.amountJodFieldLabel),
                     ),
                     TextField(
                       controller: reasonController,
                       maxLength: 200,
                       decoration:
-                          const InputDecoration(labelText: 'سبب التعديل (إلزامي)'),
+                          InputDecoration(labelText: t.adjustmentReasonRequiredFieldLabel),
                     ),
                   ],
                 ),
@@ -226,11 +231,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('إلغاء'),
+                  child: Text(t.cancelButton),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('تنفيذ'),
+                  child: Text(t.executeButton),
                 ),
               ],
             );
@@ -242,7 +247,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     if (saved != true || !mounted) return;
     final raw = double.tryParse(amountController.text.trim());
     if (raw == null || raw <= 0) {
-      showErrorSnackBar(context, 'أدخل مبلغاً صحيحاً');
+      showErrorSnackBar(context, t.enterValidAmountMessage);
       return;
     }
     final amount = isAdd ? raw : -raw;
@@ -254,38 +259,38 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تعديل الرصيد')),
+          SnackBar(content: Text(t.balanceAdjustedMessage)),
         );
       }
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تعديل الرصيد');
+      showErrorSnackBar(context, t.adjustBalanceFailedMessage);
     }
   }
 
   Future<void> deleteUser(AdminUserModel user) async {
+    final t = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) {
         return AlertDialog(
           backgroundColor: AppColors.card,
-          title: const Text('حذف المستخدم',
-              style: TextStyle(fontWeight: FontWeight.w900)),
+          title: Text(t.deleteUserTitle,
+              style: const TextStyle(fontWeight: FontWeight.w900)),
           content: Text(
-            'سيتم حذف حساب ${user.name} نهائياً وإيقاف وصوله. '
-            'لا يمكن التراجع. هذا الإجراء يُسجَّل في سجل العمليات.',
+            t.deleteUserConfirmMessage(user.name),
             style: TextStyle(color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('تراجع'),
+              child: Text(t.goBackButton),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('حذف نهائي'),
+              child: Text(t.deleteForeverButton),
             ),
           ],
         );
@@ -297,18 +302,19 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       await context.read<AdminProvider>().deleteUser(user.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حذف المستخدم')),
+          SnackBar(content: Text(t.userDeletedMessage)),
         );
       }
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر حذف المستخدم');
+      showErrorSnackBar(context, t.deleteUserFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
     final users = filter(admin.users);
 
@@ -326,25 +332,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _FilterChip(
-                    title: 'الكل',
+                    title: t.allFilterLabel,
                     active: query == 'all',
                     onTap: () => setState(() => query = 'all'),
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    title: 'عملاء',
+                    title: t.customersFilterLabel,
                     active: query == 'customer',
                     onTap: () => setState(() => query = 'customer'),
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    title: 'فنيين',
+                    title: t.techniciansFilterLabel,
                     active: query == 'technician',
                     onTap: () => setState(() => query = 'technician'),
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    title: 'بانتظار التوثيق',
+                    title: t.pendingVerificationLabel,
                     active: query == 'pending_verification',
                     onTap: () => setState(() => query = 'pending_verification'),
                   ),
@@ -367,7 +373,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 onRetry: admin.loadUsers,
               )
             else if (users.isEmpty)
-              const _EmptyState(text: 'لا يوجد مستخدمين')
+              _EmptyState(text: t.noUsersFoundTitle)
             else
               ...users.map(
                     (user) => Padding(
@@ -449,7 +455,15 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final color = user.active ? AppColors.success : AppColors.danger;
+    final roleLabel = user.isCustomer
+        ? t.customerFallbackName
+        : user.isTechnician
+            ? t.technicianFallbackName
+            : user.isAdmin
+                ? t.adminRoleLabel
+                : user.role;
 
     return Material(
       color: AppColors.card,
@@ -489,7 +503,7 @@ class _UserCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${user.roleAr} • ${user.phone}',
+                      '$roleLabel • ${user.phone}',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
@@ -505,7 +519,7 @@ class _UserCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      user.active ? 'نشط' : 'موقوف',
+                      user.active ? t.activeStatusLabel : t.suspendedStatusLabel,
                       style: TextStyle(
                         color: color,
                         fontWeight: FontWeight.w900,
@@ -522,7 +536,7 @@ class _UserCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        'بانتظار التوثيق',
+                        t.pendingVerificationLabel,
                         style: TextStyle(
                           color: AppColors.warning,
                           fontWeight: FontWeight.w900,
@@ -546,7 +560,7 @@ class _UserCard extends StatelessWidget {
               ),
               if (user.isTechnician)
                 Text(
-                  '${user.balance.toStringAsFixed(2)} د.أ',
+                  formatJod(context, user.balance),
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,
@@ -560,7 +574,7 @@ class _UserCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: loading || user.isAdmin ? null : onToggle,
               icon: Icon(user.active ? Icons.block_rounded : Icons.check_circle_rounded),
-              label: Text(user.active ? 'إيقاف الحساب' : 'تفعيل الحساب'),
+              label: Text(user.active ? t.suspendAccountTitle : t.activateAccountTitle),
             ),
           ),
           if (!user.isAdmin) ...[
@@ -571,7 +585,7 @@ class _UserCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: loading ? null : onEdit,
                     icon: const Icon(Icons.edit_rounded, size: 18),
-                    label: const Text('تعديل'),
+                    label: Text(t.editTooltip),
                   ),
                 ),
                 if (user.isTechnician) ...[
@@ -581,7 +595,7 @@ class _UserCard extends StatelessWidget {
                       onPressed: loading ? null : onBalance,
                       icon: const Icon(Icons.account_balance_wallet_rounded,
                           size: 18),
-                      label: const Text('الرصيد'),
+                      label: Text(t.balanceButtonLabel),
                     ),
                   ),
                 ],
@@ -593,7 +607,7 @@ class _UserCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: loading ? null : onDelete,
                 icon: const Icon(Icons.delete_forever_rounded, size: 18),
-                label: const Text('حذف المستخدم'),
+                label: Text(t.deleteUserTitle),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.danger,
                   side: BorderSide(color: AppColors.danger),
@@ -674,7 +688,7 @@ class _ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'تعذّر تحميل المستخدمين',
+            AppLocalizations.of(context)!.usersLoadFailedTitle,
             style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
           ),
           const SizedBox(height: 8),
@@ -687,7 +701,7 @@ class _ErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(AppLocalizations.of(context)!.retryButton),
             style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
         ],

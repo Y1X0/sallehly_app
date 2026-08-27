@@ -67,15 +67,4 @@ class AdminUserModel {
   bool get isTechnician => role == 'technician';
   bool get isAdmin => role == 'admin';
   bool get isPendingVerification => isTechnician && verificationStatus == 'pending';
-
-  // [L10N-TODO] الوحيد الذي يستدعي هذا هو admin_users_screen.dart (ملف #74)
-  // — سيُنقَل منطق العرض المترجَم لطبقة الودجت هناك (AppLocalizations
-  // يحتاج BuildContext غير المتوفر بكائن نموذج بيانات بسيط)، ويُحذَف هذا
-  // الـgetter وقتها. راجع L10N_PROGRESS.md §9.
-  String get roleAr {
-    if (isCustomer) return 'عميل';
-    if (isTechnician) return 'فني';
-    if (isAdmin) return 'أدمن';
-    return role;
-  }
 }
