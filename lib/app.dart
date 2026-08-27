@@ -14,8 +14,10 @@ import 'features/requests/provider/requests_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/support/provider/support_provider.dart';
 import 'features/wallet/provider/wallet_provider.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/connectivity_provider.dart';
+import 'providers/locale_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/socket_provider.dart';
 import 'providers/theme_controller.dart';
@@ -49,6 +51,12 @@ class SallehlyApp extends StatelessWidget {
         // التطبيق حتى يقدر زر "الوايت مود" بالإعدادات يبدّلها من أي مكان.
         ChangeNotifierProvider(
           create: (_) => ThemeController()..loadSaved(),
+        ),
+        // [FIX-L10N-01] لغة الواجهة (عربي/إنجليزي) — نفس نمط ThemeController
+        // أعلاه تماماً، متاحة لكل التطبيق حتى يقدر مفتاح اللغة بالإعدادات
+        // يبدّلها من أي مكان.
+        ChangeNotifierProvider(
+          create: (_) => LocaleProvider()..loadSaved(),
         ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
@@ -242,36 +250,49 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
     // [FIX-THEME-01] المراقبة هنا تضمن أن التطبيق بأكمله يُعاد بناؤه فوراً
     // عند تبديل الوضع من الإعدادات، فتلتقط كل الشاشات ألوان AppColors الجديدة.
     context.watch<ThemeController>();
+    // [FIX-L10N-01] نفس المبدأ للغة — أي تبديل من شاشة الإعدادات يُعيد بناء
+    // التطبيق بأكمله فوراً بلغته/اتجاهه الجديدين.
+    final localeProvider = context.watch<LocaleProvider>();
 
     return MaterialApp(
       title: 'صلّحلي',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      // ⚠️ ملاحظة موثّقة (قرار واعٍ، مو نسيان):
-      // التطبيق عربي بالكامل حاليًا — locale مثبّتة على 'ar' دائمًا، وكل نصوص التطبيق
-      // مكتوبة عربي مباشرة بالكود (لا يوجد ملفات ARB / .arb ولا نظام ترجمة فعلي).
-      // [FIX-LOCALE-01] أُزيلت Locale('en') من supportedLocales — وجودها كان
-      // يوحي بدعم إنجليزي فعلي (قد يُفهم خطأً بمتاجر التطبيقات كذلك) رغم عدم
-      // ترجمة أي نص حقيقي. إذا قرّرتوا مستقبلاً دعم الإنجليزية فعليًا، أعيدوا
-      // إضافتها هنا مع ARB files حقيقية لكل النصوص.
-      locale: const Locale('ar'),
+      // [FIX-L10N-01] عربي هو الافتراضي والاحتياطي (fallback) دائماً — القيمة
+      // الفعلية تأتي من LocaleProvider (محفوظة محلياً، راجع locale_provider.dart)
+      // بدل تثبيتها. اتجاه الكتابة (RTL/LTR) يُشتقّ تلقائياً من هذه القيمة عبر
+      // MaterialApp/Localizations نفسها — لا يوجد أي Directionality يدوي بعد
+      // الآن (كان موجوداً هنا سابقاً مثبّتاً على rtl دائماً، أُزيل عمداً).
+      locale: localeProvider.locale,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
         Locale('ar'),
+        Locale('en'),
       ],
+      // دفاعي فقط: لا يُستدعى فعلياً طالما locale أعلاه دائماً غير null (يأتي
+      // من LocaleProvider الذي يضبط عربي كافتراضي قبل تحميل أي تفضيل محفوظ)،
+      // لكنه يضمن العربية كحل احتياطي لأي locale جهاز غير مدعوم إن تغيّر ذلك مستقبلاً.
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        if (deviceLocale != null) {
+          for (final supported in supportedLocales) {
+            if (supported.languageCode == deviceLocale.languageCode) {
+              return supported;
+            }
+          }
+        }
+        return LocaleProvider.fallbackLocale;
+      },
       builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Stack(
-            children: [
-              child ?? const SizedBox(),
-              const _OfflineBanner(),
-            ],
-          ),
+        return Stack(
+          children: [
+            child ?? const SizedBox(),
+            const _OfflineBanner(),
+          ],
         );
       },
       home: const SplashScreen(),

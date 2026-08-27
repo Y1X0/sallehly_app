@@ -1,8 +1,32 @@
 # English Localization — Progress Tracker
 
-Status: **PHASE 0 (Audit) complete — awaiting approval to start Phase 1.**
-Do not check off any item below until it has actually been migrated, tested with
-`flutter analyze`, and reviewed.
+Status: **PHASE 1 (Infrastructure) complete — awaiting go-ahead for Phase 2.**
+Do not check off any item in §2 below until that specific file has actually
+been migrated, tested with `flutter analyze`, and reviewed.
+
+## Decisions locked in (approved, apply consistently in later phases)
+
+- **Chevron mirroring:** `lib/core/ui/directional_icons.dart` created (mirrors
+  back/forward navigational icons via `Directionality.of(context)`, matching
+  Flutter's own `BackButtonIcon` convention — `arrow_forward` in RTL,
+  `arrow_back` in LTR). **Not yet applied to any of the ~9 call sites** —
+  deferred to Phase 2, to be wired in when each of those specific files is
+  migrated (same file-by-file discipline as string extraction), per the
+  original Phase 2 workflow ("fix RTL/LTR issues in that same file"). Applying
+  it will visibly change the Arabic back-icon's direction (left→right) to
+  match true RTL convention — flagging again here so it's not a surprise when
+  Phase 2 reaches those files. Media/playback/time icons are explicitly out of
+  scope for this helper.
+- **Request status wire values:** left untouched in `request_model.dart` /
+  `request_status_chip.dart` / `socket_provider.dart`. A comment was added at
+  the getters in `request_model.dart` marking them as backend wire values.
+  The real fix (`RequestStatus` enum + `fromWire()` + localized label lookup,
+  with an unknown/fallback case) is deferred to its own **Phase 3**, not to be
+  started without explicit approval.
+- **Backend error messages:** `ApiException.message` still shows the raw
+  server string as-is. One canonical TODO comment was added on the `message`
+  field itself in `lib/core/api/api_exception.dart` (not duplicated at each of
+  the ~40+ display call sites) explaining why, and pointing back to §5 below.
 
 ---
 
@@ -146,7 +170,7 @@ These aren't "strings to translate" — they're places where the **backend's Ara
 1. **`lib/models/request_model.dart`** — getters like `isWaiting`, `isCompleted`, `isCancelled`, `hasOffers`, `isCancellable` compare `status` against literal Arabic strings (`'بانتظار العروض'`, `'مكتمل'`, `'ملغي'`, `'وصلت عروض'`, `'قيد التنفيذ'`) because **the backend itself sends these Arabic strings as the wire value of `status`**, not an enum code.
 2. **`lib/features/requests/widgets/request_status_chip.dart`** renders that same raw `status` string directly as the chip's `Text(status, ...)` — so today, the Arabic word literally *is* both the data and the display label, with the same pattern echoed in `socket_provider.dart:193` when applying an optimistic local update.
 
-**Implication for Phase 2:** these Arabic values must **not** be replaced with English text or ARB keys — that would break comparisons across the entire app the moment the backend still sends Arabic and the client no longer recognizes it. The correct fix is a small **status → localized label mapping function** (Arabic wire value in, `AppLocalizations` key out) introduced in `request_status_chip.dart` (and the ~6 other screens listed in the table that read `.status` directly), while `request_model.dart`'s comparisons stay untouched against the Arabic backend values. This will need to be called out explicitly again when we reach file #15 and #23 in Phase 2 — not something to solve generically now.
+**Implication for Phase 2:** these Arabic values must **not** be replaced with English text or ARB keys — that would break comparisons across the entire app the moment the backend still sends Arabic and the client no longer recognizes it. The correct fix is a small **status → localized label mapping function** (Arabic wire value in, `AppLocalizations` key out) introduced in `request_status_chip.dart` (and the ~6 other screens listed in the table that read `.status` directly), while `request_model.dart`'s comparisons stay untouched against the Arabic backend values. **Decision (locked in):** this real fix is its own **Phase 3** (`RequestStatus` enum + `fromWire()` + localized label lookup with an unknown/fallback case), started only on explicit approval, after all of Phase 2's plain-string migration is done. For now (Phase 1), a comment was added directly above the getters in `request_model.dart` marking them as backend wire values that must never be changed — no logic touched.
 
 ---
 
@@ -165,13 +189,20 @@ Jordan's 12 governorates and ~153 areas are proper nouns. Standard practice is a
 
 ---
 
-## 6. Suggested Phase 1 scope checklist (for your approval)
+## 6. Phase 1 scope checklist — DONE
 
-- [ ] `l10n.yaml` + `lib/l10n/app_ar.arb` (template) + `lib/l10n/app_en.arb`
-- [ ] `LocaleProvider` (mirrors `ThemeController` shape) persisted via `SharedPreferences`
-- [ ] `MaterialApp`: wire `AppLocalizations.delegate`, `supportedLocales: [Locale('ar'), Locale('en')]`, `locale` from `LocaleProvider`, default/fallback `ar`
-- [ ] Replace the hardcoded `Directionality(TextDirection.rtl)` in `app.dart`'s `builder` with locale-derived direction
-- [ ] Language switcher added to `settings_screen.dart` (file #77 above)
-- [ ] Verify `flutter analyze` + app still builds/runs identically in Arabic (zero visible change) before Phase 2 starts
+- [x] `l10n.yaml` + `lib/l10n/app_ar.arb` (template) + `lib/l10n/app_en.arb` — only the 3 language-switcher strings for now, nothing else migrated
+- [x] `LocaleProvider` (`lib/providers/locale_provider.dart`) — mirrors `ThemeController` shape exactly (same `ChangeNotifier` + `SharedPreferences` pattern, key `sallehly_locale`), persisted via `SharedPreferences`
+- [x] `MaterialApp` (`lib/app.dart`): wired `AppLocalizations.delegate`, `supportedLocales: [Locale('ar'), Locale('en')]`, `locale` from `LocaleProvider` (default/fallback `ar`), `localeResolutionCallback` returning `ar` for any unsupported device locale (defensive — not actually exercised since `locale` is always explicit/non-null)
+- [x] Removed the hardcoded `Directionality(TextDirection.rtl)` wrapper entirely — direction is now derived automatically by the framework from `locale`/`GlobalWidgetsLocalizations.delegate` (already registered), not replaced with any conditional `Directionality` widget
+- [x] Language switcher added to `settings_screen.dart` (file #77), right next to the existing `_ThemeModeTile`, same visual/interaction pattern (icon + title + subtitle + `Switch`)
+- [x] `pubspec.yaml`: added `generate: true` under `flutter:` to enable `flutter gen-l10n` (runs automatically on `flutter pub get`)
+- [x] `.gitignore`: added the two generated `lib/l10n/app_localizations*.dart` files (regenerated by every build, never committed)
+- [x] Fixed the one existing test that renders `SettingsScreen` (`test/widgets/settings_logout_test.dart`) to also provide `LocaleProvider` + the localization delegates, since it previously only wired `AuthProvider`/`ThemeController` and would have broken the moment `_LanguageTile` needed `AppLocalizations.of(context)`
+- [x] Added `test/widgets/locale_switch_test.dart`: `LocaleProvider` persistence across a simulated restart (fresh instance + `loadSaved()`), and a full `SettingsScreen` widget test proving the switch flips `Directionality` from `rtl`→`ltr` with zero uncaught exceptions (covers the overflow-check acceptance criterion)
+- [x] `request_model.dart`: added the wire-value comment (§4/decisions above), no logic changed
+- [x] `api_exception.dart`: added the one canonical TODO comment (§5/decisions above), no logic changed
+- [x] `lib/core/ui/directional_icons.dart` created per the chevron-mirroring decision — **not yet wired into any screen**, deferred to Phase 2 (see decisions section above)
+- [ ] CI green (`flutter analyze` + `flutter test` + build) — pending, this repo has no local Flutter SDK so verification happens via GitHub Actions same as every prior change this session
 
-Phase 2 will then proceed through the 77-file table above, smallest first, ≤3 files per turn, each followed by `flutter analyze` and a checkbox tick here.
+Phase 2 will then proceed through the 77-file table below, smallest first, ≤3 files per turn, each followed by `flutter analyze` and a checkbox tick here. **Not started.**

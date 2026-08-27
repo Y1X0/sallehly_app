@@ -11,7 +11,9 @@ import 'package:sallehly_app/core/storage/app_storage.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/settings/screens/settings_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
+import 'package:sallehly_app/providers/locale_provider.dart';
 import 'package:sallehly_app/providers/theme_controller.dart';
 
 class MockAuthApi extends Mock implements AuthApi {}
@@ -33,6 +35,7 @@ void main() {
   late MockTokenStorage mockTokenStorage;
   late AuthProvider authProvider;
   late ThemeController themeController;
+  late LocaleProvider localeProvider;
 
   setUp(() {
     mockAuthApi = MockAuthApi();
@@ -49,14 +52,20 @@ void main() {
       authApiOverride: mockAuthApi,
     );
     themeController = ThemeController();
+    localeProvider = LocaleProvider();
   });
 
   Widget wrap() => MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
           ChangeNotifierProvider<ThemeController>.value(value: themeController),
+          ChangeNotifierProvider<LocaleProvider>.value(value: localeProvider),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const SettingsScreen(),
+        ),
       );
 
   testWidgets('الضغط على تسجيل الخروج يُظهر نافذة تأكيد؛ "إلغاء" لا يسجّل الخروج فعلياً', (tester) async {

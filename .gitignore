@@ -28,4 +28,10 @@ doc/api/
 .flutter-plugins
 .flutter-plugins-dependencies
 
+# [FIX-L10N-01] مولَّدة تلقائياً من lib/l10n/*.arb عبر `flutter gen-l10n`
+# (يُشغَّل ضمن `flutter pub get`، راجع l10n.yaml) — لا تُعدَّل يدوياً ولا تُضاف
+# للـgit؛ أي بيئة تبني المشروع تُعيد توليدها بنفسها من ملفات ARB المصدر.
+lib/l10n/app_localizations.dart
+lib/l10n/app_localizations_*.dart
+
 ios/Runner/GoogleService-Info.plist

@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/locale_provider.dart';
 import '../../../providers/theme_controller.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../support/screens/support_screen.dart';
@@ -334,6 +336,7 @@ class SettingsScreen extends StatelessWidget {
                 title: 'التطبيق',
                 children: [
                   const _ThemeModeTile(),
+                  const _LanguageTile(),
                   _ActionTile(Icons.support_agent_rounded, 'الدعم الفني', 'تواصل معنا عند وجود مشكلة', () {
                     Navigator.push(
                       context,
@@ -660,6 +663,56 @@ class _ThemeModeTile extends StatelessWidget {
             value: isLight,
             activeColor: AppColors.primary,
             onChanged: (value) => context.read<ThemeController>().setLight(value),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// [FIX-L10N-01] مفتاح تبديل لغة الواجهة (عربي/إنجليزي) — بنفس بنية
+/// _ThemeModeTile أعلاه تماماً: يعرض الحالة الحالية ويستدعي
+/// LocaleProvider.setLocale عند الضغط، فتتحدّث كل شاشات التطبيق فوراً (بما في
+/// ذلك اتجاه الكتابة RTL/LTR المُشتقّ تلقائياً من اللغة الجديدة) وتُحفظ رغبة
+/// المستخدم محلياً للمرات القادمة.
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnglish = context.watch<LocaleProvider>().isEnglish;
+    final t = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Row(
+        children: [
+          _IconBox(Icons.language_rounded),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settingsLanguageTitle,
+                  style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  isEnglish
+                      ? t.settingsLanguageSubtitleEnglish
+                      : t.settingsLanguageSubtitleArabic,
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: isEnglish,
+            activeColor: AppColors.primary,
+            onChanged: (value) => context.read<LocaleProvider>().setLocale(
+                  value ? LocaleProvider.englishLocale : LocaleProvider.fallbackLocale,
+                ),
           ),
         ],
       ),

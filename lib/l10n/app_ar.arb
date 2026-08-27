@@ -1,0 +1,15 @@
+{
+  "@@locale": "ar",
+  "settingsLanguageTitle": "اللغة",
+  "@settingsLanguageTitle": {
+    "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"
+  },
+  "settingsLanguageSubtitleArabic": "التطبيق يعمل بالعربية حالياً",
+  "@settingsLanguageSubtitleArabic": {
+    "description": "النص الفرعي عندما تكون اللغة الحالية عربي"
+  },
+  "settingsLanguageSubtitleEnglish": "التطبيق يعمل بالإنجليزية حالياً",
+  "@settingsLanguageSubtitleEnglish": {
+    "description": "النص الفرعي عندما تكون اللغة الحالية إنجليزي"
+  }
+}
