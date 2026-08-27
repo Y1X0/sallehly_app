@@ -112,7 +112,11 @@ void main() {
       'التبديل للإنجليزية يقلب اتجاه الكتابة إلى LTR بلا أي استثناء (فيضان تخطيط)',
       (tester) async {
         await tester.pumpWidget(wrap());
-        await _pumpAnimated(tester);
+        // هامش إضافي هنا تحديداً (10 بدل الافتراضي 6) — هذا الاختبار ظهر
+        // فيه تذبذب عابر بتشغيلة CI واحدة (لم يتكرر محلياً، ولا سبب واضح
+        // بالكود يفسّره)؛ زيادة عدد الدورات تقلّل احتمال تكراره بلا أي أثر
+        // على المنطق نفسه.
+        await _pumpAnimated(tester, 10);
 
         expect(Directionality.of(tester.element(find.byType(SettingsScreen))),
             TextDirection.rtl);

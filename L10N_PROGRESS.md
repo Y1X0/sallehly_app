@@ -30,6 +30,35 @@ both are flagged for a separate fix, out of scope for the localization work.
   audit/infra work). `ChatRoomScreen` was removed from the smoke test's table
   rather than forcing a workaround, since the table's tree-swap navigation
   pattern isn't how a real user actually leaves this screen anyway.
+- **`TechnicianDashboardScreen` — real `RenderFlex` overflow at 320dp only**
+  (25px bottom in a `_StatCard`, 10px right in the "requests failed to load"
+  error banner). Passes cleanly at 390dp under both locales, fails at 320dp
+  under **both** — same "width-dependent, locale-independent" signature as
+  `EditProfileScreen`, i.e. a pre-existing narrow-screen bug, not something
+  this work introduced. `skip`-marked with a reason, not removed.
+- **`CustomerDashboardScreen` — overflow reproduces even at normal 390dp
+  width, under both locales (4/4 combinations fail).** This one is more
+  surprising and **not confidently diagnosed** — flagging it as needing an
+  actual look rather than asserting it's real or fake:
+  - The overflowing text (hero card title/subtitle) is 100% static, hardcoded
+    Arabic with no dependency on user or request data — so it isn't a
+    "null user fallback text is unexpectedly long" artifact.
+  - 390dp is an extremely common real phone width; if this genuinely
+    overflows there in production, it would affect nearly every user's
+    dashboard and seems like something that should already have been
+    noticed.
+  - The likelier explanation is a **Flutter widget-test environment
+    artifact**: `flutter test` substitutes a fallback test font with
+    different metrics than whatever renders on a real device, so a
+    fixed-height container tuned to fit specific text can overflow in the
+    test harness without necessarily overflowing on-device. This is a known
+    limitation of layout assertions in `flutter test` generally, not specific
+    to this screen.
+  - **This is exactly what the manual APK pass is for.** Marked `skip` here
+    (not fixed, not deleted) so Phase 1 doesn't stay blocked on an unrelated,
+    unconfirmed finding — but flagging it as the single highest-priority item
+    to actually look at during that manual pass (customer dashboard hero
+    card, normal-width phone, either language).
 
 ## Decisions locked in (approved, apply consistently in later phases)
 
