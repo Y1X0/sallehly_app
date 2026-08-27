@@ -111,23 +111,25 @@ void main() {
     testWidgets(
       'التبديل للإنجليزية يقلب اتجاه الكتابة إلى LTR بلا أي استثناء (فيضان تخطيط)',
       (tester) async {
-        // [FIX-L10N-01] ثبّت حجم عرض معلوم وسخيّ صراحةً هنا — بعد إضافة
-        // l10n_screen_smoke_test.dart (الذي يُغيّر tester.view.physicalSize
-        // لعشرات الحالات) بدأ هذا الاختبار تحديداً يفشل بـ"0 عناصر" لنص
-        // 'اللغة' رغم بقاء كوده كما هو تماماً — أقوى تفسير: حجم عرض ضيق
-        // مُسرَّب من اختبار آخر بنفس عملية/isolate الاختبارات، رغم استدعاء كل
-        // حالة بالملف الآخر لـtester.view.reset() الخاص بها. تثبيت الحجم هنا
-        // صراحةً يحصّن هذا الاختبار ضد ذلك بغضّ النظر عن السبب الدقيق.
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.reset);
-
+        // [FIX-L10N-06] الأخطاء الفعلية الثلاثة السابقة (زيادة عدد الدورات،
+        // تثبيت حجم العرض، تضييق نطاق onError) لم تكن السبب الحقيقي — تحقّقنا
+        // أخيراً: لا يوجد أي استثناء إطلاقاً هنا. السبب الفعلي: SettingsScreen
+        // تعرض محتواها داخل ListView(children:) عادي، لكن Sliver الداخلي
+        // (SliverList) يبني عناصره بتكاسل (lazily) حسب ما يظهر فعلياً بمساحة
+        // العرض المرئية — تماماً كـ.builder — بغض النظر عن كون children ثابتة.
+        // "اللغة" (بقسم "التطبيق" قرب أسفل الشاشة) لم تكن مبنية بعد أصلاً عند
+        // فحصها مباشرة بعد أول pump، فيرجع find.text صفر عناصر بلا أي خطأ
+        // إطلاقاً — ليس فيضان تخطيط ولا استثناء مبتلَع، فقط عنصر لم يُبنَ بعد
+        // لأنه خارج حدود ما بُني من الـSliver. كان هذا يمرّ سابقاً بالصدفة فقط
+        // (عرض الاختبار الافتراضي بفلَتّر أعرض من الهواتف الحقيقية، فالتفاف
+        // النص أقل والمحتوى أقصر، فيقع "اللغة" ضمن حدود ما بُني من البداية).
+        // الإصلاح الصحيح: scrollUntilVisible أولاً (يُمرِّر ويُنزِل الـSliver
+        // تدريجياً حتى يُبنى العنصر فعلياً) قبل أي expect عليه — وليس بعده.
         await tester.pumpWidget(wrap());
-        await _pumpAnimated(tester, 10);
+        await _pumpAnimated(tester);
 
         expect(Directionality.of(tester.element(find.byType(SettingsScreen))),
             TextDirection.rtl);
-        expect(find.text('اللغة'), findsOneWidget);
 
         await tester.scrollUntilVisible(
           find.text('اللغة'),
@@ -135,10 +137,13 @@ void main() {
           scrollable: find.byType(Scrollable).first,
         );
         await _pumpAnimated(tester);
+        expect(find.text('اللغة'), findsOneWidget);
 
         await tester.tap(find.byType(Switch).last);
         // rebuild التطبيق بأكمله (locale جديد) — نفس ما يحدث فعلياً عبر
-        // MaterialApp.locale المُشتقّة من LocaleProvider في app.dart.
+        // MaterialApp.locale المُشتقّة من LocaleProvider في app.dart. شجرة
+        // جديدة بالكامل = موضع التمرير يعود للأعلى، فنفس مشكلة البناء
+        // الكسول تتكرر هنا أيضاً لنص "Language" ما لم نُمرِّر إليه مجدداً.
         await tester.pumpWidget(wrap());
         await _pumpAnimated(tester);
 
@@ -150,6 +155,13 @@ void main() {
               'بلا أي Directionality يدوي بعد الآن، الاتجاه يجب أن يُشتقّ '
               'تلقائياً من locale الجديدة عبر MaterialApp/Localizations نفسها.',
         );
+
+        await tester.scrollUntilVisible(
+          find.text('Language'),
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await _pumpAnimated(tester);
         expect(find.text('Language'), findsOneWidget);
 
         // لا استثناء غير مُلتقَط (يشمل أخطاء RenderFlex overflow) بعد التبديل.
