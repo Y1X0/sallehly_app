@@ -4,18 +4,8 @@ name: L10N Screenshots
 # every screen/locale/width combo in test/support/l10n_screen_cases.dart,
 # rendered with a real Arabic+Latin font instead of flutter test's default
 # placeholder font, so layout/RTL issues can actually be reviewed visually.
-#
-# PROTOTYPE MODE: this run is currently filtered to 3 representative cases
-# to validate the real-font screenshot technique before capturing all 48 —
-# see the hardcoded --plain-name filters below. Will be widened to capture
-# everything once confirmed.
 on:
   workflow_dispatch:
-    inputs:
-      test_name_filter:
-        description: 'Optional --plain-name filter (leave empty to capture every screen)'
-        required: false
-        default: ''
   push:
     branches: [ claude/flutter-ui-consistency-vzb65s ]
     paths:
@@ -48,8 +38,8 @@ jobs:
           if [ -z "$ARABIC" ]; then
             ARABIC=$(find /usr/share/fonts -iname "*NotoSansArabic*Regular*" 2>/dev/null | head -1)
           fi
-          LATIN=$(find /usr/share/fonts -iname "*NotoSans-Regular*" 2>/dev/null | head -1)
-          LATIN_BOLD=$(find /usr/share/fonts -iname "*NotoSans-Bold*" 2>/dev/null | head -1)
+          LATIN=$(find /usr/share/fonts -iname "NotoSans-Regular.ttf" 2>/dev/null | head -1)
+          LATIN_BOLD=$(find /usr/share/fonts -iname "NotoSans-Bold.ttf" 2>/dev/null | head -1)
           if [ -z "$ARABIC" ] || [ -z "$LATIN" ]; then
             echo "::error::Missing a real font after apt install (arabic=$ARABIC latin=$LATIN)"
             find /usr/share/fonts -iname "*noto*" | sort
@@ -60,15 +50,10 @@ jobs:
           echo "REAL_FONT_PATHS=$PATHS" >> "$GITHUB_ENV"
           echo "Using fonts: $PATHS"
 
-      - name: Run screenshot capture test (prototype subset)
+      - name: Run screenshot capture test (all screens/locales/widths)
         env:
           SCREENSHOT_OUT_DIR: build/l10n_screenshots
-        run: |
-          flutter test test/widgets/l10n_screenshot_capture_test.dart \
-            --plain-name "الرئيسية-عميل (CustomerDashboardScreen) — locale=ar — عادي 390dp" \
-            --plain-name "الإعدادات (SettingsScreen) — locale=en — عادي 390dp" \
-            --plain-name "تعديل الملف الشخصي (EditProfileScreen) — locale=en — ضيق 320dp" \
-            --reporter expanded
+        run: flutter test test/widgets/l10n_screenshot_capture_test.dart --reporter expanded
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4

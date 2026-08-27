@@ -35,8 +35,13 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
+      # --exclude-tags screenshot: l10n_screenshot_capture_test.dart needs a
+      # real font installed via a separate CI step (l10n-screenshots.yml) —
+      # without it, its setUpAll throws immediately and fails the whole run.
+      # That file is CI/QA infrastructure, not a correctness test; it's
+      # exercised by its own dedicated workflow instead.
       - name: Test
-        run: flutter test
+        run: flutter test --exclude-tags screenshot
 
       # No android/key.properties in CI (release keystore is not committed,
       # by design — see android/app/build.gradle.kts). The release build
