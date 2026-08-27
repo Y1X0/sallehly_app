@@ -18,47 +18,112 @@ both are flagged for a separate fix, out of scope for the localization work.
   removed, so it isn't silently lost and stays easy to re-enable once fixed.
 - **`ChatRoomScreen.dispose()` (`chat_room_screen.dart:71`) calls
   `context.read<SocketProvider>()`/`context.read<NotificationProvider>()`
-  directly.** This is unsafe per Flutter's own widget lifecycle rules — if the
-  widget's entire ancestor tree is torn down at once (not just a targeted
-  `Navigator.pop()`), the element can already be deactivated by the time
-  `dispose()` runs, and looking up an ancestor at that point throws
-  (`"Looking up a deactivated widget's ancestor is unsafe."`). Surfaced when
-  the smoke test swapped straight from `ChatRoomScreen` to the next screen in
-  its table. The safe fix is to cache the provider references in
-  `didChangeDependencies()` instead of re-reading them fresh inside
-  `dispose()` — not applied here (production code, out of scope for this
-  audit/infra work). `ChatRoomScreen` was removed from the smoke test's table
-  rather than forcing a workaround, since the table's tree-swap navigation
-  pattern isn't how a real user actually leaves this screen anyway.
+  directly.** Scoped in more depth below (not fixed — the user will decide
+  timing after reading this).
+
+  **What's unsafe:** `dispose()` re-reads two providers from `context` at
+  teardown time instead of caching them earlier (e.g. in
+  `didChangeDependencies()`), which Flutter's own docs warn against. It only
+  works because, today, nothing in this codebase tears down the Provider
+  ancestors and `ChatRoomScreen` in the same reconciliation pass — see
+  below.
+
+  **What triggers it, concretely:** every `Provider`/`ChangeNotifierProvider`
+  this screen depends on (`SocketProvider`, `NotificationProvider`, etc.) is
+  created once in `SallehlyApp.build()` (`lib/app.dart`), a `StatelessWidget`
+  built from the single `runApp()` call in `main.dart`. That `MultiProvider`
+  sits **above** the `Navigator`, so any normal navigation — `Navigator.pop()`,
+  `pushReplacement`, `pushAndRemoveUntil` (e.g. a logout flow) — only ever
+  tears down routes *inside* the Navigator; the Provider ancestors are never
+  rebuilt from scratch during a session. Searched the codebase for anything
+  that could remove that root scope (a second `runApp()`, a `key:` that would
+  force-remount `SallehlyApp`, etc.) and found none. The only way this bug
+  was actually reproduced was the smoke test replacing the **entire** widget
+  tree at once via a fresh `tester.pumpWidget()` between two unrelated test
+  cases (`ChatRoomScreen` → the next screen in the table) — which swaps out
+  the Provider ancestors and `ChatRoomScreen` together in one pass. That
+  specific pattern has no equivalent in the app's actual navigation code
+  today. Net: **I could not find a real user action in the current code
+  that triggers this** — only the test-harness artifact that first
+  surfaced it. That doesn't make the underlying pattern safe (a future
+  change — e.g. an app-level "hard reset" on logout — could reintroduce
+  exactly this condition), just that it isn't firing today as far as I can
+  tell from the code.
+
+  **Crash or just logged?** The exact error text
+  (`"Looking up a deactivated widget's ancestor is unsafe."`) comes from an
+  `assert()`-gated check in Flutter's framework — `assert` bodies are
+  compiled out entirely in `--release`/`--profile` builds, so this specific
+  message can only appear in a **debug** build (which is what the CI-built
+  APK for the manual pass is). In debug, framework/lifecycle errors like
+  this are reported through `FlutterError.onError` — they print a full
+  error to the console/logcat but do not, by themselves, crash the whole
+  app process (there's nothing left to render for a widget already being
+  disposed). What happens in a **release** build without that assert is
+  genuinely unclear without reproducing it there: it could read a stale
+  provider harmlessly, or hit a null-check error, depending on exactly when
+  Flutter's teardown clears the element's internal ancestor map. Not
+  verified either way — flagging the uncertainty rather than guessing.
+
+  **Does Phase 2 make it worse?** No. Phase 2's edits to this file are
+  string-extraction only (the ~30+ hardcoded Arabic strings in `build()`,
+  the dialogs, `_pickReportReason`, `_ChatHeader`, `_ChatErrorState`,
+  `_EmptyChat`, the `showError`/`showInfo` messages, etc.) — it will touch
+  most of the file, but none of those edits land inside `initState()` or
+  `dispose()` (lines 50–78), which contain no user-facing strings. The
+  provider-read pattern is untouched either way; Phase 2 neither improves
+  nor worsens this specific issue. Fixing it (caching provider references
+  instead of reading them in `dispose()`) would be a separate, deliberate
+  change, before or after Phase 2 — user's call.
 - **`TechnicianDashboardScreen` — real `RenderFlex` overflow at 320dp only**
   (25px bottom in a `_StatCard`, 10px right in the "requests failed to load"
   error banner). Passes cleanly at 390dp under both locales, fails at 320dp
   under **both** — same "width-dependent, locale-independent" signature as
   `EditProfileScreen`, i.e. a pre-existing narrow-screen bug, not something
   this work introduced. `skip`-marked with a reason, not removed.
-- **`CustomerDashboardScreen` — overflow reproduces even at normal 390dp
-  width, under both locales (4/4 combinations fail).** This one is more
-  surprising and **not confidently diagnosed** — flagging it as needing an
-  actual look rather than asserting it's real or fake:
-  - The overflowing text (hero card title/subtitle) is 100% static, hardcoded
-    Arabic with no dependency on user or request data — so it isn't a
-    "null user fallback text is unexpectedly long" artifact.
-  - 390dp is an extremely common real phone width; if this genuinely
-    overflows there in production, it would affect nearly every user's
-    dashboard and seems like something that should already have been
-    noticed.
-  - The likelier explanation is a **Flutter widget-test environment
-    artifact**: `flutter test` substitutes a fallback test font with
-    different metrics than whatever renders on a real device, so a
-    fixed-height container tuned to fit specific text can overflow in the
-    test harness without necessarily overflowing on-device. This is a known
-    limitation of layout assertions in `flutter test` generally, not specific
-    to this screen.
-  - **This is exactly what the manual APK pass is for.** Marked `skip` here
-    (not fixed, not deleted) so Phase 1 doesn't stay blocked on an unrelated,
-    unconfirmed finding — but flagging it as the single highest-priority item
-    to actually look at during that manual pass (customer dashboard hero
-    card, normal-width phone, either language).
+- **`CustomerDashboardScreen` — overflow reproduces at all 4 locale/width
+  combinations. CONFIRMED test-only artifact of `flutter test`'s default
+  font substitution — not a real bug.** Previously left as an unconfirmed
+  hedge; empirically resolved as follows.
+
+  Exact overflow sites (from CI `RenderFlex` diagnostics, `flutter test`'s
+  default font):
+  - `_HeroCard`'s title/subtitle `Column`
+    (`customer_dashboard_screen.dart:291`): **72px bottom** at 390dp,
+    **92px bottom** at 320dp, both locales (all text here is 100% static
+    hardcoded Arabic, not locale/data-dependent).
+  - The "خدمات صلّحلي" section-header `Row` (`:177`): **28px right** at
+    390dp, **98px right** at 320dp, both locales.
+  - `_HeroCard`'s logo/title `Row` (`:294`) — only overflows at 320dp:
+    **32px right**, both locales.
+  - `_DashboardErrorNotice`'s `Row` (`:223`) — only overflows at 320dp, and
+    only when the smoke test's unstubbed API happens to leave the provider
+    in its error state: **10px right**, both locales.
+
+  **Re-run with real font metrics instead of the test font:** a temporary
+  diagnostic (`test/widgets/customer_dashboard_font_diagnostic_test.dart`,
+  now removed) loaded a real Arabic font (Noto Naskh Arabic, installed via
+  `apt` in a throwaway CI job — not a project asset) under the `'Roboto'`
+  family, which is what Flutter's `Typography` resolves to by default when
+  `ThemeData.fontFamily` is `null` (true both of this app's `AppTheme` and
+  of the smoke test's plain `MaterialApp()`). This replaces the test
+  font's fixed-width square glyphs (which measurably overstate Arabic text
+  width and don't apply real Arabic shaping/ligatures) with real
+  proportional metrics, without touching any file under `lib/`.
+
+  Result: **all 4 combinations pass with zero overflow** under the real
+  font — including both 320dp cases, which had *more* overflow sites than
+  390dp under the test font. CI run:
+  https://github.com/Y1X0/sallehly_app/actions/runs/33033359294 (job
+  `font-diagnostic`, all 4 `[FONT-DIAG]` cases printed "NO OVERFLOW").
+
+  **Verdict: test artifact, not a real bug.** No fix proposed or needed.
+  The `skip` entries for `CustomerDashboardScreen` in
+  `l10n_screen_smoke_test.dart` are left in place (removing them was not
+  asked for) but the "not confidently diagnosed" language there and here is
+  now resolved. If desired later, these 4 skips could be safely removed
+  from the smoke test now that the underlying cause is understood — that's
+  a follow-up decision, not done here.
 
 ## Decisions locked in (approved, apply consistently in later phases)
 
