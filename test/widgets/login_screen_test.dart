@@ -11,6 +11,7 @@ import 'package:sallehly_app/core/storage/app_storage.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/auth/screens/login_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/user_model.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
 
@@ -69,7 +70,11 @@ void main() {
 
   Widget wrap() => ChangeNotifierProvider.value(
         value: authProvider,
-        child: const MaterialApp(home: LoginScreen()),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const LoginScreen(),
+        ),
       );
 
   testWidgets('حقول فارغة: الضغط على "تسجيل الدخول" يُظهر أخطاء تحقق ولا يستدعي login()', (tester) async {
