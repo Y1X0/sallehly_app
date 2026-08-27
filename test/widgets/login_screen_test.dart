@@ -114,7 +114,12 @@ void main() {
     // سلوك الشاشة التالية بعد التنقل. أي استثناء ناتج عن غياب تلك الشجرة
     // متوقَّع تماماً ويُستهلَك هنا بأمان.
     await _pumpAnimated(tester, 3);
-    tester.takeException();
+    // CustomerLayout يقرأ NotificationProvider في مكانين منفصلين (build()
+    // متزامناً عبر context.watch، وaddPostFrameCallback لاحقاً عبر
+    // context.read) — أي منهما بلا الشجرة الكاملة يُطلق ProviderNotFoundException
+    // مستقلاً، فقد يتراكم أكثر من استثناء معلَّق واحد. استهلك الكل، لا واحداً
+    // فقط، وإلا فشل الاختبار لاحقاً بسبب استثناء متبقٍّ غير مُستهلَك.
+    while (tester.takeException() != null) {}
 
     verify(() => mockAuthApi.login(email: 'user@example.com', password: 'secret123')).called(1);
   });
