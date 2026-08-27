@@ -8,6 +8,87 @@
   "@notificationsBellTooltip": {
     "description": "تلميح (tooltip) زر جرس الإشعارات"
   },
+  "consentAgreeToPrefix": "أوافق على ",
+  "@consentAgreeToPrefix": {
+    "description": "الجزء الأول من جملة الموافقة على سياسة الخصوصية، قبل الرابط"
+  },
+  "privacyPolicyTitle": "سياسة الخصوصية",
+  "@privacyPolicyTitle": {
+    "description": "عنوان/اسم سياسة الخصوصية — يُستخدم كرابط بخانة الموافقة وكعنوان شاشة سياسة الخصوصية"
+  },
+  "newRequestBadge": "جديد",
+  "@newRequestBadge": {
+    "description": "شارة صغيرة على بطاقة طلب جديد (كروت الفني)"
+  },
+  "viewDetailsAndSendOffer": "عرض التفاصيل وإرسال عرض",
+  "@viewDetailsAndSendOffer": {
+    "description": "زر ببطاقة الطلب (جهة الفني) للانتقال لتفاصيل الطلب وتقديم عرض"
+  },
+  "connectivityOfflineMessage": "لا يوجد اتصال بالإنترنت",
+  "@connectivityOfflineMessage": {
+    "description": "رسالة بانر انقطاع الإنترنت"
+  },
+  "connectivityServerSlowMessage": "الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار",
+  "@connectivityServerSlowMessage": {
+    "description": "رسالة بانر بطء استجابة الخادم (غير متعلقة بإنترنت المستخدم)"
+  },
+  "ledgerTitle": "سجل العمليات",
+  "@ledgerTitle": {
+    "description": "عنوان شاشة سجل عمليات المحفظة"
+  },
+  "ledgerComingSoonTitle": "سجل العمليات قريباً",
+  "@ledgerComingSoonTitle": {
+    "description": "عنوان حالة \"قيد التطوير\" بشاشة سجل العمليات"
+  },
+  "ledgerComingSoonSubtitle": "ستظهر هنا كل حركات رصيدك بالتفصيل",
+  "@ledgerComingSoonSubtitle": {
+    "description": "الوصف الفرعي لحالة \"قيد التطوير\" بشاشة سجل العمليات"
+  },
+  "listSeparator": "، ",
+  "@listSeparator": {
+    "description": "فاصلة تُستخدم لدمج قائمة عناصر بجملة واحدة (مثل قائمة الخدمات المختارة)"
+  },
+  "servicesMultiSelectPlaceholder": "الخدمات / المهن",
+  "@servicesMultiSelectPlaceholder": {
+    "description": "النص الظاهر باختيار الخدمات المتعدد عندما لا شيء مُختار بعد"
+  },
+  "servicesMinRequired": "{count, plural, =1{يجب اختيار خدمة واحدة على الأقل} =2{يجب اختيار خدمتين على الأقل} few{يجب اختيار {count} خدمات على الأقل} many{يجب اختيار {count} خدمة على الأقل} other{يجب اختيار {count} خدمة على الأقل}}",
+  "@servicesMinRequired": {
+    "description": "تحذير الحد الأدنى لعدد الخدمات المختارة",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audioMessagePlaying": "تشغيل",
+  "@audioMessagePlaying": {
+    "description": "تسمية رسالة صوتية بحالة التشغيل الحالي"
+  },
+  "audioMessageLabel": "صوت",
+  "@audioMessageLabel": {
+    "description": "تسمية رسالة صوتية بحالة عدم التشغيل"
+  },
+  "locationMessageLabel": "موقع على الخريطة\nاضغط للفتح",
+  "@locationMessageLabel": {
+    "description": "نص فقاعة رسالة الموقع بالشات (سطرين)"
+  },
+  "imageLoadFailedMessage": "تعذّر تحميل الصورة",
+  "@imageLoadFailedMessage": {
+    "description": "رسالة فشل تحميل صورة (شات أو غيره)"
+  },
+  "notificationsMarkAllRead": "قراءة الكل",
+  "@notificationsMarkAllRead": {
+    "description": "زر تعليم كل الإشعارات كمقروءة"
+  },
+  "notificationsEmptyTitle": "لا توجد إشعارات حالياً",
+  "@notificationsEmptyTitle": {
+    "description": "عنوان حالة عدم وجود إشعارات"
+  },
+  "notificationsEmptySubtitle": "ستصلك هنا آخر التحديثات على طلباتك وعروضك",
+  "@notificationsEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود إشعارات"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

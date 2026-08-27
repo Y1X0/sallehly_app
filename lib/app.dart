@@ -255,7 +255,11 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
     final localeProvider = context.watch<LocaleProvider>();
 
     return MaterialApp(
-      title: 'صلّحلي',
+      // [L10N-03] MaterialApp.title يُقيَّم بسياق (context) هذا الودجت نفسه —
+      // فوق حيث تُبنى Localizations داخلياً بـMaterialApp، فـ
+      // AppLocalizations.of(context) هنا سيفشل (ليس هناك سليل فعلي بعد).
+      // onGenerateTitle هو الحل الرسمي بفلَتّر: يُستدعى بسياق سليل صحيح.
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appWordmark,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       // [FIX-L10N-01] عربي هو الافتراضي والاحتياطي (fallback) دائماً — القيمة
@@ -314,13 +318,14 @@ class _OfflineBanner extends StatelessWidget {
     final serverSlow = connectivity.serverSlow;
     final visible = offline || serverSlow;
 
+    final t = AppLocalizations.of(context)!;
     final String message;
     final IconData icon;
     if (offline) {
-      message = 'لا يوجد اتصال بالإنترنت';
+      message = t.connectivityOfflineMessage;
       icon = Icons.wifi_off;
     } else {
-      message = 'الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار';
+      message = t.connectivityServerSlowMessage;
       icon = Icons.hourglass_top_rounded;
     }
 

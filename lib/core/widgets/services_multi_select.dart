@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/service_model.dart';
 
 /// [FIX-TECH-SERVICES-01] اختيار خدمات الفني كـ "شرائح" متعددة (Multi-select)
@@ -52,6 +53,7 @@ class _ServicesMultiSelectState extends State<ServicesMultiSelect> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final selected = widget.selected;
     final belowMin = selected.length < widget.min;
     final atMax = selected.length >= widget.max;
@@ -82,8 +84,8 @@ class _ServicesMultiSelectState extends State<ServicesMultiSelect> {
                 Expanded(
                   child: Text(
                     selected.isEmpty
-                        ? 'الخدمات / المهن'
-                        : selected.join('، '),
+                        ? t.servicesMultiSelectPlaceholder
+                        : selected.join(t.listSeparator),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -120,11 +122,12 @@ class _ServicesMultiSelectState extends State<ServicesMultiSelect> {
         if (belowMin) ...[
           const SizedBox(height: 6),
           Padding(
-            padding: const EdgeInsets.only(right: 6),
+            // [FIX-L10N-RTL-01] كانت EdgeInsets.only(right: 6) أحادية الجهة
+            // بصرياً (راجع L10N_PROGRESS.md §3) — EdgeInsetsDirectional تتبع
+            // اتجاه القراءة (end) بدل جهة مطلقة، فتبقى صحيحة بكلا اللغتين.
+            padding: const EdgeInsetsDirectional.only(end: 6),
             child: Text(
-              widget.min == 1
-                  ? 'يجب اختيار خدمة واحدة على الأقل'
-                  : 'يجب اختيار ${widget.min} خدمات على الأقل',
+              t.servicesMinRequired(widget.min),
               style: TextStyle(color: AppColors.danger, fontSize: 12),
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/settings/screens/privacy_policy_screen.dart';
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 /// خانة موافقة إلزامية على سياسة الخصوصية قبل التسجيل (متطلّب Google Play
@@ -19,6 +20,7 @@ class ConsentCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return InkWell(
       onTap: () => onChanged(!value),
       borderRadius: BorderRadius.circular(12),
@@ -40,9 +42,9 @@ class ConsentCheckbox extends StatelessWidget {
                     height: 1.6,
                   ),
                   children: [
-                    const TextSpan(text: 'أوافق على '),
+                    TextSpan(text: t.consentAgreeToPrefix),
                     TextSpan(
-                      text: 'سياسة الخصوصية',
+                      text: t.privacyPolicyTitle,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w800,

@@ -564,16 +564,16 @@ mirroring due in that same file).
 - [x] 3. `lib/features/chat/data/chat_api.dart` — fallback string deferred to #38/#76 (data-layer, no BuildContext; will thread as nullable), noted inline
 - [x] 4. `lib/features/notifications/widgets/notification_bell.dart` — `notificationsBellTooltip` key
 - [x] 5. `lib/models/support_ticket_model.dart` — `'عام'` is a wire-value default (SupportTicketModel.type, same class of issue as RequestModel.status), commented per the established Phase 3 wire-value convention, not migrated
-- [ ] 6. `lib/providers/socket_provider.dart`
-- [ ] 7. `lib/core/widgets/consent_checkbox.dart`
-- [ ] 8. `lib/features/technician/widgets/technician_request_card.dart`
-- [ ] 9. `lib/app.dart`
-- [ ] 10. `lib/features/wallet/screens/ledger_screen.dart`
-- [ ] 11. `lib/models/admin_user_model.dart`
-- [ ] 12. `lib/core/widgets/services_multi_select.dart` (also §3 EdgeInsets fix)
-- [ ] 13. `lib/features/chat/widgets/chat_bubble.dart`
-- [ ] 14. `lib/features/notifications/screens/notifications_screen.dart`
-- [ ] 15. `lib/features/requests/widgets/request_status_chip.dart` — **SKIP, Phase 3**
+- [x] 6. `lib/providers/socket_provider.dart` — `'تم اختيار عرض'` is a wire-value (matches RequestModel.status), commented per Phase 3 convention, not migrated
+- [x] 7. `lib/core/widgets/consent_checkbox.dart` — `consentAgreeToPrefix` + `privacyPolicyTitle` (shared key, reused by #75)
+- [x] 8. `lib/features/technician/widgets/technician_request_card.dart` — `newRequestBadge` + `viewDetailsAndSendOffer`; also §3 forward-chevron → `DirectionalIcons.forwardIosStyle`
+- [x] 9. `lib/app.dart` — title moved from `MaterialApp.title` to `onGenerateTitle` (reuses `appWordmark`, since `title:`'s context is above where Localizations gets built); `connectivityOfflineMessage` + `connectivityServerSlowMessage`
+- [x] 10. `lib/features/wallet/screens/ledger_screen.dart` — `ledgerTitle` + `ledgerComingSoonTitle` + `ledgerComingSoonSubtitle`
+- [x] 11. `lib/models/admin_user_model.dart` — `roleAr` deferred to #74 (only call site, needs BuildContext for AppLocalizations, model class has none), commented
+- [x] 12. `lib/core/widgets/services_multi_select.dart` — `servicesMultiSelectPlaceholder`, `servicesMinRequired` (ARB plural, not concatenation), `listSeparator`; §3 `EdgeInsets.only(right:)` → `EdgeInsetsDirectional.only(end:)` fixed
+- [x] 13. `lib/features/chat/widgets/chat_bubble.dart` — `audioMessagePlaying`, `audioMessageLabel`, `locationMessageLabel`, `imageLoadFailedMessage` (shared by both error sites)
+- [x] 14. `lib/features/notifications/screens/notifications_screen.dart` — `notificationsMarkAllRead`, `notificationsEmptyTitle`, `notificationsEmptySubtitle`; AppBar title reused `notificationsBellTooltip`
+- [x] 15. `lib/features/requests/widgets/request_status_chip.dart` — **SKIPPED, Phase 3** per instruction
 - [ ] 16. `lib/features/support/provider/support_provider.dart`
 - [ ] 17. `lib/features/wallet/screens/packages_screen.dart`
 - [ ] 18. `lib/features/wallet/widgets/package_card.dart`

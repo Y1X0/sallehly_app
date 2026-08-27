@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/message_model.dart';
 
 /// يبني الرابط الكامل للوسائط (صورة/صوت).
@@ -271,6 +272,7 @@ class _AudioMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final progress = duration.inMilliseconds == 0
         ? 0.0
         : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
@@ -329,7 +331,7 @@ class _AudioMessage extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      playing ? 'تشغيل' : 'صوت',
+                      playing ? t.audioMessagePlaying : t.audioMessageLabel,
                       style: TextStyle(
                         color: textColor,
                         fontSize: 12,
@@ -358,6 +360,7 @@ class _LocationMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -392,7 +395,7 @@ class _LocationMessage extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'موقع على الخريطة\nاضغط للفتح',
+                t.locationMessageLabel,
                 style: TextStyle(
                   color: isMe ? Colors.white : AppColors.textPrimary,
                   fontWeight: FontWeight.w800,
@@ -462,14 +465,14 @@ class _ImageMessage extends StatelessWidget {
                 width: 200,
                 height: 120,
                 color: Colors.black.withValues(alpha: 0.25),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.broken_image_outlined, color: Colors.white70),
-                    SizedBox(height: 6),
+                    const Icon(Icons.broken_image_outlined, color: Colors.white70),
+                    const SizedBox(height: 6),
                     Text(
-                      'تعذّر تحميل الصورة',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      AppLocalizations.of(context)!.imageLoadFailedMessage,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],
                 ),
@@ -510,9 +513,9 @@ class _FullImageView extends StatelessWidget {
                 imageUrl,
                 headers: snapshot.data,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stack) => const Text(
-                  'تعذّر تحميل الصورة',
-                  style: TextStyle(color: Colors.white70),
+                errorBuilder: (context, error, stack) => Text(
+                  AppLocalizations.of(context)!.imageLoadFailedMessage,
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ),
             );

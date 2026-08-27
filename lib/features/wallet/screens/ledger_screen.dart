@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LedgerScreen extends StatelessWidget {
   const LedgerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('سجل العمليات'),
+        title: Text(t.ledgerTitle),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -38,7 +40,7 @@ class LedgerScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'سجل العمليات قريباً',
+                    t.ledgerComingSoonTitle,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
@@ -47,7 +49,7 @@ class LedgerScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'ستظهر هنا كل حركات رصيدك بالتفصيل',
+                    t.ledgerComingSoonSubtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textSecondary,
