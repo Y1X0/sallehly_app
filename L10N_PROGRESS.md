@@ -594,11 +594,11 @@ mirroring due in that same file).
 - [x] 33. `lib/providers/auth_provider.dart` — all 7 identical `_error` fallbacks deferred (consumed by many auth screens later in the queue), commented
 - [x] 34. `lib/features/admin/screens/admin_audit_screen.dart` — distinct `adminAuditTitle` key (not reusing `ledgerTitle` — same Arabic wording today, different concept, likely to diverge in English)
 - [x] 35. `lib/features/layout/technician_layout.dart` — reused `navHome/MyRequests/Chats/Settings/Support`, new `navNewRequests`/`navWallet`/`technicianDashboardTitle`
-- [ ] 36. `lib/features/admin/screens/admin_support_screen.dart`
-- [ ] 37. `lib/features/auth/screens/landing_screen.dart`
-- [ ] 38. `lib/features/chat/provider/chat_provider.dart`
-- [ ] 39. `lib/features/customer/widgets/complaint_sheet.dart`
-- [ ] 40. `lib/features/support/screens/support_chat_screen.dart`
+- [x] 36. `lib/features/admin/screens/admin_support_screen.dart` — status messages, load/empty states, ticket fallback title/status labels, reused `retryButton`/`userFallbackName`; `admin.error!` itself deferred to #65 (same convention as #26)
+- [x] 37. `lib/features/auth/screens/landing_screen.dart` — hero copy, CTA buttons, decorative marketing stat cards; fixed §3 issue: `textAlign: TextAlign.right` → `TextAlign.start` on the two hero `Text` widgets (hardcoded right instead of direction-aware start)
+- [x] 38. `lib/features/chat/provider/chat_provider.dart` — data-layer, no BuildContext; `error`/`chatsError` fallbacks deferred with `[L10N-TODO]` (`error` consumed by chat_room_screen.dart #76; `chatsError` currently has no UI consumer at all — chats_screen.dart reads `RequestsProvider.error` instead), no functional change
+- [x] 39. `lib/features/customer/widgets/complaint_sheet.dart` — title/labels/hint/validation/submit button, `complaintSheetAboutTechnician(name)` placeholder
+- [x] 40. `lib/features/support/screens/support_chat_screen.dart` — empty/error/closed states, input hint, reused `retryButton`/`sendButtonTooltip`, new `supportTeamLabel`; `support.error!` deferred (SupportProvider, later file)
 - [ ] 41. `lib/features/technician/screens/technician_request_details_screen.dart`
 - [ ] 42. `lib/core/api/api_client.dart`
 - [ ] 43. `lib/features/customer/screens/offers_screen.dart` (also §3 back-icon)

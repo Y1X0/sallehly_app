@@ -435,5 +435,164 @@
   "settingsLanguageSubtitleEnglish": "التطبيق يعمل بالإنجليزية حالياً",
   "@settingsLanguageSubtitleEnglish": {
     "description": "النص الفرعي عندما تكون اللغة الحالية إنجليزي"
+  },
+  "adminSupportTicketClosedMessage": "تم إغلاق التذكرة",
+  "@adminSupportTicketClosedMessage": {
+    "description": "رسالة تأكيد بعد إغلاق تذكرة دعم من لوحة الأدمن"
+  },
+  "adminSupportTicketReopenedMessage": "تم إعادة فتح التذكرة",
+  "@adminSupportTicketReopenedMessage": {
+    "description": "رسالة تأكيد بعد إعادة فتح تذكرة دعم من لوحة الأدمن"
+  },
+  "adminSupportTicketUpdateFailedMessage": "تعذر تحديث التذكرة",
+  "@adminSupportTicketUpdateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة تذكرة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "adminSupportLoadFailedTitle": "تعذّر تحميل تذاكر الدعم",
+  "@adminSupportLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة تذاكر الدعم بلوحة الأدمن"
+  },
+  "adminSupportEmptyTitle": "لا توجد تذاكر دعم حالياً",
+  "@adminSupportEmptyTitle": {
+    "description": "عنوان الحالة الفارغة عند عدم وجود تذاكر دعم"
+  },
+  "adminSupportTicketFallbackTitle": "تذكرة دعم",
+  "@adminSupportTicketFallbackTitle": {
+    "description": "عنوان احتياطي لبطاقة تذكرة دعم بلا عنوان"
+  },
+  "adminSupportTicketOpenLabel": "مفتوحة",
+  "@adminSupportTicketOpenLabel": {
+    "description": "وسم حالة تذكرة دعم مفتوحة"
+  },
+  "adminSupportTicketClosedLabel": "مغلقة",
+  "@adminSupportTicketClosedLabel": {
+    "description": "وسم حالة تذكرة دعم مغلقة"
+  },
+  "adminSupportCloseButton": "إغلاق",
+  "@adminSupportCloseButton": {
+    "description": "زر إغلاق تذكرة دعم مفتوحة"
+  },
+  "adminSupportReopenButton": "إعادة فتح",
+  "@adminSupportReopenButton": {
+    "description": "زر إعادة فتح تذكرة دعم مغلقة"
+  },
+  "landingHeroTitle": "كل خدمات الصيانة\nفي مكان واحد",
+  "@landingHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي بشاشة الترحيب"
+  },
+  "landingHeroSubtitle": "اطلب فني قريب منك، استقبل عروض، واحكِ مع الفني داخل التطبيق بأمان.",
+  "@landingHeroSubtitle": {
+    "description": "الوصف التسويقي الفرعي تحت العنوان الرئيسي بشاشة الترحيب"
+  },
+  "landingLoginButton": "تسجيل الدخول",
+  "@landingLoginButton": {
+    "description": "زر الانتقال لشاشة تسجيل الدخول من شاشة الترحيب"
+  },
+  "landingCreateAccountButton": "إنشاء حساب جديد",
+  "@landingCreateAccountButton": {
+    "description": "زر الانتقال لاختيار نوع الحساب (عميل/فني) من شاشة الترحيب"
+  },
+  "landingCountryBadge": "الأردن",
+  "@landingCountryBadge": {
+    "description": "شارة اسم الدولة أعلى شاشة الترحيب"
+  },
+  "landingStatRequestsLabel": "طلب",
+  "@landingStatRequestsLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: عدد الطلبات"
+  },
+  "landingStatRequestsValue": "+120",
+  "@landingStatRequestsValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: عدد الطلبات (رقم تقريبي ثابت، وليس بيانات حية)"
+  },
+  "landingStatTechniciansLabel": "فني",
+  "@landingStatTechniciansLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: عدد الفنيين"
+  },
+  "landingStatTechniciansValue": "+50",
+  "@landingStatTechniciansValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: عدد الفنيين (رقم تقريبي ثابت، وليس بيانات حية)"
+  },
+  "landingStatChatLabel": "محادثة",
+  "@landingStatChatLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: المحادثة"
+  },
+  "landingStatChatValue": "آمنة",
+  "@landingStatChatValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: وصف المحادثة بأنها آمنة"
+  },
+  "landingStatLocationLabel": "موقعك",
+  "@landingStatLocationLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: الموقع"
+  },
+  "landingStatLocationValue": "قريب",
+  "@landingStatLocationValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: وصف الفنيين بأنهم قريبون"
+  },
+  "complaintSheetTitle": "تقديم شكوى",
+  "@complaintSheetTitle": {
+    "description": "عنوان النافذة المنبثقة لتقديم شكوى على طلب"
+  },
+  "complaintSheetAboutTechnician": "بخصوص الفني: {name}",
+  "@complaintSheetAboutTechnician": {
+    "description": "نص فرعي عند وجود اسم فني معروف للشكوى",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintSheetAboutRequest": "بخصوص هذا الطلب",
+  "@complaintSheetAboutRequest": {
+    "description": "نص فرعي عند عدم وجود اسم فني معروف للشكوى"
+  },
+  "complaintSheetBodyLabel": "تفاصيل الشكوى",
+  "@complaintSheetBodyLabel": {
+    "description": "تسمية حقل نص تفاصيل الشكوى"
+  },
+  "complaintSheetBodyHint": "اشرح المشكلة التي واجهتها بوضوح...",
+  "@complaintSheetBodyHint": {
+    "description": "نص تلميحي داخل حقل تفاصيل الشكوى"
+  },
+  "complaintSheetBodyValidationError": "اكتب تفاصيل أوضح (10 أحرف على الأقل)",
+  "@complaintSheetBodyValidationError": {
+    "description": "رسالة تحقق عند كتابة تفاصيل شكوى قصيرة جداً"
+  },
+  "complaintSheetSubmitButton": "إرسال الشكوى",
+  "@complaintSheetSubmitButton": {
+    "description": "زر إرسال الشكوى"
+  },
+  "complaintSheetSuccessMessage": "تم إرسال الشكوى للإدارة، سيتم مراجعتها قريباً",
+  "@complaintSheetSuccessMessage": {
+    "description": "رسالة تأكيد بعد إرسال الشكوى بنجاح"
+  },
+  "complaintSheetSubmitFailedMessage": "تعذر إرسال الشكوى",
+  "@complaintSheetSubmitFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال الشكوى لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "supportChatSendFailedMessage": "تعذر إرسال الرسالة",
+  "@supportChatSendFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال رسالة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "supportChatClosedMessage": "هذه التذكرة مغلقة. لا يمكن إرسال رسائل جديدة.",
+  "@supportChatClosedMessage": {
+    "description": "رسالة تُعرض بدل شريط الإرسال عندما تكون تذكرة الدعم مغلقة"
+  },
+  "supportChatEmptyTitle": "ابدأ المحادثة مع فريق الدعم",
+  "@supportChatEmptyTitle": {
+    "description": "عنوان الحالة الفارغة قبل إرسال أي رسالة بمحادثة الدعم"
+  },
+  "supportChatEmptySubtitle": "اكتب رسالتك في الأسفل وسيرد عليك الفريق",
+  "@supportChatEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لمحادثة الدعم"
+  },
+  "supportChatLoadFailedTitle": "تعذّر تحميل الرسائل",
+  "@supportChatLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل رسائل محادثة الدعم"
+  },
+  "supportChatInputHint": "اكتب رسالتك...",
+  "@supportChatInputHint": {
+    "description": "نص تلميحي داخل حقل كتابة رسالة الدعم"
+  },
+  "supportTeamLabel": "فريق الدعم",
+  "@supportTeamLabel": {
+    "description": "اسم مُعرِّف مرسِل الرسالة عندما يكون من فريق الدعم (لا اسم مستخدم حقيقي)"
   }
 }

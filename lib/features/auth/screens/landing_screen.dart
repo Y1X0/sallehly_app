@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'login_screen.dart';
 import 'register_role_screen.dart';
@@ -14,6 +15,7 @@ class LandingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       body: AppBackground(
         safeArea: false,
@@ -30,8 +32,8 @@ class LandingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               Text(
-                'كل خدمات الصيانة\nفي مكان واحد',
-                textAlign: TextAlign.right,
+                t.landingHeroTitle,
+                textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 32,
@@ -41,8 +43,8 @@ class LandingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'اطلب فني قريب منك، استقبل عروض، واحكِ مع الفني داخل التطبيق بأمان.',
-                textAlign: TextAlign.right,
+                t.landingHeroSubtitle,
+                textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
@@ -53,7 +55,7 @@ class LandingScreen extends StatelessWidget {
               const _HeroPreview(),
               const SizedBox(height: 26),
               GradientButton(
-                label: 'تسجيل الدخول',
+                label: t.landingLoginButton,
                 icon: Icons.login_rounded,
                 onPressed: () {
                   Navigator.push(
@@ -71,7 +73,7 @@ class LandingScreen extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.person_add_alt_1_rounded),
-                label: const Text('إنشاء حساب جديد'),
+                label: Text(t.landingCreateAccountButton),
               ),
               const SizedBox(height: 24),
               const _ServicesRow(),
@@ -88,6 +90,7 @@ class _MiniBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -96,7 +99,7 @@ class _MiniBadge extends StatelessWidget {
         border: Border.all(color: AppColors.success.withValues(alpha: 0.35)),
       ),
       child: Text(
-        'الأردن',
+        t.landingCountryBadge,
         style: TextStyle(
           color: AppColors.success,
           fontWeight: FontWeight.w900,
@@ -112,6 +115,7 @@ class _HeroPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -119,21 +123,45 @@ class _HeroPreview extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.border),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: _MiniStat(title: 'طلب', value: '+120', icon: Icons.assignment_rounded)),
-              SizedBox(width: 12),
-              Expanded(child: _MiniStat(title: 'فني', value: '+50', icon: Icons.engineering_rounded)),
+              Expanded(
+                child: _MiniStat(
+                  title: t.landingStatRequestsLabel,
+                  value: t.landingStatRequestsValue,
+                  icon: Icons.assignment_rounded,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _MiniStat(
+                  title: t.landingStatTechniciansLabel,
+                  value: t.landingStatTechniciansValue,
+                  icon: Icons.engineering_rounded,
+                ),
+              ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _MiniStat(title: 'محادثة', value: 'آمنة', icon: Icons.chat_rounded)),
-              SizedBox(width: 12),
-              Expanded(child: _MiniStat(title: 'موقعك', value: 'قريب', icon: Icons.location_on_rounded)),
+              Expanded(
+                child: _MiniStat(
+                  title: t.landingStatChatLabel,
+                  value: t.landingStatChatValue,
+                  icon: Icons.chat_rounded,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _MiniStat(
+                  title: t.landingStatLocationLabel,
+                  value: t.landingStatLocationValue,
+                  icon: Icons.location_on_rounded,
+                ),
+              ),
             ],
           ),
         ],

@@ -6,6 +6,7 @@ import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/support_message_model.dart';
 import '../../../models/support_ticket_model.dart';
 import '../../../providers/auth_provider.dart';
@@ -122,12 +123,13 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إرسال الرسالة');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.supportChatSendFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final support = context.watch<SupportProvider>();
     final currentUserId = context.watch<AuthProvider>().user?.id ?? 0;
     final isClosed = !widget.ticket.isOpen;
@@ -177,7 +179,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                   padding: const EdgeInsets.all(14),
                   color: AppColors.surface,
                   child: Text(
-                    'هذه التذكرة مغلقة. لا يمكن إرسال رسائل جديدة.',
+                    t.supportChatClosedMessage,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
@@ -192,6 +194,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   }
 
   Widget _emptyState() {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(28),
       children: [
@@ -209,7 +212,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         ),
         const SizedBox(height: 14),
         Text(
-          'ابدأ المحادثة مع فريق الدعم',
+          t.supportChatEmptyTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -219,7 +222,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'اكتب رسالتك في الأسفل وسيرد عليك الفريق',
+          t.supportChatEmptySubtitle,
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary),
         ),
@@ -228,6 +231,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   }
 
   Widget _errorState(String message, Future<void> Function() onRetry) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(28),
       children: [
@@ -245,7 +249,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
         ),
         const SizedBox(height: 14),
         Text(
-          'تعذّر تحميل الرسائل',
+          t.supportChatLoadFailedTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -264,7 +268,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
           child: TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
         ),
@@ -273,6 +277,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   }
 
   Widget _inputBar(bool sending) {
+    final t = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Container(
@@ -289,7 +294,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 minLines: 1,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'اكتب رسالتك...',
+                  hintText: t.supportChatInputHint,
                   filled: true,
                   fillColor: AppColors.card,
                   contentPadding:
@@ -308,7 +313,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                tooltip: 'إرسال',
+                tooltip: t.sendButtonTooltip,
                 onPressed: sending ? null : send,
                 icon: sending
                     ? const SizedBox(
@@ -337,6 +342,7 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Align(
       alignment: isMine ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
@@ -357,7 +363,7 @@ class _Bubble extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  message.isAdmin ? 'فريق الدعم' : (message.senderName ?? ''),
+                  message.isAdmin ? t.supportTeamLabel : (message.senderName ?? ''),
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,

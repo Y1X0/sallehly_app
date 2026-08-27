@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/support_ticket_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_support_chat_screen.dart';
@@ -28,6 +29,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
 
   Future<void> _toggleStatus(SupportTicketModel ticket) async {
     final newStatus = ticket.isOpen ? 'closed' : 'open';
+    final t = AppLocalizations.of(context)!;
 
     try {
       await context.read<AdminProvider>().updateSupportStatus(
@@ -39,7 +41,9 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            newStatus == 'closed' ? 'تم إغلاق التذكرة' : 'تم إعادة فتح التذكرة',
+            newStatus == 'closed'
+                ? t.adminSupportTicketClosedMessage
+                : t.adminSupportTicketReopenedMessage,
           ),
         ),
       );
@@ -51,7 +55,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تعذر تحديث التذكرة')),
+        SnackBar(content: Text(t.adminSupportTicketUpdateFailedMessage)),
       );
     }
   }
@@ -70,6 +74,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
     final tickets = admin.tickets;
 
@@ -102,7 +107,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                       const SizedBox(height: 16),
                       Center(
                         child: Text(
-                          'تعذّر تحميل تذاكر الدعم',
+                          t.adminSupportLoadFailedTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
@@ -124,7 +129,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                         child: TextButton.icon(
                           onPressed: admin.loadSupport,
                           icon: const Icon(Icons.refresh_rounded),
-                          label: const Text('إعادة المحاولة'),
+                          label: Text(t.retryButton),
                           style: TextButton.styleFrom(
                               foregroundColor: AppColors.primary),
                         ),
@@ -154,7 +159,7 @@ class _AdminSupportScreenState extends State<AdminSupportScreen> {
                       const SizedBox(height: 16),
                       Center(
                         child: Text(
-                          'لا توجد تذاكر دعم حالياً',
+                          t.adminSupportEmptyTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
@@ -195,6 +200,7 @@ class _TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final isOpen = ticket.isOpen;
 
     return InkWell(
@@ -218,7 +224,7 @@ class _TicketCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: BidiText(
-                    ticket.title.isEmpty ? 'تذكرة دعم' : ticket.title,
+                    ticket.title.isEmpty ? t.adminSupportTicketFallbackTitle : ticket.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 15,
@@ -239,7 +245,7 @@ class _TicketCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isOpen ? 'مفتوحة' : 'مغلقة',
+                    isOpen ? t.adminSupportTicketOpenLabel : t.adminSupportTicketClosedLabel,
                     style: TextStyle(
                       fontSize: 12,
                       color: isOpen ? AppColors.success : AppColors.textSecondary,
@@ -270,7 +276,7 @@ class _TicketCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    '${ticket.userName ?? 'مستخدم'} · ${ticket.type}',
+                    '${ticket.userName ?? t.userFallbackName} · ${ticket.type}',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textMuted,
@@ -281,7 +287,7 @@ class _TicketCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: onToggle,
-                  child: Text(isOpen ? 'إغلاق' : 'إعادة فتح'),
+                  child: Text(isOpen ? t.adminSupportCloseButton : t.adminSupportReopenButton),
                 ),
               ],
             ),
