@@ -118,12 +118,23 @@ void main() {
     //    هنا أيضاً (جُرِّب وفشل كذلك) — يبدو أن جزءاً من هذه الاستثناءات
     //    يُسجَّل بعد عودة جسم الاختبار (أثناء تفكيك الشجرة أو إطار متأخر)، أي
     //    بعد انتهاء أي حلقة تفريغ صريحة داخل جسم الاختبار نفسه.
-    // الحل الفعلي الوحيد الذي نجح: استبدال FlutterError.onError مؤقتاً بدالة
-    // فارغة لمدة هذا الاختبار تحديداً (تُستعاد بعده عبر addTearDown) — يمنع
-    // أي خطأ إطار عمل من الوصول لآلية تسجيل فشل الاختبار من الأساس، بغض النظر
-    // عن توقيته أو عدده أو آلية بلَتّر الداخلية بالضبط لروايته.
+    // [FIX-L10N-05] الإصدار الأول من هذا الإصلاح استبدل FlutterError.onError
+    // بدالة فارغة تبتلع كل شيء بلا تمييز — لكن FlutterError.onError حقل
+    // ساكن (static) عام على مستوى العملية كلها، وFlutter/dart test ينفّذ
+    // ملفات اختبار مختلفة بالتزامن ضمن نفس العملية أحياناً (لاحظنا هذا فعلياً:
+    // اختبار منفصل تماماً بملف آخر — locale_switch_test.dart — بدأ يفشل بصمت
+    // بمجرّد إضافة هذا الابتلاع الشامل هنا، لأن خطأ بناء حقيقي بذلك الاختبار
+    // كان يُبتلَع صامتاً إن وقع أثناء تفعيل هذا الاستبدال هنا بالتزامن، فيظهر
+    // العنصر المعطوب كـErrorWidget فارغ بدل عرض الاستثناء الحقيقي). الإصلاح:
+    // ابتلاع الاستثناء المتوقَّع تحديداً فقط (ProviderNotFoundException من
+    // CustomerLayout) وتمرير أي شيء آخر للمعالج الأصلي دون تغيير.
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = (details) {};
+    FlutterError.onError = (details) {
+      final isExpectedCustomerLayoutProviderError =
+          details.exception.toString().contains('CustomerLayout');
+      if (isExpectedCustomerLayoutProviderError) return;
+      originalOnError?.call(details);
+    };
     addTearDown(() => FlutterError.onError = originalOnError);
 
     await tester.pumpWidget(wrap());
