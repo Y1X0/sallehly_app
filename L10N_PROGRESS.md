@@ -579,11 +579,11 @@ mirroring due in that same file).
 - [x] 18. `lib/features/wallet/widgets/package_card.dart` — new `core/utils/currency_format.dart` helper (`NumberFormat`-based, reused going forward for all 14 files using "د.أ"); `packageBonusLabel`, `packageBalanceAfterApproval`, `selectPackageButton`
 - [x] 19. `lib/features/auth/data/auth_api.dart` — 5 backend-fallback strings, data layer with no BuildContext, deferred to their consuming screens (register/OTP/forgot-password/reset-password/delete-account flows), commented
 - [x] 20. `lib/features/splash/splash_screen.dart` — `splashTagline`, `splashServerWakingHint`, `splashConnectionFailed`; reused `appWordmark` + `retryButton`
-- [ ] 21. `lib/features/wallet/provider/wallet_provider.dart`
-- [ ] 22. `lib/features/wallet/widgets/topup_card.dart`
-- [ ] 23. `lib/models/request_model.dart` — **SKIP, Phase 3**
-- [ ] 24. `lib/core/notifications/firebase_notification_service.dart`
-- [ ] 25. `lib/features/customer/widgets/offer_card.dart`
+- [x] 21. `lib/features/wallet/provider/wallet_provider.dart` — 5 fallback strings, displayed as-is by packages_screen.dart/#53/#54, deferred/commented (same cross-layer pattern)
+- [x] 22. `lib/features/wallet/widgets/topup_card.dart` — status labels derived from booleans (not wire values, safe to translate normally): `topupStatusApproved/Rejected/Pending`, `topupRequestFallbackName`; uses `formatJod`
+- [x] 23. `lib/models/request_model.dart` — **SKIPPED, Phase 3** per instruction
+- [x] 24. `lib/core/notifications/firebase_notification_service.dart` — **structural exception, documented not migrated**: notification channel name/description is `const` (no BuildContext even possible) and Android caches channel metadata by ID at first creation, so changing the string has no effect on existing installs anyway; the title/body fallback runs in `firebaseBackgroundHandler`'s background isolate, which has no BuildContext by design (not a "defer to consuming widget" case — there is no widget). Both commented in place.
+- [x] 25. `lib/features/customer/widgets/offer_card.dart` — `technicianFallbackName`, `offerPriceLabel` (+ `formatJod`), `offerDurationLabel`, `offerAcceptButton`, `offerRejectButton`, `offerAcceptedStatus`, `offerRejectedStatus`
 - [ ] 26. `lib/features/admin/screens/admin_ledger_screen.dart`
 - [ ] 27. `lib/features/admin/screens/admin_support_chat_screen.dart`
 - [ ] 28. `lib/features/auth/screens/register_role_screen.dart` (also §3 back-icon x2)

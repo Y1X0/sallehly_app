@@ -143,6 +143,55 @@
   "@splashConnectionFailed": {
     "description": "رسالة فشل الاتصال بشاشة البداية بعد تجاوز المهلة"
   },
+  "topupStatusApproved": "تمت الموافقة",
+  "@topupStatusApproved": {
+    "description": "حالة طلب شحن معتمَد"
+  },
+  "topupStatusRejected": "مرفوض",
+  "@topupStatusRejected": {
+    "description": "حالة طلب شحن مرفوض"
+  },
+  "topupStatusPending": "قيد المراجعة",
+  "@topupStatusPending": {
+    "description": "حالة طلب شحن قيد المراجعة"
+  },
+  "topupRequestFallbackName": "طلب شحن",
+  "@topupRequestFallbackName": {
+    "description": "اسم احتياطي لطلب شحن بلا اسم باقة محدَّد"
+  },
+  "technicianFallbackName": "فني",
+  "@technicianFallbackName": {
+    "description": "اسم احتياطي لفني بلا اسم محدَّد بعرض"
+  },
+  "offerPriceLabel": "السعر: {amount}",
+  "@offerPriceLabel": {
+    "description": "سعر عرض فني (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "offerDurationLabel": "الوقت: ",
+  "@offerDurationLabel": {
+    "description": "تسمية مدة تنفيذ العرض (قبل القيمة الفعلية)"
+  },
+  "offerAcceptButton": "قبول",
+  "@offerAcceptButton": {
+    "description": "زر قبول عرض فني"
+  },
+  "offerRejectButton": "رفض",
+  "@offerRejectButton": {
+    "description": "زر رفض عرض فني"
+  },
+  "offerAcceptedStatus": "تم قبول العرض",
+  "@offerAcceptedStatus": {
+    "description": "حالة عرض مقبول"
+  },
+  "offerRejectedStatus": "تم رفض العرض",
+  "@offerRejectedStatus": {
+    "description": "حالة عرض مرفوض"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

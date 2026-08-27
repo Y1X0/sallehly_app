@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/offer_model.dart';
 
 class OfferCard extends StatelessWidget {
@@ -20,6 +22,7 @@ class OfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -38,7 +41,7 @@ class OfferCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            offer.technicianName ?? 'فني',
+            offer.technicianName ?? t.technicianFallbackName,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -47,7 +50,7 @@ class OfferCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'السعر: ${offer.price.toStringAsFixed(2)} د.أ',
+            t.offerPriceLabel(formatJod(context, offer.price)),
             style: TextStyle(
               color: AppColors.primary,
               fontSize: 18,
@@ -59,7 +62,7 @@ class OfferCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'الوقت: ',
+                t.offerDurationLabel,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
               Expanded(
@@ -85,7 +88,7 @@ class OfferCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: loading ? null : onAccept,
                     icon: const Icon(Icons.check_circle_outline_rounded),
-                    label: const Text('قبول'),
+                    label: Text(t.offerAcceptButton),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -93,14 +96,14 @@ class OfferCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: loading ? null : onReject,
                     icon: const Icon(Icons.close_rounded),
-                    label: const Text('رفض'),
+                    label: Text(t.offerRejectButton),
                   ),
                 ),
               ],
             )
           else
             Text(
-              offer.isAccepted ? 'تم قبول العرض' : 'تم رفض العرض',
+              offer.isAccepted ? t.offerAcceptedStatus : t.offerRejectedStatus,
               style: TextStyle(
                 color: offer.isAccepted ? AppColors.success : AppColors.danger,
                 fontWeight: FontWeight.w900,
