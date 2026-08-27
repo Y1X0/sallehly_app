@@ -41,6 +41,10 @@ jobs:
           if [ -z "$ARABIC" ]; then
             ARABIC=$(find /usr/share/fonts -iname "*NotoSansArabic*Regular*" 2>/dev/null | head -1)
           fi
+          ARABIC_BOLD=$(find /usr/share/fonts -iname "*NotoNaskhArabic*Bold*" 2>/dev/null | head -1)
+          if [ -z "$ARABIC_BOLD" ]; then
+            ARABIC_BOLD=$(find /usr/share/fonts -iname "*NotoSansArabic*Bold*" 2>/dev/null | head -1)
+          fi
           LATIN=$(find /usr/share/fonts -iname "NotoSans-Regular.ttf" 2>/dev/null | head -1)
           LATIN_BOLD=$(find /usr/share/fonts -iname "NotoSans-Bold.ttf" 2>/dev/null | head -1)
           if [ -z "$ARABIC" ] || [ -z "$LATIN" ]; then
@@ -52,10 +56,25 @@ jobs:
           # وFontLoader لا يبدو يطبّق fallback عبر عدّة خطوط بنفس العائلة حسب
           # تغطية الحرف — أول خط مسجَّل هو ما يُستخدَم فعلياً (تأكَّد هذا
           # تجريبياً: بترتيب لاتيني-أولاً، ظهر كل النص العربي كمربّعات tofu).
+          # عربي-Bold أيضاً: بدونه، أي نص عربي بوزن غامق (w900 شائع بهذا
+          # التطبيق) كان يُطابَق مع وجه Bold لاتيني فقط (بلا حروف عربية) بدل
+          # وجه عربي حقيقي، فيظهر tofu رغم نجاح النص العادي بجانبه تماماً.
           PATHS="$ARABIC:$LATIN"
+          if [ -n "$ARABIC_BOLD" ]; then PATHS="$PATHS:$ARABIC_BOLD"; fi
           if [ -n "$LATIN_BOLD" ]; then PATHS="$PATHS:$LATIN_BOLD"; fi
           echo "REAL_FONT_PATHS=$PATHS" >> "$GITHUB_ENV"
           echo "Using fonts: $PATHS"
+
+          # أيقونات فلَتّر (MaterialIcons) — أصل حقيقي بحزمة فلَتّر نفسها، لكن
+          # flutter test لا يحمّله ضمنياً (لا نظام تشغيل حقيقي هنا)، فتظهر كل
+          # الأيقونات كمربّعات فارغة بدونه — يمنع الحكم على اتجاهها بالإنجليزية.
+          ICONS_FONT="$FLUTTER_ROOT/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf"
+          if [ ! -f "$ICONS_FONT" ]; then
+            echo "::error::MaterialIcons font not found at $ICONS_FONT"
+            exit 1
+          fi
+          echo "MATERIAL_ICONS_FONT_PATH=$ICONS_FONT" >> "$GITHUB_ENV"
+          echo "Using icons font: $ICONS_FONT"
 
       - name: Run screenshot capture test (all screens/locales/widths)
         env:

@@ -35,17 +35,17 @@ import '../support/l10n_screen_cases.dart';
 
 /// مسارات خطوط حقيقية (عربي + لاتيني) مفصولة بـ":" عبر متغيّر بيئة من خطوة
 /// تثبيت الخطوط بـCI — لا كأصل بالمشروع ولا كتعديل بـpubspec.yaml.
-Future<void> _loadRealFonts() async {
-  final raw = Platform.environment['REAL_FONT_PATHS'] ?? '';
+Future<void> _loadFontFamily(String envVar, String family) async {
+  final raw = Platform.environment[envVar] ?? '';
   final paths = raw.split(':').where((p) => p.trim().isNotEmpty).toList();
   if (paths.isEmpty) {
     throw StateError(
-      'REAL_FONT_PATHS فارغ — راجع خطوة تثبيت الخطوط بـCI. بدون خط حقيقي، '
-      'اللقطات ستكون بخط الاختبار الوهمي ولن تعكس التخطيط الفعلي.',
+      '$envVar فارغ — راجع خطوة تثبيت الخطوط بـCI. بدون خط حقيقي، اللقطات '
+      'ستكون بخط الاختبار الوهمي ولن تعكس التخطيط الفعلي.',
     );
   }
 
-  final loader = FontLoader('Roboto');
+  final loader = FontLoader(family);
   for (final path in paths) {
     final file = File(path);
     if (!file.existsSync()) {
@@ -54,9 +54,19 @@ Future<void> _loadRealFonts() async {
     final bytes = await file.readAsBytes();
     loader.addFont(Future.value(ByteData.sublistView(Uint8List.fromList(bytes))));
     // ignore: avoid_print
-    print('[SCREENSHOT] خط محمَّل: $path (${bytes.length} بايت).');
+    print('[SCREENSHOT] خط محمَّل ($family): $path (${bytes.length} بايت).');
   }
   await loader.load();
+}
+
+/// عائلتان منفصلتان: 'Roboto' للنص (تفترضه Typography الافتراضية ضمنياً)،
+/// و'MaterialIcons' للأيقونات — لا تُحمَّل تلقائياً بـflutter test رغم كونها
+/// أصلاً حقيقياً بحزمة فلَتّر نفسها (لا OS حقيقي هنا لتحميلها ضمنياً)، فتظهر
+/// كل الأيقونات كمربّعات فارغة بدونها — ما كان سيمنع الحكم فعلياً على اتجاه
+/// الأيقونات (مطلب أساسي بهذا الفحص).
+Future<void> _loadRealFonts() async {
+  await _loadFontFamily('REAL_FONT_PATHS', 'Roboto');
+  await _loadFontFamily('MATERIAL_ICONS_FONT_PATH', 'MaterialIcons');
 }
 
 Future<void> _captureScreenshot(
