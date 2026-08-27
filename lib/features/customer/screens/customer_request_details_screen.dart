@@ -5,6 +5,7 @@ import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -125,7 +126,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Text(
+                      BidiText(
                         '${request.city}${request.area == null || request.area!.isEmpty ? '' : ' - ${request.area}'}',
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
@@ -140,7 +141,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
             delay: const Duration(milliseconds: 70),
             child: _Box(
               title: 'وصف المشكلة',
-              child: Text(
+              child: BidiText(
                 request.description,
                 style: TextStyle(
                   color: AppColors.textSecondary,

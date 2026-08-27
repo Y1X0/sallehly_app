@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/message_model.dart';
 
 /// يبني الرابط الكامل للوسائط (صورة/صوت).
@@ -207,7 +208,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                 imageUrl: _mediaUrl(message.imageUrl),
               )
             else
-              Text(
+              BidiText(
                 message.body,
                 style: TextStyle(
                   color: isMe ? Colors.white : AppColors.textPrimary,

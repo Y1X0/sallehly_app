@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/bidi_text.dart';
 import '../../../models/request_model.dart';
 import '../../requests/widgets/request_status_chip.dart';
 
@@ -92,7 +93,7 @@ class _CustomerRequestCardState extends State<CustomerRequestCard> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            BidiText(
                               '${widget.request.city}${widget.request.area == null || widget.request.area!.isEmpty ? '' : ' - ${widget.request.area}'}',
                               style: TextStyle(
                                 color: AppColors.textSecondary,
@@ -104,7 +105,7 @@ class _CustomerRequestCardState extends State<CustomerRequestCard> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(
+                  BidiText(
                     widget.request.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
