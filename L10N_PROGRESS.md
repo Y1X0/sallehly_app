@@ -551,6 +551,94 @@ Phase 2 will then proceed through the 77-file table below, smallest first, ≤3 
 
 ---
 
+## 9. Phase 2 progress checklist
+
+Started. Working continuously in batches of 5 files (smallest → largest, per
+§2's table), `flutter analyze` clean after each batch via CI, no approval
+gate between batches per the user's instruction. Checked off here as each
+file's strings are fully migrated to ARB keys (plus any §3 RTL fix / nav-icon
+mirroring due in that same file).
+
+- [x] 1. `lib/config/app_config.dart` — `appName` is unused dead code (verified, zero call sites); left as a plain constant with a note, not converted
+- [x] 2. `lib/core/widgets/app_logo.dart` — `appWordmark` key ("صلّحلي" / "Sallehly", transliterated brand name matching the domain)
+- [x] 3. `lib/features/chat/data/chat_api.dart` — fallback string deferred to #38/#76 (data-layer, no BuildContext; will thread as nullable), noted inline
+- [x] 4. `lib/features/notifications/widgets/notification_bell.dart` — `notificationsBellTooltip` key
+- [x] 5. `lib/models/support_ticket_model.dart` — `'عام'` is a wire-value default (SupportTicketModel.type, same class of issue as RequestModel.status), commented per the established Phase 3 wire-value convention, not migrated
+- [ ] 6. `lib/providers/socket_provider.dart`
+- [ ] 7. `lib/core/widgets/consent_checkbox.dart`
+- [ ] 8. `lib/features/technician/widgets/technician_request_card.dart`
+- [ ] 9. `lib/app.dart`
+- [ ] 10. `lib/features/wallet/screens/ledger_screen.dart`
+- [ ] 11. `lib/models/admin_user_model.dart`
+- [ ] 12. `lib/core/widgets/services_multi_select.dart` (also §3 EdgeInsets fix)
+- [ ] 13. `lib/features/chat/widgets/chat_bubble.dart`
+- [ ] 14. `lib/features/notifications/screens/notifications_screen.dart`
+- [ ] 15. `lib/features/requests/widgets/request_status_chip.dart` — **SKIP, Phase 3**
+- [ ] 16. `lib/features/support/provider/support_provider.dart`
+- [ ] 17. `lib/features/wallet/screens/packages_screen.dart`
+- [ ] 18. `lib/features/wallet/widgets/package_card.dart`
+- [ ] 19. `lib/features/auth/data/auth_api.dart`
+- [ ] 20. `lib/features/splash/splash_screen.dart`
+- [ ] 21. `lib/features/wallet/provider/wallet_provider.dart`
+- [ ] 22. `lib/features/wallet/widgets/topup_card.dart`
+- [ ] 23. `lib/models/request_model.dart` — **SKIP, Phase 3**
+- [ ] 24. `lib/core/notifications/firebase_notification_service.dart`
+- [ ] 25. `lib/features/customer/widgets/offer_card.dart`
+- [ ] 26. `lib/features/admin/screens/admin_ledger_screen.dart`
+- [ ] 27. `lib/features/admin/screens/admin_support_chat_screen.dart`
+- [ ] 28. `lib/features/auth/screens/register_role_screen.dart` (also §3 back-icon x2)
+- [ ] 29. `lib/features/auth/screens/verify_otp_screen.dart`
+- [ ] 30. `lib/features/chat/widgets/chat_input.dart`
+- [ ] 31. `lib/features/layout/customer_layout.dart`
+- [ ] 32. `lib/features/technician/screens/my_reviews_screen.dart`
+- [ ] 33. `lib/providers/auth_provider.dart`
+- [ ] 34. `lib/features/admin/screens/admin_audit_screen.dart`
+- [ ] 35. `lib/features/layout/technician_layout.dart`
+- [ ] 36. `lib/features/admin/screens/admin_support_screen.dart`
+- [ ] 37. `lib/features/auth/screens/landing_screen.dart`
+- [ ] 38. `lib/features/chat/provider/chat_provider.dart`
+- [ ] 39. `lib/features/customer/widgets/complaint_sheet.dart`
+- [ ] 40. `lib/features/support/screens/support_chat_screen.dart`
+- [ ] 41. `lib/features/technician/screens/technician_request_details_screen.dart`
+- [ ] 42. `lib/core/api/api_client.dart`
+- [ ] 43. `lib/features/customer/screens/offers_screen.dart` (also §3 back-icon)
+- [ ] 44. `lib/features/layout/admin_layout.dart`
+- [ ] 45. `lib/features/requests/provider/requests_provider.dart`
+- [ ] 46. `lib/features/technician/screens/new_requests_screen.dart`
+- [ ] 47. `lib/features/auth/screens/login_screen.dart`
+- [ ] 48. `lib/features/settings/screens/change_password_screen.dart`
+- [ ] 49. `lib/features/settings/screens/edit_profile_screen.dart`
+- [ ] 50. `lib/features/technician/screens/technician_orders_screen.dart`
+- [ ] 51. `lib/core/widgets/image_source_picker.dart`
+- [ ] 52. `lib/features/customer/widgets/rate_technician_sheet.dart`
+- [ ] 53. `lib/features/wallet/screens/wallet_screen.dart`
+- [ ] 54. `lib/features/wallet/screens/topup_request_screen.dart`
+- [ ] 55. `lib/features/admin/screens/admin_topups_screen.dart`
+- [ ] 56. `lib/features/customer/screens/customer_request_details_screen.dart`
+- [ ] 57. `lib/features/auth/screens/customer_register_screen.dart`
+- [ ] 58. `lib/features/chat/screens/chats_screen.dart` (also §3 forward-chevron)
+- [ ] 59. `lib/features/customer/screens/customer_dashboard_screen.dart`
+- [ ] 60. `lib/features/technician/screens/send_offer_screen.dart`
+- [ ] 61. `lib/features/auth/screens/forgot_password_screen.dart`
+- [ ] 62. `lib/features/technician/screens/technician_dashboard_screen.dart`
+- [ ] 63. `lib/features/customer/screens/customer_requests_screen.dart` (also §3 back-icon)
+- [ ] 64. `lib/features/customer/screens/create_request_screen.dart` (also §3 back-icon)
+- [ ] 65. `lib/features/admin/provider/admin_provider.dart`
+- [ ] 66. `lib/features/support/screens/support_screen.dart`
+- [ ] 67. `lib/features/auth/screens/technician_register_screen.dart`
+- [ ] 68. `lib/providers/notification_provider.dart`
+- [ ] 69. `lib/features/admin/screens/admin_dashboard_screen.dart` (also §3 back-icon)
+- [ ] 70. `lib/features/admin/screens/admin_requests_screen.dart`
+- [ ] 71. `lib/features/admin/screens/admin_user_detail_screen.dart`
+- [ ] 72. `lib/features/admin/screens/admin_meta_screen.dart`
+- [ ] 73. `lib/features/admin/screens/admin_moderation_screen.dart`
+- [ ] 74. `lib/features/admin/screens/admin_users_screen.dart`
+- [ ] 75. `lib/features/settings/screens/privacy_policy_screen.dart`
+- [ ] 76. `lib/features/chat/screens/chat_room_screen.dart` (also §3 back-icon)
+- [ ] 77. `lib/features/settings/screens/settings_screen.dart` (also §3 forward-chevron; language switcher strings already migrated in Phase 1)
+
+---
+
 ## 7. Visual regression net — re-run after every Phase 2 batch
 
 `.github/workflows/l10n-screenshots.yml` captures a real PNG (real Arabic

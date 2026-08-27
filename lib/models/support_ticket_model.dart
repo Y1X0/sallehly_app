@@ -27,6 +27,10 @@ class SupportTicketModel {
     return SupportTicketModel(
       id: int.tryParse('${json['id'] ?? 0}') ?? 0,
       userId: int.tryParse('${json['user_id'] ?? 0}') ?? 0,
+      // [L10N-WIRE] `type` قيمة عربية من مصفوفة ثابتة بالخادم/support_screen.dart
+      // (نفس نمط RequestModel.status — راجع request_model.dart) — تُعرَض
+      // وتُقارَن كما هي حالياً. الحل الصحيح (enum + fromWire + بحث مترجَم)
+      // مؤجَّل لـPhase 3 مثلها تماماً، وليس جزءاً من نطاق Phase 2.
       type: '${json['type'] ?? 'عام'}',
       title: '${json['title'] ?? ''}',
       body: '${json['body'] ?? ''}',

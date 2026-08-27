@@ -1,5 +1,13 @@
 {
   "@@locale": "ar",
+  "appWordmark": "صلّحلي",
+  "@appWordmark": {
+    "description": "اسم التطبيق كنص شعار (وردمارك) — يُعرَض بجانب الشعار في AppLogo"
+  },
+  "notificationsBellTooltip": "الإشعارات",
+  "@notificationsBellTooltip": {
+    "description": "تلميح (tooltip) زر جرس الإشعارات"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

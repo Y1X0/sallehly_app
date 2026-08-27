@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 class AppLogo extends StatelessWidget {
@@ -49,7 +50,7 @@ class AppLogo extends StatelessWidget {
         logo,
         SizedBox(width: compact ? 8 : 12),
         Text(
-          'صلّحلي',
+          AppLocalizations.of(context)!.appWordmark,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: compact ? 20 : 28,

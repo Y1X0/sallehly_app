@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/notification_provider.dart';
 import '../screens/notifications_screen.dart';
 
@@ -23,7 +24,7 @@ class NotificationBell extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         IconButton(
-          tooltip: 'الإشعارات',
+          tooltip: AppLocalizations.of(context)!.notificationsBellTooltip,
           onPressed: () {
             Navigator.push(
               context,
