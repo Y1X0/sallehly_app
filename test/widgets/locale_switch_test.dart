@@ -111,11 +111,18 @@ void main() {
     testWidgets(
       'التبديل للإنجليزية يقلب اتجاه الكتابة إلى LTR بلا أي استثناء (فيضان تخطيط)',
       (tester) async {
+        // [FIX-L10N-01] ثبّت حجم عرض معلوم وسخيّ صراحةً هنا — بعد إضافة
+        // l10n_screen_smoke_test.dart (الذي يُغيّر tester.view.physicalSize
+        // لعشرات الحالات) بدأ هذا الاختبار تحديداً يفشل بـ"0 عناصر" لنص
+        // 'اللغة' رغم بقاء كوده كما هو تماماً — أقوى تفسير: حجم عرض ضيق
+        // مُسرَّب من اختبار آخر بنفس عملية/isolate الاختبارات، رغم استدعاء كل
+        // حالة بالملف الآخر لـtester.view.reset() الخاص بها. تثبيت الحجم هنا
+        // صراحةً يحصّن هذا الاختبار ضد ذلك بغضّ النظر عن السبب الدقيق.
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
         await tester.pumpWidget(wrap());
-        // هامش إضافي هنا تحديداً (10 بدل الافتراضي 6) — هذا الاختبار ظهر
-        // فيه تذبذب عابر بتشغيلة CI واحدة (لم يتكرر محلياً، ولا سبب واضح
-        // بالكود يفسّره)؛ زيادة عدد الدورات تقلّل احتمال تكراره بلا أي أثر
-        // على المنطق نفسه.
         await _pumpAnimated(tester, 10);
 
         expect(Directionality.of(tester.element(find.byType(SettingsScreen))),
