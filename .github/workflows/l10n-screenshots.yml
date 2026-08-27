@@ -1,0 +1,79 @@
+name: L10N Screenshots
+
+# CI-only infrastructure (no app code touched): captures a real PNG for
+# every screen/locale/width combo in test/support/l10n_screen_cases.dart,
+# rendered with a real Arabic+Latin font instead of flutter test's default
+# placeholder font, so layout/RTL issues can actually be reviewed visually.
+#
+# PROTOTYPE MODE: this run is currently filtered to 3 representative cases
+# to validate the real-font screenshot technique before capturing all 48 —
+# see the hardcoded --plain-name filters below. Will be widened to capture
+# everything once confirmed.
+on:
+  workflow_dispatch:
+    inputs:
+      test_name_filter:
+        description: 'Optional --plain-name filter (leave empty to capture every screen)'
+        required: false
+        default: ''
+  push:
+    branches: [ claude/flutter-ui-consistency-vzb65s ]
+    paths:
+      - '.github/workflows/l10n-screenshots.yml'
+      - 'test/widgets/l10n_screenshot_capture_test.dart'
+      - 'test/support/l10n_screen_cases.dart'
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Install real fonts (Noto, via apt — not a project asset)
+        run: |
+          set -e
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra fontconfig
+          ARABIC=$(find /usr/share/fonts -iname "*NotoNaskhArabic*Regular*" 2>/dev/null | head -1)
+          if [ -z "$ARABIC" ]; then
+            ARABIC=$(find /usr/share/fonts -iname "*NotoSansArabic*Regular*" 2>/dev/null | head -1)
+          fi
+          LATIN=$(find /usr/share/fonts -iname "*NotoSans-Regular*" 2>/dev/null | head -1)
+          LATIN_BOLD=$(find /usr/share/fonts -iname "*NotoSans-Bold*" 2>/dev/null | head -1)
+          if [ -z "$ARABIC" ] || [ -z "$LATIN" ]; then
+            echo "::error::Missing a real font after apt install (arabic=$ARABIC latin=$LATIN)"
+            find /usr/share/fonts -iname "*noto*" | sort
+            exit 1
+          fi
+          PATHS="$LATIN:$ARABIC"
+          if [ -n "$LATIN_BOLD" ]; then PATHS="$PATHS:$LATIN_BOLD"; fi
+          echo "REAL_FONT_PATHS=$PATHS" >> "$GITHUB_ENV"
+          echo "Using fonts: $PATHS"
+
+      - name: Run screenshot capture test (prototype subset)
+        env:
+          SCREENSHOT_OUT_DIR: build/l10n_screenshots
+        run: |
+          flutter test test/widgets/l10n_screenshot_capture_test.dart \
+            --plain-name "الرئيسية-عميل (CustomerDashboardScreen) — locale=ar — عادي 390dp" \
+            --plain-name "الإعدادات (SettingsScreen) — locale=en — عادي 390dp" \
+            --plain-name "تعديل الملف الشخصي (EditProfileScreen) — locale=en — ضيق 320dp" \
+            --reporter expanded
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: l10n-screenshots
+          path: build/l10n_screenshots/*.png
+          retention-days: 14
+          if-no-files-found: error
