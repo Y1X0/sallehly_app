@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../models/request_status.dart';
 
 class RequestStatusChip extends StatelessWidget {
   final String status;
@@ -10,16 +12,24 @@ class RequestStatusChip extends StatelessWidget {
     required this.status,
   });
 
-  Color get color {
-    if (status == 'مكتمل') return AppColors.success;
-    if (status == 'ملغي') return AppColors.danger;
-    if (status == 'وصلت عروض') return AppColors.warning;
-    if (status == 'قيد التنفيذ') return AppColors.secondary;
-    return AppColors.primary;
+  Color _colorFor(RequestStatus requestStatus) {
+    return switch (requestStatus) {
+      RequestStatus.completed => AppColors.success,
+      RequestStatus.cancelled => AppColors.danger,
+      RequestStatus.offersReceived => AppColors.warning,
+      RequestStatus.inProgress => AppColors.secondary,
+      // waitingForOffers/offerSelected/awaitingPaymentConfirmation/unknown —
+      // no distinct color before this enum existed either; preserved as-is.
+      _ => AppColors.primary,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final requestStatus = RequestStatus.fromWire(status);
+    final color = _colorFor(requestStatus);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
@@ -28,7 +38,7 @@ class RequestStatusChip extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
-        status,
+        requestStatus.label(t, rawWire: status),
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.w900,

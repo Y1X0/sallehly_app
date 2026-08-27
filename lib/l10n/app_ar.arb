@@ -2964,5 +2964,33 @@
   "permanentIrreversibleActionSubtitle": "إجراء نهائي لا يمكن التراجع عنه",
   "@permanentIrreversibleActionSubtitle": {
     "description": "توضيح موجز أسفل بطاقة حذف الحساب بشاشة الإعدادات"
+  },
+  "requestStatusWaitingForOffers": "بانتظار العروض",
+  "@requestStatusWaitingForOffers": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'بانتظار العروض' — النص العربي مطابق عمداً للقيمة السلكية نفسها"
+  },
+  "requestStatusOffersReceived": "وصلت عروض",
+  "@requestStatusOffersReceived": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'وصلت عروض'"
+  },
+  "requestStatusOfferSelected": "تم اختيار عرض",
+  "@requestStatusOfferSelected": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'تم اختيار عرض'"
+  },
+  "requestStatusInProgress": "قيد التنفيذ",
+  "@requestStatusInProgress": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'قيد التنفيذ'"
+  },
+  "requestStatusAwaitingPaymentConfirmation": "بانتظار تأكيد الدفع",
+  "@requestStatusAwaitingPaymentConfirmation": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'بانتظار تأكيد الدفع'"
+  },
+  "requestStatusCompleted": "مكتمل",
+  "@requestStatusCompleted": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'مكتمل'"
+  },
+  "requestStatusCancelled": "ملغي",
+  "@requestStatusCancelled": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'ملغي'"
   }
 }

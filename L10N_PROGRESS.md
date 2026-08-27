@@ -1,15 +1,17 @@
 # English Localization — Progress Tracker
 
-Status: **DONE. Phase 1 (infrastructure) and Phase 2 (77-file ARB migration)
-are both complete.** Pull request:
-https://github.com/Y1X0/sallehly_app/pull/2
+Status: **Phase 1 (infrastructure) and Phase 2 (77-file ARB migration) are
+both complete.** Pull request: https://github.com/Y1X0/sallehly_app/pull/2
 
-Phase 3 (the `RequestStatus` enum + wire-value localization) and the 16
-inline error-banner widgets' consolidation are explicitly **not** part of
-this work — see §4 and §3's "Decision (post-assessment)" respectively for
-why, and the PR description for the same summary. Nothing in this file
-below is a pending TODO for this PR; it's the historical record of how
-Phase 1/2 were done, kept for reference and for whoever picks up Phase 3.
+**Phase 3 has started — see §10** for what's been done (`RequestStatus`
+enum + `fromWire()` + localized labels, `RequestStatusChip` migrated) and
+what's still deliberately out of scope (every other wire-value comparison
+site stays on the raw Arabic string, unchanged).
+
+The 16 inline error-banner widgets' consolidation is separately **not**
+part of any of this — see §3's "Decision (post-assessment)" for why.
+Nothing in §§1-9 below is a pending TODO; it's the historical record of
+how Phase 1/2 were done, kept for reference.
 
 ## Pre-existing bugs found incidentally (not caused by this work, not fixed here)
 
@@ -742,3 +744,52 @@ read in hindsight. If a future run shows the same symptom, let it run
 well past 20 minutes (ideally to completion) before treating it as a real
 hang, and prefer checking `run_started_at`/`completed_at` over step-level
 polling.
+
+---
+
+## 10. Phase 3 — started (scoped, per explicit approval)
+
+Scope, as given: `RequestStatus` enum + `fromWire()` parser + localized
+labels, with `RequestStatusChip` rendering the label instead of the raw
+value, and an unknown fallback so an unrecognised server value never
+crashes the UI. Explicitly **not** in scope: changing what's sent to the
+backend, or touching any of the other wire-value comparison sites listed
+in §4/§9 — those stay exactly as they are.
+
+- **`lib/models/request_status.dart` (new)** — `RequestStatus` enum with
+  one variant per known wire value (`waitingForOffers`, `offersReceived`,
+  `offerSelected`, `inProgress`, `awaitingPaymentConfirmation`,
+  `completed`, `cancelled`) plus `unknown`. `RequestStatus.fromWire(String)`
+  matches against each variant's `wireValue` (the exact Arabic string) and
+  returns `unknown` for anything unrecognized — never throws.
+  `label(AppLocalizations t, {rawWire})` returns the localized display
+  string for a known status, or `rawWire` itself for `unknown` (shows
+  whatever the server actually sent rather than a generic placeholder —
+  still meaningful, and nothing to hide).
+- **`lib/features/requests/widgets/request_status_chip.dart`** — now
+  parses `status` via `RequestStatus.fromWire()` and renders
+  `requestStatus.label(t, rawWire: status)` instead of the raw string
+  directly; the color lookup switches on the enum instead of raw-string
+  comparisons, same 4 colors as before (`completed`→success,
+  `cancelled`→danger, `offersReceived`→warning, `inProgress`→secondary)
+  plus the same default for everything else, `unknown` included — no
+  visual change beyond the label text itself.
+- **7 new ARB keys** (`requestStatusWaitingForOffers` ... `requestStatusCancelled`)
+  — Arabic text is byte-identical to each status's wire value by design
+  (so Arabic-locale output is pixel-identical to before this change);
+  English gets a real translation.
+- **`lib/models/request_model.dart`** — the `[FIX-L10N-03]` comment above
+  `hasOffers`/`isWaiting`/`isCompleted`/`isCancelled`/`isCancellable`
+  updated to reflect that the display-label part is now done and lives in
+  `request_status_chip.dart`; the comparisons themselves are untouched.
+- **Not touched, on purpose**: `RequestModel`'s own comparisons; the
+  `status ==` checks in `customer_requests_screen.dart`,
+  `technician_dashboard_screen.dart`, `technician_orders_screen.dart`,
+  `chats_screen.dart`, `customer_request_details_screen.dart`,
+  `technician_request_details_screen.dart`; `admin_requests_screen.dart`'s
+  `_filter`/`_statuses`/`_statusOptions`; `requests_provider.dart`'s
+  `_availableStatuses` and the `status: 'مكتمل'` literal it constructs;
+  `socket_provider.dart`'s optimistic `status: 'تم اختيار عرض'` update.
+  All of these still compare against or construct the raw Arabic wire
+  value directly — exactly as before, per "don't change what's sent to
+  the backend."

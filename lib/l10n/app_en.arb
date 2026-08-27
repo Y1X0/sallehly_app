@@ -690,5 +690,12 @@
   "supportActionSubtitle": "Reach out to us if you have an issue",
   "aboutSallehlyTitle": "About Sallehly",
   "maintenancePlatformInJordanTagline": "Jordan's maintenance services platform",
-  "permanentIrreversibleActionSubtitle": "A permanent action that cannot be undone"
+  "permanentIrreversibleActionSubtitle": "A permanent action that cannot be undone",
+  "requestStatusWaitingForOffers": "Awaiting Offers",
+  "requestStatusOffersReceived": "Offers Received",
+  "requestStatusOfferSelected": "Offer Selected",
+  "requestStatusInProgress": "In Progress",
+  "requestStatusAwaitingPaymentConfirmation": "Awaiting Payment Confirmation",
+  "requestStatusCompleted": "Completed",
+  "requestStatusCancelled": "Cancelled"
 }
