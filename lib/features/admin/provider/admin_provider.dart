@@ -19,6 +19,13 @@ class AdminProvider extends ChangeNotifier {
 
   bool loading = false;
   bool actionLoading = false;
+  // [L10N-TODO] كل رسائل fallback الفشل بهذا الملف (طبقة provider، بلا
+  // BuildContext) عربية ثابتة حالياً — 24 رسالة مختلفة عبر كل دوال هذا
+  // الملف، يستهلك `error` منها عدد كبير من شاشات الأدمن (بعضها مُهاجَر
+  // بالفعل وترك admin.error! نفسه مؤجَّلاً بنفس الاتفاقية: admin_support_
+  // screen.dart #36، admin_topups_screen.dart #55، admin_audit_screen.dart
+  // #34، admin_ledger_screen.dart #26). `userDetailError` كذلك بلا تغيير.
+  // لا تغيير وظيفي هنا.
   String? error;
 
   AdminStatsModel stats = AdminStatsModel.empty;

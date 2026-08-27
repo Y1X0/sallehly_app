@@ -12,6 +12,8 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/success_feedback.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../requests/provider/requests_provider.dart';
 
 class CreateRequestScreen extends StatefulWidget {
@@ -73,6 +75,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
     final provider = context.read<RequestsProvider>();
 
     try {
@@ -87,18 +90,19 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
 
       if (!mounted) return;
 
-      showSuccessSnackBar(context, 'تم إنشاء الطلب بنجاح');
+      showSuccessSnackBar(context, t.requestCreatedSuccessMessage);
 
       Navigator.pop(context);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إنشاء الطلب');
+      showErrorSnackBar(context, t.requestCreateFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
 
     return Scaffold(
@@ -121,9 +125,9 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                         const _HeroCard(),
                         const SizedBox(height: 22),
 
-                        const SectionTitle(
-                          title: 'تفاصيل الطلب',
-                          subtitle: 'اختر الخدمة والمنطقة واكتب وصف واضح للمشكلة',
+                        SectionTitle(
+                          title: t.requestDetailsSectionTitle,
+                          subtitle: t.requestDetailsSectionSubtitle,
                         ),
                         const SizedBox(height: 14),
 
@@ -132,7 +136,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                           child: Column(
                             children: [
                               _dropdown(
-                                label: 'الخدمة / المهنة',
+                                label: t.serviceDropdownLabel,
                                 icon: Icons.handyman_rounded,
                                 value: selectedService,
                                 items: (provider.meta?.services ?? [])
@@ -148,7 +152,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                               ),
                               const SizedBox(height: 14),
                               _dropdown(
-                                label: 'المحافظة',
+                                label: t.cityFieldLabel,
                                 icon: Icons.location_city_rounded,
                                 value: selectedCity,
                                 items: AppConstants.cities,
@@ -163,7 +167,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                               ),
                               const SizedBox(height: 14),
                               _dropdown(
-                                label: 'المنطقة',
+                                label: t.areaDropdownLabel,
                                 icon: Icons.place_rounded,
                                 value: selectedArea,
                                 items: availableAreas,
@@ -179,10 +183,10 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                               const SizedBox(height: 14),
                               TextFormField(
                                 controller: preferredTimeController,
-                                decoration: const InputDecoration(
-                                  labelText: 'الوقت المفضل',
-                                  hintText: 'مثال: اليوم مساءً أو غداً صباحاً',
-                                  prefixIcon: Icon(Icons.access_time_rounded),
+                                decoration: InputDecoration(
+                                  labelText: t.preferredTimeFieldLabel,
+                                  hintText: t.preferredTimeFieldHint,
+                                  prefixIcon: const Icon(Icons.access_time_rounded),
                                 ),
                               ),
                               const SizedBox(height: 14),
@@ -190,18 +194,17 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                                 controller: descriptionController,
                                 maxLines: 5,
                                 minLines: 4,
-                                decoration: const InputDecoration(
-                                  labelText: 'وصف المشكلة',
-                                  hintText:
-                                  'اكتب تفاصيل المشكلة حتى يستطيع الفني تقدير السعر والوقت بشكل أفضل',
+                                decoration: InputDecoration(
+                                  labelText: t.requestProblemDescriptionLabel,
+                                  hintText: t.descriptionFieldHint,
                                   alignLabelWithHint: true,
                                   prefixIcon:
-                                  Icon(Icons.description_rounded),
+                                  const Icon(Icons.description_rounded),
                                 ),
                                 validator: (value) {
                                   if (value == null ||
                                       value.trim().length < 10) {
-                                    return 'الوصف يجب أن لا يقل عن 10 أحرف';
+                                    return t.descriptionMinLengthValidation;
                                   }
 
                                   return null;
@@ -213,9 +216,9 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
 
                         const SizedBox(height: 22),
 
-                        const SectionTitle(
-                          title: 'صورة المشكلة',
-                          subtitle: 'اختياري، لكنها تساعد الفنيين على فهم المشكلة',
+                        SectionTitle(
+                          title: t.problemImageSectionTitle,
+                          subtitle: t.problemImageSectionSubtitle,
                         ),
                         const SizedBox(height: 14),
 
@@ -229,7 +232,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                         const SizedBox(height: 26),
 
                         GradientButton(
-                          label: 'نشر الطلب واستقبال العروض',
+                          label: t.publishRequestButton,
                           icon: Icons.send_rounded,
                           loading: provider.loading,
                           onPressed: provider.loading ? null : submit,
@@ -278,7 +281,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'اختر $label';
+          return AppLocalizations.of(context)!.selectFieldValidation(label);
         }
 
         return null;
@@ -296,18 +299,19 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
       child: Row(
         children: [
           IconButton(
-            tooltip: 'رجوع',
+            tooltip: t.backButtonTooltip,
             onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded),
+            icon: Icon(DirectionalIcons.back(context)),
           ),
           Expanded(
             child: Text(
-              'طلب صيانة جديد',
+              t.newMaintenanceRequestTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -328,6 +332,7 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -352,28 +357,28 @@ class _HeroCard extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.08),
             ),
           ),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
+              const Icon(
                 Icons.add_task_rounded,
                 color: Colors.white,
                 size: 38,
               ),
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               Text(
-                'احكِ لنا المشكلة\nونجيبلك الفني المناسب',
-                style: TextStyle(
+                t.createRequestHeroTitle,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,
                   height: 1.25,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
-                'بعد نشر الطلب، سيظهر للفنيين القريبين منك وستبدأ باستقبال العروض.',
-                style: TextStyle(
+                t.createRequestHeroSubtitle,
+                style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
                   height: 1.6,
@@ -402,6 +407,7 @@ class _ImagePickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     if (imagePath != null) {
       return GlassCard(
         padding: EdgeInsets.zero,
@@ -470,7 +476,7 @@ class _ImagePickerCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'إضافة صورة للمشكلة',
+                  t.addProblemPhotoTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -479,7 +485,7 @@ class _ImagePickerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'ارفع صورة واضحة إن أمكن',
+                  t.addProblemPhotoSubtitle,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,
@@ -522,7 +528,7 @@ class _SafeNote extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.',
+              AppLocalizations.of(context)!.safeChatNoteMessage,
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12.5,

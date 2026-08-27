@@ -12,6 +12,7 @@ import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/features/customer/screens/customer_requests_screen.dart';
 import 'package:sallehly_app/features/requests/data/requests_api.dart';
 import 'package:sallehly_app/features/requests/provider/requests_provider.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/request_model.dart';
 
 class MockRequestsApi extends Mock implements RequestsApi {}
@@ -62,7 +63,12 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: CustomerRequestsScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const CustomerRequestsScreen(),
+          ),
         ),
       );
 
@@ -125,7 +131,12 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: CustomerRequestsScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const CustomerRequestsScreen(),
+          ),
         ),
       );
 

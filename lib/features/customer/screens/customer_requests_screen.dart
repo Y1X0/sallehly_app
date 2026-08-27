@@ -7,6 +7,8 @@ import '../../../core/widgets/fade_in.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/request_card_skeleton.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../widgets/customer_request_card.dart';
@@ -51,6 +53,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
 
     final requests = provider.requests;
@@ -77,7 +80,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                   onRefresh: provider.loadRequests,
                   child: provider.loading && requests.isEmpty
                       ? Semantics(
-                    label: 'جاري تحميل الطلبات',
+                    label: t.newRequestsLoadingSemanticLabel,
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
                       children: const [
@@ -110,9 +113,9 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
                         offers: offersCount,
                       ),
                       const SizedBox(height: 20),
-                      const SectionTitle(
-                        title: 'طلباتي',
-                        subtitle: 'تابع حالة الطلبات والعروض',
+                      SectionTitle(
+                        title: t.myRequestsActionTitle,
+                        subtitle: t.customerRequestsSectionSubtitle,
                       ),
                       const SizedBox(height: 14),
                       _FilterBar(
@@ -185,11 +188,12 @@ class _FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final items = [
-      (_RequestsFilter.all, 'الكل', allCount),
-      (_RequestsFilter.active, 'نشطة', activeCount),
-      (_RequestsFilter.completed, 'مكتملة', completedCount),
-      (_RequestsFilter.cancelled, 'ملغاة', cancelledCount),
+      (_RequestsFilter.all, t.statAllLabel, allCount),
+      (_RequestsFilter.active, t.statActiveLabel, activeCount),
+      (_RequestsFilter.completed, t.statCompletedLabel, completedCount),
+      (_RequestsFilter.cancelled, t.statCancelledLabel, cancelledCount),
     ];
 
     return SizedBox(
@@ -234,21 +238,22 @@ class _EmptyFilterResult extends StatelessWidget {
     required this.onShowAll,
   });
 
-  String get _message {
+  String _message(AppLocalizations t) {
     switch (filter) {
       case _RequestsFilter.all:
-        return 'لا يوجد طلبات بعد';
+        return t.noRequestsYetTitle;
       case _RequestsFilter.active:
-        return 'لا توجد طلبات نشطة حالياً';
+        return t.noActiveRequestsMessage;
       case _RequestsFilter.completed:
-        return 'لا توجد طلبات مكتملة بعد';
+        return t.noCompletedRequestsMessage;
       case _RequestsFilter.cancelled:
-        return 'لا توجد طلبات ملغاة';
+        return t.noCancelledRequestsMessage;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -268,7 +273,7 @@ class _EmptyFilterResult extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            _message,
+            _message(t),
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 17,
@@ -279,7 +284,7 @@ class _EmptyFilterResult extends StatelessWidget {
             const SizedBox(height: 14),
             TextButton(
               onPressed: onShowAll,
-              child: const Text('عرض كل الطلبات'),
+              child: Text(t.showAllRequestsButton),
             ),
           ],
         ],
@@ -293,6 +298,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final canPop = Navigator.canPop(context);
 
     return Padding(
@@ -301,15 +307,15 @@ class _TopBar extends StatelessWidget {
         children: [
           if (canPop)
             IconButton(
-              tooltip: 'رجوع',
+              tooltip: t.backButtonTooltip,
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_rounded),
+              icon: Icon(DirectionalIcons.back(context)),
             )
           else
             const SizedBox(width: 48),
           Expanded(
             child: Text(
-              'طلباتي',
+              t.myRequestsActionTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -338,6 +344,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(18),
       radius: 28,
@@ -345,7 +352,7 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Expanded(
             child: _MiniStat(
-              title: 'الكل',
+              title: t.statAllLabel,
               value: '$total',
               icon: Icons.assignment_rounded,
             ),
@@ -353,7 +360,7 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: _MiniStat(
-              title: 'نشطة',
+              title: t.statActiveLabel,
               value: '$active',
               icon: Icons.timelapse_rounded,
             ),
@@ -361,7 +368,7 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: _MiniStat(
-              title: 'عروض',
+              title: t.statOffersLabel,
               value: '$offers',
               icon: Icons.local_offer_rounded,
             ),
@@ -386,7 +393,7 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
+      constraints: const BoxConstraints(minHeight: 100),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface.withValues(alpha: 0.75),
@@ -412,7 +419,8 @@ class _MiniStat extends StatelessWidget {
           Flexible(
             child: Text(
               title,
-              maxLines: 1,
+              maxLines: 2,
+              textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppColors.textSecondary,
@@ -437,6 +445,7 @@ class _RequestsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 120, 24, 110),
       children: [
@@ -459,7 +468,7 @@ class _RequestsErrorState extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'تعذّر تحميل الطلبات',
+                t.newRequestsLoadFailedTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -479,7 +488,7 @@ class _RequestsErrorState extends StatelessWidget {
               TextButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
+                label: Text(t.retryButton),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
                 ),
@@ -497,6 +506,7 @@ class _EmptyRequests extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 120, 24, 110),
       children: [
@@ -519,7 +529,7 @@ class _EmptyRequests extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'لا يوجد طلبات بعد',
+                t.noRequestsYetTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -528,7 +538,7 @@ class _EmptyRequests extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'عند إنشاء أول طلب صيانة سيظهر هنا ويمكنك متابعة العروض والحالة.',
+                t.noRequestsYetSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textSecondary,

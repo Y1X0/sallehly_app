@@ -623,11 +623,15 @@ mirroring due in that same file).
 - [x] 58. `lib/features/chat/screens/chats_screen.dart` — full migration incl. 2 real ICU plurals (active-chats count, unread-messages count); applied `DirectionalIcons.forwardIosStyle` at the §3 site; proactively fixed `chat_error_state_test.dart`'s missing delegates
 - [x] 59. `lib/features/customer/screens/customer_dashboard_screen.dart` — full migration; reused `appWordmark`/`landingHeroTitle`/`statCompletedLabel` (exact text matches from earlier files)
 - [x] 60. `lib/features/technician/screens/send_offer_screen.dart` — full migration incl. real ICU plural (free-offers-remaining count) and `formatJod` at 3 currency sites, replacing manual conditional-decimals formatting; reused `walletTopupActionTitle`/`optionalNoteLabel`
-- [ ] 61. `lib/features/auth/screens/forgot_password_screen.dart`
-- [ ] 62. `lib/features/technician/screens/technician_dashboard_screen.dart`
-- [ ] 63. `lib/features/customer/screens/customer_requests_screen.dart` (also §3 back-icon)
-- [ ] 64. `lib/features/customer/screens/create_request_screen.dart` (also §3 back-icon)
-- [ ] 65. `lib/features/admin/provider/admin_provider.dart`
+- [x] 61. `lib/features/auth/screens/forgot_password_screen.dart` — full migration, reuses most field/validation keys from #47/#48/#49; test already had `locale: ar` pinned from an earlier fix
+- [x] 62. `lib/features/technician/screens/technician_dashboard_screen.dart` — full migration incl. `formatJod`; proactively applied the `minHeight` fix (found on customer_dashboard_screen.dart during screenshot review) to `_StatCard` before it could overflow with English titles
+- [x] 63. `lib/features/customer/screens/customer_requests_screen.dart` — full migration; applied `DirectionalIcons.back` at the §3 site; proactively applied the same `minHeight`/`maxLines:2` overflow fix to `_MiniStat`; proactively fixed `customer_requests_filter_test.dart`'s missing Localizations delegates (2 sites) before it could break the same way as batch 10
+- [x] 64. `lib/features/customer/screens/create_request_screen.dart` — full migration; applied `DirectionalIcons.back` at the §3 site
+- [x] 65. `lib/features/admin/provider/admin_provider.dart` — data-layer, no BuildContext, 24 distinct fallback messages consumed by many admin screens (several already migrated leaving `admin.error!` deferred); deferred with one documented comment, no functional change
+
+**Screenshot review (user-requested checkpoint after #60)**: re-ran `l10n-screenshots.yml`, reviewed all 12 screens × 2 locales × 2 widths. Confirmed: no tofu anywhere (font-fallback fix holds, specifically re-verified the two sites that showed it before — `chat_room_screen`'s message hint, `customer_register_screen`'s consent text), RTL→LTR flip correct, Arabic side pixel-identical to before. Found and fixed 2 real English-only layout bugs on `customer_dashboard_screen.dart` (commit `bcc5eef`): `_HeroCard` overflowed vertically (fixed `height` + flex `Spacer()` sized for Arabic's shorter text), `_ActionCard`/`_StatCard` truncated English titles mid-word (fixed width + `maxLines:1`). Both fixed via `minHeight` (was `height`) + wrapping instead of truncating. Noted one unrelated pre-existing issue (not touched): `ConsentCheckbox`'s raw `RichText` doesn't inherit `ThemeData.fontFamilyFallback` via `DefaultTextStyle` the way `Text` does, so it renders as tofu-like blocks in this test harness in *both* locales — confirmed via the Arabic screenshot too, so not a regression, just a harness limitation real devices don't have.
+
+**Established defensive pattern going forward**: fixed-`height` `Container` + `maxLines: 1` on Arabic-tuned stat/action cards is a recurring source of English-only overflow — now checking for and fixing this pattern (fixed height → `minHeight`, `maxLines: 1` → `2`) proactively in every file as it's migrated, not just the one screenshot-caught instance.
 - [ ] 66. `lib/features/support/screens/support_screen.dart`
 - [ ] 67. `lib/features/auth/screens/technician_register_screen.dart`
 - [ ] 68. `lib/providers/notification_provider.dart`

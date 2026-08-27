@@ -1466,5 +1466,192 @@
   "insufficientBalanceButton": "رصيد غير كافٍ",
   "@insufficientBalanceButton": {
     "description": "نص الزر المعطَّل عندما يكون الرصيد غير كافٍ لإرسال العرض"
+  },
+  "sendCodeFailedMessage": "تعذر إرسال الكود، حاول مرة أخرى",
+  "@sendCodeFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال كود التحقق لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "resetPasswordFailedMessage": "تعذر تغيير كلمة السر، حاول مرة أخرى",
+  "@resetPasswordFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تغيير كلمة السر لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "forgotPasswordTitle": "استعادة كلمة المرور",
+  "@forgotPasswordTitle": {
+    "description": "العنوان الرئيسي بشاشة استعادة كلمة المرور"
+  },
+  "forgotPasswordEmailStepSubtitle": "أدخل بريدك الإلكتروني وسنرسل لك كود التحقق",
+  "@forgotPasswordEmailStepSubtitle": {
+    "description": "النص الفرعي بخطوة إدخال البريد الإلكتروني لاستعادة كلمة المرور"
+  },
+  "forgotPasswordResetStepSubtitle": "أدخل الكود الذي وصلك وكلمة المرور الجديدة",
+  "@forgotPasswordResetStepSubtitle": {
+    "description": "النص الفرعي بخطوة إدخال الكود وكلمة المرور الجديدة"
+  },
+  "backToLoginButton": "العودة لتسجيل الدخول",
+  "@backToLoginButton": {
+    "description": "زر العودة لشاشة تسجيل الدخول"
+  },
+  "sendCodeButton": "إرسال كود التحقق",
+  "@sendCodeButton": {
+    "description": "زر إرسال كود التحقق للبريد الإلكتروني"
+  },
+  "otpFieldLabel": "كود التحقق",
+  "@otpFieldLabel": {
+    "description": "تسمية حقل إدخال كود التحقق"
+  },
+  "otpLengthValidation": "أدخل الكود المكوّن من 6 أرقام",
+  "@otpLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كود تحقق أقصر أو أطول من 6 أرقام"
+  },
+  "resendCodeLink": "لم يصلني الكود؟ إعادة الإرسال",
+  "@resendCodeLink": {
+    "description": "رابط إعادة إرسال كود التحقق"
+  },
+  "technicianFallbackFullName": "فني صلّحلي",
+  "@technicianFallbackFullName": {
+    "description": "اسم عرض احتياطي كامل للفني بلوحته الرئيسية عندما لا يتوفر اسمه"
+  },
+  "newRequestsStatLabel": "طلبات جديدة",
+  "@newRequestsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الفني: عدد الطلبات الجديدة المتاحة"
+  },
+  "currentBalanceStatLabel": "الرصيد الحالي",
+  "@currentBalanceStatLabel": {
+    "description": "تسمية إحصائية بلوحة الفني: الرصيد الحالي"
+  },
+  "technicianShortcutsHeading": "اختصارات الفني",
+  "@technicianShortcutsHeading": {
+    "description": "عنوان قسم شبكة اختصارات لوحة الفني"
+  },
+  "technicianHeroTitle": "طلبات جديدة\nقريبة منك",
+  "@technicianHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي ببطاقة هيرو لوحة الفني"
+  },
+  "technicianHeroSubtitle": "قدّم عروضك، تابع طلباتك، وراقب رصيدك من مكان واحد.",
+  "@technicianHeroSubtitle": {
+    "description": "النص الفرعي التسويقي ببطاقة هيرو لوحة الفني"
+  },
+  "balanceLabelWithAmount": "الرصيد: {amount}",
+  "@balanceLabelWithAmount": {
+    "description": "تسمية الرصيد مع القيمة ببطاقة هيرو لوحة الفني (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "viewNewRequestsButton": "عرض الطلبات الجديدة",
+  "@viewNewRequestsButton": {
+    "description": "زر الانتقال لقائمة الطلبات الجديدة بلوحة الفني"
+  },
+  "manageWalletButton": "إدارة المحفظة",
+  "@manageWalletButton": {
+    "description": "زر الانتقال لشاشة المحفظة بلوحة الفني"
+  },
+  "reviewsLabel": "التقييمات",
+  "@reviewsLabel": {
+    "description": "تسمية اختصار الانتقال لشاشة تقييمات الفني"
+  },
+  "customerRequestsSectionSubtitle": "تابع حالة الطلبات والعروض",
+  "@customerRequestsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم طلبات العميل"
+  },
+  "statCancelledLabel": "ملغاة",
+  "@statCancelledLabel": {
+    "description": "تسمية إحصائية عامة: ملغاة"
+  },
+  "noRequestsYetTitle": "لا يوجد طلبات بعد",
+  "@noRequestsYetTitle": {
+    "description": "عنوان الحالة الفارغة الكاملة (بلا أي طلب إطلاقاً) وحالة فلتر \"الكل\" الفارغة"
+  },
+  "noActiveRequestsMessage": "لا توجد طلبات نشطة حالياً",
+  "@noActiveRequestsMessage": {
+    "description": "عنوان حالة فلتر \"نشطة\" الفارغة"
+  },
+  "noCompletedRequestsMessage": "لا توجد طلبات مكتملة بعد",
+  "@noCompletedRequestsMessage": {
+    "description": "عنوان حالة فلتر \"مكتملة\" الفارغة"
+  },
+  "noCancelledRequestsMessage": "لا توجد طلبات ملغاة",
+  "@noCancelledRequestsMessage": {
+    "description": "عنوان حالة فلتر \"ملغاة\" الفارغة"
+  },
+  "showAllRequestsButton": "عرض كل الطلبات",
+  "@showAllRequestsButton": {
+    "description": "زر إعادة ضبط الفلتر لعرض كل الطلبات"
+  },
+  "noRequestsYetSubtitle": "عند إنشاء أول طلب صيانة سيظهر هنا ويمكنك متابعة العروض والحالة.",
+  "@noRequestsYetSubtitle": {
+    "description": "نص فرعي بالحالة الفارغة الكاملة (بلا أي طلب إطلاقاً)"
+  },
+  "requestCreatedSuccessMessage": "تم إنشاء الطلب بنجاح",
+  "@requestCreatedSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إنشاء طلب صيانة جديد"
+  },
+  "requestCreateFailedMessage": "تعذر إنشاء الطلب",
+  "@requestCreateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء الطلب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "requestDetailsSectionTitle": "تفاصيل الطلب",
+  "@requestDetailsSectionTitle": {
+    "description": "عنوان قسم تفاصيل الطلب بشاشة إنشاء طلب جديد"
+  },
+  "requestDetailsSectionSubtitle": "اختر الخدمة والمنطقة واكتب وصف واضح للمشكلة",
+  "@requestDetailsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم تفاصيل الطلب"
+  },
+  "serviceDropdownLabel": "الخدمة / المهنة",
+  "@serviceDropdownLabel": {
+    "description": "تسمية قائمة اختيار الخدمة/المهنة المنسدلة"
+  },
+  "preferredTimeFieldLabel": "الوقت المفضل",
+  "@preferredTimeFieldLabel": {
+    "description": "تسمية حقل الوقت المفضل للتنفيذ"
+  },
+  "preferredTimeFieldHint": "مثال: اليوم مساءً أو غداً صباحاً",
+  "@preferredTimeFieldHint": {
+    "description": "نص تلميحي داخل حقل الوقت المفضل"
+  },
+  "descriptionFieldHint": "اكتب تفاصيل المشكلة حتى يستطيع الفني تقدير السعر والوقت بشكل أفضل",
+  "@descriptionFieldHint": {
+    "description": "نص تلميحي داخل حقل وصف المشكلة"
+  },
+  "descriptionMinLengthValidation": "الوصف يجب أن لا يقل عن 10 أحرف",
+  "@descriptionMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال وصف مشكلة أقصر من 10 أحرف"
+  },
+  "problemImageSectionTitle": "صورة المشكلة",
+  "@problemImageSectionTitle": {
+    "description": "عنوان قسم صورة المشكلة الاختيارية"
+  },
+  "problemImageSectionSubtitle": "اختياري، لكنها تساعد الفنيين على فهم المشكلة",
+  "@problemImageSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم صورة المشكلة"
+  },
+  "publishRequestButton": "نشر الطلب واستقبال العروض",
+  "@publishRequestButton": {
+    "description": "زر نشر طلب الصيانة الجديد"
+  },
+  "newMaintenanceRequestTitle": "طلب صيانة جديد",
+  "@newMaintenanceRequestTitle": {
+    "description": "عنوان شاشة إنشاء طلب صيانة جديد"
+  },
+  "createRequestHeroTitle": "احكِ لنا المشكلة\nونجيبلك الفني المناسب",
+  "@createRequestHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي ببطاقة هيرو شاشة إنشاء الطلب"
+  },
+  "createRequestHeroSubtitle": "بعد نشر الطلب، سيظهر للفنيين القريبين منك وستبدأ باستقبال العروض.",
+  "@createRequestHeroSubtitle": {
+    "description": "النص الفرعي التسويقي ببطاقة هيرو شاشة إنشاء الطلب"
+  },
+  "addProblemPhotoTitle": "إضافة صورة للمشكلة",
+  "@addProblemPhotoTitle": {
+    "description": "عنوان بطاقة إضافة صورة المشكلة قبل اختيار أي صورة"
+  },
+  "addProblemPhotoSubtitle": "ارفع صورة واضحة إن أمكن",
+  "@addProblemPhotoSubtitle": {
+    "description": "نص فرعي ببطاقة إضافة صورة المشكلة"
+  },
+  "safeChatNoteMessage": "لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.",
+  "@safeChatNoteMessage": {
+    "description": "ملاحظة طمأنة أسفل نموذج إنشاء الطلب حول أمان التواصل"
   }
 }

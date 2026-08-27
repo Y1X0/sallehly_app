@@ -5,6 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../notifications/widgets/notification_bell.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -35,6 +37,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
     final provider = context.watch<RequestsProvider>();
     final user = auth.user;
@@ -56,7 +59,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
           padding: const EdgeInsets.fromLTRB(20, 18, 20, 110),
           children: [
             _HeroCard(
-              name: user?.name ?? 'فني صلّحلي',
+              name: user?.name ?? t.technicianFallbackFullName,
               balance: user?.balance ?? 0,
               onOpenRequests: () {
                 Navigator.push(
@@ -97,7 +100,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
                 children: [
                   Expanded(
                     child: _StatCard(
-                      title: 'طلبات جديدة',
+                      title: t.newRequestsStatLabel,
                       value: '$newRequests',
                       icon: Icons.campaign_rounded,
                     ),
@@ -105,7 +108,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _StatCard(
-                      title: 'طلباتي',
+                      title: t.myRequestsActionTitle,
                       value: '$myOrders',
                       icon: Icons.assignment_turned_in_rounded,
                     ),
@@ -114,14 +117,14 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
               ),
             const SizedBox(height: 12),
             _StatCard(
-              title: 'الرصيد الحالي',
-              value: '${(user?.balance ?? 0).toStringAsFixed(2)} د.أ',
+              title: t.currentBalanceStatLabel,
+              value: formatJod(context, user?.balance ?? 0),
               icon: Icons.account_balance_wallet_rounded,
               wide: true,
             ),
             const SizedBox(height: 22),
             Text(
-              'اختصارات الفني',
+              t.technicianShortcutsHeading,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 20,
@@ -167,6 +170,7 @@ class _DashboardErrorNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -183,7 +187,7 @@ class _DashboardErrorNotice extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'تعذّر تحميل بياناتك',
+                  t.dashboardLoadFailedTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -202,7 +206,7 @@ class _DashboardErrorNotice extends StatelessWidget {
           ),
           TextButton(
             onPressed: onRetry,
-            child: const Text('إعادة المحاولة'),
+            child: Text(t.retryButton),
           ),
         ],
       ),
@@ -223,6 +227,7 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -294,9 +299,9 @@ class _HeroCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 26),
-              const Text(
-                'طلبات جديدة\nقريبة منك',
-                style: TextStyle(
+              Text(
+                t.technicianHeroTitle,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 30,
                   height: 1.25,
@@ -305,7 +310,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'قدّم عروضك، تابع طلباتك، وراقب رصيدك من مكان واحد.',
+                t.technicianHeroSubtitle,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.86),
                   fontSize: 15,
@@ -323,7 +328,7 @@ class _HeroCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Text(
-                  'الرصيد: ${balance.toStringAsFixed(2)} د.أ',
+                  t.balanceLabelWithAmount(formatJod(context, balance)),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -349,6 +354,7 @@ class _MainActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -361,9 +367,9 @@ class _MainActionCard extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: onNewRequests,
             icon: const Icon(Icons.search_rounded),
-            label: const Text(
-              'عرض الطلبات الجديدة',
-              style: TextStyle(fontWeight: FontWeight.w900),
+            label: Text(
+              t.viewNewRequestsButton,
+              style: const TextStyle(fontWeight: FontWeight.w900),
             ),
           ),
           const SizedBox(height: 12),
@@ -378,7 +384,7 @@ class _MainActionCard extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.account_balance_wallet_outlined),
-            label: const Text('إدارة المحفظة'),
+            label: Text(t.manageWalletButton),
           ),
         ],
       ),
@@ -402,7 +408,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: wide ? 96 : 120,
+      constraints: BoxConstraints(minHeight: wide ? 96 : 120),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -466,16 +472,17 @@ class _ShortcutGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final items = [
-      ['طلباتي', Icons.assignment_rounded, onOrders],
-      ['المحفظة', Icons.account_balance_wallet_rounded, onWallet],
-      ['التقييمات', Icons.star_rounded, () {
+      [t.myRequestsActionTitle, Icons.assignment_rounded, onOrders],
+      [t.walletScreenTitle, Icons.account_balance_wallet_rounded, onWallet],
+      [t.reviewsLabel, Icons.star_rounded, () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const MyReviewsScreen()),
         );
       }],
-      ['الدعم', Icons.support_agent_rounded, () {
+      [t.navSupport, Icons.support_agent_rounded, () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const SupportScreen()),
