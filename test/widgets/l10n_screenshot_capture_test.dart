@@ -79,6 +79,24 @@ Future<void> _captureScreenshot(
 void main() {
   setUpAll(_loadRealFonts);
 
+  // ChatRoomScreen يبني AudioRecorder() (باقة record) بحقل State، الذي يبدأ
+  // نداء قناة منصّة حقيقياً (غير مُنتظَر/fire-and-forget) عند الإنشاء. تحت
+  // fake-async فحص الدخان العادي هذا لا يحدث أبداً فعلياً (لا Timer/event loop
+  // حقيقي يُشغِّله)، فيمرّ بصمت — لكن tester.runAsync() أدناه (لازم لترميز
+  // PNG فعلياً) يُشغِّل event loop حقيقياً للحظة، فيُتاح لهذا النداء المعلَّق
+  // فرصة التنفيذ فعلياً، فيفشل بـMissingPluginException (لا مكوّن صوت حقيقي
+  // بهذه البيئة) كخطأ zone غير مُلتقَط لا tester.takeException() يلتقطه ولا
+  // try/catch حول كود الالتقاط نفسه (النداء الفاشل ليس تابعاً له). الإصلاح
+  // الصحيح: محاكاة القناة نفسها بردّ غير ضارّ، لا مطاردة توقيت الخطأ.
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized()
+        .defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('com.llfbandit.record/messages'),
+      (MethodCall call) async => null,
+    );
+  });
+
   final outDir = Platform.environment['SCREENSHOT_OUT_DIR'] ?? 'build/l10n_screenshots';
 
   for (final screenCase in screenCases) {
