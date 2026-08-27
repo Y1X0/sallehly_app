@@ -1,8 +1,15 @@
 # English Localization — Progress Tracker
 
-Status: **PHASE 1 (Infrastructure) complete — awaiting go-ahead for Phase 2.**
-Do not check off any item in §2 below until that specific file has actually
-been migrated, tested with `flutter analyze`, and reviewed.
+Status: **DONE. Phase 1 (infrastructure) and Phase 2 (77-file ARB migration)
+are both complete.** Pull request:
+https://github.com/Y1X0/sallehly_app/pull/2
+
+Phase 3 (the `RequestStatus` enum + wire-value localization) and the 16
+inline error-banner widgets' consolidation are explicitly **not** part of
+this work — see §4 and §3's "Decision (post-assessment)" respectively for
+why, and the PR description for the same summary. Nothing in this file
+below is a pending TODO for this PR; it's the historical record of how
+Phase 1/2 were done, kept for reference and for whoever picks up Phase 3.
 
 ## Pre-existing bugs found incidentally (not caused by this work, not fixed here)
 
@@ -545,18 +552,20 @@ Jordan's 12 governorates and ~153 areas are proper nouns. Standard practice is a
 - [x] `request_model.dart`: added the wire-value comment (§4/decisions above), no logic changed
 - [x] `api_exception.dart`: added the one canonical TODO comment (§5/decisions above), no logic changed
 - [x] `lib/core/ui/directional_icons.dart` created per the chevron-mirroring decision — **not yet wired into any screen**, deferred to Phase 2 (see decisions section above)
-- [ ] CI green (`flutter analyze` + `flutter test` + build) — pending, this repo has no local Flutter SDK so verification happens via GitHub Actions same as every prior change this session
+- [x] CI green (`flutter analyze` + `flutter test` + build) — verified via GitHub Actions throughout, no local Flutter SDK in this environment
 
-Phase 2 will then proceed through the 77-file table below, smallest first, ≤3 files per turn, each followed by `flutter analyze` and a checkbox tick here. **Not started.**
+Phase 2 proceeded through the 77-file table below, smallest first, in
+batches of 5, each followed by `flutter analyze` via CI and a checkbox tick
+here. **Complete — see §9.**
 
 ---
 
-## 9. Phase 2 progress checklist
+## 9. Phase 2 progress checklist — DONE, all 77 files migrated
 
-Started. Working continuously in batches of 5 files (smallest → largest, per
-§2's table), `flutter analyze` clean after each batch via CI, no approval
-gate between batches per the user's instruction. Checked off here as each
-file's strings are fully migrated to ARB keys (plus any §3 RTL fix / nav-icon
+Worked continuously in batches of 5 files (smallest → largest, per §2's
+table), `flutter analyze` clean after each batch via CI, no approval gate
+between batches per the user's instruction. Checked off here as each file's
+strings were fully migrated to ARB keys (plus any §3 RTL fix / nav-icon
 mirroring due in that same file).
 
 - [x] 1. `lib/config/app_config.dart` — `appName` is unused dead code (verified, zero call sites); left as a plain constant with a note, not converted
@@ -653,7 +662,12 @@ mirroring due in that same file).
 1. `settings_screen.dart`'s `_SectionCard` title used hardcoded `Alignment.centerRight` — correct-looking in Arabic (right = RTL reading start) but wrong in English, where section titles ("Account Information", "Account & Privacy", etc.) were pinned to the right instead of starting at the natural LTR reading position. Fixed to `AlignmentDirectional.centerStart` (right in RTL, left in LTR) — another §3-class hardcoded-direction bug, exposed only once English text was actually rendered and reviewed.
 2. `customer_dashboard_screen.dart`'s `_ActionCard` title (`maxLines: 2`) still truncated mid-word at the narrowest tested width (320dp) for English strings — "New Request" rendered as "New Req…", "My Requests" as "My Re/quests" — while the shorter Arabic originals ("إنشاء طلب", "طلباتي") fit cleanly. Bumped title to `maxLines: 3`; the container's `minHeight`-only constraint (from the earlier per-file fix) lets it grow safely. This is exactly the "English strings don't overflow where the shorter Arabic fit" check the review was for.
 
-Both fixed locally: awaiting a final CI + screenshot re-run to confirm.
+Both fixed (commit `2e2847d`) and confirmed via a final CI + screenshot
+re-run: `android-build.yml` green, and the corrected screenshots show
+`settings_screen.dart`'s section titles starting at the left in English and
+`customer_dashboard_screen.dart`'s action-card titles wrapping in full
+instead of truncating mid-word at 320dp. **Phase 2 closed out here — see
+pull request https://github.com/Y1X0/sallehly_app/pull/2.**
 
 ---
 
