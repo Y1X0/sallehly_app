@@ -13,6 +13,7 @@ import 'package:sallehly_app/core/storage/app_storage.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/auth/screens/forgot_password_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
 
 class MockAuthApi extends Mock implements AuthApi {}
@@ -49,7 +50,12 @@ void main() {
 
   Widget wrap() => ChangeNotifierProvider.value(
         value: authProvider,
-        child: const MaterialApp(home: ForgotPasswordScreen()),
+        child: MaterialApp(
+          locale: const Locale('ar'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const ForgotPasswordScreen(),
+        ),
       );
 
   testWidgets('بريد فارغ: خطأ تحقق، بلا نداء شبكة', (tester) async {

@@ -62,6 +62,7 @@ void main() {
           ChangeNotifierProvider<LocaleProvider>.value(value: localeProvider),
         ],
         child: MaterialApp(
+          locale: const Locale('ar'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: const SettingsScreen(),
