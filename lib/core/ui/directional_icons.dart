@@ -23,9 +23,12 @@ class DirectionalIcons {
   static IconData back(BuildContext context) =>
       isRtl(context) ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded;
 
-  /// زر "رجوع" — طراز iOS المدوّر الحديث (arrow_..._ios_new_rounded).
+  /// زر "رجوع" — طراز iOS. ملاحظة: لا يوجد "arrow_forward_ios_new" فعلياً
+  /// بمكتبة Material Icons (فقط arrow_back_ios_new)، لذا الاتجاه المعاكس
+  /// يستخدم arrow_forward_ios_rounded العادي (نفس الطراز البصري المستخدم
+  /// فعلياً بباقي الشاشات لسهم "الانتقال للتفاصيل"، راجع forwardIosStyle أدناه).
   static IconData backIosStyle(BuildContext context) => isRtl(context)
-      ? Icons.arrow_forward_ios_new_rounded
+      ? Icons.arrow_forward_ios_rounded
       : Icons.arrow_back_ios_new_rounded;
 
   /// سهم "الانتقال للتفاصيل" ضمن صف قائمة (بطاقة طلب، عنصر إعدادات، ...) —

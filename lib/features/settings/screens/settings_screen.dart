@@ -709,7 +709,7 @@ class _LanguageTile extends StatelessWidget {
           ),
           Switch(
             value: isEnglish,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
             onChanged: (value) => context.read<LocaleProvider>().setLocale(
                   value ? LocaleProvider.englishLocale : LocaleProvider.fallbackLocale,
                 ),
