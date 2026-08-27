@@ -48,7 +48,11 @@ jobs:
             find /usr/share/fonts -iname "*noto*" | sort
             exit 1
           fi
-          PATHS="$LATIN:$ARABIC"
+          # عربي أولاً: كل النص المعروض اليوم عربي تقريباً (لا شيء رُحِّل بعد)،
+          # وFontLoader لا يبدو يطبّق fallback عبر عدّة خطوط بنفس العائلة حسب
+          # تغطية الحرف — أول خط مسجَّل هو ما يُستخدَم فعلياً (تأكَّد هذا
+          # تجريبياً: بترتيب لاتيني-أولاً، ظهر كل النص العربي كمربّعات tofu).
+          PATHS="$ARABIC:$LATIN"
           if [ -n "$LATIN_BOLD" ]; then PATHS="$PATHS:$LATIN_BOLD"; fi
           echo "REAL_FONT_PATHS=$PATHS" >> "$GITHUB_ENV"
           echo "Using fonts: $PATHS"
