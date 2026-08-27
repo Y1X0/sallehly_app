@@ -649,6 +649,12 @@ mirroring due in that same file).
 
 **CI bug found and fixed while migrating this batch**: two new ARB keys introduced during batch 15 collided with pre-existing keys of the same name — `offersSectionTitle` (a new `{count}`-placeholder variant in `admin_user_detail_screen.dart` shadowed the existing plain-string key used by `offers_screen.dart`, breaking analyze at the older call site) and `userFallbackName` (a duplicate definition with different text silently overrode the version already used by two earlier admin screens, per JSON last-key-wins). Fixed by renaming the new key to `userOffersSectionTitle` and removing the duplicate `userFallbackName` entry (commit `491f53b`). Root cause: the established "grep before creating a new key" check was only being applied to check for *text* reuse, not to check whether the *key name itself* already existed under different text. Added a second check this batch — before adding any new key, grep the exact key name against both ARB files, not just its Arabic text — and used it for the rest of batch 16 (caught one more near-miss: `currentPasswordFieldLabel` in `settings_screen.dart` already existed with identical text, reused instead of duplicated).
 
+**Final mandated screenshot review (after all 77 files), two more bugs found and fixed**:
+1. `settings_screen.dart`'s `_SectionCard` title used hardcoded `Alignment.centerRight` — correct-looking in Arabic (right = RTL reading start) but wrong in English, where section titles ("Account Information", "Account & Privacy", etc.) were pinned to the right instead of starting at the natural LTR reading position. Fixed to `AlignmentDirectional.centerStart` (right in RTL, left in LTR) — another §3-class hardcoded-direction bug, exposed only once English text was actually rendered and reviewed.
+2. `customer_dashboard_screen.dart`'s `_ActionCard` title (`maxLines: 2`) still truncated mid-word at the narrowest tested width (320dp) for English strings — "New Request" rendered as "New Req…", "My Requests" as "My Re/quests" — while the shorter Arabic originals ("إنشاء طلب", "طلباتي") fit cleanly. Bumped title to `maxLines: 3`; the container's `minHeight`-only constraint (from the earlier per-file fix) lets it grow safely. This is exactly the "English strings don't overflow where the shorter Arabic fit" check the review was for.
+
+Both fixed locally: awaiting a final CI + screenshot re-run to confirm.
+
 ---
 
 ## 7. Visual regression net — re-run after every Phase 2 batch

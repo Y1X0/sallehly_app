@@ -424,7 +424,7 @@ class _ActionCardState extends State<_ActionCard> {
                   children: [
                     Text(
                       widget.title,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textPrimary,
