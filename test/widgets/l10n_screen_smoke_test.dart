@@ -33,6 +33,7 @@ import 'package:sallehly_app/features/auth/screens/customer_register_screen.dart
 import 'package:sallehly_app/features/auth/screens/login_screen.dart';
 import 'package:sallehly_app/features/auth/screens/technician_register_screen.dart';
 import 'package:sallehly_app/features/chat/provider/chat_provider.dart';
+import 'package:sallehly_app/features/chat/screens/chat_room_screen.dart';
 import 'package:sallehly_app/features/chat/screens/chats_screen.dart';
 import 'package:sallehly_app/features/customer/screens/customer_dashboard_screen.dart';
 import 'package:sallehly_app/features/customer/screens/customer_request_details_screen.dart';
@@ -155,6 +156,10 @@ final List<_ScreenCase> _cases = [
     () => TechnicianRequestDetailsScreen(request: _sampleRequest, canSendOffer: true),
   ),
   _ScreenCase('الدردشات (ChatsScreen)', () => const ChatsScreen()),
+  _ScreenCase(
+    'غرفة المحادثة (ChatRoomScreen)',
+    () => ChatRoomScreen(request: _sampleRequest),
+  ),
   _ScreenCase('تعديل الملف الشخصي (EditProfileScreen)', () => const EditProfileScreen()),
   _ScreenCase('الإعدادات (SettingsScreen)', () => const SettingsScreen()),
 ];
@@ -169,20 +174,15 @@ final List<_ScreenCase> _cases = [
 //   "أدمن" محدَّد؛ غير مطلوبة ضمن القائمة المطلوبة صراحة بهذا الفحص
 //   (login/register/dashboards/requests/chat/profile/settings)، فلم تُضَف
 //   لتفادي تضخيم الجدول بما يتجاوز النطاق المطلوب.
-// - ChatRoomScreen: أُدرِجت أولاً، وكشف تشغيلها فعلياً بـCI عن باگ حقيقي
-//   موجود مسبقاً بالكود الإنتاجي (غير متعلّق بالترجمة إطلاقاً): dispose()
-//   بـchat_room_screen.dart:71 يستدعي context.read<SocketProvider>()/
-//   <NotificationProvider>() مباشرةً. عندما يُستبدَل شجرة الودجت بأكملها دفعة
-//   واحدة (هنا: بين اختبارين متتاليين بالجدول)، عنصر ChatRoomScreen يكون قد
-//   أصبح "معطَّلاً" فعلياً قبل استدعاء dispose() عليه، فيرمي فلَتّر:
-//   "Looking up a deactivated widget's ancestor is unsafe." — هذا خطأ حقيقي
-//   بالكود (يُفترض تخزين مرجع الـProvider بـdidChangeDependencies بدل قراءته
-//   من جديد بـdispose())، وليس خطأً بهذا الفحص أو بمحاكاته. أُبلِغ عنه
-//   للمستخدم بدل إصلاحه صامتاً هنا (خارج نطاق "البنية التحتية للترجمة")،
-//   وأُزيلت الشاشة من الجدول لتفادي محاكاة نمط ملاحة (استبدال شجرة كاملة
-//   دفعة واحدة) لا يحدث فعلياً بالتطبيق نفسه (المستخدم الحقيقي يغادر
-//   الشاشة عبر Navigator.pop، مساراً مختلفاً قد لا يُصادف نفس الحالة —
-//   لكن هذا لا يعني أن الباگ غير حقيقي).
+//
+// [FIX-CHAT-DISPOSE-01] ChatRoomScreen كانت مستبعَدة سابقاً: dispose()
+// بـchat_room_screen.dart كان يستدعي context.read<SocketProvider>()/
+// <NotificationProvider>() مباشرةً، فيرمي "Looking up a deactivated widget's
+// ancestor is unsafe." عندما يُستبدَل شجرة الودجت بأكملها دفعة واحدة (هنا:
+// بين اختبارين متتاليين بالجدول). أُصلِح ذلك (مرجعا Provider يُخزَّنان بحقلين
+// بـinitState ويُستخدَمان بـdispose بلا أي قراءة من context عند التفكيك — نفس
+// نمط SupportChatScreen/AdminSupportChatScreen أصلاً بهذا المشروع)، فلم تعد
+// الشاشة تحتاج استبعاداً — أُعيدت للجدول أعلاه.
 
 const List<Locale> _locales = [Locale('ar'), Locale('en')];
 
