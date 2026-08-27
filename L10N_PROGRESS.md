@@ -368,60 +368,120 @@ by source (not limited to the 4 the screenshots happened to catch):
     `Text(message)`), not a refactor of the duplication itself (that's a
     separate, unrelated cleanup this doc isn't proposing).
 
-**Proposed fix (not implemented — for the user to schedule before or during
-Phase 2):** a single shared widget, e.g. `BidiText` in
-`lib/core/widgets/bidi_text.dart`, that picks `textDirection` from the
-*content* instead of the ambient `Directionality`:
+  **Would a shared error widget be small or large? Checked both patterns —
+  they're not the same size of change:**
+  - The 18-file `showError` SnackBar pattern is **small**. It's already
+    byte-for-byte uniform (`ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(backgroundColor: AppColors.danger, content: Text(message)))`)
+    and there's an existing precedent to mirror exactly:
+    `showSuccessSnackBar(BuildContext, String)` already lives in
+    `core/widgets/success_feedback.dart` as a top-level function, not a
+    per-widget method. A `showErrorSnackBar` twin plus deleting the 18 local
+    `showError` methods in favor of it is mechanical, low-risk, and doesn't
+    require any per-site judgment calls.
+  - The 16-file `_XxxErrorState`/`_XxxNotice` inline-banner pattern is
+    **larger**. Unlike the SnackBar helper, these are NOT byte-identical:
+    title copy differs per screen ("تعذّر تحميل بياناتك" and others), some
+    include a retry button (`onRetry: VoidCallback`) and some don't, and
+    they're inline `StatelessWidget`s embedded in each screen's layout
+    rather than an ephemeral overlay — so consolidating them means actually
+    designing one parameterized widget (title, message, optional retry) and
+    verifying each of the 16 sites still reads correctly afterward, not
+    just a search-and-replace. Real work, not large in an absolute sense,
+    but a different category of change than the SnackBar half.
+  - Not being done now, per your instruction — this is only the size
+    assessment for you to decide on later.
+
+**Implemented, tested, and CI-verified (`BidiText`, `lib/core/widgets/bidi_text.dart`
++ `test/widgets/bidi_text_test.dart`) — not yet applied to any Category B call
+site. Landed as its own commit ahead of Phase 2, per the user's request.**
+
+`BidiText` wraps `Text` and derives `textDirection` from
+`Bidi.estimateDirectionOfText(content)` — the whole-string heuristic, not
+`detectRtlDirectionality` (first-strong-character only) originally sketched
+above. This was a deliberate, validated choice: a throwaway 15-case
+comparison test (real Arabic descriptions, city-area composites, digit/
+phone/punctuation/Latin-brand-leading Arabic, genuine English, mixed
+content, empty/whitespace) showed both heuristics agree on every realistic
+case here — digits and punctuation are *weak/neutral* directionality types
+per the Unicode Bidi Algorithm, so `detectRtlDirectionality` already skips
+them to find the first true script character. The real reason to prefer
+`estimateDirectionOfText` is its three-way result: `UNKNOWN` for
+directionally-neutral content (empty, whitespace-only, punctuation-only),
+which `BidiText` uses as a signal to fall back to the ambient
+`Directionality` instead of forcing a direction onto content that has none.
 
 ```dart
-import 'package:intl/intl.dart' as intl;
-import 'package:flutter/material.dart';
-
 class BidiText extends StatelessWidget {
-  final String text;
+  final String? text;
   final TextStyle? style;
   final TextAlign? textAlign;
   final int? maxLines;
   final TextOverflow? overflow;
+  final bool? softWrap;
 
-  const BidiText(
-    this.text, {
-    super.key,
-    this.style,
-    this.textAlign,
-    this.maxLines,
-    this.overflow,
-  });
+  const BidiText(this.text, {super.key, this.style, this.textAlign,
+      this.maxLines, this.overflow, this.softWrap});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      textDirection: intl.Bidi.detectRtlDirectionality(text)
-          ? TextDirection.rtl
-          : TextDirection.ltr,
-      style: style,
-      textAlign: textAlign,
-      maxLines: maxLines,
-      overflow: overflow,
-    );
+    final ambient = Directionality.of(context);
+    final content = text ?? '';
+    final direction = switch (intl.Bidi.estimateDirectionOfText(content)) {
+      intl.TextDirection.RTL => TextDirection.rtl,
+      intl.TextDirection.LTR => TextDirection.ltr,
+      _ => ambient, // UNKNOWN — no strong-direction content, keep ambient
+    };
+    // .start/.end resolve against AMBIENT direction, not detected content
+    // direction, so alignment never shifts as a side effect of content-based
+    // direction detection (see settings_screen.dart's _InfoTile below).
+    var resolvedAlign = textAlign;
+    if (textAlign == TextAlign.start) {
+      resolvedAlign = ambient == TextDirection.rtl ? TextAlign.right : TextAlign.left;
+    } else if (textAlign == TextAlign.end) {
+      resolvedAlign = ambient == TextDirection.rtl ? TextAlign.left : TextAlign.right;
+    }
+    return Text(content, textDirection: direction, style: style,
+        textAlign: resolvedAlign, maxLines: maxLines, overflow: overflow,
+        softWrap: softWrap);
   }
 }
 ```
 
-`package:intl` is already a dependency (`pubspec.yaml`, added in Phase 1) —
-no new dependency needed. `Bidi.detectRtlDirectionality` checks the first
-strong-directionality character, which is enough for the punctuation-jump
-case seen here; `Bidi.estimateDirectionOfText` (whole-string heuristic) is
-the alternative if genuinely mixed-script content — an English brand name
-inside an otherwise-Arabic review comment, say — turns out to need better
-handling than first-character detection once this is actually tried against
-real user-generated content. Either way this is a drop-in replacement for
-`Text(...)` at each site listed above — same parameters, so applying it is
-a mechanical per-file change, not a redesign. Where a call site also needs
-`textAlign`, it should track the SAME detected direction (start-align for
-the detected direction, not a hardcoded `TextAlign.right`), or the text will
-correctly re-orient but sit oddly aligned within its container.
+Two things the original sketch above missed, both required by real call
+sites and both covered by tests:
+
+- **Never throws, never moves the parent.** `Text.textDirection` is a
+  leaf-level paragraph-shaping parameter only — it cannot propagate to an
+  ancestor `Align`/`Column`. A chat bubble's side (`chat_bubble.dart`,
+  `Align(alignment: isMe ? .centerLeft : .centerRight)`) stays exactly where
+  the sender puts it, even when an Arabic-UI user types an English reply
+  ("OK", "done", "call me at 0791234567") that renders LTR internally.
+  Verified with widget tests, not just reasoned about.
+- **`textAlign.start`/`.end` track ambient direction, not content
+  direction.** `settings_screen.dart`'s `_InfoTile` (the one real call site
+  using `TextAlign.end` today) pins a trailing value (city/area, always
+  Arabic/RTL) to the end of a row. Naively deriving alignment from detected
+  content direction would have flipped that value's visual side the moment
+  `BidiText` landed, even though nothing about the row's layout changed —
+  exactly the alignment side-effect risk the user flagged. Resolving
+  `.start`/`.end` against ambient direction first keeps existing layouts
+  pixel-identical.
+
+Test coverage (`bidi_text_test.dart`): no-throw across
+empty/whitespace/digits-only/punctuation-only/emoji-only/null × both
+ambient directions; content-derived direction for real Arabic, real
+English, and the English-in-Arabic-UI case (`'OK'`, `'done'`, `'call me at
+0791234567'` all render LTR under ambient RTL); ambient fallback on
+UNKNOWN in both directions; parent-`Align`-position independence (mirrors
+`chat_bubble.dart`'s pattern); `.start`/`.end`-follows-ambient (mirrors
+`_InfoTile`); full passthrough of `style`/`maxLines`/`overflow`/`softWrap`.
+CI: `flutter analyze` clean, full suite green including this file.
+
+This is a drop-in replacement for `Text(...)` at each Category B site
+listed above — same parameters used at those sites, so applying it is a
+mechanical per-file change, not a redesign. **Not yet applied anywhere** —
+pending the user's go-ahead to start the batch-of-~5 rollout.
 
 ### Needs a design call, not a code bug
 
