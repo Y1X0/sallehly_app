@@ -59,13 +59,26 @@ Future<void> _loadFontFamily(String envVar, String family) async {
   await loader.load();
 }
 
-/// عائلتان منفصلتان: 'Roboto' للنص (تفترضه Typography الافتراضية ضمنياً)،
-/// و'MaterialIcons' للأيقونات — لا تُحمَّل تلقائياً بـflutter test رغم كونها
-/// أصلاً حقيقياً بحزمة فلَتّر نفسها (لا OS حقيقي هنا لتحميلها ضمنياً)، فتظهر
-/// كل الأيقونات كمربّعات فارغة بدونها — ما كان سيمنع الحكم فعلياً على اتجاه
-/// الأيقونات (مطلب أساسي بهذا الفحص).
+/// [SCREENSHOT-FONT-01] عائلتان منفصلتان للنص — 'RealArabic' (عربي عادي +
+/// Bold) و'RealLatin' (لاتيني عادي) — بدل عائلة 'Roboto' واحدة تحوي كلا
+/// الخطين كما كان سابقاً. اكتُشِف أن FontLoader لا يُجري التقاطاً صحيحاً
+/// بالحرف عبر عدة ملفات مُسجَّلة بنفس اسم العائلة: أول ملف مُضاف "يفوز"
+/// بالكامل لأي حرف يتعرّف عليه بخطه هو فقط (حتى لو نتيجته tofu داخل ذلك
+/// الخط تحديداً)، بلا أي تراجع فعلي لملف لاحق يملك الحرف فعلاً — وهذا
+/// عكس تماماً ما تفعله fontFamilyFallback الحقيقية بفلَتّر (تراجع صحيح
+/// بالحرف عبر عائلات مختلفة، آلية أعلى مستوى من دمج ملفات FontLoader
+/// الداخلي). أول اكتشاف لهذه المراوغة (عربي كملف أول أدّى لـtofu لاتيني
+/// حتى بعد إضافة ملف لاتيني — راجع نص شاشات customer_register_screen/
+/// chat_room_screen بالإنجليزية بعد بدء Phase 2) كان بالضبط بهذا النمط:
+/// كل حروف لاتينية عادية (Type a message...، I agree to...) ظهرت كمربّعات
+/// رغم وجود ملف لاتيني مُسجَّل — الحل: عائلتان منفصلتان +
+/// ThemeData.fontFamilyFallback بـl10n_screen_cases.dart (وليس اعتماد على
+/// دمج FontLoader الداخلي). 'MaterialIcons' للأيقونات — لا تُحمَّل تلقائياً
+/// بـflutter test رغم كونها أصلاً حقيقياً بحزمة فلَتّر نفسها (لا OS حقيقي
+/// هنا لتحميلها ضمنياً)، فتظهر كل الأيقونات كمربّعات فارغة بدونها.
 Future<void> _loadRealFonts() async {
-  await _loadFontFamily('REAL_FONT_PATHS', 'Roboto');
+  await _loadFontFamily('ARABIC_FONT_PATHS', 'RealArabic');
+  await _loadFontFamily('LATIN_FONT_PATHS', 'RealLatin');
   await _loadFontFamily('MATERIAL_ICONS_FONT_PATH', 'MaterialIcons');
 }
 

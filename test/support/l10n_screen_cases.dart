@@ -103,6 +103,21 @@ Widget wrapScreen(Widget child, TestProviders p, Locale locale) {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // [SCREENSHOT-FONT-01] فقط لقطات الشاشة الحقيقية تحتاج هذا (راجع
+      // l10n_screenshot_capture_test.dart) — fontFamilyFallback هي آلية
+      // فلَتّر الحقيقية لاختيار الخط حسب الحرف فعلياً عبر عائلات مختلفة
+      // (بخلاف مراوغة FontLoader المكتشَفة سابقاً: تسجيل أكثر من ملف خط
+      // بنفس اسم العائلة عبر FontLoader لا يعطي التقاط صحيح بالحرف — أول
+      // ملف مُضاف "يفوز" بالكامل لأي عائلة حروف يتعرّف عليها ضمن خطه هو
+      // فقط، بلا أي تراجع فعلي لملف لاحق). خطوط عربي/لاتيني حقيقية تُسجَّل
+      // بعائلتين منفصلتين هناك ('RealArabic'/'RealLatin')، فتحتاج تحديد
+      // صريح هنا ليستخدمهما فلَتّر معاً بدل عائلة Typography الافتراضية.
+      // فحص الدخان (بلا خطوط حقيقية) لا يتأثر — بلا تأثير فعلي حين هذين
+      // الاسمين غير مسجَّلين أصلاً (يرجع فلَتّر لخط الاختبار الافتراضي).
+      theme: ThemeData(
+        fontFamily: 'RealArabic',
+        fontFamilyFallback: const ['RealLatin'],
+      ),
       home: child,
     ),
   );

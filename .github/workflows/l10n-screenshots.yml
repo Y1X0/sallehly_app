@@ -52,17 +52,21 @@ jobs:
             find /usr/share/fonts -iname "*noto*" | sort
             exit 1
           fi
-          # عربي عادي وBold، ثم لاتيني عادي فقط (بلا Bold لاتيني إطلاقاً):
-          # إسقاط اللاتيني بالكامل (محاولة سابقة) أصلح عناوين/أزرار w900
-          # العربية، لكن كشف أن Noto Naskh Arabic لا يغطي كل الأرقام/علامات
-          # الترقيم اللاتينية (ظهرت "0/5" كـtofu رغم كونها بسياق عربي بالكامل).
-          # بلا أي وجه لاتيني Bold يُنافِس على قرب الوزن من 900، Arabic-SemiBold
-          # (600) يبقى الأقرب رقمياً بلا غموض، فيُفترض بقاء عناوين/أزرار w900
-          # العربية سليمة مع استعادة تغطية الأرقام/الترقيم اللاتينية أيضاً.
-          PATHS="$ARABIC:$LATIN"
-          if [ -n "$ARABIC_BOLD" ]; then PATHS="$PATHS:$ARABIC_BOLD"; fi
-          echo "REAL_FONT_PATHS=$PATHS" >> "$GITHUB_ENV"
-          echo "Using fonts: $PATHS"
+          # [SCREENSHOT-FONT-01] عائلتان منفصلتان الآن (عربي/لاتيني)، لا عائلة
+          # 'Roboto' واحدة مشتركة كما كان سابقاً — FontLoader لا يلتقط بالحرف
+          # الصحيح عبر عدة ملفات بنفس اسم العائلة (أول ملف يفوز بالكامل لأي
+          # حرف يتعرّف عليه، ولو ظهر tofu داخل ذلك الخط تحديداً)، فكانت كل
+          # النصوص اللاتينية الحقيقية (بعد بدء Phase 2) تظهر كمربّعات رغم
+          # وجود ملف لاتيني مُسجَّل. الحل الصحيح: عائلتان منفصلتان +
+          # ThemeData.fontFamilyFallback (آلية فلَتّر الحقيقية للتراجع
+          # بالحرف عبر عائلات، بخلاف دمج FontLoader الداخلي) — راجع
+          # l10n_screen_cases.dart وl10n_screenshot_capture_test.dart.
+          ARABIC_PATHS="$ARABIC"
+          if [ -n "$ARABIC_BOLD" ]; then ARABIC_PATHS="$ARABIC_PATHS:$ARABIC_BOLD"; fi
+          echo "ARABIC_FONT_PATHS=$ARABIC_PATHS" >> "$GITHUB_ENV"
+          echo "LATIN_FONT_PATHS=$LATIN" >> "$GITHUB_ENV"
+          echo "Using Arabic fonts: $ARABIC_PATHS"
+          echo "Using Latin fonts: $LATIN"
 
           # أيقونات فلَتّر (MaterialIcons) — أصل حقيقي بحزمة فلَتّر نفسها، لكن
           # flutter test لا يحمّله ضمنياً (لا نظام تشغيل حقيقي هنا)، فتظهر كل
