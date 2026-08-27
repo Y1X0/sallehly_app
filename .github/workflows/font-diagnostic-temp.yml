@@ -1,0 +1,48 @@
+name: Font Diagnostic (temporary, HERO CARD investigation)
+
+# مؤقت بحت — لإثبات هل فيضان RenderFlex بـCustomerDashboardScreen حقيقي أم
+# أثر خط الاختبار الافتراضي بفلَتّر (Ahem-like). يُحذَف هذا الملف بعد
+# استخلاص النتيجة. لا يُشغَّل تلقائياً (workflow_dispatch فقط) ولا يمسّ
+# CI الفعلي (android-build.yml) بأي شكل.
+on:
+  workflow_dispatch:
+
+jobs:
+  font-diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Install real Arabic font (Noto, via apt — not a project asset)
+        run: |
+          set -e
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra fontconfig
+          mkdir -p /tmp/real_fonts
+          FOUND=$(find /usr/share/fonts -iname "*NotoNaskhArabic*Regular*" 2>/dev/null | head -1)
+          if [ -z "$FOUND" ]; then
+            FOUND=$(find /usr/share/fonts -iname "*NotoSansArabic*Regular*" 2>/dev/null | head -1)
+          fi
+          if [ -z "$FOUND" ]; then
+            echo "::error::No real Arabic font found after apt install" >&2
+            find /usr/share/fonts -iname "*arabic*" -o -iname "*naskh*" || true
+            exit 1
+          fi
+          echo "Using font: $FOUND"
+          cp "$FOUND" /tmp/real_fonts/arabic.ttf
+          ls -la /tmp/real_fonts/
+
+      - name: Run font diagnostic test (CustomerDashboardScreen only)
+        env:
+          REAL_ARABIC_FONT_PATH: /tmp/real_fonts/arabic.ttf
+        run: flutter test test/widgets/customer_dashboard_font_diagnostic_test.dart --reporter expanded
