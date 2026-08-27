@@ -13,6 +13,7 @@ import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/wallet/provider/wallet_provider.dart';
 import 'package:sallehly_app/features/wallet/screens/packages_screen.dart';
 import 'package:sallehly_app/features/wallet/screens/wallet_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
@@ -56,7 +57,12 @@ void main() {
             ChangeNotifierProvider.value(value: provider),
             ChangeNotifierProvider.value(value: _fakeAuthProvider()),
           ],
-          child: const MaterialApp(home: WalletScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const WalletScreen(),
+          ),
         ),
       );
 
@@ -78,7 +84,12 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: PackagesScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const PackagesScreen(),
+          ),
         ),
       );
 

@@ -102,6 +102,7 @@ class AuthApi {
       return RegisterResult(
         ok: data['ok'] == true,
         step: data['step']?.toString() ?? '',
+        // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
         message: data['message']?.toString() ?? 'تم إرسال كود التحقق',
         email: data['email']?.toString() ?? email.trim(),
       );
@@ -135,6 +136,7 @@ class AuthApi {
 
       return VerifyOtpResult(
         token: token,
+        // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
         message: data['message']?.toString() ?? 'تم إنشاء الحساب بنجاح',
         user: UserModel.fromJson(
           Map<String, dynamic>.from(data['user']),
@@ -155,6 +157,7 @@ class AuthApi {
       );
 
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ??
           'إذا كان البريد مسجلاً ستصلك رسالة التحقق';
     } catch (e) {
@@ -178,6 +181,7 @@ class AuthApi {
       );
 
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ?? 'تم تغيير كلمة السر بنجاح';
     } catch (e) {
       throw apiClient.handleError(e);
@@ -281,6 +285,7 @@ class AuthApi {
         data: {'password': password},
       );
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ?? 'تم حذف حسابك بنجاح';
     } catch (e) {
       throw apiClient.handleError(e);

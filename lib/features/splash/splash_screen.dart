@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/app_background.dart';
 import '../../core/widgets/app_logo.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../routes/route_guard.dart';
@@ -160,6 +161,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       body: AppBackground(
         safeArea: false,
@@ -199,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       children: [
                         Text(
-                          'صلّحلي',
+                          t.appWordmark,
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 42,
@@ -208,7 +210,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'منصة خدمات الصيانة في الأردن',
+                          t.splashTagline,
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 15,
@@ -239,7 +241,7 @@ class _SplashScreenState extends State<SplashScreen>
                   if (_showSlowHint) ...[
                     const SizedBox(height: 16),
                     Text(
-                      'الخادم قد يستغرق وقتاً أطول من المعتاد للاستيقاظ، يرجى الانتظار...',
+                      t.splashServerWakingHint,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -337,6 +339,7 @@ class _RetryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -347,7 +350,7 @@ class _RetryButton extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'تعذّر الاتصال بالخادم',
+          t.splashConnectionFailed,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
@@ -358,7 +361,7 @@ class _RetryButton extends StatelessWidget {
         TextButton.icon(
           onPressed: onPressed,
           icon: const Icon(Icons.refresh_rounded),
-          label: const Text('إعادة المحاولة'),
+          label: Text(t.retryButton),
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primary,
           ),

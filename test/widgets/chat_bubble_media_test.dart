@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sallehly_app/features/chat/widgets/chat_bubble.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/message_model.dart';
 
 // [SEC-FIX-C1] تختبر أن Authorization: Bearer <JWT> يُرفَق فقط عند فتح صورة
@@ -46,6 +47,9 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('ar'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: ChatBubble(message: message, isMe: true)),
     ));
     await tester.pump();
@@ -68,6 +72,9 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('ar'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: ChatBubble(message: message, isMe: true)),
     ));
     await tester.pump();
@@ -84,6 +91,9 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('ar'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: ChatBubble(message: message, isMe: true)),
     ));
     await tester.pump();
@@ -107,6 +117,9 @@ void main() {
     );
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('ar'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: ChatBubble(message: message, isMe: true)),
     ));
     await tester.pump();

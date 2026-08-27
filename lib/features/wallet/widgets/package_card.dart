@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/package_model.dart';
 
 class PackageCard extends StatefulWidget {
@@ -22,6 +24,7 @@ class _PackageCardState extends State<PackageCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final hasBonus = widget.package.bonus > 0;
 
     return InkWell(
@@ -67,7 +70,7 @@ class _PackageCardState extends State<PackageCard> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'بونص ${widget.package.bonus.toStringAsFixed(2)} د.أ',
+                      t.packageBonusLabel(formatJod(context, widget.package.bonus)),
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w900,
@@ -107,7 +110,7 @@ class _PackageCardState extends State<PackageCard> {
               ),
               const SizedBox(height: 18),
               Text(
-                '${widget.package.amount.toStringAsFixed(2)} د.أ',
+                formatJod(context, widget.package.amount),
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 28,
@@ -116,7 +119,7 @@ class _PackageCardState extends State<PackageCard> {
               ),
               const SizedBox(height: 6),
               Text(
-                'يصل رصيدك إلى ${widget.package.total.toStringAsFixed(2)} د.أ بعد الموافقة',
+                t.packageBalanceAfterApproval(formatJod(context, widget.package.total)),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   height: 1.5,
@@ -130,9 +133,9 @@ class _PackageCardState extends State<PackageCard> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'اختيار الباقة',
-                  style: TextStyle(
+                child: Text(
+                  t.selectPackageButton,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
                   ),

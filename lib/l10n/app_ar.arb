@@ -89,6 +89,60 @@
   "@notificationsEmptySubtitle": {
     "description": "الوصف الفرعي لحالة عدم وجود إشعارات"
   },
+  "packagesScreenTitle": "باقات الشحن",
+  "@packagesScreenTitle": {
+    "description": "عنوان شاشة باقات الشحن"
+  },
+  "packagesLoadFailedTitle": "تعذّر تحميل الباقات",
+  "@packagesLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل الباقات"
+  },
+  "retryButton": "إعادة المحاولة",
+  "@retryButton": {
+    "description": "زر إعادة المحاولة العام (يُستخدم بعدة شاشات)"
+  },
+  "packagesEmptyTitle": "لا توجد باقات حالياً",
+  "@packagesEmptyTitle": {
+    "description": "عنوان حالة عدم وجود باقات شحن"
+  },
+  "currencySymbolJod": "د.أ",
+  "@currencySymbolJod": {
+    "description": "رمز الدينار الأردني كما يُعرض بجانب المبالغ"
+  },
+  "packageBonusLabel": "بونص {amount}",
+  "@packageBonusLabel": {
+    "description": "شارة بونص على بطاقة باقة شحن (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "packageBalanceAfterApproval": "يصل رصيدك إلى {amount} بعد الموافقة",
+  "@packageBalanceAfterApproval": {
+    "description": "الرصيد النهائي المتوقَّع بعد اعتماد طلب شحن (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPackageButton": "اختيار الباقة",
+  "@selectPackageButton": {
+    "description": "زر اختيار باقة شحن"
+  },
+  "splashTagline": "منصة خدمات الصيانة في الأردن",
+  "@splashTagline": {
+    "description": "الشعار الفرعي أسفل اسم التطبيق بشاشة البداية"
+  },
+  "splashServerWakingHint": "الخادم قد يستغرق وقتاً أطول من المعتاد للاستيقاظ، يرجى الانتظار...",
+  "@splashServerWakingHint": {
+    "description": "تلميح يظهر بشاشة البداية عند تأخر استجابة الخادم"
+  },
+  "splashConnectionFailed": "تعذّر الاتصال بالخادم",
+  "@splashConnectionFailed": {
+    "description": "رسالة فشل الاتصال بشاشة البداية بعد تجاوز المهلة"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

@@ -16,6 +16,7 @@ import 'package:sallehly_app/core/storage/app_storage.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/splash/splash_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/user_model.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
 import 'package:sallehly_app/providers/notification_provider.dart';
@@ -61,7 +62,12 @@ void main() {
               create: (_) => NotificationProvider(),
             ),
           ],
-          child: const MaterialApp(home: SplashScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SplashScreen(),
+          ),
         ),
       );
 

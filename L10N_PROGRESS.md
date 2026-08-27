@@ -574,11 +574,11 @@ mirroring due in that same file).
 - [x] 13. `lib/features/chat/widgets/chat_bubble.dart` — `audioMessagePlaying`, `audioMessageLabel`, `locationMessageLabel`, `imageLoadFailedMessage` (shared by both error sites)
 - [x] 14. `lib/features/notifications/screens/notifications_screen.dart` — `notificationsMarkAllRead`, `notificationsEmptyTitle`, `notificationsEmptySubtitle`; AppBar title reused `notificationsBellTooltip`
 - [x] 15. `lib/features/requests/widgets/request_status_chip.dart` — **SKIPPED, Phase 3** per instruction
-- [ ] 16. `lib/features/support/provider/support_provider.dart`
-- [ ] 17. `lib/features/wallet/screens/packages_screen.dart`
-- [ ] 18. `lib/features/wallet/widgets/package_card.dart`
-- [ ] 19. `lib/features/auth/data/auth_api.dart`
-- [ ] 20. `lib/features/splash/splash_screen.dart`
+- [x] 16. `lib/features/support/provider/support_provider.dart` — 4 fallback strings feed the deferred banner widgets (same BidiText-phase decision), commented not migrated
+- [x] 17. `lib/features/wallet/screens/packages_screen.dart` — `packagesScreenTitle`, `packagesLoadFailedTitle`, `retryButton`, `packagesEmptyTitle`; `wallet.error!` left alone (not a literal, resolved at #21)
+- [x] 18. `lib/features/wallet/widgets/package_card.dart` — new `core/utils/currency_format.dart` helper (`NumberFormat`-based, reused going forward for all 14 files using "د.أ"); `packageBonusLabel`, `packageBalanceAfterApproval`, `selectPackageButton`
+- [x] 19. `lib/features/auth/data/auth_api.dart` — 5 backend-fallback strings, data layer with no BuildContext, deferred to their consuming screens (register/OTP/forgot-password/reset-password/delete-account flows), commented
+- [x] 20. `lib/features/splash/splash_screen.dart` — `splashTagline`, `splashServerWakingHint`, `splashConnectionFailed`; reused `appWordmark` + `retryButton`
 - [ ] 21. `lib/features/wallet/provider/wallet_provider.dart`
 - [ ] 22. `lib/features/wallet/widgets/topup_card.dart`
 - [ ] 23. `lib/models/request_model.dart` — **SKIP, Phase 3**
