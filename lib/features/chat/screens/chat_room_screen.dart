@@ -46,6 +46,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   bool _locationRationaleShown = false;
   bool _micRationaleShown = false;
 
+  // [FIX-CHAT-DISPOSE-01] مُخزَّنان هنا (لا يُعاد قراءتهما بـcontext.read عند
+  // dispose) — نفس نمط SupportChatScreen/AdminSupportChatScreen: قراءة
+  // Provider من context بعد تفكيك الشجرة (deactivated) غير آمنة إطلاقاً.
+  SocketProvider? _socketProvider;
+  NotificationProvider? _notify;
+
   @override
   void initState() {
     super.initState();
@@ -53,24 +59,25 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     Future.microtask(() {
       if (!mounted) return;
 
-      context.read<SocketProvider>().joinRequest(widget.request.id);
+      _socketProvider = context.read<SocketProvider>();
+      _socketProvider!.joinRequest(widget.request.id);
       context.read<ChatProvider>().loadMessages(widget.request.id);
       context.read<ChatProvider>().loadBlockStatus(widget.request.id);
       // سجّل أنك داخل هذه المحادثة حتى لا يصلك إشعار وأنت تتابعها.
-      final notify = context.read<NotificationProvider>();
-      notify.setActiveChat(widget.request.id);
+      _notify = context.read<NotificationProvider>();
+      _notify!.setActiveChat(widget.request.id);
       // [FIX-NOTIF-02] صفّر فوراً أي إشعار قديم متراكم لهذه المحادثة تحديداً —
       // بقية المحادثات الأخرى غير المقروءة تبقى كما هي.
-      notify.markChatNotificationsReadForRequest(widget.request.id);
+      _notify!.markChatNotificationsReadForRequest(widget.request.id);
     });
   }
 
   @override
   void dispose() {
     recordingTimer?.cancel();
-    context.read<SocketProvider>().leaveRequest(widget.request.id);
+    _socketProvider?.leaveRequest(widget.request.id);
     // غادرت المحادثة — اسمح بوصول إشعارات هذا الطلب مجدداً.
-    context.read<NotificationProvider>().setActiveChat(null);
+    _notify?.setActiveChat(null);
     messageController.dispose();
     scrollController.dispose();
     audioRecorder.dispose();
