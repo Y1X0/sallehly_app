@@ -28,9 +28,15 @@ void main() {
       'رسالة دردشة تبدأ برمز تعبيري': '🔧 وصلتك رسالة جديدة بخصوص الطلب',
     };
 
+    String label(intl.TextDirection d) {
+      if (d == intl.TextDirection.RTL) return 'RTL';
+      if (d == intl.TextDirection.LTR) return 'LTR';
+      return 'UNKNOWN';
+    }
+
     // ignore: avoid_print
     print('[BIDI-DIAG] ============================================================');
-    cases.forEach((label, text) {
+    cases.forEach((caseLabel, text) {
       final detectRtl = intl.Bidi.detectRtlDirectionality(text);
       final estimate = intl.Bidi.estimateDirectionOfText(text);
       final detectAsEstimate =
@@ -39,10 +45,10 @@ void main() {
           estimate != detectAsEstimate;
       // ignore: avoid_print
       print(
-        '[BIDI-DIAG] $label\n'
+        '[BIDI-DIAG] $caseLabel\n'
         '  النص: "${text.isEmpty ? '<فارغ>' : text}"\n'
         '  detectRtlDirectionality => ${detectRtl ? 'RTL' : 'LTR'}\n'
-        '  estimateDirectionOfText => $estimate\n'
+        '  estimateDirectionOfText => ${label(estimate)}\n'
         '  ${disagree ? '⚠️  يختلفان' : 'متّفقان (أو estimate=UNKNOWN)'}',
       );
     });
