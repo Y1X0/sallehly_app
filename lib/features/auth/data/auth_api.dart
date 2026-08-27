@@ -136,8 +136,7 @@ class AuthApi {
 
       return VerifyOtpResult(
         token: token,
-        // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
-        message: data['message']?.toString() ?? 'تم إنشاء الحساب بنجاح',
+        message: data['message']?.toString(),
         user: UserModel.fromJson(
           Map<String, dynamic>.from(data['user']),
         ),
@@ -334,7 +333,10 @@ class RegisterResult {
 
 class VerifyOtpResult {
   final String token;
-  final String message;
+  // [L10N-06] nullable عمداً — null يعني الخادم لم يرسل رسالة، وطبقة الودجت
+  // (verify_otp_screen.dart) هي من تقرر النص الاحتياطي المترجَم، لا هذه
+  // الطبقة (data layer بلا BuildContext). راجع L10N_PROGRESS.md §9.
+  final String? message;
   final UserModel user;
 
   VerifyOtpResult({

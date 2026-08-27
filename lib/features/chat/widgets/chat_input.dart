@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChatInput extends StatelessWidget {
   final TextEditingController controller;
@@ -31,6 +32,7 @@ class ChatInput extends StatelessWidget {
   }
 
   void openPlusMenu(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -46,7 +48,7 @@ class ChatInput extends StatelessWidget {
               children: [
                 _SheetAction(
                   icon: Icons.image_rounded,
-                  label: 'صورة',
+                  label: t.chatAttachImageLabel,
                   color: AppColors.secondary,
                   onTap: () {
                     Navigator.pop(context);
@@ -55,7 +57,7 @@ class ChatInput extends StatelessWidget {
                 ),
                 _SheetAction(
                   icon: Icons.location_on_rounded,
-                  label: 'موقع',
+                  label: t.chatAttachLocationLabel,
                   color: AppColors.success,
                   onTap: () {
                     Navigator.pop(context);
@@ -65,7 +67,7 @@ class ChatInput extends StatelessWidget {
                 _SheetAction(
                   icon:
                   recording ? Icons.stop_circle_rounded : Icons.mic_rounded,
-                  label: recording ? 'إيقاف' : 'صوت',
+                  label: recording ? t.chatStopRecordingLabel : t.audioMessageLabel,
                   color: recording ? AppColors.danger : AppColors.primary,
                   onTap: () {
                     Navigator.pop(context);
@@ -82,6 +84,7 @@ class ChatInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Container(
@@ -95,7 +98,7 @@ class ChatInput extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              tooltip: 'إضافة مرفق',
+              tooltip: t.chatAddAttachmentTooltip,
               onPressed: sending ? null : () => openPlusMenu(context),
               icon: Icon(
                 Icons.add_circle_rounded,
@@ -137,7 +140,7 @@ class ChatInput extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'جاري التسجيل...',
+                        t.chatRecordingInProgress,
                         style: TextStyle(
                           color: AppColors.textSecondary,
                         ),
@@ -152,7 +155,7 @@ class ChatInput extends StatelessWidget {
                   maxLines: 4,
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
-                    hintText: 'اكتب رسالة...',
+                    hintText: t.chatMessageHint,
                     filled: true,
                     fillColor: AppColors.card,
                     contentPadding: const EdgeInsets.symmetric(
@@ -178,7 +181,7 @@ class ChatInput extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                tooltip: recording ? 'إيقاف التسجيل وإرسال' : 'إرسال',
+                tooltip: recording ? t.chatStopRecordingAndSendTooltip : t.sendButtonTooltip,
                 onPressed: sending ? null : (recording ? onRecord : onSend),
                 icon: sending
                     ? const SizedBox(

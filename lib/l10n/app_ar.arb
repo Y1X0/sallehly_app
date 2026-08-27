@@ -192,6 +192,153 @@
   "@offerRejectedStatus": {
     "description": "حالة عرض مرفوض"
   },
+  "adminLedgerTitle": "دفتر الحساب ({count})",
+  "@adminLedgerTitle": {
+    "description": "عنوان شاشة دفتر الحساب مع إجمالي عدد الحركات",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminLedgerBalanceLabel": "الرصيد: {value}",
+  "@adminLedgerBalanceLabel": {
+    "description": "رصيد بعد حركة دفتر حساب (value قيمة خام من الخادم)",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "adminLedgerEmptyTitle": "لا توجد حركات مالية بعد",
+  "@adminLedgerEmptyTitle": {
+    "description": "عنوان حالة عدم وجود حركات بدفتر الحساب"
+  },
+  "adminLedgerEmptySubtitle": "ستظهر هنا كل الحركات المالية عبر المنصة",
+  "@adminLedgerEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود حركات بدفتر الحساب"
+  },
+  "adminLedgerLoadFailedTitle": "تعذّر تحميل دفتر الحساب",
+  "@adminLedgerLoadFailedTitle": {
+    "description": "عنوان فشل تحميل دفتر الحساب"
+  },
+  "supportSendMessageFailed": "تعذر إرسال الرسالة",
+  "@supportSendMessageFailed": {
+    "description": "رسالة فشل إرسال رد بمحادثة الدعم"
+  },
+  "supportCloseTicket": "إغلاق",
+  "@supportCloseTicket": {
+    "description": "زر إغلاق تذكرة دعم"
+  },
+  "supportReopenTicket": "إعادة فتح",
+  "@supportReopenTicket": {
+    "description": "زر إعادة فتح تذكرة دعم"
+  },
+  "supportMessagesLoadFailed": "تعذّر تحميل الرسائل",
+  "@supportMessagesLoadFailed": {
+    "description": "عنوان فشل تحميل رسائل محادثة (دعم أو غيرها)"
+  },
+  "supportReplyHint": "اكتب رداً...",
+  "@supportReplyHint": {
+    "description": "نص تلميح حقل الرد بمحادثة الدعم (جهة الأدمن)"
+  },
+  "sendButtonTooltip": "إرسال",
+  "@sendButtonTooltip": {
+    "description": "تلميح زر إرسال (رسالة/رد)"
+  },
+  "userFallbackName": "المستخدم",
+  "@userFallbackName": {
+    "description": "اسم احتياطي لمستخدم بلا اسم محدَّد"
+  },
+  "backButtonTooltip": "رجوع",
+  "@backButtonTooltip": {
+    "description": "تلميح زر الرجوع للشاشة السابقة"
+  },
+  "registerChooseAccountType": "اختر نوع الحساب",
+  "@registerChooseAccountType": {
+    "description": "عنوان شاشة اختيار نوع الحساب (عميل/فني)"
+  },
+  "registerChooseAccountTypeSubtitle": "أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.",
+  "@registerChooseAccountTypeSubtitle": {
+    "description": "الوصف الفرعي لشاشة اختيار نوع الحساب"
+  },
+  "registerCustomerRoleTitle": "حساب عميل",
+  "@registerCustomerRoleTitle": {
+    "description": "عنوان بطاقة اختيار حساب عميل"
+  },
+  "registerCustomerRoleSubtitle": "اطلب خدمة صيانة واستقبل عروض الفنيين",
+  "@registerCustomerRoleSubtitle": {
+    "description": "وصف بطاقة اختيار حساب عميل"
+  },
+  "registerTechnicianRoleTitle": "حساب فني",
+  "@registerTechnicianRoleTitle": {
+    "description": "عنوان بطاقة اختيار حساب فني"
+  },
+  "registerTechnicianRoleSubtitle": "استقبل طلبات العملاء وقدّم عروضك",
+  "@registerTechnicianRoleSubtitle": {
+    "description": "وصف بطاقة اختيار حساب فني"
+  },
+  "otpAccountActivatedFallback": "تم إنشاء الحساب بنجاح",
+  "@otpAccountActivatedFallback": {
+    "description": "رسالة نجاح احتياطية عند تفعيل الحساب برمز OTP إن لم يرسل الخادم رسالة"
+  },
+  "otpVerificationFailed": "تعذر التحقق من الكود",
+  "@otpVerificationFailed": {
+    "description": "رسالة فشل التحقق من رمز OTP"
+  },
+  "otpActivateAccountTitle": "تفعيل الحساب",
+  "@otpActivateAccountTitle": {
+    "description": "عنوان شاشة تفعيل الحساب / زر التفعيل"
+  },
+  "otpEnterCodeTitle": "أدخل كود التحقق",
+  "@otpEnterCodeTitle": {
+    "description": "عنوان شاشة إدخال رمز التحقق"
+  },
+  "otpSentToEmail": "تم إرسال كود مكوّن من 6 أرقام إلى:\n{email}",
+  "@otpSentToEmail": {
+    "description": "رسالة تخبر المستخدم بإرسال رمز OTP لبريده الإلكتروني",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "otpCodeFieldLabel": "كود التحقق",
+  "@otpCodeFieldLabel": {
+    "description": "تسمية حقل إدخال رمز التحقق"
+  },
+  "otpCodeValidationError": "أدخل كود التحقق المكون من 6 أرقام",
+  "@otpCodeValidationError": {
+    "description": "رسالة خطأ تحقق عند رمز OTP غير مكتمل"
+  },
+  "chatAttachImageLabel": "صورة",
+  "@chatAttachImageLabel": {
+    "description": "خيار إرفاق صورة بقائمة مرفقات الشات"
+  },
+  "chatAttachLocationLabel": "موقع",
+  "@chatAttachLocationLabel": {
+    "description": "خيار إرفاق موقع بقائمة مرفقات الشات"
+  },
+  "chatStopRecordingLabel": "إيقاف",
+  "@chatStopRecordingLabel": {
+    "description": "خيار إيقاف تسجيل صوتي بقائمة مرفقات الشات"
+  },
+  "chatAddAttachmentTooltip": "إضافة مرفق",
+  "@chatAddAttachmentTooltip": {
+    "description": "تلميح زر فتح قائمة مرفقات الشات"
+  },
+  "chatRecordingInProgress": "جاري التسجيل...",
+  "@chatRecordingInProgress": {
+    "description": "نص يظهر أثناء تسجيل رسالة صوتية بالشات"
+  },
+  "chatMessageHint": "اكتب رسالة...",
+  "@chatMessageHint": {
+    "description": "نص تلميح حقل كتابة رسالة الشات"
+  },
+  "chatStopRecordingAndSendTooltip": "إيقاف التسجيل وإرسال",
+  "@chatStopRecordingAndSendTooltip": {
+    "description": "تلميح زر إيقاف التسجيل الصوتي وإرساله"
+  },
   "settingsLanguageTitle": "اللغة",
   "@settingsLanguageTitle": {
     "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"

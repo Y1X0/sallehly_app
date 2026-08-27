@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routes/route_guard.dart';
 import '../../../core/widgets/success_feedback.dart';
@@ -45,7 +46,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.message),
+          content: Text(result.message ?? AppLocalizations.of(context)!.otpAccountActivatedFallback),
         ),
       );
 
@@ -61,18 +62,19 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر التحقق من الكود');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.otpVerificationFailed);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('تفعيل الحساب'),
+        title: Text(t.otpActivateAccountTitle),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -92,7 +94,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'أدخل كود التحقق',
+                  t.otpEnterCodeTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 27,
@@ -101,7 +103,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'تم إرسال كود مكوّن من 6 أرقام إلى:\n${widget.email}',
+                  t.otpSentToEmail(widget.email),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -121,16 +123,16 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                     letterSpacing: 8,
                     fontWeight: FontWeight.bold,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'كود التحقق',
+                  decoration: InputDecoration(
+                    labelText: t.otpCodeFieldLabel,
                     counterText: '',
-                    prefixIcon: Icon(Icons.pin_outlined),
+                    prefixIcon: const Icon(Icons.pin_outlined),
                   ),
                   validator: (value) {
                     final code = value?.trim() ?? '';
 
                     if (code.length != 6) {
-                      return 'أدخل كود التحقق المكون من 6 أرقام';
+                      return t.otpCodeValidationError;
                     }
 
                     return null;
@@ -143,9 +145,9 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       ? const CircularProgressIndicator(
                     color: Colors.white,
                   )
-                      : const Text(
-                    'تفعيل الحساب',
-                    style: TextStyle(
+                      : Text(
+                    t.otpActivateAccountTitle,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),

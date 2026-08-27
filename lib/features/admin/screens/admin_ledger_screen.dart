@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 
 /// [FIX-LEDGER-01] دفتر الحساب الشامل عبر المنصة كاملة — عرض/بحث فقط، لا
@@ -35,12 +37,13 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('دفتر الحساب (${admin.ledgerTotal})', style: const TextStyle(fontWeight: FontWeight.w900)),
+        title: Text(t.adminLedgerTitle(admin.ledgerTotal), style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -102,9 +105,9 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text('${amount.toStringAsFixed(2)} د.أ',
+                                    Text(formatJod(context, amount),
                                         style: TextStyle(color: color, fontWeight: FontWeight.w900)),
-                                    Text('الرصيد: ${entry['balance_after']}',
+                                    Text(t.adminLedgerBalanceLabel('${entry['balance_after']}'),
                                         style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
                                   ],
                                 ),
@@ -125,6 +128,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -141,9 +145,9 @@ class _EmptyState extends StatelessWidget {
               child: Icon(Icons.receipt_long_outlined, color: AppColors.textSecondary, size: 40),
             ),
             const SizedBox(height: 18),
-            Text('لا توجد حركات مالية بعد', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
+            Text(t.adminLedgerEmptyTitle, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
             const SizedBox(height: 8),
-            Text('ستظهر هنا كل الحركات المالية عبر المنصة', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
+            Text(t.adminLedgerEmptySubtitle, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
           ],
         ),
       ),
@@ -159,6 +163,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -175,14 +180,16 @@ class _ErrorState extends StatelessWidget {
               child: Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 40),
             ),
             const SizedBox(height: 18),
-            Text('تعذّر تحميل دفتر الحساب', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
+            Text(t.adminLedgerLoadFailedTitle, style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18)),
             const SizedBox(height: 8),
+            // [L10N-TODO] message = admin.error! — احتياطي بلا BuildContext
+            // بمصدره (AdminProvider، ملف #65)، يُعرَض كما هو حتى يُرحَّل.
             Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, height: 1.5)),
             const SizedBox(height: 14),
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(t.retryButton),
               style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ],

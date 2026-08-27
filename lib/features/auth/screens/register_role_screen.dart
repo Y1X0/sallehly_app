@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/ui/directional_icons.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../l10n/app_localizations.dart';
 import 'customer_register_screen.dart';
 import 'technician_register_screen.dart';
 
@@ -21,6 +23,7 @@ class RegisterRoleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       body: AppBackground(
         padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
@@ -34,9 +37,9 @@ class RegisterRoleScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                tooltip: 'رجوع',
+                tooltip: t.backButtonTooltip,
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_rounded),
+                icon: Icon(DirectionalIcons.back(context)),
               ),
               const SizedBox(height: 12),
               const Center(
@@ -47,7 +50,7 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'اختر نوع الحساب',
+                t.registerChooseAccountType,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 30,
@@ -56,7 +59,7 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.',
+                t.registerChooseAccountTypeSubtitle,
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   height: 1.6,
@@ -64,8 +67,8 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               _RoleCard(
-                title: 'حساب عميل',
-                subtitle: 'اطلب خدمة صيانة واستقبل عروض الفنيين',
+                title: t.registerCustomerRoleTitle,
+                subtitle: t.registerCustomerRoleSubtitle,
                 icon: Icons.home_repair_service_rounded,
                 gradient: AppColors.primaryGradient,
                 onTap: () {
@@ -77,8 +80,8 @@ class RegisterRoleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _RoleCard(
-                title: 'حساب فني',
-                subtitle: 'استقبل طلبات العملاء وقدّم عروضك',
+                title: t.registerTechnicianRoleTitle,
+                subtitle: t.registerTechnicianRoleSubtitle,
                 icon: Icons.engineering_rounded,
                 gradient: LinearGradient(
                   colors: [
@@ -163,8 +166,8 @@ class _RoleCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.arrow_back_ios_new_rounded,
+          Icon(
+            DirectionalIcons.forwardIosStyle(context),
             color: Colors.white,
             size: 18,
           ),

@@ -584,11 +584,11 @@ mirroring due in that same file).
 - [x] 23. `lib/models/request_model.dart` — **SKIPPED, Phase 3** per instruction
 - [x] 24. `lib/core/notifications/firebase_notification_service.dart` — **structural exception, documented not migrated**: notification channel name/description is `const` (no BuildContext even possible) and Android caches channel metadata by ID at first creation, so changing the string has no effect on existing installs anyway; the title/body fallback runs in `firebaseBackgroundHandler`'s background isolate, which has no BuildContext by design (not a "defer to consuming widget" case — there is no widget). Both commented in place.
 - [x] 25. `lib/features/customer/widgets/offer_card.dart` — `technicianFallbackName`, `offerPriceLabel` (+ `formatJod`), `offerDurationLabel`, `offerAcceptButton`, `offerRejectButton`, `offerAcceptedStatus`, `offerRejectedStatus`
-- [ ] 26. `lib/features/admin/screens/admin_ledger_screen.dart`
-- [ ] 27. `lib/features/admin/screens/admin_support_chat_screen.dart`
-- [ ] 28. `lib/features/auth/screens/register_role_screen.dart` (also §3 back-icon x2)
-- [ ] 29. `lib/features/auth/screens/verify_otp_screen.dart`
-- [ ] 30. `lib/features/chat/widgets/chat_input.dart`
+- [x] 26. `lib/features/admin/screens/admin_ledger_screen.dart` — one of the "16 deferred banner" files, but that decision was about widget *consolidation*, not skipping ARB migration; migrated all literals normally (title+count, empty/error states, formatJod), only `admin.error!` itself deferred to #65
+- [x] 27. `lib/features/admin/screens/admin_support_chat_screen.dart` — send/close/reopen/hint/tooltip/fallback-name keys
+- [x] 28. `lib/features/auth/screens/register_role_screen.dart` — role-selection copy; §3 back-icon → `DirectionalIcons.back`, and the `_RoleCard` trailing chevron (same forward-into-content pattern as #8/#77) → `DirectionalIcons.forwardIosStyle`
+- [x] 29. `lib/features/auth/screens/verify_otp_screen.dart` — resolved the #19 deferral: `VerifyOtpResult.message` is now nullable, fallback supplied here via `AppLocalizations`; otp screen copy migrated
+- [x] 30. `lib/features/chat/widgets/chat_input.dart` — attachment sheet + input bar copy, reused `audioMessageLabel`/`sendButtonTooltip`
 - [ ] 31. `lib/features/layout/customer_layout.dart`
 - [ ] 32. `lib/features/technician/screens/my_reviews_screen.dart`
 - [ ] 33. `lib/providers/auth_provider.dart`
