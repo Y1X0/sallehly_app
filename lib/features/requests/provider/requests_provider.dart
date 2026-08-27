@@ -20,6 +20,11 @@ class RequestsProvider extends ChangeNotifier {
   }
 
   bool loading = false;
+  // [L10N-TODO] كل رسائل fallback الفشل بهذا الملف (طبقة provider، بلا
+  // BuildContext) عربية ثابتة حالياً — `error` مُستهلَك عبر شاشات كثيرة جداً
+  // بالتطبيق (offers_screen.dart #43، وغيرها لاحقاً بالقائمة) لا مستهلِك
+  // واحد معروف؛ يُترَك كما هو حتى تُحلّ كل شاشة مستهلِكة فرداً فرداً، بنفس
+  // اتفاقية auth_provider.dart/chat_provider.dart. لا تغيير وظيفي.
   String? error;
 
   MetaModel? meta;

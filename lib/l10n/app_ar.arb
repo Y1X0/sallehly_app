@@ -594,5 +594,109 @@
   "supportTeamLabel": "فريق الدعم",
   "@supportTeamLabel": {
     "description": "اسم مُعرِّف مرسِل الرسالة عندما يكون من فريق الدعم (لا اسم مستخدم حقيقي)"
+  },
+  "technicianRequestStatusUpdated": "تم تحديث الحالة إلى {status}",
+  "@technicianRequestStatusUpdated": {
+    "description": "رسالة تأكيد بعد تحديث حالة الطلب من شاشة تفاصيل الفني. [L10N-TODO] {status} قيمة سلكية (RequestModel.status) لم تُترجَم بعد — مؤجَّلة لـPhase 3، ستبقى عربية حتى ذلك الحين حتى بالواجهة الإنجليزية.",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "technicianRequestDetailsTitle": "طلب رقم {id}",
+  "@technicianRequestDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل الطلب للفني",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "requestProblemDescriptionLabel": "وصف المشكلة",
+  "@requestProblemDescriptionLabel": {
+    "description": "عنوان قسم وصف المشكلة بتفاصيل الطلب"
+  },
+  "technicianSubmitOfferButton": "تقديم عرض سعر",
+  "@technicianSubmitOfferButton": {
+    "description": "زر انتقال الفني لتقديم عرض سعر على طلب"
+  },
+  "technicianStartWorkButton": "بدء التنفيذ",
+  "@technicianStartWorkButton": {
+    "description": "زر بدء الفني تنفيذ الطلب (يغيّر الحالة لـ«قيد التنفيذ»)"
+  },
+  "technicianAwaitingPaymentButton": "بانتظار تأكيد الدفع",
+  "@technicianAwaitingPaymentButton": {
+    "description": "زر تحديد الفني أن الطلب بانتظار تأكيد الدفع (نص الزر فقط — القيمة السلكية المُرسَلة للخادم غير متأثرة، ما زالت عربية لحين Phase 3)"
+  },
+  "offersAcceptedMessage": "تم قبول العرض وفتح المحادثة",
+  "@offersAcceptedMessage": {
+    "description": "رسالة تأكيد بعد قبول العميل عرض فني وفتح المحادثة"
+  },
+  "offersSectionTitle": "عروض الفنيين",
+  "@offersSectionTitle": {
+    "description": "عنوان قسم قائمة العروض بشاشة العروض"
+  },
+  "offersSectionSubtitle": "اختر العرض الأنسب لك لفتح المحادثة",
+  "@offersSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم قائمة العروض"
+  },
+  "offersScreenTitle": "العروض",
+  "@offersScreenTitle": {
+    "description": "عنوان شريط شاشة العروض العلوي"
+  },
+  "offersWaitingTitle": "بانتظار العروض",
+  "@offersWaitingTitle": {
+    "description": "عنوان بطاقة الهيرو عندما لا توجد عروض بعد (count == 0)"
+  },
+  "offersReceivedCount": "{count, plural, one{وصلك عرض واحد} two{وصلك عرضان} few{وصلتك {count} عروض} many{وصلتك {count} عرضاً} other{وصلتك {count} عرض}}",
+  "@offersReceivedCount": {
+    "description": "عنوان بطاقة الهيرو بعدد العروض الواصلة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "offersHeroServiceLabel": "الخدمة: {service}",
+  "@offersHeroServiceLabel": {
+    "description": "نص فرعي ببطاقة الهيرو يعرض اسم الخدمة المطلوبة. {service} من كتالوج الخدمات (بيانات خادم)، ليس نصاً ثابتاً بالتطبيق",
+    "placeholders": {
+      "service": {"type": "String"}
+    }
+  },
+  "offersLoadFailedTitle": "تعذّر تحميل العروض",
+  "@offersLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة العروض"
+  },
+  "offersEmptyTitle": "لا يوجد عروض بعد",
+  "@offersEmptyTitle": {
+    "description": "عنوان الحالة الفارغة قبل وصول أي عرض"
+  },
+  "offersEmptySubtitle": "عند وصول عروض من الفنيين ستظهر هنا، ويمكنك قبول العرض المناسب.",
+  "@offersEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة العروض"
+  },
+  "adminLayoutTitle": "لوحة الأدمن",
+  "@adminLayoutTitle": {
+    "description": "عنوان شريط لوحة الأدمن العلوي"
+  },
+  "adminLogoutTitle": "تسجيل الخروج",
+  "@adminLogoutTitle": {
+    "description": "عنوان نافذة تأكيد تسجيل الخروج، وتلميح زر تسجيل الخروج بشريط الأدمن العلوي"
+  },
+  "adminLogoutConfirmMessage": "هل تريد تسجيل الخروج من حساب الأدمن؟",
+  "@adminLogoutConfirmMessage": {
+    "description": "نص نافذة تأكيد تسجيل خروج الأدمن"
+  },
+  "cancelButton": "إلغاء",
+  "@cancelButton": {
+    "description": "زر إلغاء عام لنافذة تأكيد"
+  },
+  "adminLogoutConfirmButton": "خروج",
+  "@adminLogoutConfirmButton": {
+    "description": "زر تأكيد تسجيل خروج الأدمن بنافذة التأكيد"
+  },
+  "navUsers": "المستخدمين",
+  "@navUsers": {
+    "description": "عنوان تبويب المستخدمين بشريط تنقّل الأدمن السفلي"
+  },
+  "navTopups": "الشحن",
+  "@navTopups": {
+    "description": "عنوان تبويب طلبات الشحن بشريط تنقّل الأدمن السفلي"
   }
 }

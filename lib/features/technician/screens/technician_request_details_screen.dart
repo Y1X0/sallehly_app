@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../requests/widgets/request_status_chip.dart';
@@ -38,7 +39,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('تم تحديث الحالة إلى $status'),
+          content: Text(AppLocalizations.of(context)!.technicianRequestStatusUpdated(status)),
         ),
       );
 
@@ -57,12 +58,13 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<RequestsProvider>().loading;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('طلب رقم ${request.id}'),
+        title: Text(t.technicianRequestDetailsTitle(request.id)),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -127,7 +129,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
           FadeIn(
             delay: const Duration(milliseconds: 70),
             child: _InfoBox(
-              title: 'وصف المشكلة',
+              title: t.requestProblemDescriptionLabel,
               child: BidiText(
                 request.description,
                 style: TextStyle(
@@ -179,7 +181,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.local_offer_outlined),
-                    label: const Text('تقديم عرض سعر'),
+                    label: Text(t.technicianSubmitOfferButton),
                   ),
                 if (!canSendOffer &&
                     request.status != 'مكتمل' &&
@@ -191,7 +193,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
                       updateStatus(context, 'قيد التنفيذ');
                     },
                     icon: const Icon(Icons.play_circle_outline),
-                    label: const Text('بدء التنفيذ'),
+                    label: Text(t.technicianStartWorkButton),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
@@ -201,7 +203,7 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
                       updateStatus(context, 'بانتظار تأكيد الدفع');
                     },
                     icon: const Icon(Icons.payments_outlined),
-                    label: const Text('بانتظار تأكيد الدفع'),
+                    label: Text(t.technicianAwaitingPaymentButton),
                   ),
                 ],
               ],

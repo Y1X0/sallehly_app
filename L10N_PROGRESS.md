@@ -599,11 +599,11 @@ mirroring due in that same file).
 - [x] 38. `lib/features/chat/provider/chat_provider.dart` — data-layer, no BuildContext; `error`/`chatsError` fallbacks deferred with `[L10N-TODO]` (`error` consumed by chat_room_screen.dart #76; `chatsError` currently has no UI consumer at all — chats_screen.dart reads `RequestsProvider.error` instead), no functional change
 - [x] 39. `lib/features/customer/widgets/complaint_sheet.dart` — title/labels/hint/validation/submit button, `complaintSheetAboutTechnician(name)` placeholder
 - [x] 40. `lib/features/support/screens/support_chat_screen.dart` — empty/error/closed states, input hint, reused `retryButton`/`sendButtonTooltip`, new `supportTeamLabel`; `support.error!` deferred (SupportProvider, later file)
-- [ ] 41. `lib/features/technician/screens/technician_request_details_screen.dart`
-- [ ] 42. `lib/core/api/api_client.dart`
-- [ ] 43. `lib/features/customer/screens/offers_screen.dart` (also §3 back-icon)
-- [ ] 44. `lib/features/layout/admin_layout.dart`
-- [ ] 45. `lib/features/requests/provider/requests_provider.dart`
+- [x] 41. `lib/features/technician/screens/technician_request_details_screen.dart` — title/labels/buttons migrated; `technicianRequestStatusUpdated({status})` embeds the raw RequestModel.status wire value (Phase 3, stays Arabic until then, commented); button *label* for "بانتظار تأكيد الدفع" migrated separately from the unchanged wire value passed to `updateStatus()`
+- [x] 42. `lib/core/api/api_client.dart` — pure network layer, no BuildContext, consumed by nearly every screen via `ApiException.message`; all client-generated fallback copy (timeouts/connectivity/HTTP-status defaults) deferred with one `[L10N-TODO]` comment on `handleError()`, no functional change. `serverMessage` (actual backend-sourced text) correctly left alone per the "don't touch backend error strings" rule — it's real server content, not app copy
+- [x] 43. `lib/features/customer/screens/offers_screen.dart` — full migration incl. real ICU plural (`offersReceivedCount`) for the offers-received hero text, `offersHeroServiceLabel({service})` wrapping backend catalog data; applied `DirectionalIcons.back` at the §3 back-icon site (line 149); `provider.error!` deferred (RequestsProvider, #45)
+- [x] 44. `lib/features/layout/admin_layout.dart` — logout dialog, appbar, nav tab labels; reused `navHome`/`navSettings`/`navSupport`, new `navUsers`/`navTopups`, new shared `cancelButton`
+- [x] 45. `lib/features/requests/provider/requests_provider.dart` — data-layer, no BuildContext, huge fan-out of consumers; `error` fallbacks deferred with `[L10N-TODO]` (same convention as #38/#42), no functional change. `_availableStatuses` and `status: 'مكتمل'` are RequestModel.status wire values — untouched, Phase 3
 - [ ] 46. `lib/features/technician/screens/new_requests_screen.dart`
 - [ ] 47. `lib/features/auth/screens/login_screen.dart`
 - [ ] 48. `lib/features/settings/screens/change_password_screen.dart`

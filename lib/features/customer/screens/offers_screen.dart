@@ -6,6 +6,8 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
 import '../../../core/widgets/success_feedback.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../chat/screens/chat_room_screen.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -44,7 +46,7 @@ class _OffersScreenState extends State<OffersScreen> {
 
     if (!mounted || request == null) return;
 
-    showSuccessSnackBar(context, 'تم قبول العرض وفتح المحادثة');
+    showSuccessSnackBar(context, AppLocalizations.of(context)!.offersAcceptedMessage);
 
     Navigator.pushReplacement(
       context,
@@ -56,6 +58,7 @@ class _OffersScreenState extends State<OffersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
     final offers = provider.offers;
 
@@ -80,9 +83,9 @@ class _OffersScreenState extends State<OffersScreen> {
                         service: widget.request.service,
                       ),
                       const SizedBox(height: 22),
-                      const SectionTitle(
-                        title: 'عروض الفنيين',
-                        subtitle: 'اختر العرض الأنسب لك لفتح المحادثة',
+                      SectionTitle(
+                        title: t.offersSectionTitle,
+                        subtitle: t.offersSectionSubtitle,
                       ),
                       const SizedBox(height: 14),
                       if (provider.loading && offers.isEmpty)
@@ -139,18 +142,19 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
       child: Row(
         children: [
           IconButton(
-            tooltip: 'رجوع',
+            tooltip: t.backButtonTooltip,
             onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded),
+            icon: Icon(DirectionalIcons.back(context)),
           ),
           Expanded(
             child: Text(
-              'العروض',
+              t.offersScreenTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -177,6 +181,7 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(20),
       radius: 30,
@@ -202,7 +207,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                count == 0 ? 'بانتظار العروض' : 'وصلتك $count عروض',
+                count == 0 ? t.offersWaitingTitle : t.offersReceivedCount(count),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 27,
@@ -211,7 +216,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'الخدمة: $service',
+                t.offersHeroServiceLabel(service),
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.82),
                   fontSize: 14,
@@ -237,6 +242,7 @@ class _ErrorOffers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -256,7 +262,7 @@ class _ErrorOffers extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'تعذّر تحميل العروض',
+            t.offersLoadFailedTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -276,7 +282,7 @@ class _ErrorOffers extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
           ),
         ],
       ),
@@ -289,6 +295,7 @@ class _EmptyOffers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -308,7 +315,7 @@ class _EmptyOffers extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'لا يوجد عروض بعد',
+            t.offersEmptyTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -317,7 +324,7 @@ class _EmptyOffers extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'عند وصول عروض من الفنيين ستظهر هنا، ويمكنك قبول العرض المناسب.',
+            t.offersEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textSecondary,
