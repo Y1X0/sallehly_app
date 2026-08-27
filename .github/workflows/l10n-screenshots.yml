@@ -1,0 +1,112 @@
+name: L10N Screenshots
+
+# CI-only infrastructure (no app code touched): captures a real PNG for
+# every screen/locale/width combo in test/support/l10n_screen_cases.dart,
+# rendered with a real Arabic+Latin font instead of flutter test's default
+# placeholder font, so layout/RTL issues can actually be reviewed visually.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ claude/flutter-ui-consistency-vzb65s ]
+    paths:
+      - '.github/workflows/l10n-screenshots.yml'
+      - 'test/widgets/l10n_screenshot_capture_test.dart'
+      - 'test/support/l10n_screen_cases.dart'
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Install real fonts (Noto, via apt — not a project asset)
+        run: |
+          set -e
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core fonts-noto-extra fontconfig
+          ARABIC=$(find /usr/share/fonts -iname "*NotoNaskhArabic*Regular*" 2>/dev/null | head -1)
+          if [ -z "$ARABIC" ]; then
+            ARABIC=$(find /usr/share/fonts -iname "*NotoSansArabic*Regular*" 2>/dev/null | head -1)
+          fi
+          ARABIC_BOLD=$(find /usr/share/fonts -iname "*NotoNaskhArabic*Bold*" 2>/dev/null | head -1)
+          if [ -z "$ARABIC_BOLD" ]; then
+            ARABIC_BOLD=$(find /usr/share/fonts -iname "*NotoSansArabic*Bold*" 2>/dev/null | head -1)
+          fi
+          LATIN=$(find /usr/share/fonts -iname "NotoSans-Regular.ttf" 2>/dev/null | head -1)
+          LATIN_BOLD=$(find /usr/share/fonts -iname "NotoSans-Bold.ttf" 2>/dev/null | head -1)
+          if [ -z "$ARABIC" ] || [ -z "$LATIN" ]; then
+            echo "::error::Missing a real font after apt install (arabic=$ARABIC latin=$LATIN)"
+            find /usr/share/fonts -iname "*noto*" | sort
+            exit 1
+          fi
+          # [SCREENSHOT-FONT-01] عائلتان منفصلتان الآن (عربي/لاتيني)، لا عائلة
+          # 'Roboto' واحدة مشتركة كما كان سابقاً — FontLoader لا يلتقط بالحرف
+          # الصحيح عبر عدة ملفات بنفس اسم العائلة (أول ملف يفوز بالكامل لأي
+          # حرف يتعرّف عليه، ولو ظهر tofu داخل ذلك الخط تحديداً)، فكانت كل
+          # النصوص اللاتينية الحقيقية (بعد بدء Phase 2) تظهر كمربّعات رغم
+          # وجود ملف لاتيني مُسجَّل. الحل الصحيح: عائلتان منفصلتان +
+          # ThemeData.fontFamilyFallback (آلية فلَتّر الحقيقية للتراجع
+          # بالحرف عبر عائلات، بخلاف دمج FontLoader الداخلي) — راجع
+          # l10n_screen_cases.dart وl10n_screenshot_capture_test.dart.
+          ARABIC_PATHS="$ARABIC"
+          if [ -n "$ARABIC_BOLD" ]; then ARABIC_PATHS="$ARABIC_PATHS:$ARABIC_BOLD"; fi
+          echo "ARABIC_FONT_PATHS=$ARABIC_PATHS" >> "$GITHUB_ENV"
+          echo "LATIN_FONT_PATHS=$LATIN" >> "$GITHUB_ENV"
+          echo "Using Arabic fonts: $ARABIC_PATHS"
+          echo "Using Latin fonts: $LATIN"
+
+          # أيقونات فلَتّر (MaterialIcons) — أصل حقيقي بحزمة فلَتّر نفسها، لكن
+          # flutter test لا يحمّله ضمنياً (لا نظام تشغيل حقيقي هنا)، فتظهر كل
+          # الأيقونات كمربّعات فارغة بدونه — يمنع الحكم على اتجاهها بالإنجليزية.
+          ICONS_FONT="$FLUTTER_ROOT/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf"
+          if [ ! -f "$ICONS_FONT" ]; then
+            echo "::error::MaterialIcons font not found at $ICONS_FONT"
+            exit 1
+          fi
+          echo "MATERIAL_ICONS_FONT_PATH=$ICONS_FONT" >> "$GITHUB_ENV"
+          echo "Using icons font: $ICONS_FONT"
+
+      - name: Run screenshot capture test (all screens/locales/widths)
+        env:
+          SCREENSHOT_OUT_DIR: build/l10n_screenshots
+        run: flutter test test/widgets/l10n_screenshot_capture_test.dart --reporter expanded
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: l10n-screenshots
+          path: build/l10n_screenshots/*.png
+          retention-days: 14
+          if-no-files-found: error
+
+      # Actions-artifact downloads go through Azure Blob Storage, which this
+      # session's egress proxy can't reach — pushing to a branch lets review
+      # happen over plain `git`/github.com instead. Force-pushed each run;
+      # this branch holds only the latest screenshots, not history.
+      - name: Publish screenshots to a review branch (git-fetchable, not just the zip artifact)
+        run: |
+          set -e
+          git config user.name "l10n-screenshots-ci"
+          git config user.email "noreply@github.com"
+          rm -rf /tmp/screenshots_publish
+          mkdir -p /tmp/screenshots_publish
+          cp build/l10n_screenshots/*.png /tmp/screenshots_publish/
+          git checkout --orphan l10n-screenshots-latest
+          git rm -rf . > /dev/null 2>&1 || true
+          cp /tmp/screenshots_publish/*.png .
+          git add ./*.png
+          git commit -m "L10N screenshots from run ${{ github.run_id }}"
+          git push origin HEAD:l10n-screenshots-latest --force

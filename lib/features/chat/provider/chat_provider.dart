@@ -18,6 +18,11 @@ class ChatProvider extends ChangeNotifier {
 
   bool loading = false;
   bool sending = false;
+  // [L10N-TODO] كل رسائل fallback الفشل بهذا الملف (طبقة provider، بلا
+  // BuildContext) عربية ثابتة حالياً. `error` الوحيد له مستهلِك فعلي حالياً:
+  // chat_room_screen.dart (#76) — يُحلّ عند الوصول لذلك الملف. `chatsError`
+  // بلا أي مستهلِك بالواجهة حالياً (chats_screen.dart يعرض RequestsProvider
+  // .error، لا ChatProvider.chatsError) — يُترَك كما هو حتى يُستخدَم فعلياً.
   String? error;
 
   final Map<int, List<MessageModel>> _messagesByRequest = {};

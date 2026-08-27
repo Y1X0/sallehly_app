@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/ui/directional_icons.dart';
+import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../requests/widgets/request_status_chip.dart';
 
@@ -25,6 +28,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final locationText =
         '${widget.request.city}${widget.request.area == null || widget.request.area!.isEmpty ? '' : ' - ${widget.request.area}'}';
 
@@ -84,7 +88,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'جديد',
+                              t.newRequestBadge,
                               style: TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 12,
@@ -136,6 +140,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                             _InfoLine(
                               icon: Icons.place_rounded,
                               text: locationText,
+                              bidi: true,
                             ),
                           ],
                         ),
@@ -150,7 +155,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                     ),
                   ],
                   const SizedBox(height: 14),
-                  Text(
+                  BidiText(
                     widget.request.description,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -171,9 +176,9 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Text(
-                            'عرض التفاصيل وإرسال عرض',
-                            style: TextStyle(
+                          child: Text(
+                            t.viewDetailsAndSendOffer,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,
                             ),
@@ -190,7 +195,7 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Icon(
-                          Icons.arrow_forward_ios_rounded,
+                          DirectionalIcons.forwardIosStyle(context),
                           color: AppColors.textPrimary,
                           size: 18,
                         ),
@@ -210,14 +215,23 @@ class _TechnicianRequestCardState extends State<TechnicianRequestCard> {
 class _InfoLine extends StatelessWidget {
   final IconData icon;
   final String text;
+  // [FIX-BIDI-01] true فقط لمصادر تبقى عربية بغضّ النظر عن اللغة (مثل اسم
+  // المدينة/المنطقة) — راجع L10N_PROGRESS.md §3. اسم العميل (المستخدَم أيضاً
+  // بهذا الودجت) ليس مشمولاً حالياً، فيبقى false افتراضياً.
+  final bool bidi;
 
   const _InfoLine({
     required this.icon,
     required this.text,
+    this.bidi = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = TextStyle(
+      color: AppColors.textSecondary,
+      fontWeight: FontWeight.w600,
+    );
     return Row(
       children: [
         Icon(
@@ -227,15 +241,19 @@ class _InfoLine extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: bidi
+              ? BidiText(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textStyle,
+                )
+              : Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textStyle,
+                ),
         ),
       ],
     );

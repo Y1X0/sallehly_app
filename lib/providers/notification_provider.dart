@@ -161,6 +161,14 @@ class NotificationProvider extends ChangeNotifier {
     return false;
   }
 
+  // [L10N-TODO] كل عناوين/نصوص الإشعارات المحلية بهذا الملف (من هنا وحتى
+  // نهاية الكلاس) عربية ثابتة حالياً — طبقة provider تُبنى من مستمعي أحداث
+  // السوكت (socket listeners مُعدَّة بـapp.dart، بلا BuildContext تُمرَّر
+  // للدوال نفسها هنا)، بلا أي شاشة استهلاك واحدة معروفة (تُعرَض عبر
+  // NotificationBell/قائمة الإشعارات لاحقاً). حل صحيح يتطلب تمرير
+  // AppLocalizations صراحة من نقطة إعداد مستمعي السوكت، تغيير معماري أكبر
+  // من نطاق هذا الملف بمفرده — نفس اتفاقية chat_provider.dart/
+  // requests_provider.dart/admin_provider.dart. لا تغيير وظيفي.
   void handleNewRequest(dynamic data) {
     final user = currentUser;
     if (user == null) return;

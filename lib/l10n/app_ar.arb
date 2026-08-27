@@ -1,0 +1,2996 @@
+{
+  "@@locale": "ar",
+  "appWordmark": "صلّحلي",
+  "@appWordmark": {
+    "description": "اسم التطبيق كنص شعار (وردمارك) — يُعرَض بجانب الشعار في AppLogo"
+  },
+  "notificationsBellTooltip": "الإشعارات",
+  "@notificationsBellTooltip": {
+    "description": "تلميح (tooltip) زر جرس الإشعارات"
+  },
+  "consentAgreeToPrefix": "أوافق على ",
+  "@consentAgreeToPrefix": {
+    "description": "الجزء الأول من جملة الموافقة على سياسة الخصوصية، قبل الرابط"
+  },
+  "privacyPolicyTitle": "سياسة الخصوصية",
+  "@privacyPolicyTitle": {
+    "description": "عنوان/اسم سياسة الخصوصية — يُستخدم كرابط بخانة الموافقة وكعنوان شاشة سياسة الخصوصية"
+  },
+  "newRequestBadge": "جديد",
+  "@newRequestBadge": {
+    "description": "شارة صغيرة على بطاقة طلب جديد (كروت الفني)"
+  },
+  "viewDetailsAndSendOffer": "عرض التفاصيل وإرسال عرض",
+  "@viewDetailsAndSendOffer": {
+    "description": "زر ببطاقة الطلب (جهة الفني) للانتقال لتفاصيل الطلب وتقديم عرض"
+  },
+  "connectivityOfflineMessage": "لا يوجد اتصال بالإنترنت",
+  "@connectivityOfflineMessage": {
+    "description": "رسالة بانر انقطاع الإنترنت"
+  },
+  "connectivityServerSlowMessage": "الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار",
+  "@connectivityServerSlowMessage": {
+    "description": "رسالة بانر بطء استجابة الخادم (غير متعلقة بإنترنت المستخدم)"
+  },
+  "ledgerTitle": "سجل العمليات",
+  "@ledgerTitle": {
+    "description": "عنوان شاشة سجل عمليات المحفظة"
+  },
+  "ledgerComingSoonTitle": "سجل العمليات قريباً",
+  "@ledgerComingSoonTitle": {
+    "description": "عنوان حالة \"قيد التطوير\" بشاشة سجل العمليات"
+  },
+  "ledgerComingSoonSubtitle": "ستظهر هنا كل حركات رصيدك بالتفصيل",
+  "@ledgerComingSoonSubtitle": {
+    "description": "الوصف الفرعي لحالة \"قيد التطوير\" بشاشة سجل العمليات"
+  },
+  "listSeparator": "، ",
+  "@listSeparator": {
+    "description": "فاصلة تُستخدم لدمج قائمة عناصر بجملة واحدة (مثل قائمة الخدمات المختارة)"
+  },
+  "servicesMultiSelectPlaceholder": "الخدمات / المهن",
+  "@servicesMultiSelectPlaceholder": {
+    "description": "النص الظاهر باختيار الخدمات المتعدد عندما لا شيء مُختار بعد"
+  },
+  "servicesMinRequired": "{count, plural, =1{يجب اختيار خدمة واحدة على الأقل} =2{يجب اختيار خدمتين على الأقل} few{يجب اختيار {count} خدمات على الأقل} many{يجب اختيار {count} خدمة على الأقل} other{يجب اختيار {count} خدمة على الأقل}}",
+  "@servicesMinRequired": {
+    "description": "تحذير الحد الأدنى لعدد الخدمات المختارة",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audioMessagePlaying": "تشغيل",
+  "@audioMessagePlaying": {
+    "description": "تسمية رسالة صوتية بحالة التشغيل الحالي"
+  },
+  "audioMessageLabel": "صوت",
+  "@audioMessageLabel": {
+    "description": "تسمية رسالة صوتية بحالة عدم التشغيل"
+  },
+  "locationMessageLabel": "موقع على الخريطة\nاضغط للفتح",
+  "@locationMessageLabel": {
+    "description": "نص فقاعة رسالة الموقع بالشات (سطرين)"
+  },
+  "imageLoadFailedMessage": "تعذّر تحميل الصورة",
+  "@imageLoadFailedMessage": {
+    "description": "رسالة فشل تحميل صورة (شات أو غيره)"
+  },
+  "notificationsMarkAllRead": "قراءة الكل",
+  "@notificationsMarkAllRead": {
+    "description": "زر تعليم كل الإشعارات كمقروءة"
+  },
+  "notificationsEmptyTitle": "لا توجد إشعارات حالياً",
+  "@notificationsEmptyTitle": {
+    "description": "عنوان حالة عدم وجود إشعارات"
+  },
+  "notificationsEmptySubtitle": "ستصلك هنا آخر التحديثات على طلباتك وعروضك",
+  "@notificationsEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود إشعارات"
+  },
+  "packagesScreenTitle": "باقات الشحن",
+  "@packagesScreenTitle": {
+    "description": "عنوان شاشة باقات الشحن"
+  },
+  "packagesLoadFailedTitle": "تعذّر تحميل الباقات",
+  "@packagesLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل الباقات"
+  },
+  "retryButton": "إعادة المحاولة",
+  "@retryButton": {
+    "description": "زر إعادة المحاولة العام (يُستخدم بعدة شاشات)"
+  },
+  "packagesEmptyTitle": "لا توجد باقات حالياً",
+  "@packagesEmptyTitle": {
+    "description": "عنوان حالة عدم وجود باقات شحن"
+  },
+  "currencySymbolJod": "د.أ",
+  "@currencySymbolJod": {
+    "description": "رمز الدينار الأردني كما يُعرض بجانب المبالغ"
+  },
+  "packageBonusLabel": "بونص {amount}",
+  "@packageBonusLabel": {
+    "description": "شارة بونص على بطاقة باقة شحن (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "packageBalanceAfterApproval": "يصل رصيدك إلى {amount} بعد الموافقة",
+  "@packageBalanceAfterApproval": {
+    "description": "الرصيد النهائي المتوقَّع بعد اعتماد طلب شحن (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPackageButton": "اختيار الباقة",
+  "@selectPackageButton": {
+    "description": "زر اختيار باقة شحن"
+  },
+  "splashTagline": "منصة خدمات الصيانة في الأردن",
+  "@splashTagline": {
+    "description": "الشعار الفرعي أسفل اسم التطبيق بشاشة البداية"
+  },
+  "splashServerWakingHint": "الخادم قد يستغرق وقتاً أطول من المعتاد للاستيقاظ، يرجى الانتظار...",
+  "@splashServerWakingHint": {
+    "description": "تلميح يظهر بشاشة البداية عند تأخر استجابة الخادم"
+  },
+  "splashConnectionFailed": "تعذّر الاتصال بالخادم",
+  "@splashConnectionFailed": {
+    "description": "رسالة فشل الاتصال بشاشة البداية بعد تجاوز المهلة"
+  },
+  "topupStatusApproved": "تمت الموافقة",
+  "@topupStatusApproved": {
+    "description": "حالة طلب شحن معتمَد"
+  },
+  "topupStatusRejected": "مرفوض",
+  "@topupStatusRejected": {
+    "description": "حالة طلب شحن مرفوض"
+  },
+  "topupStatusPending": "قيد المراجعة",
+  "@topupStatusPending": {
+    "description": "حالة طلب شحن قيد المراجعة"
+  },
+  "topupRequestFallbackName": "طلب شحن",
+  "@topupRequestFallbackName": {
+    "description": "اسم احتياطي لطلب شحن بلا اسم باقة محدَّد"
+  },
+  "technicianFallbackName": "فني",
+  "@technicianFallbackName": {
+    "description": "اسم احتياطي لفني بلا اسم محدَّد بعرض"
+  },
+  "offerPriceLabel": "السعر: {amount}",
+  "@offerPriceLabel": {
+    "description": "سعر عرض فني (amount مُهيّأ مسبقاً برمز العملة)",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "offerDurationLabel": "الوقت: ",
+  "@offerDurationLabel": {
+    "description": "تسمية مدة تنفيذ العرض (قبل القيمة الفعلية)"
+  },
+  "offerAcceptButton": "قبول",
+  "@offerAcceptButton": {
+    "description": "زر قبول عرض فني"
+  },
+  "offerRejectButton": "رفض",
+  "@offerRejectButton": {
+    "description": "زر رفض عرض فني"
+  },
+  "offerAcceptedStatus": "تم قبول العرض",
+  "@offerAcceptedStatus": {
+    "description": "حالة عرض مقبول"
+  },
+  "offerRejectedStatus": "تم رفض العرض",
+  "@offerRejectedStatus": {
+    "description": "حالة عرض مرفوض"
+  },
+  "adminLedgerTitle": "دفتر الحساب ({count})",
+  "@adminLedgerTitle": {
+    "description": "عنوان شاشة دفتر الحساب مع إجمالي عدد الحركات",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminLedgerBalanceLabel": "الرصيد: {value}",
+  "@adminLedgerBalanceLabel": {
+    "description": "رصيد بعد حركة دفتر حساب (value قيمة خام من الخادم)",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "adminLedgerEmptyTitle": "لا توجد حركات مالية بعد",
+  "@adminLedgerEmptyTitle": {
+    "description": "عنوان حالة عدم وجود حركات بدفتر الحساب"
+  },
+  "adminLedgerEmptySubtitle": "ستظهر هنا كل الحركات المالية عبر المنصة",
+  "@adminLedgerEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود حركات بدفتر الحساب"
+  },
+  "adminLedgerLoadFailedTitle": "تعذّر تحميل دفتر الحساب",
+  "@adminLedgerLoadFailedTitle": {
+    "description": "عنوان فشل تحميل دفتر الحساب"
+  },
+  "supportSendMessageFailed": "تعذر إرسال الرسالة",
+  "@supportSendMessageFailed": {
+    "description": "رسالة فشل إرسال رد بمحادثة الدعم"
+  },
+  "supportCloseTicket": "إغلاق",
+  "@supportCloseTicket": {
+    "description": "زر إغلاق تذكرة دعم"
+  },
+  "supportReopenTicket": "إعادة فتح",
+  "@supportReopenTicket": {
+    "description": "زر إعادة فتح تذكرة دعم"
+  },
+  "supportMessagesLoadFailed": "تعذّر تحميل الرسائل",
+  "@supportMessagesLoadFailed": {
+    "description": "عنوان فشل تحميل رسائل محادثة (دعم أو غيرها)"
+  },
+  "supportReplyHint": "اكتب رداً...",
+  "@supportReplyHint": {
+    "description": "نص تلميح حقل الرد بمحادثة الدعم (جهة الأدمن)"
+  },
+  "sendButtonTooltip": "إرسال",
+  "@sendButtonTooltip": {
+    "description": "تلميح زر إرسال (رسالة/رد)"
+  },
+  "userFallbackName": "المستخدم",
+  "@userFallbackName": {
+    "description": "اسم احتياطي لمستخدم بلا اسم محدَّد"
+  },
+  "backButtonTooltip": "رجوع",
+  "@backButtonTooltip": {
+    "description": "تلميح زر الرجوع للشاشة السابقة"
+  },
+  "registerChooseAccountType": "اختر نوع الحساب",
+  "@registerChooseAccountType": {
+    "description": "عنوان شاشة اختيار نوع الحساب (عميل/فني)"
+  },
+  "registerChooseAccountTypeSubtitle": "أنشئ حسابك كعميل لطلب الخدمات أو كفني لاستقبال الطلبات.",
+  "@registerChooseAccountTypeSubtitle": {
+    "description": "الوصف الفرعي لشاشة اختيار نوع الحساب"
+  },
+  "registerCustomerRoleTitle": "حساب عميل",
+  "@registerCustomerRoleTitle": {
+    "description": "عنوان بطاقة اختيار حساب عميل"
+  },
+  "registerCustomerRoleSubtitle": "اطلب خدمة صيانة واستقبل عروض الفنيين",
+  "@registerCustomerRoleSubtitle": {
+    "description": "وصف بطاقة اختيار حساب عميل"
+  },
+  "registerTechnicianRoleTitle": "حساب فني",
+  "@registerTechnicianRoleTitle": {
+    "description": "عنوان بطاقة اختيار حساب فني"
+  },
+  "registerTechnicianRoleSubtitle": "استقبل طلبات العملاء وقدّم عروضك",
+  "@registerTechnicianRoleSubtitle": {
+    "description": "وصف بطاقة اختيار حساب فني"
+  },
+  "otpAccountActivatedFallback": "تم إنشاء الحساب بنجاح",
+  "@otpAccountActivatedFallback": {
+    "description": "رسالة نجاح احتياطية عند تفعيل الحساب برمز OTP إن لم يرسل الخادم رسالة"
+  },
+  "otpVerificationFailed": "تعذر التحقق من الكود",
+  "@otpVerificationFailed": {
+    "description": "رسالة فشل التحقق من رمز OTP"
+  },
+  "otpActivateAccountTitle": "تفعيل الحساب",
+  "@otpActivateAccountTitle": {
+    "description": "عنوان شاشة تفعيل الحساب / زر التفعيل"
+  },
+  "otpEnterCodeTitle": "أدخل كود التحقق",
+  "@otpEnterCodeTitle": {
+    "description": "عنوان شاشة إدخال رمز التحقق"
+  },
+  "otpSentToEmail": "تم إرسال كود مكوّن من 6 أرقام إلى:\n{email}",
+  "@otpSentToEmail": {
+    "description": "رسالة تخبر المستخدم بإرسال رمز OTP لبريده الإلكتروني",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "otpCodeFieldLabel": "كود التحقق",
+  "@otpCodeFieldLabel": {
+    "description": "تسمية حقل إدخال رمز التحقق"
+  },
+  "otpCodeValidationError": "أدخل كود التحقق المكون من 6 أرقام",
+  "@otpCodeValidationError": {
+    "description": "رسالة خطأ تحقق عند رمز OTP غير مكتمل"
+  },
+  "chatAttachImageLabel": "صورة",
+  "@chatAttachImageLabel": {
+    "description": "خيار إرفاق صورة بقائمة مرفقات الشات"
+  },
+  "chatAttachLocationLabel": "موقع",
+  "@chatAttachLocationLabel": {
+    "description": "خيار إرفاق موقع بقائمة مرفقات الشات"
+  },
+  "chatStopRecordingLabel": "إيقاف",
+  "@chatStopRecordingLabel": {
+    "description": "خيار إيقاف تسجيل صوتي بقائمة مرفقات الشات"
+  },
+  "chatAddAttachmentTooltip": "إضافة مرفق",
+  "@chatAddAttachmentTooltip": {
+    "description": "تلميح زر فتح قائمة مرفقات الشات"
+  },
+  "chatRecordingInProgress": "جاري التسجيل...",
+  "@chatRecordingInProgress": {
+    "description": "نص يظهر أثناء تسجيل رسالة صوتية بالشات"
+  },
+  "chatMessageHint": "اكتب رسالة...",
+  "@chatMessageHint": {
+    "description": "نص تلميح حقل كتابة رسالة الشات"
+  },
+  "chatStopRecordingAndSendTooltip": "إيقاف التسجيل وإرسال",
+  "@chatStopRecordingAndSendTooltip": {
+    "description": "تلميح زر إيقاف التسجيل الصوتي وإرساله"
+  },
+  "navHome": "الرئيسية",
+  "@navHome": {
+    "description": "تسمية تبويب الرئيسية بالشريط السفلي"
+  },
+  "navMyRequests": "طلباتي",
+  "@navMyRequests": {
+    "description": "تسمية تبويب طلباتي بالشريط السفلي"
+  },
+  "navChats": "الدردشات",
+  "@navChats": {
+    "description": "تسمية تبويب الدردشات بالشريط السفلي"
+  },
+  "navSettings": "الإعدادات",
+  "@navSettings": {
+    "description": "تسمية تبويب الإعدادات بالشريط السفلي"
+  },
+  "navSupport": "الدعم",
+  "@navSupport": {
+    "description": "تسمية تبويب الدعم بالشريط السفلي"
+  },
+  "navNewRequests": "جديدة",
+  "@navNewRequests": {
+    "description": "تسمية تبويب الطلبات الجديدة بالشريط السفلي (جهة الفني)"
+  },
+  "navWallet": "المحفظة",
+  "@navWallet": {
+    "description": "تسمية تبويب المحفظة بالشريط السفلي (جهة الفني)"
+  },
+  "technicianDashboardTitle": "لوحة الفني",
+  "@technicianDashboardTitle": {
+    "description": "عنوان شريط تطبيق لوحة الفني الرئيسية"
+  },
+  "myReviewsTitle": "تقييماتي",
+  "@myReviewsTitle": {
+    "description": "عنوان شاشة تقييمات الفني"
+  },
+  "myReviewsEmptyMessage": "لا توجد تقييمات بعد.\nستظهر هنا بعد أن يقيّمك العملاء",
+  "@myReviewsEmptyMessage": {
+    "description": "رسالة حالة عدم وجود تقييمات بعد"
+  },
+  "myReviewsBasedOnCount": "{count, plural, =1{بناءً على آخر تقييم واحد} =2{بناءً على آخر تقييمين} few{بناءً على آخر {count} تقييمات} many{بناءً على آخر {count} تقييماً} other{بناءً على آخر {count} تقييم}}",
+  "@myReviewsBasedOnCount": {
+    "description": "نص متوسط التقييم مع عدد التقييمات المعتمَد عليها",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "myReviewsNoReviewsShort": "لا توجد تقييمات بعد",
+  "@myReviewsNoReviewsShort": {
+    "description": "نص قصير لعدم وجود تقييمات (داخل بطاقة الملخص)"
+  },
+  "customerFallbackName": "عميل",
+  "@customerFallbackName": {
+    "description": "اسم احتياطي لعميل بلا اسم محدَّد"
+  },
+  "adminAuditTitle": "سجل العمليات",
+  "@adminAuditTitle": {
+    "description": "عنوان شاشة سجل العمليات الإدارية (Audit Log)"
+  },
+  "adminAuditSearchHint": "ابحث في العمليات (اسم، نوع، تفاصيل)",
+  "@adminAuditSearchHint": {
+    "description": "نص تلميح حقل بحث سجل العمليات"
+  },
+  "adminAuditClearSearchTooltip": "مسح البحث",
+  "@adminAuditClearSearchTooltip": {
+    "description": "تلميح زر مسح نص البحث بسجل العمليات"
+  },
+  "adminAuditEmptyTitle": "لا توجد عمليات مسجّلة",
+  "@adminAuditEmptyTitle": {
+    "description": "عنوان حالة عدم وجود عمليات مسجّلة"
+  },
+  "adminAuditEmptySubtitle": "ستظهر هنا كل العمليات الإدارية على المنصة",
+  "@adminAuditEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود عمليات مسجّلة"
+  },
+  "adminAuditLoadFailedTitle": "تعذّر تحميل سجل العمليات",
+  "@adminAuditLoadFailedTitle": {
+    "description": "عنوان فشل تحميل سجل العمليات"
+  },
+  "systemFallbackName": "النظام",
+  "@systemFallbackName": {
+    "description": "اسم احتياطي لفاعل عملية بسجل العمليات عندما تكون العملية آلية (بلا مستخدم محدَّد)"
+  },
+  "settingsLanguageTitle": "اللغة",
+  "@settingsLanguageTitle": {
+    "description": "عنوان مفتاح تبديل لغة الواجهة في شاشة الإعدادات"
+  },
+  "settingsLanguageSubtitleArabic": "التطبيق يعمل بالعربية حالياً",
+  "@settingsLanguageSubtitleArabic": {
+    "description": "النص الفرعي عندما تكون اللغة الحالية عربي"
+  },
+  "settingsLanguageSubtitleEnglish": "التطبيق يعمل بالإنجليزية حالياً",
+  "@settingsLanguageSubtitleEnglish": {
+    "description": "النص الفرعي عندما تكون اللغة الحالية إنجليزي"
+  },
+  "adminSupportTicketClosedMessage": "تم إغلاق التذكرة",
+  "@adminSupportTicketClosedMessage": {
+    "description": "رسالة تأكيد بعد إغلاق تذكرة دعم من لوحة الأدمن"
+  },
+  "adminSupportTicketReopenedMessage": "تم إعادة فتح التذكرة",
+  "@adminSupportTicketReopenedMessage": {
+    "description": "رسالة تأكيد بعد إعادة فتح تذكرة دعم من لوحة الأدمن"
+  },
+  "adminSupportTicketUpdateFailedMessage": "تعذر تحديث التذكرة",
+  "@adminSupportTicketUpdateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة تذكرة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "adminSupportLoadFailedTitle": "تعذّر تحميل تذاكر الدعم",
+  "@adminSupportLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة تذاكر الدعم بلوحة الأدمن"
+  },
+  "adminSupportEmptyTitle": "لا توجد تذاكر دعم حالياً",
+  "@adminSupportEmptyTitle": {
+    "description": "عنوان الحالة الفارغة عند عدم وجود تذاكر دعم"
+  },
+  "adminSupportTicketFallbackTitle": "تذكرة دعم",
+  "@adminSupportTicketFallbackTitle": {
+    "description": "عنوان احتياطي لبطاقة تذكرة دعم بلا عنوان"
+  },
+  "adminSupportTicketOpenLabel": "مفتوحة",
+  "@adminSupportTicketOpenLabel": {
+    "description": "وسم حالة تذكرة دعم مفتوحة"
+  },
+  "adminSupportTicketClosedLabel": "مغلقة",
+  "@adminSupportTicketClosedLabel": {
+    "description": "وسم حالة تذكرة دعم مغلقة"
+  },
+  "adminSupportCloseButton": "إغلاق",
+  "@adminSupportCloseButton": {
+    "description": "زر إغلاق تذكرة دعم مفتوحة"
+  },
+  "adminSupportReopenButton": "إعادة فتح",
+  "@adminSupportReopenButton": {
+    "description": "زر إعادة فتح تذكرة دعم مغلقة"
+  },
+  "landingHeroTitle": "كل خدمات الصيانة\nفي مكان واحد",
+  "@landingHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي بشاشة الترحيب"
+  },
+  "landingHeroSubtitle": "اطلب فني قريب منك، استقبل عروض، واحكِ مع الفني داخل التطبيق بأمان.",
+  "@landingHeroSubtitle": {
+    "description": "الوصف التسويقي الفرعي تحت العنوان الرئيسي بشاشة الترحيب"
+  },
+  "landingLoginButton": "تسجيل الدخول",
+  "@landingLoginButton": {
+    "description": "زر الانتقال لشاشة تسجيل الدخول من شاشة الترحيب"
+  },
+  "landingCreateAccountButton": "إنشاء حساب جديد",
+  "@landingCreateAccountButton": {
+    "description": "زر الانتقال لاختيار نوع الحساب (عميل/فني) من شاشة الترحيب"
+  },
+  "landingCountryBadge": "الأردن",
+  "@landingCountryBadge": {
+    "description": "شارة اسم الدولة أعلى شاشة الترحيب"
+  },
+  "landingStatRequestsLabel": "طلب",
+  "@landingStatRequestsLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: عدد الطلبات"
+  },
+  "landingStatRequestsValue": "+120",
+  "@landingStatRequestsValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: عدد الطلبات (رقم تقريبي ثابت، وليس بيانات حية)"
+  },
+  "landingStatTechniciansLabel": "فني",
+  "@landingStatTechniciansLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: عدد الفنيين"
+  },
+  "landingStatTechniciansValue": "+50",
+  "@landingStatTechniciansValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: عدد الفنيين (رقم تقريبي ثابت، وليس بيانات حية)"
+  },
+  "landingStatChatLabel": "محادثة",
+  "@landingStatChatLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: المحادثة"
+  },
+  "landingStatChatValue": "آمنة",
+  "@landingStatChatValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: وصف المحادثة بأنها آمنة"
+  },
+  "landingStatLocationLabel": "موقعك",
+  "@landingStatLocationLabel": {
+    "description": "عنوان بطاقة إحصائية تسويقية زخرفية: الموقع"
+  },
+  "landingStatLocationValue": "قريب",
+  "@landingStatLocationValue": {
+    "description": "قيمة بطاقة إحصائية تسويقية زخرفية: وصف الفنيين بأنهم قريبون"
+  },
+  "complaintSheetTitle": "تقديم شكوى",
+  "@complaintSheetTitle": {
+    "description": "عنوان النافذة المنبثقة لتقديم شكوى على طلب"
+  },
+  "complaintSheetAboutTechnician": "بخصوص الفني: {name}",
+  "@complaintSheetAboutTechnician": {
+    "description": "نص فرعي عند وجود اسم فني معروف للشكوى",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintSheetAboutRequest": "بخصوص هذا الطلب",
+  "@complaintSheetAboutRequest": {
+    "description": "نص فرعي عند عدم وجود اسم فني معروف للشكوى"
+  },
+  "complaintSheetBodyLabel": "تفاصيل الشكوى",
+  "@complaintSheetBodyLabel": {
+    "description": "تسمية حقل نص تفاصيل الشكوى"
+  },
+  "complaintSheetBodyHint": "اشرح المشكلة التي واجهتها بوضوح...",
+  "@complaintSheetBodyHint": {
+    "description": "نص تلميحي داخل حقل تفاصيل الشكوى"
+  },
+  "complaintSheetBodyValidationError": "اكتب تفاصيل أوضح (10 أحرف على الأقل)",
+  "@complaintSheetBodyValidationError": {
+    "description": "رسالة تحقق عند كتابة تفاصيل شكوى قصيرة جداً"
+  },
+  "complaintSheetSubmitButton": "إرسال الشكوى",
+  "@complaintSheetSubmitButton": {
+    "description": "زر إرسال الشكوى"
+  },
+  "complaintSheetSuccessMessage": "تم إرسال الشكوى للإدارة، سيتم مراجعتها قريباً",
+  "@complaintSheetSuccessMessage": {
+    "description": "رسالة تأكيد بعد إرسال الشكوى بنجاح"
+  },
+  "complaintSheetSubmitFailedMessage": "تعذر إرسال الشكوى",
+  "@complaintSheetSubmitFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال الشكوى لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "supportChatSendFailedMessage": "تعذر إرسال الرسالة",
+  "@supportChatSendFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال رسالة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "supportChatClosedMessage": "هذه التذكرة مغلقة. لا يمكن إرسال رسائل جديدة.",
+  "@supportChatClosedMessage": {
+    "description": "رسالة تُعرض بدل شريط الإرسال عندما تكون تذكرة الدعم مغلقة"
+  },
+  "supportChatEmptyTitle": "ابدأ المحادثة مع فريق الدعم",
+  "@supportChatEmptyTitle": {
+    "description": "عنوان الحالة الفارغة قبل إرسال أي رسالة بمحادثة الدعم"
+  },
+  "supportChatEmptySubtitle": "اكتب رسالتك في الأسفل وسيرد عليك الفريق",
+  "@supportChatEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لمحادثة الدعم"
+  },
+  "supportChatLoadFailedTitle": "تعذّر تحميل الرسائل",
+  "@supportChatLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل رسائل محادثة الدعم"
+  },
+  "supportChatInputHint": "اكتب رسالتك...",
+  "@supportChatInputHint": {
+    "description": "نص تلميحي داخل حقل كتابة رسالة الدعم"
+  },
+  "supportTeamLabel": "فريق الدعم",
+  "@supportTeamLabel": {
+    "description": "اسم مُعرِّف مرسِل الرسالة عندما يكون من فريق الدعم (لا اسم مستخدم حقيقي)"
+  },
+  "technicianRequestStatusUpdated": "تم تحديث الحالة إلى {status}",
+  "@technicianRequestStatusUpdated": {
+    "description": "رسالة تأكيد بعد تحديث حالة الطلب من شاشة تفاصيل الفني. [L10N-TODO] {status} قيمة سلكية (RequestModel.status) لم تُترجَم بعد — مؤجَّلة لـPhase 3، ستبقى عربية حتى ذلك الحين حتى بالواجهة الإنجليزية.",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "technicianRequestDetailsTitle": "طلب رقم {id}",
+  "@technicianRequestDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل الطلب للفني",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "requestProblemDescriptionLabel": "وصف المشكلة",
+  "@requestProblemDescriptionLabel": {
+    "description": "عنوان قسم وصف المشكلة بتفاصيل الطلب"
+  },
+  "technicianSubmitOfferButton": "تقديم عرض سعر",
+  "@technicianSubmitOfferButton": {
+    "description": "زر انتقال الفني لتقديم عرض سعر على طلب"
+  },
+  "technicianStartWorkButton": "بدء التنفيذ",
+  "@technicianStartWorkButton": {
+    "description": "زر بدء الفني تنفيذ الطلب (يغيّر الحالة لـ«قيد التنفيذ»)"
+  },
+  "technicianAwaitingPaymentButton": "بانتظار تأكيد الدفع",
+  "@technicianAwaitingPaymentButton": {
+    "description": "زر تحديد الفني أن الطلب بانتظار تأكيد الدفع (نص الزر فقط — القيمة السلكية المُرسَلة للخادم غير متأثرة، ما زالت عربية لحين Phase 3)"
+  },
+  "offersAcceptedMessage": "تم قبول العرض وفتح المحادثة",
+  "@offersAcceptedMessage": {
+    "description": "رسالة تأكيد بعد قبول العميل عرض فني وفتح المحادثة"
+  },
+  "offersSectionTitle": "عروض الفنيين",
+  "@offersSectionTitle": {
+    "description": "عنوان قسم قائمة العروض بشاشة العروض"
+  },
+  "offersSectionSubtitle": "اختر العرض الأنسب لك لفتح المحادثة",
+  "@offersSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم قائمة العروض"
+  },
+  "offersScreenTitle": "العروض",
+  "@offersScreenTitle": {
+    "description": "عنوان شريط شاشة العروض العلوي"
+  },
+  "offersWaitingTitle": "بانتظار العروض",
+  "@offersWaitingTitle": {
+    "description": "عنوان بطاقة الهيرو عندما لا توجد عروض بعد (count == 0)"
+  },
+  "offersReceivedCount": "{count, plural, one{وصلك عرض واحد} two{وصلك عرضان} few{وصلتك {count} عروض} many{وصلتك {count} عرضاً} other{وصلتك {count} عرض}}",
+  "@offersReceivedCount": {
+    "description": "عنوان بطاقة الهيرو بعدد العروض الواصلة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "offersHeroServiceLabel": "الخدمة: {service}",
+  "@offersHeroServiceLabel": {
+    "description": "نص فرعي ببطاقة الهيرو يعرض اسم الخدمة المطلوبة. {service} من كتالوج الخدمات (بيانات خادم)، ليس نصاً ثابتاً بالتطبيق",
+    "placeholders": {
+      "service": {"type": "String"}
+    }
+  },
+  "offersLoadFailedTitle": "تعذّر تحميل العروض",
+  "@offersLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة العروض"
+  },
+  "offersEmptyTitle": "لا يوجد عروض بعد",
+  "@offersEmptyTitle": {
+    "description": "عنوان الحالة الفارغة قبل وصول أي عرض"
+  },
+  "offersEmptySubtitle": "عند وصول عروض من الفنيين ستظهر هنا، ويمكنك قبول العرض المناسب.",
+  "@offersEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة العروض"
+  },
+  "adminLayoutTitle": "لوحة الأدمن",
+  "@adminLayoutTitle": {
+    "description": "عنوان شريط لوحة الأدمن العلوي"
+  },
+  "adminLogoutTitle": "تسجيل الخروج",
+  "@adminLogoutTitle": {
+    "description": "عنوان نافذة تأكيد تسجيل الخروج، وتلميح زر تسجيل الخروج بشريط الأدمن العلوي"
+  },
+  "adminLogoutConfirmMessage": "هل تريد تسجيل الخروج من حساب الأدمن؟",
+  "@adminLogoutConfirmMessage": {
+    "description": "نص نافذة تأكيد تسجيل خروج الأدمن"
+  },
+  "cancelButton": "إلغاء",
+  "@cancelButton": {
+    "description": "زر إلغاء عام لنافذة تأكيد"
+  },
+  "adminLogoutConfirmButton": "خروج",
+  "@adminLogoutConfirmButton": {
+    "description": "زر تأكيد تسجيل خروج الأدمن بنافذة التأكيد"
+  },
+  "navUsers": "المستخدمين",
+  "@navUsers": {
+    "description": "عنوان تبويب المستخدمين بشريط تنقّل الأدمن السفلي"
+  },
+  "navTopups": "الشحن",
+  "@navTopups": {
+    "description": "عنوان تبويب طلبات الشحن بشريط تنقّل الأدمن السفلي"
+  },
+  "newRequestsSectionTitle": "طلبات العملاء",
+  "@newRequestsSectionTitle": {
+    "description": "عنوان قسم قائمة الطلبات الجديدة المتاحة للفني"
+  },
+  "newRequestsSectionSubtitle": "اختر الطلب المناسب وقدّم عرضك",
+  "@newRequestsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم الطلبات الجديدة"
+  },
+  "newRequestsLoadingSemanticLabel": "جاري تحميل الطلبات",
+  "@newRequestsLoadingSemanticLabel": {
+    "description": "وصف Semantics لقارئ الشاشة أثناء تحميل الطلبات الجديدة (هياكل تحميل بلا نص مرئي)"
+  },
+  "newRequestsUpdatingMessage": "جاري تحديث الطلبات...",
+  "@newRequestsUpdatingMessage": {
+    "description": "نص بطاقة الهيرو أثناء تحديث قائمة الطلبات الجديدة"
+  },
+  "newRequestsNoneTitle": "لا توجد طلبات جديدة",
+  "@newRequestsNoneTitle": {
+    "description": "نص بطاقة الهيرو عندما لا توجد أي طلبات جديدة متاحة (count == 0)"
+  },
+  "newRequestsAvailableCount": "{count, plural, one{طلب جديد واحد بانتظارك} two{طلبان جديدان بانتظارك} few{{count} طلبات جديدة بانتظارك} many{{count} طلباً جديداً بانتظارك} other{{count} طلب جديد بانتظارك}}",
+  "@newRequestsAvailableCount": {
+    "description": "نص بطاقة الهيرو بعدد الطلبات الجديدة المتاحة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "newRequestsHeroSubtitle": "تابع الطلبات القريبة منك وقدّم عرضك بسرعة قبل باقي الفنيين.",
+  "@newRequestsHeroSubtitle": {
+    "description": "نص فرعي تسويقي ببطاقة هيرو الطلبات الجديدة"
+  },
+  "newRequestsLoadFailedTitle": "تعذّر تحميل الطلبات",
+  "@newRequestsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل الطلبات الجديدة"
+  },
+  "newRequestsEmptyTitle": "لا توجد طلبات حالياً",
+  "@newRequestsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة الطلبات الجديدة"
+  },
+  "newRequestsEmptySubtitle": "عند وصول طلب جديد ضمن منطقتك سيظهر هنا مباشرة.",
+  "@newRequestsEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة الطلبات الجديدة"
+  },
+  "loginGenericErrorMessage": "حدث خطأ أثناء تسجيل الدخول",
+  "@loginGenericErrorMessage": {
+    "description": "رسالة خطأ عامة عند فشل تسجيل الدخول لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "loginWelcomeBackTitle": "أهلاً بعودتك",
+  "@loginWelcomeBackTitle": {
+    "description": "العنوان الرئيسي بشاشة تسجيل الدخول"
+  },
+  "loginSubtitle": "سجّل دخولك لإدارة طلباتك ومحادثاتك",
+  "@loginSubtitle": {
+    "description": "النص الفرعي بشاشة تسجيل الدخول"
+  },
+  "emailFieldLabel": "البريد الإلكتروني",
+  "@emailFieldLabel": {
+    "description": "تسمية حقل البريد الإلكتروني (مستخدَمة بعدة نماذج: تسجيل دخول، تسجيل حساب، إلخ)"
+  },
+  "emailRequiredValidation": "أدخل البريد الإلكتروني",
+  "@emailRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل البريد الإلكتروني فارغاً"
+  },
+  "emailInvalidValidation": "البريد الإلكتروني غير صحيح",
+  "@emailInvalidValidation": {
+    "description": "رسالة تحقق عند إدخال بريد إلكتروني غير صالح (بلا @)"
+  },
+  "passwordFieldLabel": "كلمة المرور",
+  "@passwordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور (مستخدَمة بعدة نماذج)"
+  },
+  "showPasswordTooltip": "إظهار كلمة المرور",
+  "@showPasswordTooltip": {
+    "description": "تلميح زر إظهار كلمة المرور (يقلب obscureText)"
+  },
+  "hidePasswordTooltip": "إخفاء كلمة المرور",
+  "@hidePasswordTooltip": {
+    "description": "تلميح زر إخفاء كلمة المرور (يقلب obscureText)"
+  },
+  "passwordRequiredValidation": "أدخل كلمة المرور",
+  "@passwordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور فارغاً"
+  },
+  "passwordTooShortValidation": "كلمة المرور قصيرة",
+  "@passwordTooShortValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة مرور أقصر من 6 أحرف"
+  },
+  "loginSubmitButton": "تسجيل الدخول",
+  "@loginSubmitButton": {
+    "description": "زر إرسال نموذج تسجيل الدخول"
+  },
+  "forgotPasswordLink": "نسيت كلمة المرور؟",
+  "@forgotPasswordLink": {
+    "description": "رابط الانتقال لشاشة استعادة كلمة المرور"
+  },
+  "noAccountCreateOneLink": "ليس لديك حساب؟ إنشاء حساب جديد",
+  "@noAccountCreateOneLink": {
+    "description": "رابط الانتقال لاختيار نوع الحساب من شاشة تسجيل الدخول"
+  },
+  "changePasswordSuccessMessage": "تم تغيير كلمة المرور بنجاح",
+  "@changePasswordSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح تغيير كلمة المرور"
+  },
+  "changePasswordFailedMessage": "تعذر تغيير كلمة المرور",
+  "@changePasswordFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تغيير كلمة المرور لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "changePasswordTitle": "تغيير كلمة المرور",
+  "@changePasswordTitle": {
+    "description": "عنوان شاشة تغيير كلمة المرور"
+  },
+  "currentPasswordFieldLabel": "كلمة المرور الحالية",
+  "@currentPasswordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور الحالية"
+  },
+  "currentPasswordRequiredValidation": "أدخل كلمة المرور الحالية",
+  "@currentPasswordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور الحالية فارغاً"
+  },
+  "newPasswordFieldLabel": "كلمة المرور الجديدة",
+  "@newPasswordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور الجديدة"
+  },
+  "newPasswordRequiredValidation": "أدخل كلمة المرور الجديدة",
+  "@newPasswordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور الجديدة فارغاً"
+  },
+  "newPasswordMinLengthValidation": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+  "@newPasswordMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة مرور جديدة أقصر من 8 أحرف"
+  },
+  "confirmNewPasswordFieldLabel": "تأكيد كلمة المرور الجديدة",
+  "@confirmNewPasswordFieldLabel": {
+    "description": "تسمية حقل تأكيد كلمة المرور الجديدة"
+  },
+  "passwordsMismatchValidation": "كلمتا المرور غير متطابقتين",
+  "@passwordsMismatchValidation": {
+    "description": "رسالة تحقق عند عدم تطابق كلمة المرور الجديدة وتأكيدها"
+  },
+  "savePasswordButton": "حفظ كلمة المرور",
+  "@savePasswordButton": {
+    "description": "زر حفظ كلمة المرور الجديدة"
+  },
+  "selectAtLeastOneServiceValidation": "اختر خدمة واحدة على الأقل",
+  "@selectAtLeastOneServiceValidation": {
+    "description": "رسالة خطأ عند عدم اختيار الفني لأي خدمة"
+  },
+  "maxFiveServicesValidation": "الحد الأقصى 5 خدمات",
+  "@maxFiveServicesValidation": {
+    "description": "رسالة خطأ عند اختيار الفني أكثر من 5 خدمات"
+  },
+  "editProfileSuccessMessage": "تم تحديث البيانات بنجاح",
+  "@editProfileSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح تحديث الملف الشخصي"
+  },
+  "editProfileFailedMessage": "تعذر تحديث البيانات",
+  "@editProfileFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث الملف الشخصي لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "editProfileTitle": "تعديل الملف الشخصي",
+  "@editProfileTitle": {
+    "description": "عنوان شاشة تعديل الملف الشخصي"
+  },
+  "editProfileChangePhotoHint": "اضغط لتغيير الصورة الشخصية",
+  "@editProfileChangePhotoHint": {
+    "description": "نص إرشادي تحت الصورة الرمزية بشاشة تعديل الملف الشخصي"
+  },
+  "fullNameFieldLabel": "الاسم الكامل",
+  "@fullNameFieldLabel": {
+    "description": "تسمية حقل الاسم الكامل (مستخدَمة بعدة نماذج)"
+  },
+  "fullNameRequiredValidation": "أدخل الاسم الكامل",
+  "@fullNameRequiredValidation": {
+    "description": "رسالة تحقق عند إدخال اسم أقصر من حرفين"
+  },
+  "phoneFieldLabel": "رقم الهاتف",
+  "@phoneFieldLabel": {
+    "description": "تسمية حقل رقم الهاتف (مستخدَمة بعدة نماذج)"
+  },
+  "phoneFormatValidation": "رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام",
+  "@phoneFormatValidation": {
+    "description": "رسالة تحقق عند إدخال رقم هاتف بصيغة غير صحيحة"
+  },
+  "cityFieldLabel": "المحافظة",
+  "@cityFieldLabel": {
+    "description": "تسمية حقل اختيار المحافظة (مستخدَمة بعدة نماذج)"
+  },
+  "areaFieldLabel": "المنطقة / الحي",
+  "@areaFieldLabel": {
+    "description": "تسمية حقل المنطقة/الحي (مستخدَمة بعدة نماذج)"
+  },
+  "saveChangesButton": "حفظ التعديلات",
+  "@saveChangesButton": {
+    "description": "زر حفظ التعديلات بشاشة تعديل الملف الشخصي"
+  },
+  "technicianOrdersSectionTitle": "طلباتي",
+  "@technicianOrdersSectionTitle": {
+    "description": "عنوان قسم قائمة طلبات الفني المقبولة"
+  },
+  "technicianOrdersSectionSubtitle": "الطلبات التي تم اختيارك لتنفيذها",
+  "@technicianOrdersSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم طلبات الفني"
+  },
+  "technicianOrdersSummaryTitle": "لوحة طلباتك",
+  "@technicianOrdersSummaryTitle": {
+    "description": "عنوان بطاقة ملخص طلبات الفني"
+  },
+  "technicianOrdersSummarySubtitle": "تابع الطلبات المقبولة والحالة الحالية لكل طلب.",
+  "@technicianOrdersSummarySubtitle": {
+    "description": "نص فرعي ببطاقة ملخص طلبات الفني"
+  },
+  "statAllLabel": "الكل",
+  "@statAllLabel": {
+    "description": "تسمية إحصائية عامة: الإجمالي/الكل"
+  },
+  "statActiveLabel": "نشطة",
+  "@statActiveLabel": {
+    "description": "تسمية إحصائية عامة: نشطة/قيد التنفيذ"
+  },
+  "statCompletedLabel": "مكتملة",
+  "@statCompletedLabel": {
+    "description": "تسمية إحصائية عامة: مكتملة"
+  },
+  "technicianOrdersLoadFailedTitle": "تعذّر تحميل الطلبات",
+  "@technicianOrdersLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل طلبات الفني المقبولة"
+  },
+  "technicianOrdersEmptyTitle": "لا توجد طلبات مقبولة بعد",
+  "@technicianOrdersEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الفني المقبولة"
+  },
+  "technicianOrdersEmptySubtitle": "عندما يقبل العميل عرضك سيظهر الطلب هنا لتتابع التنفيذ والدردشة.",
+  "@technicianOrdersEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لطلبات الفني المقبولة"
+  },
+  "addPhotoTitle": "إضافة صورة",
+  "@addPhotoTitle": {
+    "description": "عنوان ورقة اختيار مصدر الصورة (كاميرا/معرض)"
+  },
+  "cameraOptionLabel": "الكاميرا",
+  "@cameraOptionLabel": {
+    "description": "خيار التقاط صورة بالكاميرا"
+  },
+  "galleryOptionLabel": "المعرض",
+  "@galleryOptionLabel": {
+    "description": "خيار اختيار صورة من معرض الصور"
+  },
+  "cameraAccessFailedMessage": "تعذر الوصول إلى الكاميرا.",
+  "@cameraAccessFailedMessage": {
+    "description": "رسالة خطأ عند تعذّر الوصول إلى الكاميرا"
+  },
+  "galleryAccessFailedMessage": "تعذر الوصول إلى معرض الصور.",
+  "@galleryAccessFailedMessage": {
+    "description": "رسالة خطأ عند تعذّر الوصول إلى معرض الصور"
+  },
+  "cameraPermissionDeniedTitle": "صلاحية الكاميرا مرفوضة",
+  "@cameraPermissionDeniedTitle": {
+    "description": "عنوان نافذة رفض صلاحية الكاميرا بشكل دائم"
+  },
+  "galleryPermissionDeniedTitle": "صلاحية معرض الصور مرفوضة",
+  "@galleryPermissionDeniedTitle": {
+    "description": "عنوان نافذة رفض صلاحية معرض الصور بشكل دائم"
+  },
+  "cameraPermissionDeniedMessage": "رفضت صلاحية الكاميرا بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لالتقاط صورة، فعّل صلاحية الكاميرا يدوياً من إعدادات التطبيق.",
+  "@cameraPermissionDeniedMessage": {
+    "description": "نص نافذة رفض صلاحية الكاميرا بشكل دائم، مع توجيه لإعدادات التطبيق"
+  },
+  "galleryPermissionDeniedMessage": "رفضت صلاحية الوصول لمعرض الصور بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لإرفاق صورة، فعّل الصلاحية يدوياً من إعدادات التطبيق.",
+  "@galleryPermissionDeniedMessage": {
+    "description": "نص نافذة رفض صلاحية معرض الصور بشكل دائم، مع توجيه لإعدادات التطبيق"
+  },
+  "openAppSettingsButton": "فتح إعدادات التطبيق",
+  "@openAppSettingsButton": {
+    "description": "زر فتح إعدادات النظام للتطبيق"
+  },
+  "rating1StarHint": "سيئ",
+  "@rating1StarHint": {
+    "description": "وصف تقييم نجمة واحدة"
+  },
+  "rating2StarsHint": "مقبول",
+  "@rating2StarsHint": {
+    "description": "وصف تقييم نجمتين"
+  },
+  "rating3StarsHint": "جيد",
+  "@rating3StarsHint": {
+    "description": "وصف تقييم 3 نجوم"
+  },
+  "rating4StarsHint": "جيد جداً",
+  "@rating4StarsHint": {
+    "description": "وصف تقييم 4 نجوم"
+  },
+  "rating5StarsHint": "ممتاز",
+  "@rating5StarsHint": {
+    "description": "وصف تقييم 5 نجوم"
+  },
+  "tapStarsToRateHint": "اضغط على النجوم للتقييم",
+  "@tapStarsToRateHint": {
+    "description": "نص إرشادي قبل اختيار أي نجمة"
+  },
+  "selectStarsFirstMessage": "اختر عدد النجوم أولاً",
+  "@selectStarsFirstMessage": {
+    "description": "رسالة تحذير عند محاولة إرسال تقييم بلا اختيار نجوم"
+  },
+  "ratingThankYouMessage": "شكراً لتقييمك!",
+  "@ratingThankYouMessage": {
+    "description": "رسالة شكر بعد إرسال التقييم بنجاح"
+  },
+  "ratingSubmitFailedMessage": "تعذر إرسال التقييم",
+  "@ratingSubmitFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال التقييم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "rateTechnicianTitle": "كيف كانت تجربتك؟",
+  "@rateTechnicianTitle": {
+    "description": "عنوان نافذة تقييم الفني"
+  },
+  "rateTechnicianNamedSubtitle": "قيّم الفني {name}",
+  "@rateTechnicianNamedSubtitle": {
+    "description": "نص فرعي عند وجود اسم فني معروف للتقييم",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "rateTechnicianGenericSubtitle": "قيّم الفني الذي خدمك",
+  "@rateTechnicianGenericSubtitle": {
+    "description": "نص فرعي عند عدم وجود اسم فني معروف للتقييم"
+  },
+  "ratingCommentHint": "أضف تعليقاً (اختياري)",
+  "@ratingCommentHint": {
+    "description": "نص تلميحي داخل حقل تعليق التقييم الاختياري"
+  },
+  "submitRatingButton": "إرسال التقييم",
+  "@submitRatingButton": {
+    "description": "زر إرسال التقييم"
+  },
+  "walletScreenTitle": "المحفظة",
+  "@walletScreenTitle": {
+    "description": "عنوان شاشة المحفظة"
+  },
+  "walletTopupActionTitle": "شحن الرصيد",
+  "@walletTopupActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشحن الرصيد"
+  },
+  "walletTopupActionSubtitle": "اختر باقة وارفع الوصل",
+  "@walletTopupActionSubtitle": {
+    "description": "نص فرعي ببطاقة شحن الرصيد"
+  },
+  "walletLedgerActionSubtitle": "كل حركات الرصيد",
+  "@walletLedgerActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لسجل العمليات (العنوان نفسه يُعاد استخدام ledgerTitle)"
+  },
+  "walletRecentTopupsTitle": "آخر طلبات الشحن",
+  "@walletRecentTopupsTitle": {
+    "description": "عنوان قسم آخر طلبات الشحن بشاشة المحفظة"
+  },
+  "walletCurrentBalanceLabel": "رصيدك الحالي",
+  "@walletCurrentBalanceLabel": {
+    "description": "تسمية بطاقة الرصيد الحالي"
+  },
+  "walletPendingTopupsCount": "{count, plural, one{لديك طلب شحن واحد قيد المراجعة} two{لديك طلبا شحن قيد المراجعة} few{لديك {count} طلبات شحن قيد المراجعة} many{لديك {count} طلب شحن قيد المراجعة} other{لديك {count} طلب شحن قيد المراجعة}}",
+  "@walletPendingTopupsCount": {
+    "description": "نص بطاقة الرصيد عند وجود طلبات شحن قيد المراجعة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "walletNoPendingTopupsMessage": "يمكنك تقديم العروض حسب رصيدك وحالة فرصك المجانية",
+  "@walletNoPendingTopupsMessage": {
+    "description": "نص بطاقة الرصيد عند عدم وجود أي طلب شحن قيد المراجعة"
+  },
+  "walletLoadFailedTitle": "تعذّر تحميل المحفظة",
+  "@walletLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل بيانات المحفظة"
+  },
+  "walletEmptyTitle": "لا توجد طلبات شحن بعد",
+  "@walletEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الشحن"
+  },
+  "walletEmptySubtitle": "ابدأ باختيار باقة ورفع صورة إثبات الدفع.",
+  "@walletEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة طلبات الشحن"
+  },
+  "uploadReceiptFirstMessage": "ارفع صورة إثبات الدفع أولاً",
+  "@uploadReceiptFirstMessage": {
+    "description": "رسالة تحذير عند محاولة إرسال طلب شحن بلا رفع صورة إثبات الدفع"
+  },
+  "topupRequestSuccessMessage": "تم إرسال طلب الشحن بنجاح، بانتظار مراجعة الإدارة",
+  "@topupRequestSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إرسال طلب شحن الرصيد"
+  },
+  "topupRequestFailedMessage": "تعذر إرسال طلب الشحن",
+  "@topupRequestFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال طلب الشحن لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "topupRequestTitle": "طلب شحن رصيد",
+  "@topupRequestTitle": {
+    "description": "عنوان شاشة طلب شحن الرصيد"
+  },
+  "transferInfoTitle": "معلومات التحويل",
+  "@transferInfoTitle": {
+    "description": "عنوان قسم معلومات التحويل البنكي بشاشة طلب الشحن"
+  },
+  "bankLabel": "البنك",
+  "@bankLabel": {
+    "description": "تسمية اسم البنك بمعلومات التحويل"
+  },
+  "accountNameLabel": "اسم الحساب",
+  "@accountNameLabel": {
+    "description": "تسمية اسم صاحب الحساب بمعلومات التحويل"
+  },
+  "accountNumberLabel": "رقم الحساب",
+  "@accountNumberLabel": {
+    "description": "تسمية رقم الحساب بمعلومات التحويل"
+  },
+  "phoneInfoLabel": "هاتف",
+  "@phoneInfoLabel": {
+    "description": "تسمية مختصرة لرقم هاتف بمعلومات التحويل (أقصر من phoneFieldLabel، لعرض معلومات فقط)"
+  },
+  "uploadReceiptTitle": "ارفع صورة إثبات الدفع",
+  "@uploadReceiptTitle": {
+    "description": "عنوان منطقة رفع صورة إثبات الدفع"
+  },
+  "uploadReceiptSubtitle": "صورة الوصل مطلوبة لمراجعة طلب الشحن",
+  "@uploadReceiptSubtitle": {
+    "description": "نص فرعي تحت عنوان رفع صورة إثبات الدفع"
+  },
+  "submitTopupButton": "إرسال طلب الشحن",
+  "@submitTopupButton": {
+    "description": "زر إرسال طلب شحن الرصيد"
+  },
+  "paymentAmountLabel": "قيمة الدفع: {amount}",
+  "@paymentAmountLabel": {
+    "description": "قيمة المبلغ المطلوب دفعه ببطاقة الباقة المختارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "bonusAmountLabel": "بونص: {amount}",
+  "@bonusAmountLabel": {
+    "description": "قيمة البونص الإضافي ببطاقة الباقة المختارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "balanceAfterApprovalLabel": "الرصيد بعد الموافقة: {amount}",
+  "@balanceAfterApprovalLabel": {
+    "description": "الرصيد الإجمالي المتوقّع بعد موافقة الإدارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "approveTopupDialogTitle": "موافقة على الشحن",
+  "@approveTopupDialogTitle": {
+    "description": "عنوان نافذة تأكيد الموافقة على طلب شحن"
+  },
+  "rejectTopupDialogTitle": "رفض الشحن",
+  "@rejectTopupDialogTitle": {
+    "description": "عنوان نافذة تأكيد رفض طلب شحن"
+  },
+  "optionalNoteLabel": "ملاحظة اختيارية",
+  "@optionalNoteLabel": {
+    "description": "تسمية حقل ملاحظة اختيارية عند مراجعة طلب شحن"
+  },
+  "confirmButton": "تأكيد",
+  "@confirmButton": {
+    "description": "زر تأكيد عام لنافذة تأكيد"
+  },
+  "topupApprovedMessage": "تم اعتماد شحن الرصيد بنجاح",
+  "@topupApprovedMessage": {
+    "description": "رسالة تأكيد بعد موافقة الأدمن على طلب شحن"
+  },
+  "reviewFailedMessage": "تعذر مراجعة الطلب",
+  "@reviewFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل مراجعة طلب شحن لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "adminTopupsLoadFailedTitle": "تعذّر تحميل طلبات الشحن",
+  "@adminTopupsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل طلبات الشحن بلوحة الأدمن"
+  },
+  "adminTopupsEmptyTitle": "لا توجد طلبات شحن",
+  "@adminTopupsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الشحن بلوحة الأدمن"
+  },
+  "topupStatusApprovedLabel": "مقبول",
+  "@topupStatusApprovedLabel": {
+    "description": "وسم حالة طلب شحن مقبول"
+  },
+  "topupStatusRejectedLabel": "مرفوض",
+  "@topupStatusRejectedLabel": {
+    "description": "وسم حالة طلب شحن مرفوض"
+  },
+  "topupStatusPendingLabel": "قيد المراجعة",
+  "@topupStatusPendingLabel": {
+    "description": "وسم حالة طلب شحن قيد المراجعة"
+  },
+  "packageFallbackName": "باقة",
+  "@packageFallbackName": {
+    "description": "اسم احتياطي لباقة شحن بلا اسم معروف"
+  },
+  "approveButton": "موافقة",
+  "@approveButton": {
+    "description": "زر الموافقة على طلب شحن"
+  },
+  "rejectButton": "رفض",
+  "@rejectButton": {
+    "description": "زر رفض طلب شحن"
+  },
+  "cancelRequestDialogTitle": "إلغاء الطلب؟",
+  "@cancelRequestDialogTitle": {
+    "description": "عنوان نافذة تأكيد إلغاء طلب العميل"
+  },
+  "cancelRequestConfirmMessage": "سيتم إلغاء هذا الطلب نهائياً ولن يتمكن أي فني من التقدّم بعروض عليه بعد الآن. هل أنت متأكد؟",
+  "@cancelRequestConfirmMessage": {
+    "description": "نص نافذة تأكيد إلغاء طلب العميل، يوضّح أن الإجراء نهائي"
+  },
+  "goBackButton": "تراجع",
+  "@goBackButton": {
+    "description": "زر التراجع عن نافذة تأكيد (بمعنى \"لا تفعل هذا\"، أدق من إلغاء عام)"
+  },
+  "confirmCancelRequestButton": "نعم، ألغِ الطلب",
+  "@confirmCancelRequestButton": {
+    "description": "زر تأكيد إلغاء الطلب بنافذة التأكيد"
+  },
+  "cancelRequestFailedMessage": "تعذر إلغاء الطلب",
+  "@cancelRequestFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إلغاء الطلب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "customerRequestDetailsTitle": "طلب رقم {id}",
+  "@customerRequestDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل الطلب للعميل",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "viewOffersButton": "عرض عروض الفنيين",
+  "@viewOffersButton": {
+    "description": "زر الانتقال لعرض عروض الفنيين على الطلب"
+  },
+  "cancelRequestButton": "إلغاء الطلب",
+  "@cancelRequestButton": {
+    "description": "زر بدء إجراء إلغاء الطلب (يفتح نافذة التأكيد)"
+  },
+  "completeRequestButton": "إنهاء الطلب",
+  "@completeRequestButton": {
+    "description": "زر تحديد العميل أن الطلب اكتمل"
+  },
+  "rateTechnicianButton": "قيّم الفني",
+  "@rateTechnicianButton": {
+    "description": "زر فتح نافذة تقييم الفني"
+  },
+  "consentRequiredMessage": "يجب الموافقة على سياسة الخصوصية أولاً",
+  "@consentRequiredMessage": {
+    "description": "رسالة تحذير عند محاولة إنشاء حساب بلا الموافقة على سياسة الخصوصية"
+  },
+  "registerGenericErrorMessage": "حدث خطأ أثناء إنشاء الحساب",
+  "@registerGenericErrorMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء الحساب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "customerRegisterTitle": "حساب عميل جديد",
+  "@customerRegisterTitle": {
+    "description": "عنوان شاشة تسجيل حساب عميل جديد"
+  },
+  "customerRegisterHeading": "إنشاء حساب عميل",
+  "@customerRegisterHeading": {
+    "description": "العنوان الرئيسي بداخل شاشة تسجيل حساب عميل"
+  },
+  "pleaseEnterFullNameValidation": "الرجاء إدخال الاسم الكامل",
+  "@pleaseEnterFullNameValidation": {
+    "description": "رسالة تحقق عند إدخال اسم أقصر من حرفين (صياغة شاشة تسجيل العميل، أرسمي قليلاً من fullNameRequiredValidation)"
+  },
+  "areaDropdownLabel": "المنطقة",
+  "@areaDropdownLabel": {
+    "description": "تسمية قائمة اختيار المنطقة المنسدلة (أقصر من areaFieldLabel النصي الحر)"
+  },
+  "registerPasswordMinLengthValidation": "كلمة السر يجب أن تكون 8 أحرف على الأقل",
+  "@registerPasswordMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة سر أقصر من 8 أحرف (صياغة \"كلمة السر\"، مختلفة عن newPasswordMinLengthValidation بصياغة \"كلمة المرور\")"
+  },
+  "createAccountButton": "إنشاء الحساب",
+  "@createAccountButton": {
+    "description": "زر إرسال نموذج إنشاء حساب"
+  },
+  "selectFieldValidation": "اختر {field}",
+  "@selectFieldValidation": {
+    "description": "رسالة تحقق عامة عند عدم اختيار قيمة بقائمة منسدلة، مع اسم الحقل نفسه",
+    "placeholders": {
+      "field": {"type": "String"}
+    }
+  },
+  "chatsSectionTitle": "المحادثات",
+  "@chatsSectionTitle": {
+    "description": "عنوان قسم قائمة المحادثات"
+  },
+  "chatsSectionSubtitle": "كل محادثات الطلبات المقبولة في مكان واحد",
+  "@chatsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم المحادثات"
+  },
+  "chatsNoneTitle": "لا توجد محادثات",
+  "@chatsNoneTitle": {
+    "description": "نص بطاقة الهيرو عندما لا توجد أي محادثات (count == 0)"
+  },
+  "chatsActiveCount": "{count, plural, one{محادثة نشطة واحدة} two{محادثتان نشطتان} few{{count} محادثات نشطة} many{{count} محادثة نشطة} other{{count} محادثة نشطة}}",
+  "@chatsActiveCount": {
+    "description": "نص بطاقة الهيرو بعدد المحادثات النشطة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "chatsSecureSubtitle": "تواصل بأمان داخل التطبيق بدون مشاركة أرقام الهاتف.",
+  "@chatsSecureSubtitle": {
+    "description": "نص فرعي تسويقي ببطاقة هيرو المحادثات عندما لا توجد رسائل غير مقروءة"
+  },
+  "chatsUnreadCount": "{count, plural, one{لديك رسالة واحدة غير مقروءة} two{لديك رسالتان غير مقروءتان} few{لديك {count} رسائل غير مقروءة} many{لديك {count} رسالة غير مقروءة} other{لديك {count} رسالة غير مقروءة}}",
+  "@chatsUnreadCount": {
+    "description": "نص بطاقة الهيرو بعدد الرسائل غير المقروءة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "chatPreviewStartNow": "ابدأ المحادثة الآن",
+  "@chatPreviewStartNow": {
+    "description": "نص معاينة آخر رسالة عندما لا توجد أي رسائل بعد بهذه المحادثة"
+  },
+  "chatPreviewImage": "📷 صورة",
+  "@chatPreviewImage": {
+    "description": "نص معاينة آخر رسالة عندما تكون صورة"
+  },
+  "chatPreviewAudio": "🎤 رسالة صوتية",
+  "@chatPreviewAudio": {
+    "description": "نص معاينة آخر رسالة عندما تكون رسالة صوتية (قد يُضاف بعده لاحقة مدة مُنسَّقة بالأرقام فقط، غير قابلة للترجمة)"
+  },
+  "chatPreviewLocation": "📍 موقع",
+  "@chatPreviewLocation": {
+    "description": "نص معاينة آخر رسالة عندما تكون مشاركة موقع"
+  },
+  "chatSecureBadge": "محادثة آمنة",
+  "@chatSecureBadge": {
+    "description": "وسم صغير على بطاقة كل محادثة يؤكّد أنها آمنة"
+  },
+  "chatsLoadFailedTitle": "تعذّر تحميل المحادثات",
+  "@chatsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل قائمة المحادثات"
+  },
+  "chatsEmptyTitle": "لا توجد محادثات حالياً",
+  "@chatsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة المحادثات"
+  },
+  "chatsEmptySubtitle": "بعد قبول عرض أو بدء طلب، ستظهر المحادثة هنا.",
+  "@chatsEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة المحادثات"
+  },
+  "dashboardAllServicesTitle": "كل الخدمات",
+  "@dashboardAllServicesTitle": {
+    "description": "عنوان النافذة المنبثقة بكل الخدمات المتاحة"
+  },
+  "createRequestActionTitle": "إنشاء طلب",
+  "@createRequestActionTitle": {
+    "description": "عنوان بطاقة الانتقال لإنشاء طلب جديد"
+  },
+  "createRequestActionSubtitle": "طلب صيانة جديد",
+  "@createRequestActionSubtitle": {
+    "description": "نص فرعي ببطاقة إنشاء طلب جديد"
+  },
+  "myRequestsActionTitle": "طلباتي",
+  "@myRequestsActionTitle": {
+    "description": "عنوان بطاقة الانتقال لقائمة طلبات العميل، وتسمية إحصائية إجمالي الطلبات"
+  },
+  "myRequestsActionSubtitle": "متابعة الطلبات",
+  "@myRequestsActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لقائمة طلبات العميل"
+  },
+  "dashboardLoadFailedTitle": "تعذّر تحميل بياناتك",
+  "@dashboardLoadFailedTitle": {
+    "description": "عنوان إشعار فشل تحميل بيانات لوحة العميل الرئيسية"
+  },
+  "statOffersLabel": "عروض",
+  "@statOffersLabel": {
+    "description": "تسمية إحصائية: عدد العروض"
+  },
+  "dashboardServicesHeading": "خدمات صلّحلي",
+  "@dashboardServicesHeading": {
+    "description": "عنوان قسم شبكة الخدمات بلوحة العميل الرئيسية"
+  },
+  "viewAllButton": "عرض الكل",
+  "@viewAllButton": {
+    "description": "زر عرض كل العناصر (خدمات، قائمة، إلخ) عند وجود قائمة مختصرة معروضة جزئياً"
+  },
+  "dashboardHeroSubtitle": "اطلب الفني الأقرب إليك واستقبل العروض بسرعة وبشكل آمن.",
+  "@dashboardHeroSubtitle": {
+    "description": "النص التسويقي الفرعي ببطاقة الهيرو بلوحة العميل الرئيسية"
+  },
+  "noServicesAvailableMessage": "لا توجد خدمات متاحة حالياً",
+  "@noServicesAvailableMessage": {
+    "description": "رسالة عند عدم وجود أي خدمة فعّالة بكتالوج الخدمات"
+  },
+  "requestServiceNowLabel": "اطلب الخدمة الآن",
+  "@requestServiceNowLabel": {
+    "description": "نص دعوة لاتخاذ إجراء أسفل كل بطاقة خدمة"
+  },
+  "offerSentSuccessMessage": "تم إرسال العرض بنجاح",
+  "@offerSentSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إرسال عرض الفني"
+  },
+  "offerSendFailedMessage": "تعذر إرسال العرض",
+  "@offerSendFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال العرض لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "freeOffersExhaustedTitle": "استُهلكت فرصتاك المجانيتان",
+  "@freeOffersExhaustedTitle": {
+    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد"
+  },
+  "laterButton": "لاحقاً",
+  "@laterButton": {
+    "description": "زر تأجيل إجراء (بمعنى \"ليس الآن\")"
+  },
+  "submitOfferTitle": "تقديم عرض",
+  "@submitOfferTitle": {
+    "description": "عنوان شاشة تقديم عرض على طلب"
+  },
+  "freeOffersRemainingCount": "{count, plural, one{لديك عرض مجاني واحد متبقٍ} two{لديك عرضان مجانيان متبقيان} few{لديك {count} عروض مجانية متبقية} many{لديك {count} عرضاً مجانياً متبقياً} other{لديك {count} عرض مجاني متبقٍ}}",
+  "@freeOffersRemainingCount": {
+    "description": "نص عدد الفرص المجانية المتبقية لتقديم عروض بلا عمولة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "commissionWillBeDeductedMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم {amount} من رصيدك عند اكتمال هذا الطلب",
+  "@commissionWillBeDeductedMessage": {
+    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "insufficientBalanceMessage": "رصيدك الحالي ({balance}) غير كافٍ — تحتاج {required} على الأقل لتقديم عرض جديد",
+  "@insufficientBalanceMessage": {
+    "description": "رسالة تنبيه عند عدم كفاية الرصيد لتقديم عرض جديد (balance وrequired مُنسَّقان مسبقاً بـformatJod)",
+    "placeholders": {
+      "balance": {"type": "String"},
+      "required": {"type": "String"}
+    }
+  },
+  "priceFieldLabel": "السعر بالدينار",
+  "@priceFieldLabel": {
+    "description": "تسمية حقل سعر العرض بالدينار الأردني"
+  },
+  "validPriceValidation": "أدخل سعر صحيح",
+  "@validPriceValidation": {
+    "description": "رسالة تحقق عند إدخال سعر غير صحيح أو أقل من 1"
+  },
+  "durationFieldLabel": "مدة الوصول أو التنفيذ",
+  "@durationFieldLabel": {
+    "description": "تسمية حقل مدة الوصول أو التنفيذ بشاشة تقديم العرض"
+  },
+  "durationFieldHint": "مثلاً: خلال ساعة",
+  "@durationFieldHint": {
+    "description": "نص تلميحي داخل حقل مدة الوصول أو التنفيذ"
+  },
+  "durationRequiredValidation": "أدخل مدة الوصول أو التنفيذ",
+  "@durationRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل مدة الوصول أو التنفيذ فارغاً"
+  },
+  "submitOfferButton": "إرسال العرض",
+  "@submitOfferButton": {
+    "description": "زر إرسال العرض عندما يكون الرصيد كافياً"
+  },
+  "insufficientBalanceButton": "رصيد غير كافٍ",
+  "@insufficientBalanceButton": {
+    "description": "نص الزر المعطَّل عندما يكون الرصيد غير كافٍ لإرسال العرض"
+  },
+  "sendCodeFailedMessage": "تعذر إرسال الكود، حاول مرة أخرى",
+  "@sendCodeFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال كود التحقق لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "resetPasswordFailedMessage": "تعذر تغيير كلمة السر، حاول مرة أخرى",
+  "@resetPasswordFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تغيير كلمة السر لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "forgotPasswordTitle": "استعادة كلمة المرور",
+  "@forgotPasswordTitle": {
+    "description": "العنوان الرئيسي بشاشة استعادة كلمة المرور"
+  },
+  "forgotPasswordEmailStepSubtitle": "أدخل بريدك الإلكتروني وسنرسل لك كود التحقق",
+  "@forgotPasswordEmailStepSubtitle": {
+    "description": "النص الفرعي بخطوة إدخال البريد الإلكتروني لاستعادة كلمة المرور"
+  },
+  "forgotPasswordResetStepSubtitle": "أدخل الكود الذي وصلك وكلمة المرور الجديدة",
+  "@forgotPasswordResetStepSubtitle": {
+    "description": "النص الفرعي بخطوة إدخال الكود وكلمة المرور الجديدة"
+  },
+  "backToLoginButton": "العودة لتسجيل الدخول",
+  "@backToLoginButton": {
+    "description": "زر العودة لشاشة تسجيل الدخول"
+  },
+  "sendCodeButton": "إرسال كود التحقق",
+  "@sendCodeButton": {
+    "description": "زر إرسال كود التحقق للبريد الإلكتروني"
+  },
+  "otpFieldLabel": "كود التحقق",
+  "@otpFieldLabel": {
+    "description": "تسمية حقل إدخال كود التحقق"
+  },
+  "otpLengthValidation": "أدخل الكود المكوّن من 6 أرقام",
+  "@otpLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كود تحقق أقصر أو أطول من 6 أرقام"
+  },
+  "resendCodeLink": "لم يصلني الكود؟ إعادة الإرسال",
+  "@resendCodeLink": {
+    "description": "رابط إعادة إرسال كود التحقق"
+  },
+  "technicianFallbackFullName": "فني صلّحلي",
+  "@technicianFallbackFullName": {
+    "description": "اسم عرض احتياطي كامل للفني بلوحته الرئيسية عندما لا يتوفر اسمه"
+  },
+  "newRequestsStatLabel": "طلبات جديدة",
+  "@newRequestsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الفني: عدد الطلبات الجديدة المتاحة"
+  },
+  "currentBalanceStatLabel": "الرصيد الحالي",
+  "@currentBalanceStatLabel": {
+    "description": "تسمية إحصائية بلوحة الفني: الرصيد الحالي"
+  },
+  "technicianShortcutsHeading": "اختصارات الفني",
+  "@technicianShortcutsHeading": {
+    "description": "عنوان قسم شبكة اختصارات لوحة الفني"
+  },
+  "technicianHeroTitle": "طلبات جديدة\nقريبة منك",
+  "@technicianHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي ببطاقة هيرو لوحة الفني"
+  },
+  "technicianHeroSubtitle": "قدّم عروضك، تابع طلباتك، وراقب رصيدك من مكان واحد.",
+  "@technicianHeroSubtitle": {
+    "description": "النص الفرعي التسويقي ببطاقة هيرو لوحة الفني"
+  },
+  "balanceLabelWithAmount": "الرصيد: {amount}",
+  "@balanceLabelWithAmount": {
+    "description": "تسمية الرصيد مع القيمة ببطاقة هيرو لوحة الفني (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "viewNewRequestsButton": "عرض الطلبات الجديدة",
+  "@viewNewRequestsButton": {
+    "description": "زر الانتقال لقائمة الطلبات الجديدة بلوحة الفني"
+  },
+  "manageWalletButton": "إدارة المحفظة",
+  "@manageWalletButton": {
+    "description": "زر الانتقال لشاشة المحفظة بلوحة الفني"
+  },
+  "reviewsLabel": "التقييمات",
+  "@reviewsLabel": {
+    "description": "تسمية اختصار الانتقال لشاشة تقييمات الفني"
+  },
+  "customerRequestsSectionSubtitle": "تابع حالة الطلبات والعروض",
+  "@customerRequestsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم طلبات العميل"
+  },
+  "statCancelledLabel": "ملغاة",
+  "@statCancelledLabel": {
+    "description": "تسمية إحصائية عامة: ملغاة"
+  },
+  "noRequestsYetTitle": "لا يوجد طلبات بعد",
+  "@noRequestsYetTitle": {
+    "description": "عنوان الحالة الفارغة الكاملة (بلا أي طلب إطلاقاً) وحالة فلتر \"الكل\" الفارغة"
+  },
+  "noActiveRequestsMessage": "لا توجد طلبات نشطة حالياً",
+  "@noActiveRequestsMessage": {
+    "description": "عنوان حالة فلتر \"نشطة\" الفارغة"
+  },
+  "noCompletedRequestsMessage": "لا توجد طلبات مكتملة بعد",
+  "@noCompletedRequestsMessage": {
+    "description": "عنوان حالة فلتر \"مكتملة\" الفارغة"
+  },
+  "noCancelledRequestsMessage": "لا توجد طلبات ملغاة",
+  "@noCancelledRequestsMessage": {
+    "description": "عنوان حالة فلتر \"ملغاة\" الفارغة"
+  },
+  "showAllRequestsButton": "عرض كل الطلبات",
+  "@showAllRequestsButton": {
+    "description": "زر إعادة ضبط الفلتر لعرض كل الطلبات"
+  },
+  "noRequestsYetSubtitle": "عند إنشاء أول طلب صيانة سيظهر هنا ويمكنك متابعة العروض والحالة.",
+  "@noRequestsYetSubtitle": {
+    "description": "نص فرعي بالحالة الفارغة الكاملة (بلا أي طلب إطلاقاً)"
+  },
+  "requestCreatedSuccessMessage": "تم إنشاء الطلب بنجاح",
+  "@requestCreatedSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إنشاء طلب صيانة جديد"
+  },
+  "requestCreateFailedMessage": "تعذر إنشاء الطلب",
+  "@requestCreateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء الطلب لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "requestDetailsSectionTitle": "تفاصيل الطلب",
+  "@requestDetailsSectionTitle": {
+    "description": "عنوان قسم تفاصيل الطلب بشاشة إنشاء طلب جديد"
+  },
+  "requestDetailsSectionSubtitle": "اختر الخدمة والمنطقة واكتب وصف واضح للمشكلة",
+  "@requestDetailsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم تفاصيل الطلب"
+  },
+  "serviceDropdownLabel": "الخدمة / المهنة",
+  "@serviceDropdownLabel": {
+    "description": "تسمية قائمة اختيار الخدمة/المهنة المنسدلة"
+  },
+  "preferredTimeFieldLabel": "الوقت المفضل",
+  "@preferredTimeFieldLabel": {
+    "description": "تسمية حقل الوقت المفضل للتنفيذ"
+  },
+  "preferredTimeFieldHint": "مثال: اليوم مساءً أو غداً صباحاً",
+  "@preferredTimeFieldHint": {
+    "description": "نص تلميحي داخل حقل الوقت المفضل"
+  },
+  "descriptionFieldHint": "اكتب تفاصيل المشكلة حتى يستطيع الفني تقدير السعر والوقت بشكل أفضل",
+  "@descriptionFieldHint": {
+    "description": "نص تلميحي داخل حقل وصف المشكلة"
+  },
+  "descriptionMinLengthValidation": "الوصف يجب أن لا يقل عن 10 أحرف",
+  "@descriptionMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال وصف مشكلة أقصر من 10 أحرف"
+  },
+  "problemImageSectionTitle": "صورة المشكلة",
+  "@problemImageSectionTitle": {
+    "description": "عنوان قسم صورة المشكلة الاختيارية"
+  },
+  "problemImageSectionSubtitle": "اختياري، لكنها تساعد الفنيين على فهم المشكلة",
+  "@problemImageSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم صورة المشكلة"
+  },
+  "publishRequestButton": "نشر الطلب واستقبال العروض",
+  "@publishRequestButton": {
+    "description": "زر نشر طلب الصيانة الجديد"
+  },
+  "newMaintenanceRequestTitle": "طلب صيانة جديد",
+  "@newMaintenanceRequestTitle": {
+    "description": "عنوان شاشة إنشاء طلب صيانة جديد"
+  },
+  "createRequestHeroTitle": "احكِ لنا المشكلة\nونجيبلك الفني المناسب",
+  "@createRequestHeroTitle": {
+    "description": "العنوان التسويقي الرئيسي ببطاقة هيرو شاشة إنشاء الطلب"
+  },
+  "createRequestHeroSubtitle": "بعد نشر الطلب، سيظهر للفنيين القريبين منك وستبدأ باستقبال العروض.",
+  "@createRequestHeroSubtitle": {
+    "description": "النص الفرعي التسويقي ببطاقة هيرو شاشة إنشاء الطلب"
+  },
+  "addProblemPhotoTitle": "إضافة صورة للمشكلة",
+  "@addProblemPhotoTitle": {
+    "description": "عنوان بطاقة إضافة صورة المشكلة قبل اختيار أي صورة"
+  },
+  "addProblemPhotoSubtitle": "ارفع صورة واضحة إن أمكن",
+  "@addProblemPhotoSubtitle": {
+    "description": "نص فرعي ببطاقة إضافة صورة المشكلة"
+  },
+  "safeChatNoteMessage": "لن يتم مشاركة رقمك مع الفني داخل الدردشة. التواصل يتم بأمان داخل التطبيق.",
+  "@safeChatNoteMessage": {
+    "description": "ملاحظة طمأنة أسفل نموذج إنشاء الطلب حول أمان التواصل"
+  },
+  "supportScreenTitle": "الدعم الفني",
+  "@supportScreenTitle": {
+    "description": "عنوان شاشة تذاكر الدعم الفني"
+  },
+  "newTicketButton": "تذكرة جديدة",
+  "@newTicketButton": {
+    "description": "زر عائم لفتح نموذج تذكرة دعم جديدة"
+  },
+  "noSupportTicketsYetTitle": "لا توجد تذاكر دعم بعد",
+  "@noSupportTicketsYetTitle": {
+    "description": "عنوان الحالة الفارغة قبل إنشاء أي تذكرة دعم"
+  },
+  "noSupportTicketsYetSubtitle": "اضغط \"تذكرة جديدة\" للتواصل مع فريق الدعم",
+  "@noSupportTicketsYetSubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لتذاكر الدعم"
+  },
+  "openChatLabel": "فتح المحادثة",
+  "@openChatLabel": {
+    "description": "نص دعوة لفتح محادثة تذكرة الدعم أسفل كل بطاقة تذكرة"
+  },
+  "newSupportTicketTitle": "تذكرة دعم جديدة",
+  "@newSupportTicketTitle": {
+    "description": "عنوان نافذة إنشاء تذكرة دعم جديدة"
+  },
+  "issueTypeFieldLabel": "نوع المشكلة",
+  "@issueTypeFieldLabel": {
+    "description": "تسمية قائمة اختيار نوع مشكلة تذكرة الدعم المنسدلة"
+  },
+  "titleFieldLabel": "العنوان",
+  "@titleFieldLabel": {
+    "description": "تسمية حقل عنوان عام (مستخدَمة بعدة نماذج)"
+  },
+  "titleRequiredValidation": "أدخل عنواناً واضحاً",
+  "@titleRequiredValidation": {
+    "description": "رسالة تحقق عند إدخال عنوان قصير جداً"
+  },
+  "issueDetailsFieldLabel": "تفاصيل المشكلة",
+  "@issueDetailsFieldLabel": {
+    "description": "تسمية حقل تفاصيل مشكلة تذكرة الدعم"
+  },
+  "submitTicketButton": "إرسال التذكرة",
+  "@submitTicketButton": {
+    "description": "زر إرسال تذكرة الدعم الجديدة"
+  },
+  "ticketCreateFailedMessage": "تعذر إنشاء التذكرة",
+  "@ticketCreateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إنشاء تذكرة دعم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "avatarRequiredMessage": "مطلوب صورة شخصية للفني",
+  "@avatarRequiredMessage": {
+    "description": "رسالة تحذير عند محاولة إنشاء حساب فني بلا صورة شخصية"
+  },
+  "technicianRegisterTitle": "حساب فني جديد",
+  "@technicianRegisterTitle": {
+    "description": "عنوان شاشة تسجيل حساب فني جديد"
+  },
+  "technicianRegisterHeading": "إنشاء حساب فني",
+  "@technicianRegisterHeading": {
+    "description": "العنوان الرئيسي بداخل شاشة تسجيل حساب فني، وزر إرسال النموذج"
+  },
+  "technicianRegisterSubtitle": "أضف بياناتك حتى يتمكن العملاء من اختيارك بثقة",
+  "@technicianRegisterSubtitle": {
+    "description": "النص الفرعي بشاشة تسجيل حساب فني"
+  },
+  "nationalNumberFieldLabel": "الرقم الوطني",
+  "@nationalNumberFieldLabel": {
+    "description": "تسمية حقل الرقم الوطني للفني"
+  },
+  "nationalNumberFormatValidation": "الرقم الوطني يجب أن يكون 10 أرقام",
+  "@nationalNumberFormatValidation": {
+    "description": "رسالة تحقق عند إدخال رقم وطني بصيغة غير صحيحة"
+  },
+  "nationalNumberPrivacyNote": "يُستخدم الرقم الوطني للتحقق من هوية الفني فقط، ولا يظهر للعملاء",
+  "@nationalNumberPrivacyNote": {
+    "description": "ملاحظة خصوصية أسفل حقل الرقم الوطني"
+  },
+  "workAreaDropdownLabel": "منطقة العمل",
+  "@workAreaDropdownLabel": {
+    "description": "تسمية قائمة اختيار منطقة عمل الفني المنسدلة"
+  },
+  "avatarSelectedLabel": "تم اختيار الصورة الشخصية",
+  "@avatarSelectedLabel": {
+    "description": "نص بطاقة اختيار الصورة الشخصية بعد اختيار صورة"
+  },
+  "selectAvatarLabel": "اختر صورة شخصية",
+  "@selectAvatarLabel": {
+    "description": "نص بطاقة اختيار الصورة الشخصية قبل اختيار أي صورة"
+  },
+  "avatarRequiredNote": "الصورة مطلوبة لإنشاء حساب فني",
+  "@avatarRequiredNote": {
+    "description": "ملاحظة أسفل بطاقة اختيار الصورة الشخصية توضّح أنها مطلوبة"
+  },
+  "adminHeroTitle": "إدارة صلّحلي\nتحكم كامل بالمنصة",
+  "@adminHeroTitle": {
+    "description": "العنوان الرئيسي ببطاقة هيرو لوحة الأدمن الرئيسية"
+  },
+  "customersStatLabel": "العملاء",
+  "@customersStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد العملاء"
+  },
+  "techniciansStatLabel": "الفنيين",
+  "@techniciansStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الفنيين"
+  },
+  "requestsStatLabel": "الطلبات",
+  "@requestsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الطلبات"
+  },
+  "pendingTopupsStatLabel": "شحن معلق",
+  "@pendingTopupsStatLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: طلبات شحن معلقة"
+  },
+  "totalRevenueLabel": "إجمالي الإيرادات",
+  "@totalRevenueLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: إجمالي الإيرادات"
+  },
+  "cancelRateLabel": "معدل الإلغاء",
+  "@cancelRateLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: نسبة إلغاء الطلبات"
+  },
+  "suspendedAccountsLabel": "حسابات موقوفة",
+  "@suspendedAccountsLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: عدد الحسابات الموقوفة"
+  },
+  "pendingVerificationLabel": "بانتظار التوثيق",
+  "@pendingVerificationLabel": {
+    "description": "تسمية إحصائية بلوحة الأدمن: فنيون بانتظار توثيق الهوية"
+  },
+  "activityHeading": "النشاط",
+  "@activityHeading": {
+    "description": "عنوان قسم بطاقات نشاط الفترات الزمنية بلوحة الأدمن"
+  },
+  "todayLabel": "اليوم",
+  "@todayLabel": {
+    "description": "عنوان بطاقة نشاط اليوم"
+  },
+  "last7DaysLabel": "٧ أيام",
+  "@last7DaysLabel": {
+    "description": "عنوان بطاقة نشاط آخر 7 أيام"
+  },
+  "last30DaysLabel": "٣٠ يوماً",
+  "@last30DaysLabel": {
+    "description": "عنوان بطاقة نشاط آخر 30 يوماً"
+  },
+  "activityRequestsCount": "{count, plural, one{طلب واحد} two{طلبان} few{{count} طلبات} many{{count} طلباً} other{{count} طلب}}",
+  "@activityRequestsCount": {
+    "description": "عدد الطلبات الجديدة ببطاقة نشاط فترة زمنية",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "activityUsersCount": "{count, plural, one{مستخدم واحد} two{مستخدمان} few{{count} مستخدمين} many{{count} مستخدماً} other{{count} مستخدم}}",
+  "@activityUsersCount": {
+    "description": "عدد المستخدمين الجدد ببطاقة نشاط فترة زمنية",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "statsLoadFailedTitle": "تعذّر تحميل الإحصائيات",
+  "@statsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل إحصائيات لوحة الأدمن الرئيسية"
+  },
+  "manageRequestsActionTitle": "إدارة الطلبات",
+  "@manageRequestsActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشاشة إدارة كل الطلبات بلوحة الأدمن"
+  },
+  "manageRequestsActionSubtitle": "عرض كل الطلبات والتدخّل الإداري عند النزاعات",
+  "@manageRequestsActionSubtitle": {
+    "description": "نص فرعي ببطاقة إدارة الطلبات"
+  },
+  "moderationActionTitle": "المراقبة والشكاوى",
+  "@moderationActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشاشة المراقبة والشكاوى بلوحة الأدمن"
+  },
+  "moderationActionSubtitle": "مخالفات الشات وشكاوى العملاء",
+  "@moderationActionSubtitle": {
+    "description": "نص فرعي ببطاقة المراقبة والشكاوى"
+  },
+  "auditActionSubtitle": "تتبّع كل العمليات الإدارية على المنصة",
+  "@auditActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لسجل العمليات (العنوان نفسه يُعاد استخدام adminAuditTitle)"
+  },
+  "ledgerActionTitle": "دفتر الحساب",
+  "@ledgerActionTitle": {
+    "description": "عنوان بطاقة الانتقال لدفتر الحساب الشامل بلوحة الأدمن"
+  },
+  "ledgerActionSubtitle": "كل الحركات المالية عبر المنصة",
+  "@ledgerActionSubtitle": {
+    "description": "نص فرعي ببطاقة دفتر الحساب"
+  },
+  "mostRequestedServicesTitle": "أكثر الخدمات طلباً",
+  "@mostRequestedServicesTitle": {
+    "description": "عنوان قسم أكثر الخدمات طلباً بلوحة الأدمن الرئيسية"
+  },
+  "topPerformingTechniciansTitle": "أفضل الفنيين أداءً",
+  "@topPerformingTechniciansTitle": {
+    "description": "عنوان قسم أفضل الفنيين أداءً بلوحة الأدمن الرئيسية"
+  },
+  "completedJobsWithRating": "{count, plural, one{عمل واحد} two{عملان} few{{count} أعمال} many{{count} عملاً} other{{count} عمل}} • ⭐ {rating}",
+  "@completedJobsWithRating": {
+    "description": "عدد الأعمال المكتملة مع التقييم بجانب اسم كل فني بترتيب الأفضل أداءً",
+    "placeholders": {
+      "count": {"type": "num"},
+      "rating": {"type": "String"}
+    }
+  },
+  "adminCancelRequestDialogTitle": "إلغاء الطلب إدارياً",
+  "@adminCancelRequestDialogTitle": {
+    "description": "عنوان نافذة تأكيد إلغاء الأدمن لطلب"
+  },
+  "adminCancelRequestConfirmMessage": "سيتم إلغاء الطلب رقم {id}. هذا الإجراء يُسجَّل في سجل العمليات.",
+  "@adminCancelRequestConfirmMessage": {
+    "description": "نص نافذة تأكيد إلغاء الأدمن لطلب",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "cancelReasonHint": "سبب الإلغاء (اختياري)",
+  "@cancelReasonHint": {
+    "description": "نص تلميحي داخل حقل سبب إلغاء الطلب من لوحة الأدمن"
+  },
+  "confirmCancelButton": "تأكيد الإلغاء",
+  "@confirmCancelButton": {
+    "description": "زر تأكيد إلغاء الطلب بنافذة التأكيد"
+  },
+  "requestCancelledMessage": "تم إلغاء الطلب",
+  "@requestCancelledMessage": {
+    "description": "رسالة تأكيد بعد إلغاء الأدمن لطلب"
+  },
+  "statusChangedMessage": "تم تغيير الحالة إلى: {status}",
+  "@statusChangedMessage": {
+    "description": "رسالة تأكيد بعد تغيير الأدمن لحالة طلب. [L10N-TODO] {status} قيمة سلكية (RequestModel.status) لم تُترجَم بعد — مؤجَّلة لـPhase 3، ستبقى عربية حتى ذلك الحين حتى بالواجهة الإنجليزية.",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "noRequestsFoundTitle": "لا توجد طلبات",
+  "@noRequestsFoundTitle": {
+    "description": "عنوان الحالة الفارغة عند عدم وجود طلبات مطابقة (لوحة الأدمن)"
+  },
+  "customerLabel": "العميل",
+  "@customerLabel": {
+    "description": "تسمية عامة لحقل اسم العميل"
+  },
+  "technicianLabel": "الفني",
+  "@technicianLabel": {
+    "description": "تسمية عامة لحقل اسم الفني"
+  },
+  "cityLabel": "المدينة",
+  "@cityLabel": {
+    "description": "تسمية عامة لحقل المدينة (أقصر من cityFieldLabel المستخدَم بنماذج التسجيل)"
+  },
+  "changeRequestStatusTooltip": "تغيير حالة الطلب",
+  "@changeRequestStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تغيير حالة الطلب من لوحة الأدمن"
+  },
+  "changeStatusButton": "تغيير الحالة",
+  "@changeStatusButton": {
+    "description": "زر فتح قائمة تغيير حالة الطلب من لوحة الأدمن"
+  },
+  "technicianVerifiedMessage": "تم توثيق الفني",
+  "@technicianVerifiedMessage": {
+    "description": "رسالة نجاح توثيق الفني من شاشة تفاصيل المستخدم بلوحة الأدمن"
+  },
+  "verifyTechnicianFailedMessage": "تعذر توثيق الفني",
+  "@verifyTechnicianFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل توثيق الفني"
+  },
+  "convertToTechnicianLabel": "تحويل إلى فني",
+  "@convertToTechnicianLabel": {
+    "description": "زر/عنوان تحويل حساب عميل إلى فني (super admin فقط)"
+  },
+  "convertToCustomerLabel": "تحويل إلى عميل",
+  "@convertToCustomerLabel": {
+    "description": "زر/عنوان تحويل حساب فني إلى عميل (super admin فقط)"
+  },
+  "convertToTechnicianRequirementsMessage": "يتطلّب رقماً وطنياً وخدمة ومنطقة واحدة على الأقل، وأن تكون لدى الحساب صورة شخصية مسبقاً. سيُرفض التحويل إن كان للعميل طلب نشط.",
+  "@convertToTechnicianRequirementsMessage": {
+    "description": "شرح شروط تحويل عميل إلى فني بمربع حوار التأكيد"
+  },
+  "convertToCustomerRequirementsMessage": "سيُرفض التحويل إن كان لدى الفني رصيد أو أعمال مكتملة أو عروض معلّقة أو طلب نشط — صفِّ هذه الأمور أولاً.",
+  "@convertToCustomerRequirementsMessage": {
+    "description": "شرح شروط تحويل فني إلى عميل بمربع حوار التأكيد"
+  },
+  "nationalNumberDigitsFieldLabel": "الرقم الوطني (10 أرقام)",
+  "@nationalNumberDigitsFieldLabel": {
+    "description": "تسمية حقل الرقم الوطني بمربع حوار تحويل الدور، تشمل تلميح عدد الأرقام"
+  },
+  "servicesCommaSeparatedLabel": "الخدمات (مفصولة بفاصلة)",
+  "@servicesCommaSeparatedLabel": {
+    "description": "تسمية حقل إدخال الخدمات كنص حر مفصول بفواصل بمربع حوار تحويل الدور"
+  },
+  "areasCommaSeparatedLabel": "المناطق (مفصولة بفاصلة)",
+  "@areasCommaSeparatedLabel": {
+    "description": "تسمية حقل إدخال المناطق كنص حر مفصول بفواصل بمربع حوار تحويل الدور"
+  },
+  "convertButton": "تحويل",
+  "@convertButton": {
+    "description": "زر تأكيد تحويل الدور بمربع الحوار"
+  },
+  "roleChangedMessage": "تم تحويل الدور بنجاح",
+  "@roleChangedMessage": {
+    "description": "رسالة نجاح تحويل دور المستخدم"
+  },
+  "changeRoleFailedMessage": "تعذر تحويل الدور",
+  "@changeRoleFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحويل الدور"
+  },
+  "userDetailsTitle": "تفاصيل المستخدم",
+  "@userDetailsTitle": {
+    "description": "عنوان شاشة تفاصيل المستخدم بلوحة الأدمن، يُستخدم كبديل قبل توفر اسم المستخدم"
+  },
+  "verifyThisTechnicianLabel": "توثيق هذا الفني",
+  "@verifyThisTechnicianLabel": {
+    "description": "زر إجراء سريع لتوثيق الفني من شاشة تفاصيله"
+  },
+  "superAdminOnlyLabel": "Super Admin فقط",
+  "@superAdminOnlyLabel": {
+    "description": "توضيح أن إجراء تحويل الدور مقيَّد بـsuper admin فقط"
+  },
+  "requestsAsCustomerSectionTitle": "طلبات كعميل ({count})",
+  "@requestsAsCustomerSectionTitle": {
+    "description": "عنوان قسم طلبات المستخدم كعميل بشاشة تفاصيله، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "requestsAsTechnicianSectionTitle": "طلبات كفني ({count})",
+  "@requestsAsTechnicianSectionTitle": {
+    "description": "عنوان قسم طلبات المستخدم كفني بشاشة تفاصيله، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "userOffersSectionTitle": "العروض ({count})",
+  "@userOffersSectionTitle": {
+    "description": "عنوان قسم عروض الفني بشاشة تفاصيل المستخدم، مع عدّاد (مختلف عن offersSectionTitle المستخدَم بشاشة عروض العميل، بلا عدّاد)",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "ledgerSectionTitleWithCount": "دفتر الحساب ({count})",
+  "@ledgerSectionTitleWithCount": {
+    "description": "عنوان قسم دفتر الحساب بشاشة تفاصيل المستخدم، مع عدّاد (مختلف عن ledgerTitle بلا عدّاد)",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "monitoringSectionTitle": "المراقبة",
+  "@monitoringSectionTitle": {
+    "description": "عنوان قسم مؤشرات المراقبة (مخالفات/بلاغات/شكاوى) بشاشة تفاصيل المستخدم"
+  },
+  "requestNumberLabel": "طلب #{id}",
+  "@requestNumberLabel": {
+    "description": "تسمية عامة لعرض رقم الطلب ضمن نص، مثل سطر فرعي بقائمة عروض",
+    "placeholders": {
+      "id": {"type": "int"}
+    }
+  },
+  "noneLabel": "لا يوجد",
+  "@noneLabel": {
+    "description": "نص عام لقائمة فارغة (لا عناصر لعرضها)"
+  },
+  "violationsSentLabel": "مخالفات شات أرسلها",
+  "@violationsSentLabel": {
+    "description": "عدّاد مخالفات الشات التي أرسلها المستخدم بشاشة تفاصيله"
+  },
+  "reportsAgainstLabel": "بلاغات ضده",
+  "@reportsAgainstLabel": {
+    "description": "عدّاد البلاغات المقدَّمة ضد المستخدم بشاشة تفاصيله"
+  },
+  "complaintsFiledLabel": "شكاوى قدّمها",
+  "@complaintsFiledLabel": {
+    "description": "عدّاد الشكاوى التي قدّمها المستخدم بشاشة تفاصيله"
+  },
+  "suspensionReasonLabel": "سبب الإيقاف: {reason}",
+  "@suspensionReasonLabel": {
+    "description": "سبب إيقاف حساب المستخدم، معروض ببطاقة الملخص",
+    "placeholders": {
+      "reason": {"type": "String"}
+    }
+  },
+  "balanceWithAmountLabel": "الرصيد: {amount}",
+  "@balanceWithAmountLabel": {
+    "description": "رصيد الفني بالدينار، amount مهيَّأ مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "ratingSummaryLabel": "التقييم: {rating} ({count}) • مكتملة: {completed}",
+  "@ratingSummaryLabel": {
+    "description": "ملخص تقييم الفني وعدد الأعمال المكتملة ببطاقة ملخص المستخدم",
+    "placeholders": {
+      "rating": {"type": "String"},
+      "count": {"type": "String"},
+      "completed": {"type": "String"}
+    }
+  },
+  "userLoadFailedTitle": "تعذّر تحميل بيانات المستخدم",
+  "@userLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل تفاصيل مستخدم بلوحة الأدمن"
+  },
+  "addProfessionTitle": "إضافة مهنة",
+  "@addProfessionTitle": {
+    "description": "عنوان مربع حوار إضافة مهنة جديدة بشاشة إدارة البيانات الوصفية"
+  },
+  "professionNameFieldLabel": "اسم المهنة",
+  "@professionNameFieldLabel": {
+    "description": "تسمية حقل اسم المهنة"
+  },
+  "iconFieldLabel": "الأيقونة",
+  "@iconFieldLabel": {
+    "description": "تسمية حقل رمز الأيقونة (إيموجي) للمهنة"
+  },
+  "addButton": "إضافة",
+  "@addButton": {
+    "description": "زر عام لتأكيد إضافة عنصر"
+  },
+  "editProfessionTitle": "تعديل المهنة",
+  "@editProfessionTitle": {
+    "description": "عنوان مربع حوار تعديل مهنة موجودة"
+  },
+  "professionNameTooShortValidation": "اسم المهنة قصير جداً",
+  "@professionNameTooShortValidation": {
+    "description": "رسالة تحقق عند قصر اسم المهنة عن حرفين"
+  },
+  "saveButton": "حفظ",
+  "@saveButton": {
+    "description": "زر عام لحفظ التعديلات"
+  },
+  "professionUpdatedMessage": "تم تحديث المهنة بنجاح",
+  "@professionUpdatedMessage": {
+    "description": "رسالة نجاح تحديث بيانات مهنة"
+  },
+  "editProfessionFailedMessage": "تعذر تعديل المهنة",
+  "@editProfessionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل مهنة"
+  },
+  "editPackageTitle": "تعديل باقة",
+  "@editPackageTitle": {
+    "description": "عنوان مربع حوار تعديل باقة موجودة"
+  },
+  "addPackageTitle": "إضافة باقة",
+  "@addPackageTitle": {
+    "description": "عنوان مربع حوار إضافة باقة جديدة"
+  },
+  "packageNameFieldLabel": "اسم الباقة",
+  "@packageNameFieldLabel": {
+    "description": "تسمية حقل اسم الباقة"
+  },
+  "amountFieldLabel": "القيمة",
+  "@amountFieldLabel": {
+    "description": "تسمية حقل قيمة الباقة بالدينار"
+  },
+  "bonusFieldLabel": "البونص",
+  "@bonusFieldLabel": {
+    "description": "تسمية حقل بونص الباقة بالدينار"
+  },
+  "commissionPerOrderFieldLabel": "عمولة الطلب",
+  "@commissionPerOrderFieldLabel": {
+    "description": "تسمية حقل نسبة العمولة لكل طلب ضمن الباقة"
+  },
+  "deleteProfessionTitle": "حذف المهنة",
+  "@deleteProfessionTitle": {
+    "description": "عنوان مربع حوار تأكيد حذف مهنة"
+  },
+  "deletePackageTitle": "حذف الباقة",
+  "@deletePackageTitle": {
+    "description": "عنوان مربع حوار تأكيد حذف باقة"
+  },
+  "deleteConfirmMessage": "هل أنت متأكد من حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+  "@deleteConfirmMessage": {
+    "description": "نص تأكيد حذف عنصر عام (مهنة أو باقة)، غير قابل للتراجع",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteButton": "حذف",
+  "@deleteButton": {
+    "description": "زر/تلميح عام لحذف عنصر"
+  },
+  "deletedSuccessMessage": "تم الحذف بنجاح",
+  "@deletedSuccessMessage": {
+    "description": "رسالة نجاح عامة بعد حذف عنصر"
+  },
+  "deleteFailedMessage": "تعذر الحذف",
+  "@deleteFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل الحذف"
+  },
+  "professionsTabLabel": "المهن",
+  "@professionsTabLabel": {
+    "description": "تبويب قائمة المهن بشاشة إدارة البيانات الوصفية"
+  },
+  "packagesTabLabel": "الباقات",
+  "@packagesTabLabel": {
+    "description": "تبويب قائمة الباقات بشاشة إدارة البيانات الوصفية"
+  },
+  "noProfessionsFoundTitle": "لا توجد مهن",
+  "@noProfessionsFoundTitle": {
+    "description": "حالة فارغة لقائمة المهن"
+  },
+  "noPackagesFoundTitle": "لا توجد باقات",
+  "@noPackagesFoundTitle": {
+    "description": "حالة فارغة لقائمة الباقات"
+  },
+  "addNewButton": "إضافة جديد",
+  "@addNewButton": {
+    "description": "زر إضافة عنصر جديد أعلى قائمة المهن/الباقات"
+  },
+  "metaListLoadFailedTitle": "تعذّر تحميل القائمة",
+  "@metaListLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل قائمة المهن أو الباقات"
+  },
+  "professionDisabledSubtitle": "معطّلة — لا تظهر بالتسجيل أو إنشاء الطلبات",
+  "@professionDisabledSubtitle": {
+    "description": "توضيح أن المهنة معطّلة ولن تظهر بالتسجيل أو إنشاء الطلبات"
+  },
+  "professionActiveSubtitle": "مهنة متاحة في التطبيق",
+  "@professionActiveSubtitle": {
+    "description": "توضيح أن المهنة مفعّلة ومتاحة بالتطبيق"
+  },
+  "packageDisabledSubtitle": "معطّلة — لا تظهر بشاشة شحن الفنيين",
+  "@packageDisabledSubtitle": {
+    "description": "توضيح أن الباقة معطّلة ولن تظهر بشاشة شحن الفنيين"
+  },
+  "packageAmountBonusSubtitle": "{amount} • بونص {bonus}",
+  "@packageAmountBonusSubtitle": {
+    "description": "قيمة الباقة وبونصها، amount وbonus مهيّآن مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"},
+      "bonus": {"type": "String"}
+    }
+  },
+  "editTooltip": "تعديل",
+  "@editTooltip": {
+    "description": "تلميح زر تعديل عنصر"
+  },
+  "moderationScreenTitle": "المراقبة والشكاوى",
+  "@moderationScreenTitle": {
+    "description": "عنوان شاشة المراقبة (مخالفات الشات والشكاوى وبلاغات الرسائل) بلوحة الأدمن"
+  },
+  "chatViolationsTabLabel": "مخالفات الشات ({count})",
+  "@chatViolationsTabLabel": {
+    "description": "تبويب مخالفات الشات، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "complaintsTabLabel": "الشكاوى ({count})",
+  "@complaintsTabLabel": {
+    "description": "تبويب الشكاوى، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "messageReportsTabLabel": "بلاغات الرسائل ({count})",
+  "@messageReportsTabLabel": {
+    "description": "تبويب بلاغات الرسائل، مع عدّاد",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "noViolationsFoundTitle": "لا توجد مخالفات",
+  "@noViolationsFoundTitle": {
+    "description": "حالة فارغة لقائمة مخالفات الشات"
+  },
+  "violationFallbackLabel": "مخالفة",
+  "@violationFallbackLabel": {
+    "description": "عنوان بديل لبطاقة مخالفة إن لم يتوفر سبب محدد من الخادم"
+  },
+  "serviceLabelWithValue": "الخدمة: {service}",
+  "@serviceLabelWithValue": {
+    "description": "تسمية الخدمة ضمن سطر معلومات بطاقة مخالفة",
+    "placeholders": {
+      "service": {"type": "String"}
+    }
+  },
+  "noComplaintsFoundTitle": "لا توجد شكاوى",
+  "@noComplaintsFoundTitle": {
+    "description": "حالة فارغة لقائمة الشكاوى"
+  },
+  "complaintFromLabel": "شكوى من {name}",
+  "@complaintFromLabel": {
+    "description": "عنوان بطاقة شكوى، name هو اسم العميل مقدّم الشكوى أو customerFallbackName",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintAgainstTechnicianLabel": "بحق الفني: {name}",
+  "@complaintAgainstTechnicianLabel": {
+    "description": "توضيح الفني المشتكى عليه ببطاقة الشكوى",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "customerPhoneLabel": "هاتف العميل: {phone}",
+  "@customerPhoneLabel": {
+    "description": "رقم هاتف العميل ضمن سطر معلومات بطاقة الشكوى",
+    "placeholders": {
+      "phone": {"type": "String"}
+    }
+  },
+  "noMessageReportsFoundTitle": "لا توجد بلاغات رسائل",
+  "@noMessageReportsFoundTitle": {
+    "description": "حالة فارغة لقائمة بلاغات الرسائل"
+  },
+  "reportFallbackLabel": "بلاغ",
+  "@reportFallbackLabel": {
+    "description": "عنوان بديل لبطاقة بلاغ رسالة إن لم يتوفر سبب محدد من الخادم"
+  },
+  "reportedUserLabel": "المُبلَّغ عنه: {name}",
+  "@reportedUserLabel": {
+    "description": "اسم المستخدم المُبلَّغ عنه ببطاقة بلاغ رسالة",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "noSpecificMessageIndicatedLabel": "(لم تُحدَّد رسالة معيّنة)",
+  "@noSpecificMessageIndicatedLabel": {
+    "description": "نص بديل لجسم بطاقة بلاغ رسالة عند عدم ربط البلاغ برسالة محددة"
+  },
+  "reporterLabel": "المُبلِّغ: {name}",
+  "@reporterLabel": {
+    "description": "اسم مقدّم بلاغ الرسالة ضمن سطر معلومات البطاقة",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "complaintStatusOpenLabel": "مفتوحة",
+  "@complaintStatusOpenLabel": {
+    "description": "تسمية عرض حالة الشكوى 'open' (مفتاح enum إنجليزي ثابت من الخادم، آمن للترجمة لأن القيمة المرسلة هي المفتاح لا التسمية)"
+  },
+  "complaintStatusInReviewLabel": "قيد المراجعة",
+  "@complaintStatusInReviewLabel": {
+    "description": "تسمية عرض حالة الشكوى 'in_review'"
+  },
+  "complaintStatusResolvedLabel": "تم الحل",
+  "@complaintStatusResolvedLabel": {
+    "description": "تسمية عرض حالة الشكوى 'resolved'"
+  },
+  "complaintStatusRejectedLabel": "مرفوضة",
+  "@complaintStatusRejectedLabel": {
+    "description": "تسمية عرض حالة الشكوى 'rejected'"
+  },
+  "changeComplaintStatusTooltip": "تغيير حالة الشكوى",
+  "@changeComplaintStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تغيير حالة شكوى"
+  },
+  "updateComplaintStatusFailedMessage": "تعذر تحديث حالة الشكوى",
+  "@updateComplaintStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة شكوى"
+  },
+  "statusUpdatedMessage": "تم تحديث الحالة إلى: {status}",
+  "@statusUpdatedMessage": {
+    "description": "رسالة نجاح عامة بتحديث حالة عنصر (شكوى/مخالفة/بلاغ رسالة) بلوحة المراقبة. لـ_ViolationStatusMenu وMessageReportStatusMenu تُمرَّر التسمية العربية الخام كما هي [L10N-TODO] — القيمة نفسها المخزَّنة بالخادم (wire value)، Phase 3",
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "updateViolationStatusTooltip": "تحديث حالة المخالفة",
+  "@updateViolationStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تحديث حالة مخالفة"
+  },
+  "updateViolationStatusFailedMessage": "تعذر تحديث حالة المخالفة",
+  "@updateViolationStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة مخالفة"
+  },
+  "updateMessageReportStatusTooltip": "تحديث حالة البلاغ",
+  "@updateMessageReportStatusTooltip": {
+    "description": "تلميح زر فتح قائمة تحديث حالة بلاغ رسالة"
+  },
+  "updateMessageReportStatusFailedMessage": "تعذر تحديث حالة البلاغ",
+  "@updateMessageReportStatusFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث حالة بلاغ رسالة"
+  },
+  "activateAccountTitle": "تفعيل الحساب",
+  "@activateAccountTitle": {
+    "description": "عنوان مربع حوار/زر تفعيل حساب مستخدم موقوف بلوحة الأدمن"
+  },
+  "activateAccountConfirmMessage": "هل تريد تفعيل حساب {name}؟",
+  "@activateAccountConfirmMessage": {
+    "description": "رسالة تأكيد تفعيل حساب مستخدم",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "accountUpdateFailedMessage": "تعذر تحديث الحساب",
+  "@accountUpdateFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تفعيل/إيقاف حساب مستخدم"
+  },
+  "suspendAccountTitle": "إيقاف الحساب",
+  "@suspendAccountTitle": {
+    "description": "عنوان مربع حوار/زر إيقاف حساب مستخدم نشط بلوحة الأدمن"
+  },
+  "suspensionReasonPromptMessage": "سبب إيقاف حساب {name} (اختياري، يُسجَّل بسجل الحساب):",
+  "@suspensionReasonPromptMessage": {
+    "description": "توضيح حقل سبب الإيقاف بمربع حوار إيقاف حساب",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "reasonFieldLabel": "السبب",
+  "@reasonFieldLabel": {
+    "description": "تسمية حقل سبب الإيقاف"
+  },
+  "suspendButton": "إيقاف",
+  "@suspendButton": {
+    "description": "زر تأكيد إيقاف الحساب بمربع الحوار"
+  },
+  "editDataTitle": "تعديل البيانات",
+  "@editDataTitle": {
+    "description": "عنوان مربع حوار تعديل بيانات مستخدم (الاسم والمدينة) بلوحة الأدمن"
+  },
+  "nameFieldLabel": "الاسم",
+  "@nameFieldLabel": {
+    "description": "تسمية حقل الاسم القصير (مختلف عن fullNameFieldLabel المستخدَم بنماذج التسجيل)"
+  },
+  "dataSavedMessage": "تم حفظ البيانات",
+  "@dataSavedMessage": {
+    "description": "رسالة نجاح حفظ تعديل بيانات مستخدم"
+  },
+  "editDataFailedMessage": "تعذر تعديل البيانات",
+  "@editDataFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل بيانات مستخدم"
+  },
+  "adjustBalanceTitle": "تعديل الرصيد",
+  "@adjustBalanceTitle": {
+    "description": "عنوان مربع حوار تعديل رصيد فني بلوحة الأدمن"
+  },
+  "currentBalanceLabel": "الرصيد الحالي: {amount}",
+  "@currentBalanceLabel": {
+    "description": "الرصيد الحالي للفني بمربع حوار تعديل الرصيد، amount مهيَّأ مسبقاً عبر formatJod",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "deductChipLabel": "خصم",
+  "@deductChipLabel": {
+    "description": "خيار خصم مبلغ من الرصيد بمربع حوار تعديل الرصيد"
+  },
+  "amountJodFieldLabel": "المبلغ",
+  "@amountJodFieldLabel": {
+    "description": "تسمية حقل إدخال مبلغ التعديل بالدينار (مختلف عن amountFieldLabel المستخدَم بشاشة الباقات)"
+  },
+  "adjustmentReasonRequiredFieldLabel": "سبب التعديل (إلزامي)",
+  "@adjustmentReasonRequiredFieldLabel": {
+    "description": "تسمية حقل سبب تعديل الرصيد، إلزامي"
+  },
+  "executeButton": "تنفيذ",
+  "@executeButton": {
+    "description": "زر تنفيذ تعديل الرصيد بمربع الحوار"
+  },
+  "enterValidAmountMessage": "أدخل مبلغاً صحيحاً",
+  "@enterValidAmountMessage": {
+    "description": "رسالة تحقق عند إدخال مبلغ غير صالح بمربع حوار تعديل الرصيد"
+  },
+  "balanceAdjustedMessage": "تم تعديل الرصيد",
+  "@balanceAdjustedMessage": {
+    "description": "رسالة نجاح تعديل رصيد فني"
+  },
+  "adjustBalanceFailedMessage": "تعذر تعديل الرصيد",
+  "@adjustBalanceFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تعديل الرصيد"
+  },
+  "deleteUserTitle": "حذف المستخدم",
+  "@deleteUserTitle": {
+    "description": "عنوان مربع حوار/زر حذف حساب مستخدم نهائياً بلوحة الأدمن"
+  },
+  "deleteUserConfirmMessage": "سيتم حذف حساب {name} نهائياً وإيقاف وصوله. لا يمكن التراجع. هذا الإجراء يُسجَّل في سجل العمليات.",
+  "@deleteUserConfirmMessage": {
+    "description": "رسالة تأكيد حذف حساب مستخدم نهائياً",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteForeverButton": "حذف نهائي",
+  "@deleteForeverButton": {
+    "description": "زر تأكيد الحذف النهائي لحساب مستخدم"
+  },
+  "userDeletedMessage": "تم حذف المستخدم",
+  "@userDeletedMessage": {
+    "description": "رسالة نجاح حذف حساب مستخدم"
+  },
+  "deleteUserFailedMessage": "تعذر حذف المستخدم",
+  "@deleteUserFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حذف حساب مستخدم"
+  },
+  "allFilterLabel": "الكل",
+  "@allFilterLabel": {
+    "description": "تبويب/رقاقة فلترة لعرض كل المستخدمين بلا تصفية دور"
+  },
+  "customersFilterLabel": "عملاء",
+  "@customersFilterLabel": {
+    "description": "رقاقة فلترة المستخدمين حسب دور العميل"
+  },
+  "techniciansFilterLabel": "فنيين",
+  "@techniciansFilterLabel": {
+    "description": "رقاقة فلترة المستخدمين حسب دور الفني"
+  },
+  "activeStatusLabel": "نشط",
+  "@activeStatusLabel": {
+    "description": "شارة حالة حساب مستخدم نشط"
+  },
+  "suspendedStatusLabel": "موقوف",
+  "@suspendedStatusLabel": {
+    "description": "شارة حالة حساب مستخدم موقوف"
+  },
+  "balanceButtonLabel": "الرصيد",
+  "@balanceButtonLabel": {
+    "description": "زر فتح مربع حوار تعديل رصيد فني ببطاقة المستخدم"
+  },
+  "noUsersFoundTitle": "لا يوجد مستخدمين",
+  "@noUsersFoundTitle": {
+    "description": "حالة فارغة لقائمة المستخدمين"
+  },
+  "usersLoadFailedTitle": "تعذّر تحميل المستخدمين",
+  "@usersLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل قائمة المستخدمين"
+  },
+  "adminRoleLabel": "أدمن",
+  "@adminRoleLabel": {
+    "description": "تسمية دور الأدمن، تحل محل AdminUserModel.roleAr (نُقل منطق العرض لطبقة الودجت لأنه يحتاج BuildContext)"
+  },
+  "privacyIntroText": "هذه الصفحة توضّح كيف تجمع منصة صلّحلي بياناتك وتستخدمها وتحميها.",
+  "@privacyIntroText": {
+    "description": "نص المقدمة أعلى شاشة سياسة الخصوصية"
+  },
+  "dataWeCollectSectionTitle": "البيانات التي نجمعها ولماذا",
+  "@dataWeCollectSectionTitle": {
+    "description": "عنوان قسم جدول البيانات المجمَّعة بشاشة سياسة الخصوصية"
+  },
+  "dataStorageSectionTitle": "أين تُخزَّن بياناتك وكيف تُحمى",
+  "@dataStorageSectionTitle": {
+    "description": "عنوان قسم تخزين وحماية البيانات بشاشة سياسة الخصوصية"
+  },
+  "dataStorageSectionBody": "تُخزَّن بياناتك على خوادمنا، ويكون كل اتصال بين التطبيق والخادم مشفّراً عبر HTTPS. كلمة مرورك تُحفظ بصيغة مشفّرة (Hash) لا يمكن لأحد بمن فيهم فريقنا استرجاعها. رسائل المحادثة محفوظة بقاعدة بياناتنا لعرضها لك ولطرف المحادثة الآخر، ويُراجعها فريق الإدارة فقط عند وجود شكوى أو مخالفة تستدعي ذلك.",
+  "@dataStorageSectionBody": {
+    "description": "نص شرح تخزين وحماية البيانات بشاشة سياسة الخصوصية"
+  },
+  "thirdPartySharingSectionTitle": "مشاركة البيانات مع أطراف ثالثة",
+  "@thirdPartySharingSectionTitle": {
+    "description": "عنوان قسم مشاركة البيانات مع طرف ثالث بشاشة سياسة الخصوصية"
+  },
+  "thirdPartySharingSectionBody": "لا نبيع بياناتك ولا نشاركها مع أي جهة إعلانية. الاستثناء الوحيد هو خدمة Firebase Cloud Messaging (التابعة لـ Google) التي نستخدمها حصراً لإرسال الإشعارات لجهازك، وهذا يتطلب مشاركة معرّف جهاز الإشعارات معها فقط، دون أي بيانات أخرى.",
+  "@thirdPartySharingSectionBody": {
+    "description": "نص شرح مشاركة البيانات مع طرف ثالث بشاشة سياسة الخصوصية"
+  },
+  "appPermissionsSectionTitle": "صلاحيات التطبيق ولماذا نطلبها",
+  "@appPermissionsSectionTitle": {
+    "description": "عنوان قسم صلاحيات التطبيق بشاشة سياسة الخصوصية"
+  },
+  "permissionLocationTitle": "الموقع الجغرافي",
+  "@permissionLocationTitle": {
+    "description": "عنوان صلاحية الموقع الجغرافي بشاشة سياسة الخصوصية"
+  },
+  "permissionLocationBody": "فقط عند ضغطك زر \"مشاركة الموقع\" داخل محادثة طلب — لن يُستخدم بأي وقت آخر ولا بالخلفية.",
+  "@permissionLocationBody": {
+    "description": "شرح استخدام صلاحية الموقع الجغرافي"
+  },
+  "permissionMicTitle": "الميكروفون",
+  "@permissionMicTitle": {
+    "description": "عنوان صلاحية الميكروفون بشاشة سياسة الخصوصية"
+  },
+  "permissionMicBody": "فقط عند تسجيلك رسالة صوتية داخل محادثة طلب.",
+  "@permissionMicBody": {
+    "description": "شرح استخدام صلاحية الميكروفون"
+  },
+  "permissionCameraTitle": "الكاميرا / معرض الصور",
+  "@permissionCameraTitle": {
+    "description": "عنوان صلاحية الكاميرا/معرض الصور بشاشة سياسة الخصوصية"
+  },
+  "permissionCameraBody": "فقط عند اختيارك إرفاق صورة (صورتك الشخصية، أو صورة توضّح المشكلة الفنية).",
+  "@permissionCameraBody": {
+    "description": "شرح استخدام صلاحية الكاميرا/معرض الصور"
+  },
+  "permissionNotificationsTitle": "الإشعارات",
+  "@permissionNotificationsTitle": {
+    "description": "عنوان صلاحية الإشعارات بشاشة سياسة الخصوصية"
+  },
+  "permissionNotificationsBody": "لتنبيهك بعروض جديدة، رسائل، وتحديثات طلباتك فوراً.",
+  "@permissionNotificationsBody": {
+    "description": "شرح استخدام صلاحية الإشعارات"
+  },
+  "yourRightsSectionTitle": "حقوقك",
+  "@yourRightsSectionTitle": {
+    "description": "عنوان قسم حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletAccessData": "الاطلاع على بياناتك وتعديلها في أي وقت من الإعدادات.",
+  "@rightsBulletAccessData": {
+    "description": "أول بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletChangePassword": "تغيير كلمة مرورك في أي وقت.",
+  "@rightsBulletChangePassword": {
+    "description": "ثاني بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "rightsBulletDeleteAccount": "طلب حذف حسابك وبياناتك بالكامل من نفس صفحة الإعدادات.",
+  "@rightsBulletDeleteAccount": {
+    "description": "ثالث بند من حقوق المستخدم بشاشة سياسة الخصوصية"
+  },
+  "dataRetentionSectionTitle": "الاحتفاظ بالبيانات",
+  "@dataRetentionSectionTitle": {
+    "description": "عنوان قسم الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
+  },
+  "dataRetentionSectionBody": "نحتفظ ببياناتك طالما حسابك فعّال. عند حذف حسابك، تُحذف بياناتك الشخصية نهائياً من قاعدة بياناتنا فوراً (باستثناء حالات وجود طلب نشط أو رصيد غير مصفّى، والتي تمنع الحذف حتى تُسوَّى أولاً).",
+  "@dataRetentionSectionBody": {
+    "description": "نص شرح الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
+  },
+  "contactUsSectionTitle": "تواصل معنا",
+  "@contactUsSectionTitle": {
+    "description": "عنوان قسم التواصل بشاشة سياسة الخصوصية"
+  },
+  "contactUsSectionBody": "لأي استفسار بخصوص هذه السياسة أو بياناتك، تواصل معنا عبر الدعم الفني داخل التطبيق.",
+  "@contactUsSectionBody": {
+    "description": "نص قسم التواصل بشاشة سياسة الخصوصية"
+  },
+  "privacyLastUpdatedLabel": "آخر تحديث: 2026",
+  "@privacyLastUpdatedLabel": {
+    "description": "تاريخ آخر تحديث لسياسة الخصوصية، أسفل الشاشة"
+  },
+  "dataTableNameLabel": "الاسم، البريد، رقم الهاتف",
+  "@dataTableNameLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableNameReason": "إنشاء الحساب والتواصل بخصوص طلباتك",
+  "@dataTableNameReason": {
+    "description": "سبب جمع الاسم/البريد/الهاتف بجدول البيانات"
+  },
+  "dataTablePasswordLabel": "كلمة المرور",
+  "@dataTablePasswordLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTablePasswordReason": "حماية حسابك (مشفّرة، لا يمكن استرجاعها)",
+  "@dataTablePasswordReason": {
+    "description": "سبب جمع كلمة المرور بجدول البيانات"
+  },
+  "dataTableCityAreaLabel": "المدينة والمنطقة",
+  "@dataTableCityAreaLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableCityAreaReason": "ربطك بأقرب فني متاح",
+  "@dataTableCityAreaReason": {
+    "description": "سبب جمع المدينة/المنطقة بجدول البيانات"
+  },
+  "dataTableNationalNumberLabel": "الرقم الوطني (فنيين)",
+  "@dataTableNationalNumberLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableNationalNumberReason": "التحقق من هوية الفني الحقيقية قبل تفعيل حسابه، لبناء ثقة العملاء",
+  "@dataTableNationalNumberReason": {
+    "description": "سبب جمع الرقم الوطني بجدول البيانات"
+  },
+  "dataTableProfilePhotoLabel": "الصورة الشخصية (فنيين)",
+  "@dataTableProfilePhotoLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableProfilePhotoReason": "بناء الثقة بين العميل والفني",
+  "@dataTableProfilePhotoReason": {
+    "description": "سبب جمع الصورة الشخصية بجدول البيانات"
+  },
+  "dataTableLocationLabel": "الموقع الجغرافي",
+  "@dataTableLocationLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' (نص مطابق لـpermissionLocationTitle، سياق مختلف)"
+  },
+  "dataTableLocationReason": "فقط عند مشاركته داخل محادثة طلب",
+  "@dataTableLocationReason": {
+    "description": "سبب جمع الموقع الجغرافي بجدول البيانات"
+  },
+  "dataTableChatMediaLabel": "صور/صوت المحادثة",
+  "@dataTableChatMediaLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableChatMediaReason": "توضيح المشكلة الفنية",
+  "@dataTableChatMediaReason": {
+    "description": "سبب جمع صور/صوت المحادثة بجدول البيانات"
+  },
+  "dataTableDeviceTokenLabel": "معرّف إشعارات الجهاز",
+  "@dataTableDeviceTokenLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableDeviceTokenReason": "إرسال إشعارات فورية",
+  "@dataTableDeviceTokenReason": {
+    "description": "سبب جمع معرّف إشعارات الجهاز بجدول البيانات"
+  },
+  "dataTableWalletLabel": "معاملات المحفظة",
+  "@dataTableWalletLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableWalletReason": "إدارة رصيد الفني (للفنيين فقط)",
+  "@dataTableWalletReason": {
+    "description": "سبب جمع بيانات معاملات المحفظة بجدول البيانات"
+  },
+  "requiredBadgeLabel": "إلزامية",
+  "@requiredBadgeLabel": {
+    "description": "شارة توضّح أن حقل بيانات إلزامي بجدول البيانات"
+  },
+  "optionalBadgeLabel": "اختيارية",
+  "@optionalBadgeLabel": {
+    "description": "شارة توضّح أن حقل بيانات اختياري بجدول البيانات"
+  },
+  "sendMessageFailedMessage": "تعذر إرسال الرسالة: {error}",
+  "@sendMessageFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال رسالة نصية بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "sendImageFailedMessage": "تعذر إرسال الصورة: {error}",
+  "@sendImageFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال صورة بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "shareLocationTitle": "مشاركة موقعك",
+  "@shareLocationTitle": {
+    "description": "عنوان حوار توضيح صلاحية الموقع قبل طلبها بالمحادثة"
+  },
+  "shareLocationRationaleMessage": "سنستخدم موقعك الجغرافي فقط لإرساله للطرف الآخر بهذه المحادثة ليتمكن من الوصول لمكان الخدمة. لن يُستخدم موقعك لأي غرض آخر، ولن نصل إليه إلا عند ضغطك على هذا الزر تحديداً.",
+  "@shareLocationRationaleMessage": {
+    "description": "نص شرح استخدام صلاحية الموقع قبل طلبها بالمحادثة"
+  },
+  "enableGpsMessage": "فعّل خدمة الموقع GPS من إعدادات الهاتف",
+  "@enableGpsMessage": {
+    "description": "رسالة توجيه لتفعيل GPS عند محاولة مشاركة الموقع بالمحادثة"
+  },
+  "locationPermissionDeniedTitle": "صلاحية الموقع مرفوضة",
+  "@locationPermissionDeniedTitle": {
+    "description": "عنوان حوار رفض صلاحية الموقع بشكل دائم بالمحادثة"
+  },
+  "locationPermissionDeniedForeverMessage": "رفضت صلاحية الموقع بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لمشاركة موقعك، فعّل صلاحية الموقع يدوياً من إعدادات التطبيق.",
+  "@locationPermissionDeniedForeverMessage": {
+    "description": "نص حوار رفض صلاحية الموقع بشكل دائم بالمحادثة"
+  },
+  "locationAccessDeniedMessage": "لم يتم السماح بالوصول للموقع",
+  "@locationAccessDeniedMessage": {
+    "description": "رسالة قصيرة عند رفض صلاحية الموقع (غير دائم) بالمحادثة"
+  },
+  "locationDeterminationFailedMessage": "تعذر تحديد الموقع، افتح GPS وجرب مرة ثانية",
+  "@locationDeterminationFailedMessage": {
+    "description": "رسالة فشل تحديد إحداثيات الموقع بالمحادثة"
+  },
+  "sendLocationFailedMessage": "تعذر إرسال الموقع: {error}",
+  "@sendLocationFailedMessage": {
+    "description": "رسالة خطأ فشل إرسال الموقع بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "recordingNotSavedMessage": "لم يتم حفظ التسجيل",
+  "@recordingNotSavedMessage": {
+    "description": "رسالة فشل حفظ تسجيل صوتي بالمحادثة"
+  },
+  "recordingTooShortMessage": "التسجيل قصير جداً",
+  "@recordingTooShortMessage": {
+    "description": "رسالة رفض تسجيل صوتي أقصر من ثانية واحدة بالمحادثة"
+  },
+  "recordVoiceMessageTitle": "تسجيل رسالة صوتية",
+  "@recordVoiceMessageTitle": {
+    "description": "عنوان حوار توضيح صلاحية الميكروفون قبل طلبها بالمحادثة"
+  },
+  "recordVoiceMessageRationaleMessage": "سنستخدم الميكروفون فقط أثناء ضغطك المستمر على زر التسجيل، لإرسال رسالة صوتية بهذه المحادثة. لا يتم أي تسجيل بالخلفية ولا بأي وقت آخر.",
+  "@recordVoiceMessageRationaleMessage": {
+    "description": "نص شرح استخدام صلاحية الميكروفون قبل طلبها بالمحادثة"
+  },
+  "micPermissionDeniedTitle": "صلاحية الميكروفون مرفوضة",
+  "@micPermissionDeniedTitle": {
+    "description": "عنوان حوار رفض صلاحية الميكروفون بشكل دائم بالمحادثة"
+  },
+  "micPermissionDeniedForeverMessage": "رفضت صلاحية الميكروفون بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لتسجيل رسالة صوتية، فعّل الصلاحية يدوياً من إعدادات التطبيق.",
+  "@micPermissionDeniedForeverMessage": {
+    "description": "نص حوار رفض صلاحية الميكروفون بشكل دائم بالمحادثة"
+  },
+  "micAccessDeniedMessage": "لم يتم السماح بتسجيل الصوت",
+  "@micAccessDeniedMessage": {
+    "description": "رسالة قصيرة عند رفض صلاحية الميكروفون (غير دائم) بالمحادثة"
+  },
+  "recordAudioFailedMessage": "تعذر تسجيل الصوت: {error}",
+  "@recordAudioFailedMessage": {
+    "description": "رسالة خطأ عامة فشل تسجيل الصوت بالمحادثة",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "blockThisUserTitle": "حظر هذا المستخدم",
+  "@blockThisUserTitle": {
+    "description": "عنوان حوار تأكيد حظر الطرف الآخر بالمحادثة"
+  },
+  "blockUserConfirmMessage": "لن يتمكن أي منكما من إرسال رسائل للآخر بهذا الطلب بعد الحظر. يمكنك إلغاء الحظر لاحقاً في أي وقت.",
+  "@blockUserConfirmMessage": {
+    "description": "نص تأكيد حظر الطرف الآخر بالمحادثة"
+  },
+  "blockButton": "حظر",
+  "@blockButton": {
+    "description": "زر تأكيد حظر مستخدم بمربع الحوار"
+  },
+  "userBlockedMessage": "تم حظر هذا المستخدم",
+  "@userBlockedMessage": {
+    "description": "رسالة نجاح حظر الطرف الآخر بالمحادثة"
+  },
+  "blockActionFailedMessage": "تعذر تنفيذ الحظر، حاول مرة أخرى",
+  "@blockActionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حظر مستخدم بالمحادثة"
+  },
+  "userUnblockedMessage": "تم إلغاء الحظر",
+  "@userUnblockedMessage": {
+    "description": "رسالة نجاح إلغاء حظر الطرف الآخر بالمحادثة"
+  },
+  "unblockActionFailedMessage": "تعذر إلغاء الحظر، حاول مرة أخرى",
+  "@unblockActionFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إلغاء حظر مستخدم بالمحادثة"
+  },
+  "reportFailedMessage": "تعذر إرسال البلاغ، حاول مرة أخرى",
+  "@reportFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال بلاغ عن رسالة أو محادثة"
+  },
+  "optionalFeatureNote": "هذه الميزة اختيارية بالكامل — يمكنك دائماً إلغاء الأمر.",
+  "@optionalFeatureNote": {
+    "description": "ملاحظة تُلحَق بنص حوار توضيح صلاحية (موقع/ميكروفون) لتأكيد أنها اختيارية"
+  },
+  "continueButton": "متابعة",
+  "@continueButton": {
+    "description": "زر متابعة عام بحوار توضيح صلاحية"
+  },
+  "reportReasonSheetTitle": "سبب الإبلاغ",
+  "@reportReasonSheetTitle": {
+    "description": "عنوان الورقة السفلية لاختيار سبب الإبلاغ"
+  },
+  "reportConversationMenuLabel": "إبلاغ عن المحادثة",
+  "@reportConversationMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة للإبلاغ عن المحادثة كاملة"
+  },
+  "unblockUserMenuLabel": "إلغاء حظر المستخدم",
+  "@unblockUserMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة لإلغاء حظر الطرف الآخر"
+  },
+  "blockUserMenuLabel": "حظر المستخدم",
+  "@blockUserMenuLabel": {
+    "description": "خيار قائمة رأس المحادثة لحظر الطرف الآخر"
+  },
+  "blockedByMeBannerMessage": "🚫 لقد حظرت هذا المستخدم — لا يمكن تبادل الرسائل بينكما",
+  "@blockedByMeBannerMessage": {
+    "description": "شريط تنبيه أعلى المحادثة عندما أنا من حظرت الطرف الآخر"
+  },
+  "blockedByOtherBannerMessage": "🚫 لا يمكنك إرسال رسائل لهذا المستخدم حالياً",
+  "@blockedByOtherBannerMessage": {
+    "description": "شريط تنبيه أعلى المحادثة عندما الطرف الآخر (أو النظام) منع التواصل"
+  },
+  "communicationDisabledDueToBlockMessage": "التواصل معطّل حالياً بسبب الحظر",
+  "@communicationDisabledDueToBlockMessage": {
+    "description": "نص بديل عن حقل الإدخال أسفل المحادثة عند وجود حظر فعّال"
+  },
+  "noMessagesYetTitle": "لا توجد رسائل بعد",
+  "@noMessagesYetTitle": {
+    "description": "عنوان الحالة الفارغة لمحادثة بلا رسائل بعد"
+  },
+  "startConversationHintMessage": "ابدأ المحادثة الآن بخصوص الطلب. يمكنك إرسال رسالة، موقع، صورة، أو تسجيل صوتي.",
+  "@startConversationHintMessage": {
+    "description": "نص إرشادي بالحالة الفارغة لمحادثة بلا رسائل بعد"
+  },
+  "genericUserRoleLabel": "مستخدم",
+  "@genericUserRoleLabel": {
+    "description": "تسمية دور احتياطية لدور غير معروف بشاشة الإعدادات (customer/technician/admin مغطّاة بمفاتيح أخرى)"
+  },
+  "logoutTitle": "تسجيل الخروج",
+  "@logoutTitle": {
+    "description": "عنوان حوار/زر تسجيل الخروج، وعنوان بطاقة إجراء تسجيل الخروج بشاشة الإعدادات"
+  },
+  "logoutConfirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "@logoutConfirmMessage": {
+    "description": "نص تأكيد تسجيل الخروج"
+  },
+  "logoutButton": "خروج",
+  "@logoutButton": {
+    "description": "زر تأكيد تسجيل الخروج بمربع الحوار"
+  },
+  "deleteAccountPermanentlyTitle": "حذف الحساب نهائياً",
+  "@deleteAccountPermanentlyTitle": {
+    "description": "عنوان حوار حذف الحساب النهائي، وعنوان بطاقة إجراء حذف الحساب بشاشة الإعدادات"
+  },
+  "actionIsPermanentWarning": "هذا الإجراء نهائي ولا يمكن التراجع عنه إطلاقاً.",
+  "@actionIsPermanentWarning": {
+    "description": "تحذير بارز أعلى حوار حذف الحساب"
+  },
+  "deleteAccountWillDeleteIntro": "عند التأكيد، سيتم حذف التالي فوراً ونهائياً:",
+  "@deleteAccountWillDeleteIntro": {
+    "description": "مقدمة قائمة العناصر التي ستُحذف عند حذف الحساب"
+  },
+  "deleteChecklistNameEmailPhone": "اسمك، بريدك، ورقم هاتفك",
+  "@deleteChecklistNameEmailPhone": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistPasswordCredentials": "كلمة المرور وبيانات الدخول",
+  "@deleteChecklistPasswordCredentials": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistProfilePhoto": "صورتك الشخصية",
+  "@deleteChecklistProfilePhoto": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteChecklistDeviceToken": "معرّف إشعارات جهازك",
+  "@deleteChecklistDeviceToken": {
+    "description": "بند بقائمة ما سيُحذف عند حذف الحساب"
+  },
+  "deleteAccountChatRetentionNote": "محادثات الشات القديمة تبقى ظاهرة للطرف الآخر (بدون اسمك) للحفاظ على سجل الطلب، لكن دون أي بيانات تعرّف بك.",
+  "@deleteAccountChatRetentionNote": {
+    "description": "ملاحظة بشأن استبقاء محادثات الشات القديمة بشكل مجهول بعد حذف الحساب"
+  },
+  "enterCurrentPasswordToConfirmMessage": "أدخل كلمة مرورك الحالية لتأكيد أن هذا الطلب منك:",
+  "@enterCurrentPasswordToConfirmMessage": {
+    "description": "توضيح حقل كلمة المرور بحوار حذف الحساب"
+  },
+  "deleteForeverPermanentlyButton": "حذف نهائياً",
+  "@deleteForeverPermanentlyButton": {
+    "description": "زر تأكيد حذف الحساب نهائياً بمربع الحوار (مختلف عن deleteForeverButton المستخدَم بلوحة الأدمن)"
+  },
+  "deleteAccountFailedMessage": "تعذر حذف الحساب، حاول مرة أخرى",
+  "@deleteAccountFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل حذف الحساب"
+  },
+  "sallehlyUserFallbackName": "مستخدم صلّحلي",
+  "@sallehlyUserFallbackName": {
+    "description": "اسم بديل لبطاقة الملف الشخصي بشاشة الإعدادات عند غياب اسم المستخدم"
+  },
+  "accountInfoSectionTitle": "معلومات الحساب",
+  "@accountInfoSectionTitle": {
+    "description": "عنوان قسم معلومات الحساب بشاشة الإعدادات"
+  },
+  "technicianInfoSectionTitle": "معلومات الفني",
+  "@technicianInfoSectionTitle": {
+    "description": "عنوان قسم معلومات الفني بشاشة الإعدادات"
+  },
+  "accountAndPrivacySectionTitle": "الحساب والخصوصية",
+  "@accountAndPrivacySectionTitle": {
+    "description": "عنوان قسم إجراءات الحساب والخصوصية بشاشة الإعدادات"
+  },
+  "appSectionTitle": "التطبيق",
+  "@appSectionTitle": {
+    "description": "عنوان قسم إعدادات التطبيق العامة (المظهر/اللغة/الدعم) بشاشة الإعدادات"
+  },
+  "phoneLabel": "الهاتف",
+  "@phoneLabel": {
+    "description": "تسمية قصيرة لحقل الهاتف بشاشة الإعدادات (مختلف عن phoneFieldLabel=\"رقم الهاتف\" بنماذج التسجيل)"
+  },
+  "serviceLabel": "الخدمة",
+  "@serviceLabel": {
+    "description": "تسمية حقل خدمة الفني بشاشة الإعدادات"
+  },
+  "maintenanceTechnicianFallback": "فني صيانة",
+  "@maintenanceTechnicianFallback": {
+    "description": "اسم خدمة بديل عند غياب اسم خدمة الفني الفعلي"
+  },
+  "ratingLabel": "التقييم",
+  "@ratingLabel": {
+    "description": "تسمية حقل تقييم الفني بشاشة الإعدادات"
+  },
+  "editProfileActionTitle": "تعديل الملف الشخصي",
+  "@editProfileActionTitle": {
+    "description": "عنوان بطاقة إجراء تعديل الملف الشخصي بشاشة الإعدادات"
+  },
+  "editProfileWithPhotoSubtitle": "الاسم، الهاتف، المنطقة، والصورة",
+  "@editProfileWithPhotoSubtitle": {
+    "description": "توضيح بطاقة تعديل الملف الشخصي للفنيين (يشمل الصورة)"
+  },
+  "editProfileWithoutPhotoSubtitle": "الاسم، الهاتف، المنطقة",
+  "@editProfileWithoutPhotoSubtitle": {
+    "description": "توضيح بطاقة تعديل الملف الشخصي للعملاء (بلا صورة)"
+  },
+  "changePasswordActionTitle": "تغيير كلمة المرور",
+  "@changePasswordActionTitle": {
+    "description": "عنوان بطاقة إجراء تغيير كلمة المرور بشاشة الإعدادات"
+  },
+  "changePasswordActionSubtitle": "حدّث كلمة المرور الخاصة بحسابك",
+  "@changePasswordActionSubtitle": {
+    "description": "توضيح بطاقة إجراء تغيير كلمة المرور"
+  },
+  "privacyPolicyActionSubtitle": "كيف نجمع بياناتك ونحميها",
+  "@privacyPolicyActionSubtitle": {
+    "description": "توضيح بطاقة إجراء سياسة الخصوصية بشاشة الإعدادات"
+  },
+  "logoutActionSubtitle": "يمكنك الدخول مرة أخرى بنفس بياناتك",
+  "@logoutActionSubtitle": {
+    "description": "توضيح بطاقة إجراء تسجيل الخروج، يؤكد أنه قابل للتراجع"
+  },
+  "lightModeLabel": "الوضع الفاتح",
+  "@lightModeLabel": {
+    "description": "عنوان مفتاح تبديل الوضع الفاتح/الداكن بشاشة الإعدادات"
+  },
+  "lightModeOnSubtitle": "خلفية بيضاء لكل الشاشات",
+  "@lightModeOnSubtitle": {
+    "description": "توضيح مفتاح المظهر عندما الوضع الفاتح مفعّل"
+  },
+  "darkModeOnSubtitle": "مفعّل حالياً الوضع الداكن",
+  "@darkModeOnSubtitle": {
+    "description": "توضيح مفتاح المظهر عندما الوضع الداكن مفعّل"
+  },
+  "supportActionSubtitle": "تواصل معنا عند وجود مشكلة",
+  "@supportActionSubtitle": {
+    "description": "توضيح بطاقة إجراء الدعم الفني بشاشة الإعدادات"
+  },
+  "aboutSallehlyTitle": "حول صلّحلي",
+  "@aboutSallehlyTitle": {
+    "description": "عنوان بطاقة إجراء \"حول التطبيق\" بشاشة الإعدادات"
+  },
+  "maintenancePlatformInJordanTagline": "منصة خدمات الصيانة في الأردن",
+  "@maintenancePlatformInJordanTagline": {
+    "description": "الوصف التسويقي الموجز للتطبيق، يُستخدم كتوضيح بطاقة \"حول صلّحلي\" وكـapplicationLegalese بحوار about الرسمي"
+  },
+  "permanentIrreversibleActionSubtitle": "إجراء نهائي لا يمكن التراجع عنه",
+  "@permanentIrreversibleActionSubtitle": {
+    "description": "توضيح موجز أسفل بطاقة حذف الحساب بشاشة الإعدادات"
+  },
+  "requestStatusWaitingForOffers": "بانتظار العروض",
+  "@requestStatusWaitingForOffers": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'بانتظار العروض' — النص العربي مطابق عمداً للقيمة السلكية نفسها"
+  },
+  "requestStatusOffersReceived": "وصلت عروض",
+  "@requestStatusOffersReceived": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'وصلت عروض'"
+  },
+  "requestStatusOfferSelected": "تم اختيار عرض",
+  "@requestStatusOfferSelected": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'تم اختيار عرض'"
+  },
+  "requestStatusInProgress": "قيد التنفيذ",
+  "@requestStatusInProgress": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'قيد التنفيذ'"
+  },
+  "requestStatusAwaitingPaymentConfirmation": "بانتظار تأكيد الدفع",
+  "@requestStatusAwaitingPaymentConfirmation": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'بانتظار تأكيد الدفع'"
+  },
+  "requestStatusCompleted": "مكتمل",
+  "@requestStatusCompleted": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'مكتمل'"
+  },
+  "requestStatusCancelled": "ملغي",
+  "@requestStatusCancelled": {
+    "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'ملغي'"
+  }
+}

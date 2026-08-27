@@ -67,11 +67,4 @@ class AdminUserModel {
   bool get isTechnician => role == 'technician';
   bool get isAdmin => role == 'admin';
   bool get isPendingVerification => isTechnician && verificationStatus == 'pending';
-
-  String get roleAr {
-    if (isCustomer) return 'عميل';
-    if (isTechnician) return 'فني';
-    if (isAdmin) return 'أدمن';
-    return role;
-  }
 }

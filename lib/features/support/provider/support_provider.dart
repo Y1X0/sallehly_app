@@ -44,6 +44,7 @@ class SupportProvider extends ChangeNotifier {
     } on ApiException catch (e) {
       error = e.message;
     } catch (_) {
+            // [L10N-WIRE-UI] رسالة احتياطية تُعرض عبر banner مؤجَّل (راجع L10N_PROGRESS.md — قرار البانرات الـ16 المؤجَّلة بمرحلة BidiText)؛ لا BuildContext بطبقة provider لعرضها مترجَمة.
       error = 'تعذر تحميل تذاكر الدعم';
     } finally {
       loading = false;
@@ -72,6 +73,7 @@ class SupportProvider extends ChangeNotifier {
       error = e.message;
       rethrow;
     } catch (_) {
+            // [L10N-WIRE-UI] رسالة احتياطية تُعرض عبر banner مؤجَّل (راجع L10N_PROGRESS.md — قرار البانرات الـ16 المؤجَّلة بمرحلة BidiText)؛ لا BuildContext بطبقة provider لعرضها مترجَمة.
       error = 'تعذر إنشاء التذكرة';
       rethrow;
     } finally {
@@ -92,6 +94,7 @@ class SupportProvider extends ChangeNotifier {
     } on ApiException catch (e) {
       error = e.message;
     } catch (_) {
+            // [L10N-WIRE-UI] رسالة احتياطية تُعرض عبر banner مؤجَّل (راجع L10N_PROGRESS.md — قرار البانرات الـ16 المؤجَّلة بمرحلة BidiText)؛ لا BuildContext بطبقة provider لعرضها مترجَمة.
       error = 'تعذر تحميل الرسائل';
     } finally {
       loading = false;
@@ -114,6 +117,7 @@ class SupportProvider extends ChangeNotifier {
       error = e.message;
       rethrow;
     } catch (_) {
+            // [L10N-WIRE-UI] رسالة احتياطية تُعرض عبر banner مؤجَّل (راجع L10N_PROGRESS.md — قرار البانرات الـ16 المؤجَّلة بمرحلة BidiText)؛ لا BuildContext بطبقة provider لعرضها مترجَمة.
       error = 'تعذر إرسال الرسالة';
       rethrow;
     } finally {

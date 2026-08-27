@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../widgets/technician_request_card.dart';
@@ -30,6 +31,7 @@ class _TechnicianOrdersScreenState extends State<TechnicianOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final auth = context.watch<AuthProvider>();
     final provider = context.watch<RequestsProvider>();
 
@@ -59,9 +61,9 @@ class _TechnicianOrdersScreenState extends State<TechnicianOrdersScreen> {
                   completed: completed,
                 ),
                 const SizedBox(height: 22),
-                const SectionTitle(
-                  title: 'طلباتي',
-                  subtitle: 'الطلبات التي تم اختيارك لتنفيذها',
+                SectionTitle(
+                  title: t.technicianOrdersSectionTitle,
+                  subtitle: t.technicianOrdersSectionSubtitle,
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && orders.isEmpty)
@@ -124,6 +126,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(18),
       radius: 30,
@@ -131,7 +134,7 @@ class _SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'لوحة طلباتك',
+            t.technicianOrdersSummaryTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 24,
@@ -140,7 +143,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'تابع الطلبات المقبولة والحالة الحالية لكل طلب.',
+            t.technicianOrdersSummarySubtitle,
             style: TextStyle(
               color: AppColors.textSecondary,
               height: 1.5,
@@ -151,7 +154,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _MiniStat(
-                  title: 'الكل',
+                  title: t.statAllLabel,
                   value: '$total',
                   icon: Icons.assignment_rounded,
                 ),
@@ -159,7 +162,7 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _MiniStat(
-                  title: 'نشطة',
+                  title: t.statActiveLabel,
                   value: '$active',
                   icon: Icons.timelapse_rounded,
                 ),
@@ -167,7 +170,7 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _MiniStat(
-                  title: 'مكتملة',
+                  title: t.statCompletedLabel,
                   value: '$completed',
                   icon: Icons.verified_rounded,
                 ),
@@ -244,6 +247,7 @@ class _ErrorOrders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -263,7 +267,7 @@ class _ErrorOrders extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'تعذّر تحميل الطلبات',
+            t.technicianOrdersLoadFailedTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -283,7 +287,7 @@ class _ErrorOrders extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
           ),
         ],
       ),
@@ -296,6 +300,7 @@ class _EmptyOrders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -315,7 +320,7 @@ class _EmptyOrders extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'لا توجد طلبات مقبولة بعد',
+            t.technicianOrdersEmptyTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -324,7 +329,7 @@ class _EmptyOrders extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'عندما يقبل العميل عرضك سيظهر الطلب هنا لتتابع التنفيذ والدردشة.',
+            t.technicianOrdersEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textSecondary,

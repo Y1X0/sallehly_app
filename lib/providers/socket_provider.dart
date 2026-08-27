@@ -188,6 +188,9 @@ class SocketProvider extends ChangeNotifier {
       final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
       final technicianId = int.tryParse('${data?['technicianId'] ?? 0}');
       if (requestId > 0) {
+        // [L10N-WIRE] قيمة تفاؤلية محلياً تُحاكي ما سيرسله الخادم لاحقاً —
+        // يجب أن تبقى مطابقة حرفياً لقيم status بـrequest_model.dart (نفس
+        // مشكلة RequestStatus الهيكلية، مؤجَّلة لـPhase 3، راجع L10N_PROGRESS.md §4).
         _requestsProvider?.applyRequestStatusUpdate(
           requestId: requestId,
           status: 'تم اختيار عرض',

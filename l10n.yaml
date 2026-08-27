@@ -1,0 +1,13 @@
+# [FIX-L10N-01] العربية هي القالب المصدر (template) لأن التطبيق عربي أصلاً —
+# أي مفتاح جديد يُضاف أولاً بالعربي هنا، ثم تُضاف ترجمته الإنجليزية بنفس
+# المفتاح في app_en.arb. راجع L10N_PROGRESS.md لخطة الترحيل الكاملة.
+arb-dir: lib/l10n
+template-arb-file: app_ar.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n
+# ملاحظة: كانت هذه الحزمة تحتاج `synthetic-package: false` صراحةً بإصدارات
+# Flutter الأقدم لتفادي الاعتماد على حزمة flutter_gen الضمنية. بدءاً من
+# Flutter 3.47 أُزيل مفهوم الحزمة الضمنية بالكامل (السطر أصبح بلا أي تأثير
+# فعلي وCI حذّر بإزالته) — output-dir أعلاه وحده كافٍ الآن لضمان استيراد
+# صريح وقابل للتنبؤ عبر package:sallehly_app/l10n/app_localizations.dart.

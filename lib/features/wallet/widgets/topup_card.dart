@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/topup_model.dart';
 
 class TopupCard extends StatelessWidget {
@@ -13,6 +15,7 @@ class TopupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final color = topup.isApproved
         ? AppColors.success
         : topup.isRejected
@@ -20,10 +23,10 @@ class TopupCard extends StatelessWidget {
         : AppColors.primary;
 
     final label = topup.isApproved
-        ? 'تمت الموافقة'
+        ? t.topupStatusApproved
         : topup.isRejected
-        ? 'مرفوض'
-        : 'قيد المراجعة';
+        ? t.topupStatusRejected
+        : t.topupStatusPending;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -63,7 +66,7 @@ class TopupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  topup.packageName ?? 'طلب شحن',
+                  topup.packageName ?? t.topupRequestFallbackName,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
@@ -72,7 +75,7 @@ class TopupCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '${topup.total.toStringAsFixed(2)} د.أ',
+                  formatJod(context, topup.total),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                   ),

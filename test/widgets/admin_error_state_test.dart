@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/features/admin/provider/admin_provider.dart';
 import 'package:sallehly_app/features/admin/screens/admin_users_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
 
@@ -28,7 +29,12 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: Scaffold(body: AdminUsersScreen())), 
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(body: AdminUsersScreen()),
+          ),
         ),
       );
 
@@ -37,7 +43,7 @@ void main() {
       await _pumpUntilSettledIgnoringAnimation(tester);
 
       expect(find.text('لا يوجد مستخدمين'), findsNothing);
-      expect(find.text('تعذر تحميل المستخدمين'), findsOneWidget);
+      expect(find.text('تعذّر تحميل المستخدمين'), findsOneWidget);
       expect(find.text('إعادة المحاولة'), findsOneWidget);
     },
   );

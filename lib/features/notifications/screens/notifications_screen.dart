@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/notification_model.dart';
 import '../../../providers/notification_provider.dart';
 
@@ -16,17 +17,18 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<NotificationProvider>();
     final items = provider.requestItems;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('الإشعارات'),
+        title: Text(t.notificationsBellTooltip),
         actions: [
           TextButton(
             onPressed: provider.markRequestNotificationsRead,
-            child: const Text('قراءة الكل'),
+            child: Text(t.notificationsMarkAllRead),
           ),
         ],
       ),
@@ -68,6 +70,7 @@ class _EmptyNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -89,7 +92,7 @@ class _EmptyNotifications extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             Text(
-              'لا توجد إشعارات حالياً',
+              t.notificationsEmptyTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -98,7 +101,7 @@ class _EmptyNotifications extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'ستصلك هنا آخر التحديثات على طلباتك وعروضك',
+              t.notificationsEmptySubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textSecondary,

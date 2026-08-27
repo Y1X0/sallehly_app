@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/service_model.dart';
 import '../../notifications/widgets/notification_bell.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -63,7 +64,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
               child: ListView(
                 children: [
                   Text(
-                    'كل الخدمات',
+                    AppLocalizations.of(context)!.dashboardAllServicesTitle,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 22,
@@ -83,6 +84,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
 
     final total = provider.requests.length;
@@ -106,8 +108,8 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                     Expanded(
                       child: FadeIn(
                         child: _ActionCard(
-                          title: 'إنشاء طلب',
-                          subtitle: 'طلب صيانة جديد',
+                          title: t.createRequestActionTitle,
+                          subtitle: t.createRequestActionSubtitle,
                           icon: Icons.add_rounded,
                           onTap: openCreate,
                         ),
@@ -118,8 +120,8 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                       child: FadeIn(
                         delay: const Duration(milliseconds: 60),
                         child: _ActionCard(
-                          title: 'طلباتي',
-                          subtitle: 'متابعة الطلبات',
+                          title: t.myRequestsActionTitle,
+                          subtitle: t.myRequestsActionSubtitle,
                           icon: Icons.receipt_long_rounded,
                           onTap: openRequests,
                         ),
@@ -140,7 +142,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                         child: FadeIn(
                           delay: const Duration(milliseconds: 120),
                           child: _StatCard(
-                            title: 'طلباتي',
+                            title: t.myRequestsActionTitle,
                             value: '$total',
                             icon: Icons.assignment_rounded,
                             onTap: openRequests,
@@ -152,7 +154,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                         child: FadeIn(
                           delay: const Duration(milliseconds: 180),
                           child: _StatCard(
-                            title: 'عروض',
+                            title: t.statOffersLabel,
                             value: '$offers',
                             icon: Icons.local_offer_rounded,
                             onTap: openRequests,
@@ -164,7 +166,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                         child: FadeIn(
                           delay: const Duration(milliseconds: 240),
                           child: _StatCard(
-                            title: 'مكتملة',
+                            title: t.statCompletedLabel,
                             value: '$completed',
                             icon: Icons.verified_rounded,
                             onTap: openRequests,
@@ -177,7 +179,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                 Row(
                   children: [
                     Text(
-                      'خدمات صلّحلي',
+                      t.dashboardServicesHeading,
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 22,
@@ -187,7 +189,7 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
                     const Spacer(),
                     TextButton(
                       onPressed: showAllServices,
-                      child: const Text('عرض الكل'),
+                      child: Text(t.viewAllButton),
                     ),
                   ],
                 ),
@@ -213,6 +215,7 @@ class _DashboardErrorNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -229,7 +232,7 @@ class _DashboardErrorNotice extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'تعذّر تحميل بياناتك',
+                  t.dashboardLoadFailedTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -248,7 +251,7 @@ class _DashboardErrorNotice extends StatelessWidget {
           ),
           TextButton(
             onPressed: onRetry,
-            child: const Text('إعادة المحاولة'),
+            child: Text(t.retryButton),
           ),
         ],
       ),
@@ -263,8 +266,9 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
-      height: 238,
+      constraints: const BoxConstraints(minHeight: 238),
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
@@ -318,9 +322,9 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'صلّحلي',
-                    style: TextStyle(
+                  Text(
+                    t.appWordmark,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.w900,
@@ -333,10 +337,10 @@ class _HeroCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Spacer(),
-              const Text(
-                'كل خدمات الصيانة\nفي مكان واحد',
-                style: TextStyle(
+              const SizedBox(height: 18),
+              Text(
+                t.landingHeroTitle,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
                   height: 1.25,
@@ -345,7 +349,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'اطلب الفني الأقرب إليك واستقبل العروض بسرعة وبشكل آمن.',
+                t.dashboardHeroSubtitle,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.84),
                   fontSize: 13.5,
@@ -393,7 +397,7 @@ class _ActionCardState extends State<_ActionCard> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: Container(
-          height: 104,
+          constraints: const BoxConstraints(minHeight: 104),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: AppColors.cardGradient,
@@ -414,12 +418,13 @@ class _ActionCardState extends State<_ActionCard> {
               const SizedBox(width: 9),
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.title,
-                      maxLines: 1,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textPrimary,
@@ -430,7 +435,7 @@ class _ActionCardState extends State<_ActionCard> {
                     const SizedBox(height: 4),
                     Text(
                       widget.subtitle,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -481,7 +486,7 @@ class _StatCardState extends State<_StatCard> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOut,
         child: Container(
-          height: 112,
+          constraints: const BoxConstraints(minHeight: 112),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.card.withValues(alpha: 0.88),
@@ -507,7 +512,8 @@ class _StatCardState extends State<_StatCard> {
               Flexible(
                 child: Text(
                   widget.title,
-                  maxLines: 1,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -569,7 +575,7 @@ class _ServicesGrid extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            'لا توجد خدمات متاحة حالياً',
+            AppLocalizations.of(context)!.noServicesAvailableMessage,
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
@@ -659,7 +665,7 @@ class _ServiceTileState extends State<_ServiceTile> {
               ),
               const SizedBox(height: 2),
               Text(
-                'اطلب الخدمة الآن',
+                AppLocalizations.of(context)!.requestServiceNowLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

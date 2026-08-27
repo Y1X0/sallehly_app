@@ -35,8 +35,13 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
+      # --exclude-tags screenshot: l10n_screenshot_capture_test.dart needs a
+      # real font installed via a separate CI step (l10n-screenshots.yml) —
+      # without it, its setUpAll throws immediately and fails the whole run.
+      # That file is CI/QA infrastructure, not a correctness test; it's
+      # exercised by its own dedicated workflow instead.
       - name: Test
-        run: flutter test
+        run: flutter test --exclude-tags screenshot
 
       # No android/key.properties in CI (release keystore is not committed,
       # by design — see android/app/build.gradle.kts). The release build
@@ -51,4 +56,17 @@ jobs:
         with:
           name: sallehly-android-aab-unsigned
           path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+      # [FIX-L10N-QA-01] .aab وحده لا يُثبَّت مباشرة على جهاز (يحتاج bundletool
+      # لاستخراج .apks منه أولاً) — أُضيف بناء APK صريح لتمكين فحص بصري يدوي
+      # سريع (تثبيت مباشر بالجهاز) لتغييرات الترجمة/RTL-LTR بدون أي أداة وسيطة.
+      - name: Build Android APK (debug, for manual install/QA)
+        run: flutter build apk --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sallehly-android-apk-debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 14

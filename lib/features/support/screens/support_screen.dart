@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/support_ticket_model.dart';
 import '../provider/support_provider.dart';
 import 'support_chat_screen.dart';
@@ -52,11 +54,12 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final support = context.watch<SupportProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الدعم الفني'),
+        title: Text(t.supportScreenTitle),
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
@@ -64,9 +67,9 @@ class _SupportScreenState extends State<SupportScreen> {
         onPressed: openNewTicket,
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text(
-          'تذكرة جديدة',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+        label: Text(
+          t.newTicketButton,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
         ),
       ),
       body: AppBackground(
@@ -108,7 +111,7 @@ class _SupportScreenState extends State<SupportScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'لا توجد تذاكر دعم بعد',
+                              t.noSupportTicketsYetTitle,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColors.textPrimary,
@@ -118,7 +121,7 @@ class _SupportScreenState extends State<SupportScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'اضغط "تذكرة جديدة" للتواصل مع فريق الدعم',
+                              t.noSupportTicketsYetSubtitle,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: AppColors.textSecondary),
                             ),
@@ -156,6 +159,7 @@ class _SupportErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(28),
       children: [
@@ -177,7 +181,7 @@ class _SupportErrorState extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'تعذّر تحميل تذاكر الدعم',
+          t.adminSupportLoadFailedTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -196,7 +200,7 @@ class _SupportErrorState extends StatelessWidget {
           child: TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
         ),
@@ -213,6 +217,7 @@ class _TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final color = ticket.isOpen ? AppColors.primary : AppColors.success;
 
     return InkWell(
@@ -234,7 +239,7 @@ class _TicketCard extends StatelessWidget {
                     color: AppColors.primary),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: BidiText(
                     ticket.title,
                     style: TextStyle(
                       color: AppColors.textPrimary,
@@ -251,7 +256,7 @@ class _TicketCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    ticket.isOpen ? 'مفتوحة' : 'مغلقة',
+                    ticket.isOpen ? t.adminSupportTicketOpenLabel : t.adminSupportTicketClosedLabel,
                     style: TextStyle(
                       color: color,
                       fontWeight: FontWeight.w900,
@@ -270,7 +275,7 @@ class _TicketCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            BidiText(
               ticket.body,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -286,7 +291,7 @@ class _TicketCard extends StatelessWidget {
                     size: 15, color: AppColors.primary),
                 const SizedBox(width: 6),
                 Text(
-                  'فتح المحادثة',
+                  t.openChatLabel,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w800,
@@ -314,6 +319,10 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
   final bodyController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+  // [L10N-TODO] قيمة سلكية تُرسَل للخادم كما هي (SupportTicketModel.type)،
+  // بنفس نمط RequestModel.status المؤجَّل لـPhase 3 — النص المعروض هنا هو
+  // نفسه القيمة المخزَّنة، فلا يمكن ترجمة العرض بمعزل عن القيمة بدون تنسيق
+  // مع الخادم. غير مُترجَم عمداً، لا تغيير وظيفي.
   String type = 'عام';
 
   static const types = [
@@ -335,6 +344,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
     final support = context.read<SupportProvider>();
 
     try {
@@ -354,7 +364,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.danger,
-          content: Text('تعذر إنشاء التذكرة'),
+          content: Text(t.ticketCreateFailedMessage),
         ),
       );
     }
@@ -362,6 +372,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final sending = context.watch<SupportProvider>().sending;
 
     return Padding(
@@ -379,7 +390,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
           children: [
             Center(
               child: Text(
-                'تذكرة دعم جديدة',
+                t.newSupportTicketTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -391,12 +402,12 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
             DropdownButtonFormField<String>(
               initialValue: type,
               isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'نوع المشكلة',
-                prefixIcon: Icon(Icons.category_outlined),
+              decoration: InputDecoration(
+                labelText: t.issueTypeFieldLabel,
+                prefixIcon: const Icon(Icons.category_outlined),
               ),
               items: types
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .map((value) => DropdownMenuItem(value: value, child: Text(value)))
                   .toList(),
               onChanged: (value) {
                 setState(() => type = value ?? 'عام');
@@ -405,13 +416,13 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
             const SizedBox(height: 14),
             TextFormField(
               controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'العنوان',
-                prefixIcon: Icon(Icons.title_rounded),
+              decoration: InputDecoration(
+                labelText: t.titleFieldLabel,
+                prefixIcon: const Icon(Icons.title_rounded),
               ),
               validator: (value) {
-                final t = value?.trim() ?? '';
-                if (t.length < 3) return 'أدخل عنواناً واضحاً';
+                final title = value?.trim() ?? '';
+                if (title.length < 3) return t.titleRequiredValidation;
                 return null;
               },
             ),
@@ -420,13 +431,13 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
               controller: bodyController,
               minLines: 3,
               maxLines: 6,
-              decoration: const InputDecoration(
-                labelText: 'تفاصيل المشكلة',
+              decoration: InputDecoration(
+                labelText: t.issueDetailsFieldLabel,
                 alignLabelWithHint: true,
               ),
               validator: (value) {
                 final b = value?.trim() ?? '';
-                if (b.length < 10) return 'اكتب تفاصيل أوضح (10 أحرف على الأقل)';
+                if (b.length < 10) return t.complaintSheetBodyValidationError;
                 return null;
               },
             ),
@@ -445,7 +456,7 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
                         ),
                       )
                     : const Icon(Icons.send_rounded),
-                label: const Text('إرسال التذكرة'),
+                label: Text(t.submitTicketButton),
               ),
             ),
           ],

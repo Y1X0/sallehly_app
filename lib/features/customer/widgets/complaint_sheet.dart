@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../requests/provider/requests_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 /// نافذة منبثقة لتقديم شكوى على طلب (تذهب لإدارة المنصّة).
 /// تُعيد true إذا تم الإرسال بنجاح.
@@ -35,6 +37,7 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
     final provider = context.read<RequestsProvider>();
 
     try {
@@ -46,27 +49,22 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إرسال الشكوى للإدارة، سيتم مراجعتها قريباً'),
+        SnackBar(
+          content: Text(t.complaintSheetSuccessMessage),
         ),
       );
 
       Navigator.pop(context, true);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الشكوى');
+      showErrorSnackBar(context, t.complaintSheetSubmitFailedMessage);
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<RequestsProvider>().loading;
 
     return Padding(
@@ -92,7 +90,7 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
             const SizedBox(height: 10),
             Center(
               child: Text(
-                'تقديم شكوى',
+                t.complaintSheetTitle,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -104,8 +102,8 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
             Center(
               child: Text(
                 widget.technicianName != null
-                    ? 'بخصوص الفني: ${widget.technicianName}'
-                    : 'بخصوص هذا الطلب',
+                    ? t.complaintSheetAboutTechnician(widget.technicianName!)
+                    : t.complaintSheetAboutRequest,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             ),
@@ -114,22 +112,22 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
               controller: bodyController,
               minLines: 4,
               maxLines: 7,
-              decoration: const InputDecoration(
-                labelText: 'تفاصيل الشكوى',
+              decoration: InputDecoration(
+                labelText: t.complaintSheetBodyLabel,
                 alignLabelWithHint: true,
-                hintText: 'اشرح المشكلة التي واجهتها بوضوح...',
+                hintText: t.complaintSheetBodyHint,
               ),
               validator: (value) {
                 final b = value?.trim() ?? '';
                 if (b.length < 10) {
-                  return 'اكتب تفاصيل أوضح (10 أحرف على الأقل)';
+                  return t.complaintSheetBodyValidationError;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 20),
             GradientButton(
-              label: 'إرسال الشكوى',
+              label: t.complaintSheetSubmitButton,
               icon: Icons.send_rounded,
               loading: loading,
               onPressed: loading ? null : submit,

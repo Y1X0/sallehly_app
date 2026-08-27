@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import 'bidi_text.dart';
 
 /// أيقونة نجاح صغيرة "تنبض للداخل" (bounce-in) — تُستخدم داخل SnackBar
 /// النجاح لإعطاء إحساس احتفالي خفيف عند اكتمال عملية مهمة (إنشاء طلب، قبول
@@ -86,6 +87,25 @@ void showSuccessSnackBar(BuildContext context, String message) {
           ),
         ],
       ),
+    ),
+  );
+}
+
+/// يعرض SnackBar خطأ موحّد بلون [AppColors.danger] لـ[message] — بديل
+/// موحَّد لدوال `showError` المحلية المكرَّرة سابقاً بكل شاشة (كانت كلها
+/// نفس الجسم حرفياً). يتحقق من `context.mounted` قبل العرض لأن أغلب مواقع
+/// الاستدعاء تأتي بعد `await` لعملية شبكة قد تُنهي الودجة قبل اكتمالها.
+///
+/// [FIX-BIDI-01] [message] غالباً نص خطأ عربي من الخادم (`ApiException.message`)
+/// يبقى عربياً بغضّ النظر عن لغة الواجهة — `BidiText` يشتق اتجاهه من محتواه
+/// الفعلي بدل الاتجاه المحيط. هذا الموقع المشترك الوحيد يغطي كل مواقع
+/// الاستدعاء الـ18 دفعة واحدة (راجع L10N_PROGRESS.md §3).
+void showErrorSnackBar(BuildContext context, String message) {
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: AppColors.danger,
+      content: BidiText(message),
     ),
   );
 }

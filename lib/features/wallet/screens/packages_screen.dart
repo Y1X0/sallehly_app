@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/wallet_provider.dart';
 import '../widgets/package_card.dart';
 import 'topup_request_screen.dart';
@@ -27,14 +28,15 @@ class _PackagesScreenState extends State<PackagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final wallet = context.watch<WalletProvider>();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'باقات الشحن',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          t.packagesScreenTitle,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
       extendBodyBehindAppBar: true,
@@ -62,7 +64,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'تعذّر تحميل الباقات',
+                    t.packagesLoadFailedTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textPrimary,
@@ -84,7 +86,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
                     child: TextButton.icon(
                       onPressed: wallet.loadPackages,
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('إعادة المحاولة'),
+                      label: Text(t.retryButton),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primary,
                       ),
@@ -104,7 +106,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'لا توجد باقات حالياً',
+                    t.packagesEmptyTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textPrimary,

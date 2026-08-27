@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sallehly_app/features/chat/widgets/chat_bubble.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/message_model.dart';
 
 MessageModel _audioMessage({required int id, required int durationSeconds}) {
@@ -76,7 +77,12 @@ void main() {
   testWidgets(
     '[FIX-CHATBUBBLE-01] رسالة صوتية جديدة تُظهر مدتها فوراً دون تشغيل، ولا تحمل مدة رسالة سابقة',
     (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: _ChatListHarness()));
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ar'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const _ChatListHarness(),
+      ));
       await tester.pump();
 
       // الرسالة الأولى (5 ثوانٍ) تظهر بمدتها الصحيحة فوراً.

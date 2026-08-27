@@ -20,6 +20,7 @@ import 'package:sallehly_app/features/chat/provider/chat_provider.dart';
 import 'package:sallehly_app/features/chat/screens/chats_screen.dart';
 import 'package:sallehly_app/features/requests/data/requests_api.dart';
 import 'package:sallehly_app/features/requests/provider/requests_provider.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/chat_summary_model.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
@@ -66,7 +67,12 @@ void main() {
             ChangeNotifierProvider.value(value: provider),
             ChangeNotifierProvider.value(value: chatProvider),
           ],
-          child: const MaterialApp(home: ChatsScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const ChatsScreen(),
+          ),
         ),
       );
 

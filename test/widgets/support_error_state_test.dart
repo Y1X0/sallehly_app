@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/features/support/provider/support_provider.dart';
 import 'package:sallehly_app/features/support/screens/support_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 
 class MockApiClient extends Mock implements ApiClient {}
 
@@ -34,7 +35,12 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: provider,
-          child: const MaterialApp(home: SupportScreen()),
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SupportScreen(),
+          ),
         ),
       );
 

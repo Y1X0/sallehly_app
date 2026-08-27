@@ -5,11 +5,14 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/socket/socket_events.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/support_message_model.dart';
 import '../../../models/support_ticket_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/socket_provider.dart';
 import '../../support/provider/support_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 /// شاشة محادثة الدعم من جهة الأدمن: يقرأ رسائل التذكرة ويرد على
 /// الفني/العميل مباشرة، ويمكنه إغلاق التذكرة.
@@ -97,20 +100,15 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) => scrollToBottom());
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الرسالة');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.supportSendMessageFailed);
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final support = context.watch<SupportProvider>();
     final currentUserId = context.watch<AuthProvider>().user?.id ?? 0;
     final isOpen = widget.ticket.isOpen;
@@ -136,7 +134,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
                 size: 20,
               ),
               label: Text(
-                isOpen ? 'إغلاق' : 'إعادة فتح',
+                isOpen ? t.supportCloseTicket : t.supportReopenTicket,
                 style: TextStyle(
                   color: isOpen ? AppColors.success : AppColors.primary,
                 ),
@@ -181,6 +179,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
   }
 
   Widget _errorState(String message, Future<void> Function() onRetry) {
+    final t = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(28),
       children: [
@@ -198,7 +197,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
         ),
         const SizedBox(height: 14),
         Text(
-          'تعذّر تحميل الرسائل',
+          t.supportMessagesLoadFailed,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -217,7 +216,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
           child: TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(foregroundColor: AppColors.primary),
           ),
         ),
@@ -226,6 +225,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
   }
 
   Widget _inputBar(bool sending) {
+    final t = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Container(
@@ -242,7 +242,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
                 minLines: 1,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'اكتب رداً...',
+                  hintText: t.supportReplyHint,
                   filled: true,
                   fillColor: AppColors.card,
                   contentPadding:
@@ -261,7 +261,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                tooltip: 'إرسال',
+                tooltip: t.sendButtonTooltip,
                 onPressed: sending ? null : send,
                 icon: sending
                     ? const SizedBox(
@@ -310,7 +310,7 @@ class _Bubble extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  message.senderName ?? 'المستخدم',
+                  message.senderName ?? AppLocalizations.of(context)!.userFallbackName,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w900,
@@ -318,7 +318,7 @@ class _Bubble extends StatelessWidget {
                   ),
                 ),
               ),
-            Text(
+            BidiText(
               message.body,
               style: TextStyle(
                 color: isMine ? Colors.white : AppColors.textPrimary,

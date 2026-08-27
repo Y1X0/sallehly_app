@@ -21,6 +21,12 @@ class FirebaseNotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  // [L10N-05] اسم/وصف القناة `const` — لا BuildContext ولا حتى نداء دالة
+  // ممكن هنا أصلاً. أهم من ذلك: أندرويد يخزّن بيانات القناة (بما فيها
+  // الاسم/الوصف) مرتبطة بمعرّف القناة ('sallehly_main') مرة واحدة عند أول
+  // إنشاء لها على جهاز المستخدم — تغيير النص بالكود لاحقاً بلا تغيير
+  // المعرّف نفسه لا يُحدِّث القنوات الموجودة أصلاً لدى المستخدمين الحاليين
+  // (سلوك منصّة أندرويد، وليس قيداً بفلَتّر). ليست هدفاً واقعياً للترحيل.
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
     'sallehly_main',
     'صلّحلي Notifications',
@@ -197,6 +203,14 @@ class FirebaseNotificationService {
   }
 
   // ─── عرض الإشعار محلياً (static عشان تشتغل من background handler) ───
+  // [L10N-05] هذه الدالة تُستدعى أيضاً من firebaseBackgroundHandler أعلاه،
+  // الذي يعمل بـisolate خلفية منفصل تماماً بلا أي شجرة ودجت/BuildContext
+  // — ليس مؤجَّلاً لملف مستهلِك لاحق كباقي الحالات المشابهة بهذا المستند،
+  // بل قيد بنيوي حقيقي (لا BuildContext ممكن هنا إطلاقاً بأي مرحلة). حل
+  // الترجمة الصحيح هنا مختلف تماماً: قراءة لغة محفوظة عبر SharedPreferences
+  // مباشرة (كما بباقي هذا الملف) ثم AppLocalizations.delegate.load(locale)
+  // يدوياً بلا BuildContext — تغيير هيكلي أكبر من نطاق الترحيل الميكانيكي
+  // الحالي، ومسار احتياطي نادر أصلاً (فقط لو حمولة FCM جاءت بلا title/body).
   static Future<void> _showLocalNotificationStatic(RemoteMessage message) async {
     final notification = message.notification;
 

@@ -4,10 +4,14 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/bidi_text.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../wallet/screens/packages_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class SendOfferScreen extends StatefulWidget {
   final RequestModel request;
@@ -39,6 +43,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
     final provider = context.read<RequestsProvider>();
 
     try {
@@ -52,8 +57,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إرسال العرض بنجاح'),
+        SnackBar(
+          content: Text(t.offerSentSuccessMessage),
         ),
       );
 
@@ -66,38 +71,30 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       if (e.code == 'INSUFFICIENT_BALANCE') {
         showInsufficientBalanceDialog(e.message);
       } else {
-        showError(e.message);
+        showErrorSnackBar(context, e.message);
       }
     } catch (_) {
-      showError('تعذر إرسال العرض');
+      showErrorSnackBar(context, t.offerSendFailedMessage);
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   Future<void> showInsufficientBalanceDialog(String message) async {
     if (!mounted) return;
 
+    final t = AppLocalizations.of(context)!;
     final shouldTopUp = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('استُهلكت فرصتاك المجانيتان'),
+        title: Text(t.freeOffersExhaustedTitle),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('لاحقاً'),
+            child: Text(t.laterButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('شحن الرصيد'),
+            child: Text(t.walletTopupActionTitle),
           ),
         ],
       ),
@@ -113,6 +110,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<RequestsProvider>().loading;
     final user = context.watch<AuthProvider>().user;
     final freeOffersRemaining = user?.freeOffersRemaining ?? 0;
@@ -132,7 +130,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('تقديم عرض'),
+        title: Text(t.submitOfferTitle),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -159,7 +157,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                BidiText(
                   '${widget.request.city} - ${widget.request.area ?? ''}',
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -177,10 +175,13 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   ),
                   child: Text(
                     freeOffersRemaining > 0
-                        ? 'لديك $freeOffersRemaining من العروض المجانية متبقية'
+                        ? t.freeOffersRemainingCount(freeOffersRemaining)
                         : hasSufficientBalance
-                            ? 'استُهلكت فرصتاك المجانيتان — سيتم خصم ${requiredCommission.toStringAsFixed(requiredCommission.truncateToDouble() == requiredCommission ? 0 : 2)} د.أ من رصيدك عند اكتمال هذا الطلب'
-                            : 'رصيدك الحالي (${balance.toStringAsFixed(balance.truncateToDouble() == balance ? 0 : 2)} د.أ) غير كافٍ — تحتاج ${requiredCommission.toStringAsFixed(requiredCommission.truncateToDouble() == requiredCommission ? 0 : 2)} د.أ على الأقل لتقديم عرض جديد',
+                            ? t.commissionWillBeDeductedMessage(formatJod(context, requiredCommission))
+                            : t.insufficientBalanceMessage(
+                                formatJod(context, balance),
+                                formatJod(context, requiredCommission),
+                              ),
                     style: TextStyle(
                       color: hasSufficientBalance ? AppColors.primary : AppColors.danger,
                       fontWeight: FontWeight.w700,
@@ -193,15 +194,15 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   controller: priceController,
                   keyboardType: TextInputType.number,
                   textDirection: TextDirection.ltr,
-                  decoration: const InputDecoration(
-                    labelText: 'السعر بالدينار',
-                    prefixIcon: Icon(Icons.payments_outlined),
+                  decoration: InputDecoration(
+                    labelText: t.priceFieldLabel,
+                    prefixIcon: const Icon(Icons.payments_outlined),
                   ),
                   validator: (value) {
                     final price = double.tryParse(value ?? '');
 
                     if (price == null || price < 1) {
-                      return 'أدخل سعر صحيح';
+                      return t.validPriceValidation;
                     }
 
                     return null;
@@ -210,14 +211,14 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: durationController,
-                  decoration: const InputDecoration(
-                    labelText: 'مدة الوصول أو التنفيذ',
-                    prefixIcon: Icon(Icons.access_time),
-                    hintText: 'مثلاً: خلال ساعة',
+                  decoration: InputDecoration(
+                    labelText: t.durationFieldLabel,
+                    prefixIcon: const Icon(Icons.access_time),
+                    hintText: t.durationFieldHint,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'أدخل مدة الوصول أو التنفيذ';
+                      return t.durationRequiredValidation;
                     }
 
                     return null;
@@ -227,10 +228,10 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                 TextFormField(
                   controller: noteController,
                   maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'ملاحظة اختيارية',
+                  decoration: InputDecoration(
+                    labelText: t.optionalNoteLabel,
                     alignLabelWithHint: true,
-                    prefixIcon: Icon(Icons.notes_outlined),
+                    prefixIcon: const Icon(Icons.notes_outlined),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -241,7 +242,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                     color: Colors.white,
                   )
                       : Text(
-                    hasSufficientBalance ? 'إرسال العرض' : 'رصيد غير كافٍ',
+                    hasSufficientBalance ? t.submitOfferButton : t.insufficientBalanceButton,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
@@ -262,7 +263,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         );
                       },
                       icon: const Icon(Icons.account_balance_wallet_outlined),
-                      label: const Text('شحن الرصيد'),
+                      label: Text(t.walletTopupActionTitle),
                     ),
                   ),
                 ],

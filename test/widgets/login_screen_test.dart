@@ -11,6 +11,7 @@ import 'package:sallehly_app/core/storage/app_storage.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 import 'package:sallehly_app/features/auth/data/auth_api.dart';
 import 'package:sallehly_app/features/auth/screens/login_screen.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
 import 'package:sallehly_app/models/user_model.dart';
 import 'package:sallehly_app/providers/auth_provider.dart';
 
@@ -69,7 +70,12 @@ void main() {
 
   Widget wrap() => ChangeNotifierProvider.value(
         value: authProvider,
-        child: const MaterialApp(home: LoginScreen()),
+        child: MaterialApp(
+          locale: const Locale('ar'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const LoginScreen(),
+        ),
       );
 
   testWidgets('حقول فارغة: الضغط على "تسجيل الدخول" يُظهر أخطاء تحقق ولا يستدعي login()', (tester) async {
@@ -101,20 +107,49 @@ void main() {
     when(() => mockAuthApi.login(email: any(named: 'email'), password: any(named: 'password')))
         .thenAnswer((_) async => AuthResult(token: 'tok-123', user: _sampleUser()));
 
+    // نجاح تسجيل الدخول يستدعي Navigator.pushAndRemoveUntil إلى الشاشة
+    // الرئيسية الفعلية (CustomerLayout)، التي تحتاج شجرة Provider كاملة
+    // (NotificationProvider، إلخ) غير مُجهَّزة هنا عمداً — هذا الاختبار يقيس
+    // فقط أن LoginScreen استدعت AuthProvider.login بالقيم الصحيحة، وليس سلوك
+    // الشاشة التالية بعد التنقل.
+    //
+    // ملاحظتان مهمّتان اكتُشفتا بعد فشلَي CI فعليين قبل هذا الإصلاح:
+    // 1) استثناء يُطلَق من داخل مرحلة "scheduler" بفلَتّر (هنا: كل من
+    //    CustomerLayout.build عبر context.watch، وdidChangeDependencies عبر
+    //    addPostFrameCallback) لا يُعاد رميه أبداً عبر Future الخاص بـ
+    //    tester.pump() — فـtry/catch حول النداء لا يفعل شيئاً إطلاقاً (جُرِّب
+    //    فعلياً وفشل بنفس الاستثناء بالضبط). تعيد Flutter توجيهه داخلياً عبر
+    //    FlutterError.onError فقط.
+    // 2) tester.takeException() (حتى بحلقة تُفرّغ كل ما بالطابور) ليس كافياً
+    //    هنا أيضاً (جُرِّب وفشل كذلك) — يبدو أن جزءاً من هذه الاستثناءات
+    //    يُسجَّل بعد عودة جسم الاختبار (أثناء تفكيك الشجرة أو إطار متأخر)، أي
+    //    بعد انتهاء أي حلقة تفريغ صريحة داخل جسم الاختبار نفسه.
+    // [FIX-L10N-05] الإصدار الأول من هذا الإصلاح استبدل FlutterError.onError
+    // بدالة فارغة تبتلع كل شيء بلا تمييز — لكن FlutterError.onError حقل
+    // ساكن (static) عام على مستوى العملية كلها، وFlutter/dart test ينفّذ
+    // ملفات اختبار مختلفة بالتزامن ضمن نفس العملية أحياناً (لاحظنا هذا فعلياً:
+    // اختبار منفصل تماماً بملف آخر — locale_switch_test.dart — بدأ يفشل بصمت
+    // بمجرّد إضافة هذا الابتلاع الشامل هنا، لأن خطأ بناء حقيقي بذلك الاختبار
+    // كان يُبتلَع صامتاً إن وقع أثناء تفعيل هذا الاستبدال هنا بالتزامن، فيظهر
+    // العنصر المعطوب كـErrorWidget فارغ بدل عرض الاستثناء الحقيقي). الإصلاح:
+    // ابتلاع الاستثناء المتوقَّع تحديداً فقط (ProviderNotFoundException من
+    // CustomerLayout) وتمرير أي شيء آخر للمعالج الأصلي دون تغيير.
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      final isExpectedCustomerLayoutProviderError =
+          details.exception.toString().contains('CustomerLayout');
+      if (isExpectedCustomerLayoutProviderError) return;
+      originalOnError?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = originalOnError);
+
     await tester.pumpWidget(wrap());
     await _pumpAnimated(tester);
 
     await tester.enterText(find.byType(TextFormField).first, 'user@example.com');
     await tester.enterText(find.byType(TextFormField).last, 'secret123');
     await tester.tap(find.text('تسجيل الدخول'));
-    // نجاح تسجيل الدخول يستدعي Navigator.pushAndRemoveUntil إلى الشاشة
-    // الرئيسية الفعلية (CustomerLayout)، التي تحتاج شجرة Provider كاملة
-    // (NotificationProvider، إلخ) غير مُجهَّزة هنا عمداً — هذا الاختبار يقيس
-    // فقط أن LoginScreen استدعت AuthProvider.login بالقيم الصحيحة، وليس
-    // سلوك الشاشة التالية بعد التنقل. أي استثناء ناتج عن غياب تلك الشجرة
-    // متوقَّع تماماً ويُستهلَك هنا بأمان.
     await _pumpAnimated(tester, 3);
-    tester.takeException();
 
     verify(() => mockAuthApi.login(email: 'user@example.com', password: 'secret123')).called(1);
   });

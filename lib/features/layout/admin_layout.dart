@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/notify_pulse.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../admin/screens/admin_dashboard_screen.dart';
@@ -88,20 +89,21 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   Future<void> logout() async {
+    final t = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('تسجيل الخروج'),
-          content: const Text('هل تريد تسجيل الخروج من حساب الأدمن؟'),
+          title: Text(t.adminLogoutTitle),
+          content: Text(t.adminLogoutConfirmMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('إلغاء'),
+              child: Text(t.cancelButton),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('خروج'),
+              child: Text(t.adminLogoutConfirmButton),
             ),
           ],
         );
@@ -124,6 +126,7 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final notify = context.watch<NotificationProvider>();
 
     return Scaffold(
@@ -132,13 +135,13 @@ class _AdminLayoutState extends State<AdminLayout> {
         // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق) — نفس السبب الموثّق
         // بـ customer_layout.dart وlogin_screen.dart.
         automaticallyImplyLeading: false,
-        title: const Text('لوحة الأدمن'),
+        title: Text(t.adminLayoutTitle),
         actions: [
           NotificationBell(
             onOpenRequests: () => setState(() => currentIndex = 2),
           ),
           IconButton(
-            tooltip: 'تسجيل الخروج',
+            tooltip: t.adminLogoutTitle,
             onPressed: logout,
             icon: const Icon(Icons.logout_rounded),
           ),
@@ -160,21 +163,21 @@ class _AdminLayoutState extends State<AdminLayout> {
           });
         },
         items: [
-          const _NavItem(Icons.dashboard_outlined, Icons.dashboard, 'الرئيسية', 0),
-          const _NavItem(Icons.people_outline, Icons.people, 'المستخدمين', 0),
+          _NavItem(Icons.dashboard_outlined, Icons.dashboard, t.navHome, 0),
+          _NavItem(Icons.people_outline, Icons.people, t.navUsers, 0),
           _NavItem(
             Icons.receipt_long_outlined,
             Icons.receipt_long,
-            'الشحن',
+            t.navTopups,
             notify.topupUnreadCount,
           ),
           _NavItem(
             Icons.support_agent_outlined,
             Icons.support_agent,
-            'الدعم',
+            t.navSupport,
             notify.supportUnreadCount,
           ),
-          const _NavItem(Icons.tune_outlined, Icons.tune, 'الإعدادات', 0),
+          _NavItem(Icons.tune_outlined, Icons.tune, t.navSettings, 0),
         ],
       ),
     );

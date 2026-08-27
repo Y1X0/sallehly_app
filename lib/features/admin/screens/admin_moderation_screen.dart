@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 
 class AdminModerationScreen extends StatefulWidget {
@@ -43,14 +44,15 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'المراقبة والشكاوى',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          t.moderationScreenTitle,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
         bottom: TabBar(
           controller: _tab,
@@ -58,9 +60,9 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           tabs: [
-            Tab(text: 'مخالفات الشات (${admin.violations.length})'),
-            Tab(text: 'الشكاوى (${admin.complaints.length})'),
-            Tab(text: 'بلاغات الرسائل (${admin.messageReports.length})'),
+            Tab(text: t.chatViolationsTabLabel(admin.violations.length)),
+            Tab(text: t.complaintsTabLabel(admin.complaints.length)),
+            Tab(text: t.messageReportsTabLabel(admin.messageReports.length)),
           ],
         ),
       ),
@@ -81,16 +83,16 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                   context,
                   items: admin.violations,
                   error: admin.error,
-                  emptyText: 'لا توجد مخالفات',
+                  emptyText: t.noViolationsFoundTitle,
                   emptyIcon: Icons.shield_outlined,
                   builder: (v) => _ModerationCard(
-                    title: '${v['reason'] ?? 'مخالفة'}',
-                    subtitle: '${v['user_name'] ?? 'مستخدم'}'
+                    title: '${v['reason'] ?? t.violationFallbackLabel}',
+                    subtitle: '${v['user_name'] ?? t.userFallbackName}'
                         '${v['user_email'] != null ? ' • ${v['user_email']}' : ''}',
                     body: '${v['body'] ?? ''}',
                     meta: [
-                      if (v['service'] != null) 'الخدمة: ${v['service']}',
-                      if (v['request_id'] != null) 'طلب #${v['request_id']}',
+                      if (v['service'] != null) t.serviceLabelWithValue('${v['service']}'),
+                      if (v['request_id'] != null) t.requestNumberLabel(v['request_id'] as int),
                       _formatDate(v['created_at'] as String?),
                     ],
                     color: AppColors.danger,
@@ -102,18 +104,18 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                   context,
                   items: admin.complaints,
                   error: admin.error,
-                  emptyText: 'لا توجد شكاوى',
+                  emptyText: t.noComplaintsFoundTitle,
                   emptyIcon: Icons.inbox_outlined,
                   builder: (c) => _ModerationCard(
-                    title: 'شكوى من ${c['customer_name'] ?? 'عميل'}',
+                    title: t.complaintFromLabel('${c['customer_name'] ?? t.customerFallbackName}'),
                     subtitle: c['technician_name'] != null
-                        ? 'بحق الفني: ${c['technician_name']}'
+                        ? t.complaintAgainstTechnicianLabel('${c['technician_name']}')
                         : '',
                     body: '${c['body'] ?? ''}',
                     meta: [
                       if (c['customer_phone'] != null)
-                        'هاتف العميل: ${c['customer_phone']}',
-                      if (c['request_id'] != null) 'طلب #${c['request_id']}',
+                        t.customerPhoneLabel('${c['customer_phone']}'),
+                      if (c['request_id'] != null) t.requestNumberLabel(c['request_id'] as int),
                       _formatDate(c['created_at'] as String?),
                     ],
                     color: AppColors.primary,
@@ -126,19 +128,19 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                   context,
                   items: admin.messageReports,
                   error: admin.error,
-                  emptyText: 'لا توجد بلاغات رسائل',
+                  emptyText: t.noMessageReportsFoundTitle,
                   emptyIcon: Icons.flag_outlined,
                   builder: (r) => _ModerationCard(
-                    title: '${r['reason'] ?? 'بلاغ'}',
+                    title: '${r['reason'] ?? t.reportFallbackLabel}',
                     subtitle: r['reported_name'] != null
-                        ? 'المُبلَّغ عنه: ${r['reported_name']}'
-                            '${r['reported_email'] != null ? ' • ${r['reported_email']}' : ''}'
+                        ? t.reportedUserLabel('${r['reported_name']}') +
+                            (r['reported_email'] != null ? ' • ${r['reported_email']}' : '')
                         : '',
-                    body: '${r['message_body'] ?? '(لم تُحدَّد رسالة معيّنة)'}',
+                    body: '${r['message_body'] ?? t.noSpecificMessageIndicatedLabel}',
                     meta: [
                       if (r['reporter_name'] != null)
-                        'المُبلِّغ: ${r['reporter_name']}',
-                      if (r['request_id'] != null) 'طلب #${r['request_id']}',
+                        t.reporterLabel('${r['reporter_name']}'),
+                      if (r['request_id'] != null) t.requestNumberLabel(r['request_id'] as int),
                       _formatDate(r['created_at'] as String?),
                     ],
                     color: AppColors.danger,
@@ -197,7 +199,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen>
                       onPressed: () =>
                           context.read<AdminProvider>().loadModeration(),
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('إعادة المحاولة'),
+                      label: Text(AppLocalizations.of(context)!.retryButton),
                       style: TextButton.styleFrom(
                           foregroundColor: AppColors.primary),
                     ),
@@ -249,11 +251,11 @@ class _ComplaintStatusMenu extends StatelessWidget {
 
   const _ComplaintStatusMenu({required this.complaint});
 
-  static const _labels = {
-    'open': 'مفتوحة',
-    'in_review': 'قيد المراجعة',
-    'resolved': 'تم الحل',
-    'rejected': 'مرفوضة',
+  Map<String, String> _labels(AppLocalizations t) => {
+    'open': t.complaintStatusOpenLabel,
+    'in_review': t.complaintStatusInReviewLabel,
+    'resolved': t.complaintStatusResolvedLabel,
+    'rejected': t.complaintStatusRejectedLabel,
   };
 
   static Map<String, Color> get _colors => {
@@ -265,12 +267,14 @@ class _ComplaintStatusMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final labels = _labels(t);
     final status = '${complaint['status'] ?? 'open'}';
     final color = _colors[status] ?? AppColors.textSecondary;
     final id = complaint['id'];
 
     return PopupMenuButton<String>(
-      tooltip: 'تغيير حالة الشكوى',
+      tooltip: t.changeComplaintStatusTooltip,
       onSelected: (newStatus) async {
         if (id == null) return;
         try {
@@ -280,18 +284,18 @@ class _ComplaintStatusMenu extends StatelessWidget {
               );
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('تم تحديث الحالة إلى: ${_labels[newStatus]}')),
+              SnackBar(content: Text(t.statusUpdatedMessage(labels[newStatus] ?? newStatus))),
             );
           }
         } catch (_) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تعذر تحديث حالة الشكوى')),
+              SnackBar(content: Text(t.updateComplaintStatusFailedMessage)),
             );
           }
         }
       },
-      itemBuilder: (context) => _labels.entries
+      itemBuilder: (context) => labels.entries
           .map((e) => PopupMenuItem<String>(value: e.key, child: Text(e.value)))
           .toList(),
       child: Container(
@@ -305,7 +309,7 @@ class _ComplaintStatusMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _labels[status] ?? status,
+              labels[status] ?? status,
               style: TextStyle(
                 color: color,
                 fontSize: 11,
@@ -329,6 +333,10 @@ class _ViolationStatusMenu extends StatelessWidget {
 
   const _ViolationStatusMenu({required this.violation});
 
+  // [L10N-TODO] هذه القيم عربية لأنها الـwire value المخزَّن فعلياً بحقل
+  // violation.status بالخادم (لا مجرد تسمية عرض keyed بمفتاح enum إنجليزي
+  // كما بـ_ComplaintStatusMenu) — تغييرها يكسر المقارنة والقيمة المُرسَلة
+  // بـupdateViolationStatus(status:). تُترك كما هي حتى Phase 3.
   static const _labels = {
     'مفتوح': 'مفتوح',
     'تمت المراجعة': 'تمت المراجعة',
@@ -343,12 +351,13 @@ class _ViolationStatusMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final status = '${violation['status'] ?? 'مفتوح'}';
     final color = _colors[status] ?? AppColors.textSecondary;
     final id = violation['id'];
 
     return PopupMenuButton<String>(
-      tooltip: 'تحديث حالة المخالفة',
+      tooltip: t.updateViolationStatusTooltip,
       onSelected: (newStatus) async {
         if (id == null) return;
         try {
@@ -358,13 +367,13 @@ class _ViolationStatusMenu extends StatelessWidget {
               );
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('تم تحديث الحالة إلى: ${_labels[newStatus]}')),
+              SnackBar(content: Text(t.statusUpdatedMessage(_labels[newStatus] ?? newStatus))),
             );
           }
         } catch (_) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تعذر تحديث حالة المخالفة')),
+              SnackBar(content: Text(t.updateViolationStatusFailedMessage)),
             );
           }
         }
@@ -400,6 +409,9 @@ class _MessageReportStatusMenu extends StatelessWidget {
 
   const _MessageReportStatusMenu({required this.report});
 
+  // [L10N-TODO] نفس اتفاقية _ViolationStatusMenu أعلاه — القيم wire value خام
+  // من الخادم (report.status)، لا تسميات عرض keyed بمفتاح enum. تُترك حتى
+  // Phase 3.
   static const _labels = {
     'قيد المراجعة': 'قيد المراجعة',
     'تم اتخاذ إجراء': 'تم اتخاذ إجراء',
@@ -414,12 +426,13 @@ class _MessageReportStatusMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final status = '${report['status'] ?? 'قيد المراجعة'}';
     final color = _colors[status] ?? AppColors.textSecondary;
     final id = report['id'];
 
     return PopupMenuButton<String>(
-      tooltip: 'تحديث حالة البلاغ',
+      tooltip: t.updateMessageReportStatusTooltip,
       onSelected: (newStatus) async {
         if (id == null) return;
         try {
@@ -429,13 +442,13 @@ class _MessageReportStatusMenu extends StatelessWidget {
               );
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('تم تحديث الحالة إلى: ${_labels[newStatus]}')),
+              SnackBar(content: Text(t.statusUpdatedMessage(_labels[newStatus] ?? newStatus))),
             );
           }
         } catch (_) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تعذر تحديث حالة البلاغ')),
+              SnackBar(content: Text(t.updateMessageReportStatusFailedMessage)),
             );
           }
         }

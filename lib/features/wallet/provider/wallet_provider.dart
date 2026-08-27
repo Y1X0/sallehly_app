@@ -44,6 +44,7 @@ class WalletProvider extends ChangeNotifier {
 
       error = null;
     } catch (e) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض كما هو بعدة شاشات (packages_screen.dart، wallet_screen.dart #53، ledger_screen.dart، topup_request_screen.dart #54). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       error = e is ApiException ? e.message : 'تعذر تحميل المحفظة';
     } finally {
       _setLoading(false);
@@ -58,6 +59,7 @@ class WalletProvider extends ChangeNotifier {
       paymentMethods = await api.getPaymentMethods();
       error = null;
     } catch (e) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض كما هو بعدة شاشات (packages_screen.dart، wallet_screen.dart #53، ledger_screen.dart، topup_request_screen.dart #54). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       error = e is ApiException ? e.message : 'تعذر تحميل الباقات';
     } finally {
       _setLoading(false);
@@ -72,6 +74,7 @@ class WalletProvider extends ChangeNotifier {
       error = null;
       if (silent) notifyListeners();
     } catch (e) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض كما هو بعدة شاشات (packages_screen.dart، wallet_screen.dart #53، ledger_screen.dart، topup_request_screen.dart #54). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       error = e is ApiException ? e.message : 'تعذر تحميل طلبات الشحن';
       if (silent) notifyListeners();
     } finally {
@@ -99,6 +102,7 @@ class WalletProvider extends ChangeNotifier {
       ledger = await api.getLedger();
       error = null;
     } catch (e) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض كما هو بعدة شاشات (packages_screen.dart، wallet_screen.dart #53، ledger_screen.dart، topup_request_screen.dart #54). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       error = e is ApiException ? e.message : 'تعذر تحميل سجل العمليات';
     } finally {
       _setLoading(false);
@@ -122,6 +126,7 @@ class WalletProvider extends ChangeNotifier {
       topups.insert(0, topup);
       error = null;
     } catch (e) {
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُعرَض كما هو بعدة شاشات (packages_screen.dart، wallet_screen.dart #53، ledger_screen.dart، topup_request_screen.dart #54). سيُنقَل لطبقة الودجت لاحقاً. راجع L10N_PROGRESS.md §9.
       error = e is ApiException ? e.message : 'تعذر إرسال طلب الشحن';
       rethrow;
     } finally {

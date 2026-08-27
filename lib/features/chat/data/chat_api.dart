@@ -151,6 +151,11 @@ class ChatApi {
         },
       );
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] النص الاحتياطي هنا سيُنقَل لطبقة الودجت (chat_room_screen.dart)
+      // عند ترحيل تلك الشاشة — طبقة API/data لا تملك BuildContext لعرض نص
+      // مترجَم، فالحل الصحيح تمرير null والسماح للمستدعي بتحديد النص
+      // الاحتياطي المترجَم بدل تكرار سلسلة النداء (chat_provider.dart أيضاً
+      // ينقل القيمة كما هي). راجع L10N_PROGRESS.md §9، ملف #3 و#38 و#76.
       return data['message']?.toString() ?? 'تم إرسال البلاغ للإدارة';
     } catch (e) {
       throw apiClient.handleError(e);

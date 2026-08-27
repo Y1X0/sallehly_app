@@ -10,9 +10,11 @@ import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/consent_checkbox.dart';
 import '../../../core/widgets/services_multi_select.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'verify_otp_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class TechnicianRegisterScreen extends StatefulWidget {
   const TechnicianRegisterScreen({super.key});
@@ -82,24 +84,26 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
+
     if (avatarPath == null || avatarPath!.isEmpty) {
-      showError('مطلوب صورة شخصية للفني');
+      showErrorSnackBar(context, t.avatarRequiredMessage);
       return;
     }
 
     // [FIX-TECH-SERVICES-01] تحقق صريح من عدد الخدمات المختارة (1 إلى 5) قبل
     // الإرسال — نفس الحد المفروض بصريًا بودجت ServicesMultiSelect نفسها.
     if (selectedServices.isEmpty) {
-      showError('اختر خدمة واحدة على الأقل');
+      showErrorSnackBar(context, t.selectAtLeastOneServiceValidation);
       return;
     }
     if (selectedServices.length > 5) {
-      showError('الحد الأقصى 5 خدمات');
+      showErrorSnackBar(context, t.maxFiveServicesValidation);
       return;
     }
 
     if (!consentGiven) {
-      showError('يجب الموافقة على سياسة الخصوصية أولاً');
+      showErrorSnackBar(context, t.consentRequiredMessage);
       return;
     }
 
@@ -136,30 +140,22 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
         ),
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('حدث خطأ أثناء إنشاء الحساب');
+      showErrorSnackBar(context, t.registerGenericErrorMessage);
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
     final meta = context.watch<RequestsProvider>().meta;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('حساب فني جديد'),
+        title: Text(t.technicianRegisterTitle),
       ),
       extendBodyBehindAppBar: true,
       body: AppBackground(
@@ -177,7 +173,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'إنشاء حساب فني',
+                  t.technicianRegisterHeading,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 25,
@@ -186,7 +182,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'أضف بياناتك حتى يتمكن العملاء من اختيارك بثقة',
+                  t.technicianRegisterSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -196,11 +192,11 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 const SizedBox(height: 28),
                 _field(
                   controller: nameController,
-                  label: 'الاسم الكامل',
+                  label: t.fullNameFieldLabel,
                   icon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.trim().length < 2) {
-                      return 'الرجاء إدخال الاسم الكامل';
+                      return t.pleaseEnterFullNameValidation;
                     }
                     return null;
                   },
@@ -208,14 +204,14 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 const SizedBox(height: 14),
                 _field(
                   controller: emailController,
-                  label: 'البريد الإلكتروني',
+                  label: t.emailFieldLabel,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final email = value?.trim() ?? '';
                     if (!email.contains('@')) {
-                      return 'البريد الإلكتروني غير صحيح';
+                      return t.emailInvalidValidation;
                     }
                     return null;
                   },
@@ -223,14 +219,14 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 const SizedBox(height: 14),
                 _field(
                   controller: phoneController,
-                  label: 'رقم الهاتف',
+                  label: t.phoneFieldLabel,
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final phone = value?.trim() ?? '';
                     if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
-                      return 'رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام';
+                      return t.phoneFormatValidation;
                     }
                     return null;
                   },
@@ -238,21 +234,21 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 const SizedBox(height: 14),
                 _field(
                   controller: nationalController,
-                  label: 'الرقم الوطني',
+                  label: t.nationalNumberFieldLabel,
                   icon: Icons.badge_outlined,
                   keyboardType: TextInputType.number,
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final national = value?.trim() ?? '';
                     if (!RegExp(r'^\d{10}$').hasMatch(national)) {
-                      return 'الرقم الوطني يجب أن يكون 10 أرقام';
+                      return t.nationalNumberFormatValidation;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'يُستخدم الرقم الوطني للتحقق من هوية الفني فقط، ولا يظهر للعملاء',
+                  t.nationalNumberPrivacyNote,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
@@ -272,7 +268,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 ),
                 const SizedBox(height: 14),
                 _dropdown(
-                  label: 'المحافظة',
+                  label: t.cityFieldLabel,
                   icon: Icons.location_city_outlined,
                   value: selectedCity,
                   items: AppConstants.cities,
@@ -287,7 +283,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                 ),
                 const SizedBox(height: 14),
                 _dropdown(
-                  label: 'منطقة العمل',
+                  label: t.workAreaDropdownLabel,
                   icon: Icons.place_outlined,
                   value: selectedArea,
                   items: availableAreas,
@@ -305,10 +301,10 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   obscureText: hidePassword,
                   textDirection: TextDirection.ltr,
                   decoration: InputDecoration(
-                    labelText: 'كلمة المرور',
+                    labelText: t.passwordFieldLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                      tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
                       onPressed: loading
                           ? null
                           : () {
@@ -325,7 +321,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.length < 8) {
-                      return 'كلمة السر يجب أن تكون 8 أحرف على الأقل';
+                      return t.registerPasswordMinLengthValidation;
                     }
                     return null;
                   },
@@ -344,9 +340,9 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                       ? const CircularProgressIndicator(
                     color: Colors.white,
                   )
-                      : const Text(
-                    'إنشاء حساب فني',
-                    style: TextStyle(
+                      : Text(
+                    t.technicianRegisterHeading,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
@@ -404,7 +400,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'اختر $label';
+          return AppLocalizations.of(context)!.selectFieldValidation(label);
         }
         return null;
       },
@@ -423,6 +419,7 @@ class _AvatarPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final hasImage = avatarPath != null && avatarPath!.isNotEmpty;
 
     return InkWell(
@@ -454,7 +451,7 @@ class _AvatarPicker extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              hasImage ? 'تم اختيار الصورة الشخصية' : 'اختر صورة شخصية',
+              hasImage ? t.avatarSelectedLabel : t.selectAvatarLabel,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
@@ -462,7 +459,7 @@ class _AvatarPicker extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              'الصورة مطلوبة لإنشاء حساب فني',
+              t.avatarRequiredNote,
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,

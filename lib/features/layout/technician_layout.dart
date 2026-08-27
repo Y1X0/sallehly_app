@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/notifications/firebase_notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/notify_pulse.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../chat/provider/chat_provider.dart';
@@ -122,6 +123,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final notify = context.watch<NotificationProvider>();
     final requestsProvider = context.watch<RequestsProvider>();
     final support = context.watch<SupportProvider>();
@@ -155,32 +157,32 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
 
     // بناء عناصر الشريط السفلي.
     final navItems = <_NavItem>[
-      _NavItem(Icons.dashboard_outlined, Icons.dashboard, 'الرئيسية', 0),
+      _NavItem(Icons.dashboard_outlined, Icons.dashboard, t.navHome, 0),
       _NavItem(
         Icons.search_outlined,
         Icons.search,
-        'جديدة',
+        t.navNewRequests,
         newRequestsCount,
       ),
-      _NavItem(Icons.assignment_outlined, Icons.assignment, 'طلباتي', 0),
+      _NavItem(Icons.assignment_outlined, Icons.assignment, t.navMyRequests, 0),
       _NavItem(
         Icons.chat_bubble_outline,
         Icons.chat,
-        'الدردشات',
+        t.navChats,
         chatUnread,
       ),
       _NavItem(
         Icons.account_balance_wallet_outlined,
         Icons.account_balance_wallet,
-        'المحفظة',
+        t.navWallet,
         0,
       ),
-      _NavItem(Icons.settings_outlined, Icons.settings, 'إعدادات', 0),
+      _NavItem(Icons.settings_outlined, Icons.settings, t.navSettings, 0),
       if (hasSupport)
         _NavItem(
           Icons.support_agent_outlined,
           Icons.support_agent,
-          'الدعم',
+          t.navSupport,
           notify.supportUnreadCount,
         ),
     ];
@@ -194,7 +196,7 @@ class _TechnicianLayoutState extends State<TechnicianLayout> {
         // [FIX-BACK-LOGOUT-01] حماية إضافية (دفاع بعمق) — نفس السبب الموثّق
         // بـ customer_layout.dart.
         automaticallyImplyLeading: false,
-        title: const Text('لوحة الفني'),
+        title: Text(t.technicianDashboardTitle),
         actions: [
           NotificationBell(
             onOpenRequests: () => _goToTab(1),

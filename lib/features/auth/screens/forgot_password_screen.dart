@@ -6,8 +6,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import 'login_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -52,9 +54,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         step = 2;
       });
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الكود، حاول مرة أخرى');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.sendCodeFailedMessage);
     }
   }
 
@@ -80,19 +82,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         (_) => false,
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تغيير كلمة السر، حاول مرة أخرى');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.resetPasswordFailedMessage);
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   void showInfo(String message) {
@@ -103,6 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
@@ -120,7 +114,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'استعادة كلمة المرور',
+                  t.forgotPasswordTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 27,
@@ -130,8 +124,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 8),
                 Text(
                   step == 1
-                      ? 'أدخل بريدك الإلكتروني وسنرسل لك كود التحقق'
-                      : 'أدخل الكود الذي وصلك وكلمة المرور الجديدة',
+                      ? t.forgotPasswordEmailStepSubtitle
+                      : t.forgotPasswordResetStepSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textSecondary,
@@ -147,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       : () {
                           Navigator.pop(context);
                         },
-                  child: const Text('العودة لتسجيل الدخول'),
+                  child: Text(t.backToLoginButton),
                 ),
               ],
             ),
@@ -158,6 +152,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildEmailStep(bool loading) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(18),
       child: Form(
@@ -168,20 +163,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               textDirection: TextDirection.ltr,
-              decoration: const InputDecoration(
-                labelText: 'البريد الإلكتروني',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: t.emailFieldLabel,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               validator: (value) {
                 final email = value?.trim() ?? '';
-                if (email.isEmpty) return 'أدخل البريد الإلكتروني';
-                if (!email.contains('@')) return 'البريد الإلكتروني غير صحيح';
+                if (email.isEmpty) return t.emailRequiredValidation;
+                if (!email.contains('@')) return t.emailInvalidValidation;
                 return null;
               },
             ),
             const SizedBox(height: 22),
             GradientButton(
-              label: 'إرسال كود التحقق',
+              label: t.sendCodeButton,
               icon: Icons.send_rounded,
               loading: loading,
               onPressed: loading ? null : sendCode,
@@ -193,6 +188,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildResetStep(bool loading) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(18),
       child: Form(
@@ -211,15 +207,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 letterSpacing: 6,
                 fontWeight: FontWeight.bold,
               ),
-              decoration: const InputDecoration(
-                labelText: 'كود التحقق',
+              decoration: InputDecoration(
+                labelText: t.otpFieldLabel,
                 counterText: '',
-                prefixIcon: Icon(Icons.pin_outlined),
+                prefixIcon: const Icon(Icons.pin_outlined),
               ),
               validator: (value) {
                 final code = value?.trim() ?? '';
                 if (code.length != 6) {
-                  return 'أدخل الكود المكوّن من 6 أرقام';
+                  return t.otpLengthValidation;
                 }
                 return null;
               },
@@ -230,10 +226,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               obscureText: hidePassword,
               textDirection: TextDirection.ltr,
               decoration: InputDecoration(
-                labelText: 'كلمة المرور الجديدة',
+                labelText: t.newPasswordFieldLabel,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
-                  tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                  tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
                   onPressed: () {
                     setState(() {
                       hidePassword = !hidePassword;
@@ -248,17 +244,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'أدخل كلمة المرور الجديدة';
+                  return t.newPasswordRequiredValidation;
                 }
                 if (value.length < 8) {
-                  return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+                  return t.newPasswordMinLengthValidation;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 22),
             GradientButton(
-              label: 'تغيير كلمة المرور',
+              label: t.changePasswordTitle,
               icon: Icons.check_rounded,
               loading: loading,
               onPressed: loading ? null : resetPassword,
@@ -272,7 +268,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         step = 1;
                       });
                     },
-              child: const Text('لم يصلني الكود؟ إعادة الإرسال'),
+              child: Text(t.resendCodeLink),
             ),
           ],
         ),

@@ -1,0 +1,159 @@
+// أداة CI لالتقاط لقطة PNG فعلية لكل حالة بجدول l10n_screen_smoke_test.dart
+// (نفس الجدول المشترك test/support/l10n_screen_cases.dart) — الهدف: فحص
+// بصري حقيقي (مقاسات نص، اتجاه RTL/LTR، أيقونات) بدل الاكتفاء بـ"لا استثناء"
+// فقط، دون توفّر جهاز/محاكي محلي بهذه البيئة.
+//
+// خط حقيقي (لا خط الاختبار الافتراضي بفلَتّر، ذو حروف مربّعة بعرض ثابت يوسّع
+// النص العربي بشكل غير واقعي — انظر تحقيق بطاقة الهيرو بـL10N_PROGRESS.md)
+// يُحمَّل هنا بنفس الأسلوب: خطوط Noto حقيقية (عربي + لاتيني) تُثبَّت عبر apt
+// بخطوة CI منفصلة (ليست أصلاً بالمشروع)، تُقرَأ من القرص، وتُسجَّل تحت اسم
+// العائلة 'Roboto' — وهو ما تفترضه Typography الافتراضية بفلَتّر ضمنياً حين
+// ThemeData.fontFamily == null (حال AppTheme فعلياً).
+//
+// كل لقطة تُلتقَط بغضّ النظر عن وجود RenderFlex overflow معروف مسبقاً (نفس
+// الحالات المحجوبة بفحص الدخان) — الفيضان يظهر بصرياً بنفسه بمؤشر فلَتّر
+// المعتاد (خطوط صفراء/سوداء مائلة)، وهذا مفيد للمراجعة البصرية لا ضار بها.
+//
+// [SCREENSHOT-TAG] هذا الملف مُوسَّم screenshot عمداً ومُستثنى صراحةً من خطوة
+// `flutter test` الرئيسية بـandroid-build.yml (--exclude-tags screenshot):
+// يعتمد على REAL_FONT_PATHS (خطوط حقيقية مثبَّتة عبر apt بخطوة CI منفصلة)،
+// غير المتوفّر بذلك الخط الأنبوب — بدونه setUpAll يفشل فوراً ويُسقط كل ملفات
+// الاختبار الأخرى بنفس التشغيلة (حدث فعلياً قبل إضافة هذا الاستثناء).
+@Tags(['screenshot'])
+library;
+
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../support/l10n_screen_cases.dart';
+
+/// مسارات خطوط حقيقية (عربي + لاتيني) مفصولة بـ":" عبر متغيّر بيئة من خطوة
+/// تثبيت الخطوط بـCI — لا كأصل بالمشروع ولا كتعديل بـpubspec.yaml.
+Future<void> _loadFontFamily(String envVar, String family) async {
+  final raw = Platform.environment[envVar] ?? '';
+  final paths = raw.split(':').where((p) => p.trim().isNotEmpty).toList();
+  if (paths.isEmpty) {
+    throw StateError(
+      '$envVar فارغ — راجع خطوة تثبيت الخطوط بـCI. بدون خط حقيقي، اللقطات '
+      'ستكون بخط الاختبار الوهمي ولن تعكس التخطيط الفعلي.',
+    );
+  }
+
+  final loader = FontLoader(family);
+  for (final path in paths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      throw StateError('خط غير موجود بالمسار $path.');
+    }
+    final bytes = await file.readAsBytes();
+    loader.addFont(Future.value(ByteData.sublistView(Uint8List.fromList(bytes))));
+    // ignore: avoid_print
+    print('[SCREENSHOT] خط محمَّل ($family): $path (${bytes.length} بايت).');
+  }
+  await loader.load();
+}
+
+/// [SCREENSHOT-FONT-01] عائلتان منفصلتان للنص — 'RealArabic' (عربي عادي +
+/// Bold) و'RealLatin' (لاتيني عادي) — بدل عائلة 'Roboto' واحدة تحوي كلا
+/// الخطين كما كان سابقاً. اكتُشِف أن FontLoader لا يُجري التقاطاً صحيحاً
+/// بالحرف عبر عدة ملفات مُسجَّلة بنفس اسم العائلة: أول ملف مُضاف "يفوز"
+/// بالكامل لأي حرف يتعرّف عليه بخطه هو فقط (حتى لو نتيجته tofu داخل ذلك
+/// الخط تحديداً)، بلا أي تراجع فعلي لملف لاحق يملك الحرف فعلاً — وهذا
+/// عكس تماماً ما تفعله fontFamilyFallback الحقيقية بفلَتّر (تراجع صحيح
+/// بالحرف عبر عائلات مختلفة، آلية أعلى مستوى من دمج ملفات FontLoader
+/// الداخلي). أول اكتشاف لهذه المراوغة (عربي كملف أول أدّى لـtofu لاتيني
+/// حتى بعد إضافة ملف لاتيني — راجع نص شاشات customer_register_screen/
+/// chat_room_screen بالإنجليزية بعد بدء Phase 2) كان بالضبط بهذا النمط:
+/// كل حروف لاتينية عادية (Type a message...، I agree to...) ظهرت كمربّعات
+/// رغم وجود ملف لاتيني مُسجَّل — الحل: عائلتان منفصلتان +
+/// ThemeData.fontFamilyFallback بـl10n_screen_cases.dart (وليس اعتماد على
+/// دمج FontLoader الداخلي). 'MaterialIcons' للأيقونات — لا تُحمَّل تلقائياً
+/// بـflutter test رغم كونها أصلاً حقيقياً بحزمة فلَتّر نفسها (لا OS حقيقي
+/// هنا لتحميلها ضمنياً)، فتظهر كل الأيقونات كمربّعات فارغة بدونها.
+Future<void> _loadRealFonts() async {
+  await _loadFontFamily('ARABIC_FONT_PATHS', 'RealArabic');
+  await _loadFontFamily('LATIN_FONT_PATHS', 'RealLatin');
+  await _loadFontFamily('MATERIAL_ICONS_FONT_PATH', 'MaterialIcons');
+}
+
+Future<void> _captureScreenshot(
+  WidgetTester tester,
+  GlobalKey boundaryKey,
+  String outputPath,
+) async {
+  await tester.runAsync(() async {
+    final renderObject = boundaryKey.currentContext!.findRenderObject();
+    final boundary = renderObject! as RenderRepaintBoundary;
+    final image = await boundary.toImage(pixelRatio: 2.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final bytes = byteData!.buffer.asUint8List();
+    final file = File(outputPath);
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes);
+  });
+}
+
+void main() {
+  setUpAll(_loadRealFonts);
+
+  // ChatRoomScreen يبني AudioRecorder() (باقة record) بحقل State، الذي يبدأ
+  // نداء قناة منصّة حقيقياً (غير مُنتظَر/fire-and-forget) عند الإنشاء. تحت
+  // fake-async فحص الدخان العادي هذا لا يحدث أبداً فعلياً (لا Timer/event loop
+  // حقيقي يُشغِّله)، فيمرّ بصمت — لكن tester.runAsync() أدناه (لازم لترميز
+  // PNG فعلياً) يُشغِّل event loop حقيقياً للحظة، فيُتاح لهذا النداء المعلَّق
+  // فرصة التنفيذ فعلياً، فيفشل بـMissingPluginException (لا مكوّن صوت حقيقي
+  // بهذه البيئة) كخطأ zone غير مُلتقَط لا tester.takeException() يلتقطه ولا
+  // try/catch حول كود الالتقاط نفسه (النداء الفاشل ليس تابعاً له). الإصلاح
+  // الصحيح: محاكاة القناة نفسها بردّ غير ضارّ، لا مطاردة توقيت الخطأ.
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized()
+        .defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('com.llfbandit.record/messages'),
+      (MethodCall call) async => null,
+    );
+  });
+
+  final outDir = Platform.environment['SCREENSHOT_OUT_DIR'] ?? 'build/l10n_screenshots';
+
+  for (final screenCase in screenCases) {
+    for (final locale in testLocales) {
+      for (final viewport in testViewports) {
+        testWidgets(
+          '[SCREENSHOT] ${screenCase.name} — locale=${locale.languageCode} — ${viewport.label}',
+          (tester) async {
+            tester.view.physicalSize = viewport.size;
+            tester.view.devicePixelRatio = 1.0;
+            addTearDown(tester.view.reset);
+
+            final providers = TestProviders();
+            final boundaryKey = GlobalKey();
+
+            await tester.pumpWidget(
+              RepaintBoundary(
+                key: boundaryKey,
+                child: wrapScreen(screenCase.build(), providers, locale),
+              ),
+            );
+            await pumpAnimated(tester);
+
+            // مهمة هذا الاختبار التقاط لقطة فقط، لا فحص تخطيط — استنزف أي
+            // استثناء معروف (فيضان RenderFlex محجوب أصلاً بفحص الدخان) حتى
+            // لا يفشل هذا الاختبار بسببه ويمنع التقاط بقية اللقطات.
+            tester.takeException();
+
+            final filename =
+                '${screenCase.slug}__${locale.languageCode}__${viewport.slug}.png';
+            await _captureScreenshot(tester, boundaryKey, '$outDir/$filename');
+          },
+        );
+      }
+    }
+  }
+}

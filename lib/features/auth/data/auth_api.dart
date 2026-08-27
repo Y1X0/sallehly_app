@@ -102,6 +102,7 @@ class AuthApi {
       return RegisterResult(
         ok: data['ok'] == true,
         step: data['step']?.toString() ?? '',
+        // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
         message: data['message']?.toString() ?? 'تم إرسال كود التحقق',
         email: data['email']?.toString() ?? email.trim(),
       );
@@ -135,7 +136,7 @@ class AuthApi {
 
       return VerifyOtpResult(
         token: token,
-        message: data['message']?.toString() ?? 'تم إنشاء الحساب بنجاح',
+        message: data['message']?.toString(),
         user: UserModel.fromJson(
           Map<String, dynamic>.from(data['user']),
         ),
@@ -155,6 +156,7 @@ class AuthApi {
       );
 
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ??
           'إذا كان البريد مسجلاً ستصلك رسالة التحقق';
     } catch (e) {
@@ -178,6 +180,7 @@ class AuthApi {
       );
 
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ?? 'تم تغيير كلمة السر بنجاح';
     } catch (e) {
       throw apiClient.handleError(e);
@@ -281,6 +284,7 @@ class AuthApi {
         data: {'password': password},
       );
       final data = Map<String, dynamic>.from(response.data);
+      // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
       return data['message']?.toString() ?? 'تم حذف حسابك بنجاح';
     } catch (e) {
       throw apiClient.handleError(e);
@@ -329,7 +333,10 @@ class RegisterResult {
 
 class VerifyOtpResult {
   final String token;
-  final String message;
+  // [L10N-06] nullable عمداً — null يعني الخادم لم يرسل رسالة، وطبقة الودجت
+  // (verify_otp_screen.dart) هي من تقرر النص الاحتياطي المترجَم، لا هذه
+  // الطبقة (data layer بلا BuildContext). راجع L10N_PROGRESS.md §9.
+  final String? message;
   final UserModel user;
 
   VerifyOtpResult({
