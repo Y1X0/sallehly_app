@@ -698,5 +698,240 @@
   "navTopups": "الشحن",
   "@navTopups": {
     "description": "عنوان تبويب طلبات الشحن بشريط تنقّل الأدمن السفلي"
+  },
+  "newRequestsSectionTitle": "طلبات العملاء",
+  "@newRequestsSectionTitle": {
+    "description": "عنوان قسم قائمة الطلبات الجديدة المتاحة للفني"
+  },
+  "newRequestsSectionSubtitle": "اختر الطلب المناسب وقدّم عرضك",
+  "@newRequestsSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم الطلبات الجديدة"
+  },
+  "newRequestsLoadingSemanticLabel": "جاري تحميل الطلبات",
+  "@newRequestsLoadingSemanticLabel": {
+    "description": "وصف Semantics لقارئ الشاشة أثناء تحميل الطلبات الجديدة (هياكل تحميل بلا نص مرئي)"
+  },
+  "newRequestsUpdatingMessage": "جاري تحديث الطلبات...",
+  "@newRequestsUpdatingMessage": {
+    "description": "نص بطاقة الهيرو أثناء تحديث قائمة الطلبات الجديدة"
+  },
+  "newRequestsNoneTitle": "لا توجد طلبات جديدة",
+  "@newRequestsNoneTitle": {
+    "description": "نص بطاقة الهيرو عندما لا توجد أي طلبات جديدة متاحة (count == 0)"
+  },
+  "newRequestsAvailableCount": "{count, plural, one{طلب جديد واحد بانتظارك} two{طلبان جديدان بانتظارك} few{{count} طلبات جديدة بانتظارك} many{{count} طلباً جديداً بانتظارك} other{{count} طلب جديد بانتظارك}}",
+  "@newRequestsAvailableCount": {
+    "description": "نص بطاقة الهيرو بعدد الطلبات الجديدة المتاحة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "newRequestsHeroSubtitle": "تابع الطلبات القريبة منك وقدّم عرضك بسرعة قبل باقي الفنيين.",
+  "@newRequestsHeroSubtitle": {
+    "description": "نص فرعي تسويقي ببطاقة هيرو الطلبات الجديدة"
+  },
+  "newRequestsLoadFailedTitle": "تعذّر تحميل الطلبات",
+  "@newRequestsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل الطلبات الجديدة"
+  },
+  "newRequestsEmptyTitle": "لا توجد طلبات حالياً",
+  "@newRequestsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة الطلبات الجديدة"
+  },
+  "newRequestsEmptySubtitle": "عند وصول طلب جديد ضمن منطقتك سيظهر هنا مباشرة.",
+  "@newRequestsEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة الطلبات الجديدة"
+  },
+  "loginGenericErrorMessage": "حدث خطأ أثناء تسجيل الدخول",
+  "@loginGenericErrorMessage": {
+    "description": "رسالة خطأ عامة عند فشل تسجيل الدخول لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "loginWelcomeBackTitle": "أهلاً بعودتك",
+  "@loginWelcomeBackTitle": {
+    "description": "العنوان الرئيسي بشاشة تسجيل الدخول"
+  },
+  "loginSubtitle": "سجّل دخولك لإدارة طلباتك ومحادثاتك",
+  "@loginSubtitle": {
+    "description": "النص الفرعي بشاشة تسجيل الدخول"
+  },
+  "emailFieldLabel": "البريد الإلكتروني",
+  "@emailFieldLabel": {
+    "description": "تسمية حقل البريد الإلكتروني (مستخدَمة بعدة نماذج: تسجيل دخول، تسجيل حساب، إلخ)"
+  },
+  "emailRequiredValidation": "أدخل البريد الإلكتروني",
+  "@emailRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل البريد الإلكتروني فارغاً"
+  },
+  "emailInvalidValidation": "البريد الإلكتروني غير صحيح",
+  "@emailInvalidValidation": {
+    "description": "رسالة تحقق عند إدخال بريد إلكتروني غير صالح (بلا @)"
+  },
+  "passwordFieldLabel": "كلمة المرور",
+  "@passwordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور (مستخدَمة بعدة نماذج)"
+  },
+  "showPasswordTooltip": "إظهار كلمة المرور",
+  "@showPasswordTooltip": {
+    "description": "تلميح زر إظهار كلمة المرور (يقلب obscureText)"
+  },
+  "hidePasswordTooltip": "إخفاء كلمة المرور",
+  "@hidePasswordTooltip": {
+    "description": "تلميح زر إخفاء كلمة المرور (يقلب obscureText)"
+  },
+  "passwordRequiredValidation": "أدخل كلمة المرور",
+  "@passwordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور فارغاً"
+  },
+  "passwordTooShortValidation": "كلمة المرور قصيرة",
+  "@passwordTooShortValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة مرور أقصر من 6 أحرف"
+  },
+  "loginSubmitButton": "تسجيل الدخول",
+  "@loginSubmitButton": {
+    "description": "زر إرسال نموذج تسجيل الدخول"
+  },
+  "forgotPasswordLink": "نسيت كلمة المرور؟",
+  "@forgotPasswordLink": {
+    "description": "رابط الانتقال لشاشة استعادة كلمة المرور"
+  },
+  "noAccountCreateOneLink": "ليس لديك حساب؟ إنشاء حساب جديد",
+  "@noAccountCreateOneLink": {
+    "description": "رابط الانتقال لاختيار نوع الحساب من شاشة تسجيل الدخول"
+  },
+  "changePasswordSuccessMessage": "تم تغيير كلمة المرور بنجاح",
+  "@changePasswordSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح تغيير كلمة المرور"
+  },
+  "changePasswordFailedMessage": "تعذر تغيير كلمة المرور",
+  "@changePasswordFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تغيير كلمة المرور لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "changePasswordTitle": "تغيير كلمة المرور",
+  "@changePasswordTitle": {
+    "description": "عنوان شاشة تغيير كلمة المرور"
+  },
+  "currentPasswordFieldLabel": "كلمة المرور الحالية",
+  "@currentPasswordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور الحالية"
+  },
+  "currentPasswordRequiredValidation": "أدخل كلمة المرور الحالية",
+  "@currentPasswordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور الحالية فارغاً"
+  },
+  "newPasswordFieldLabel": "كلمة المرور الجديدة",
+  "@newPasswordFieldLabel": {
+    "description": "تسمية حقل كلمة المرور الجديدة"
+  },
+  "newPasswordRequiredValidation": "أدخل كلمة المرور الجديدة",
+  "@newPasswordRequiredValidation": {
+    "description": "رسالة تحقق عند ترك حقل كلمة المرور الجديدة فارغاً"
+  },
+  "newPasswordMinLengthValidation": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+  "@newPasswordMinLengthValidation": {
+    "description": "رسالة تحقق عند إدخال كلمة مرور جديدة أقصر من 8 أحرف"
+  },
+  "confirmNewPasswordFieldLabel": "تأكيد كلمة المرور الجديدة",
+  "@confirmNewPasswordFieldLabel": {
+    "description": "تسمية حقل تأكيد كلمة المرور الجديدة"
+  },
+  "passwordsMismatchValidation": "كلمتا المرور غير متطابقتين",
+  "@passwordsMismatchValidation": {
+    "description": "رسالة تحقق عند عدم تطابق كلمة المرور الجديدة وتأكيدها"
+  },
+  "savePasswordButton": "حفظ كلمة المرور",
+  "@savePasswordButton": {
+    "description": "زر حفظ كلمة المرور الجديدة"
+  },
+  "selectAtLeastOneServiceValidation": "اختر خدمة واحدة على الأقل",
+  "@selectAtLeastOneServiceValidation": {
+    "description": "رسالة خطأ عند عدم اختيار الفني لأي خدمة"
+  },
+  "maxFiveServicesValidation": "الحد الأقصى 5 خدمات",
+  "@maxFiveServicesValidation": {
+    "description": "رسالة خطأ عند اختيار الفني أكثر من 5 خدمات"
+  },
+  "editProfileSuccessMessage": "تم تحديث البيانات بنجاح",
+  "@editProfileSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح تحديث الملف الشخصي"
+  },
+  "editProfileFailedMessage": "تعذر تحديث البيانات",
+  "@editProfileFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل تحديث الملف الشخصي لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "editProfileTitle": "تعديل الملف الشخصي",
+  "@editProfileTitle": {
+    "description": "عنوان شاشة تعديل الملف الشخصي"
+  },
+  "editProfileChangePhotoHint": "اضغط لتغيير الصورة الشخصية",
+  "@editProfileChangePhotoHint": {
+    "description": "نص إرشادي تحت الصورة الرمزية بشاشة تعديل الملف الشخصي"
+  },
+  "fullNameFieldLabel": "الاسم الكامل",
+  "@fullNameFieldLabel": {
+    "description": "تسمية حقل الاسم الكامل (مستخدَمة بعدة نماذج)"
+  },
+  "fullNameRequiredValidation": "أدخل الاسم الكامل",
+  "@fullNameRequiredValidation": {
+    "description": "رسالة تحقق عند إدخال اسم أقصر من حرفين"
+  },
+  "phoneFieldLabel": "رقم الهاتف",
+  "@phoneFieldLabel": {
+    "description": "تسمية حقل رقم الهاتف (مستخدَمة بعدة نماذج)"
+  },
+  "phoneFormatValidation": "رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام",
+  "@phoneFormatValidation": {
+    "description": "رسالة تحقق عند إدخال رقم هاتف بصيغة غير صحيحة"
+  },
+  "cityFieldLabel": "المحافظة",
+  "@cityFieldLabel": {
+    "description": "تسمية حقل اختيار المحافظة (مستخدَمة بعدة نماذج)"
+  },
+  "areaFieldLabel": "المنطقة / الحي",
+  "@areaFieldLabel": {
+    "description": "تسمية حقل المنطقة/الحي (مستخدَمة بعدة نماذج)"
+  },
+  "saveChangesButton": "حفظ التعديلات",
+  "@saveChangesButton": {
+    "description": "زر حفظ التعديلات بشاشة تعديل الملف الشخصي"
+  },
+  "technicianOrdersSectionTitle": "طلباتي",
+  "@technicianOrdersSectionTitle": {
+    "description": "عنوان قسم قائمة طلبات الفني المقبولة"
+  },
+  "technicianOrdersSectionSubtitle": "الطلبات التي تم اختيارك لتنفيذها",
+  "@technicianOrdersSectionSubtitle": {
+    "description": "نص فرعي تحت عنوان قسم طلبات الفني"
+  },
+  "technicianOrdersSummaryTitle": "لوحة طلباتك",
+  "@technicianOrdersSummaryTitle": {
+    "description": "عنوان بطاقة ملخص طلبات الفني"
+  },
+  "technicianOrdersSummarySubtitle": "تابع الطلبات المقبولة والحالة الحالية لكل طلب.",
+  "@technicianOrdersSummarySubtitle": {
+    "description": "نص فرعي ببطاقة ملخص طلبات الفني"
+  },
+  "statAllLabel": "الكل",
+  "@statAllLabel": {
+    "description": "تسمية إحصائية عامة: الإجمالي/الكل"
+  },
+  "statActiveLabel": "نشطة",
+  "@statActiveLabel": {
+    "description": "تسمية إحصائية عامة: نشطة/قيد التنفيذ"
+  },
+  "statCompletedLabel": "مكتملة",
+  "@statCompletedLabel": {
+    "description": "تسمية إحصائية عامة: مكتملة"
+  },
+  "technicianOrdersLoadFailedTitle": "تعذّر تحميل الطلبات",
+  "@technicianOrdersLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل طلبات الفني المقبولة"
+  },
+  "technicianOrdersEmptyTitle": "لا توجد طلبات مقبولة بعد",
+  "@technicianOrdersEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الفني المقبولة"
+  },
+  "technicianOrdersEmptySubtitle": "عندما يقبل العميل عرضك سيظهر الطلب هنا لتتابع التنفيذ والدردشة.",
+  "@technicianOrdersEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لطلبات الفني المقبولة"
   }
 }

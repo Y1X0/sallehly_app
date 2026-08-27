@@ -11,6 +11,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/services_multi_select.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/service_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
@@ -90,13 +91,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
+    final t = AppLocalizations.of(context)!;
+
     // [FIX-TECH-SERVICES-01] نفس تحقق شاشة التسجيل (1 إلى 5 خدمات).
     if (isTechnician && selectedServices.isEmpty) {
-      showErrorSnackBar(context, 'اختر خدمة واحدة على الأقل');
+      showErrorSnackBar(context, t.selectAtLeastOneServiceValidation);
       return;
     }
     if (isTechnician && selectedServices.length > 5) {
-      showErrorSnackBar(context, 'الحد الأقصى 5 خدمات');
+      showErrorSnackBar(context, t.maxFiveServicesValidation);
       return;
     }
 
@@ -115,26 +118,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تحديث البيانات بنجاح')),
+        SnackBar(content: Text(t.editProfileSuccessMessage)),
       );
 
       Navigator.pop(context);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تحديث البيانات');
+      showErrorSnackBar(context, t.editProfileFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
     final meta = context.watch<RequestsProvider>().meta;
     final userId = context.watch<AuthProvider>().user?.id ?? 0;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تعديل الملف الشخصي'),
+        title: Text(t.editProfileTitle),
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
@@ -174,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'اضغط لتغيير الصورة الشخصية',
+                  t.editProfileChangePhotoHint,
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
@@ -190,13 +194,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       TextFormField(
                         controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'الاسم الكامل',
-                          prefixIcon: Icon(Icons.person_outline),
+                        decoration: InputDecoration(
+                          labelText: t.fullNameFieldLabel,
+                          prefixIcon: const Icon(Icons.person_outline),
                         ),
                         validator: (value) {
                           final name = value?.trim() ?? '';
-                          if (name.length < 2) return 'أدخل الاسم الكامل';
+                          if (name.length < 2) return t.fullNameRequiredValidation;
                           return null;
                         },
                       ),
@@ -205,14 +209,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
                         textDirection: TextDirection.ltr,
-                        decoration: const InputDecoration(
-                          labelText: 'رقم الهاتف',
-                          prefixIcon: Icon(Icons.phone_outlined),
+                        decoration: InputDecoration(
+                          labelText: t.phoneFieldLabel,
+                          prefixIcon: const Icon(Icons.phone_outlined),
                         ),
                         validator: (value) {
                           final phone = value?.trim() ?? '';
                           if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
-                            return 'رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام';
+                            return t.phoneFormatValidation;
                           }
                           return null;
                         },
@@ -221,9 +225,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       DropdownButtonFormField<String>(
                         initialValue: selectedCity,
                         isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'المحافظة',
-                          prefixIcon: Icon(Icons.location_city_outlined),
+                        decoration: InputDecoration(
+                          labelText: t.cityFieldLabel,
+                          prefixIcon: const Icon(Icons.location_city_outlined),
                         ),
                         items: AppConstants.cities
                             .map((c) => DropdownMenuItem(
@@ -265,14 +269,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 14),
                       TextFormField(
                         controller: areaController,
-                        decoration: const InputDecoration(
-                          labelText: 'المنطقة / الحي',
-                          prefixIcon: Icon(Icons.place_outlined),
+                        decoration: InputDecoration(
+                          labelText: t.areaFieldLabel,
+                          prefixIcon: const Icon(Icons.place_outlined),
                         ),
                       ),
                       const SizedBox(height: 22),
                       GradientButton(
-                        label: 'حفظ التعديلات',
+                        label: t.saveChangesButton,
                         icon: Icons.save_rounded,
                         loading: loading,
                         onPressed: loading ? null : submit,

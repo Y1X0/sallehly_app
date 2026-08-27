@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/widgets/success_feedback.dart';
 
@@ -48,24 +49,25 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تغيير كلمة المرور بنجاح')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.changePasswordSuccessMessage)),
       );
 
       Navigator.pop(context);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر تغيير كلمة المرور');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.changePasswordFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تغيير كلمة المرور'),
+        title: Text(t.changePasswordTitle),
         backgroundColor: Colors.transparent,
       ),
       extendBodyBehindAppBar: true,
@@ -91,10 +93,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         obscureText: hideCurrent,
                         textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور الحالية',
+                          labelText: t.currentPasswordFieldLabel,
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
-                            tooltip: hideCurrent ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                            tooltip: hideCurrent ? t.showPasswordTooltip : t.hidePasswordTooltip,
                             onPressed: () {
                               setState(() => hideCurrent = !hideCurrent);
                             },
@@ -107,7 +109,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'أدخل كلمة المرور الحالية';
+                            return t.currentPasswordRequiredValidation;
                           }
                           return null;
                         },
@@ -118,10 +120,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         obscureText: hideNew,
                         textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور الجديدة',
+                          labelText: t.newPasswordFieldLabel,
                           prefixIcon: const Icon(Icons.lock_reset_rounded),
                           suffixIcon: IconButton(
-                            tooltip: hideNew ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                            tooltip: hideNew ? t.showPasswordTooltip : t.hidePasswordTooltip,
                             onPressed: () {
                               setState(() => hideNew = !hideNew);
                             },
@@ -134,10 +136,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'أدخل كلمة المرور الجديدة';
+                            return t.newPasswordRequiredValidation;
                           }
                           if (value.length < 8) {
-                            return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+                            return t.newPasswordMinLengthValidation;
                           }
                           return null;
                         },
@@ -147,20 +149,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         controller: confirmController,
                         obscureText: hideNew,
                         textDirection: TextDirection.ltr,
-                        decoration: const InputDecoration(
-                          labelText: 'تأكيد كلمة المرور الجديدة',
-                          prefixIcon: Icon(Icons.lock_reset_rounded),
+                        decoration: InputDecoration(
+                          labelText: t.confirmNewPasswordFieldLabel,
+                          prefixIcon: const Icon(Icons.lock_reset_rounded),
                         ),
                         validator: (value) {
                           if (value != newController.text) {
-                            return 'كلمتا المرور غير متطابقتين';
+                            return t.passwordsMismatchValidation;
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 22),
                       GradientButton(
-                        label: 'حفظ كلمة المرور',
+                        label: t.savePasswordButton,
                         icon: Icons.check_rounded,
                         loading: loading,
                         onPressed: loading ? null : submit,

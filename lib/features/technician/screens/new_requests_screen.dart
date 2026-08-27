@@ -6,6 +6,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/request_card_skeleton.dart';
 import '../../../core/widgets/section_title.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../widgets/technician_request_card.dart';
 import 'technician_request_details_screen.dart';
@@ -30,6 +31,7 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final provider = context.watch<RequestsProvider>();
 
     final requests = provider.availableNewRequests;
@@ -49,14 +51,14 @@ class _NewRequestsScreenState extends State<NewRequestsScreen> {
                   loading: provider.loading,
                 ),
                 const SizedBox(height: 22),
-                const SectionTitle(
-                  title: 'طلبات العملاء',
-                  subtitle: 'اختر الطلب المناسب وقدّم عرضك',
+                SectionTitle(
+                  title: t.newRequestsSectionTitle,
+                  subtitle: t.newRequestsSectionSubtitle,
                 ),
                 const SizedBox(height: 14),
                 if (provider.loading && requests.isEmpty)
                   Semantics(
-                    label: 'جاري تحميل الطلبات',
+                    label: t.newRequestsLoadingSemanticLabel,
                     child: Column(
                       children: const [
                         RequestCardSkeleton(),
@@ -116,6 +118,7 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -151,10 +154,10 @@ class _HeroCard extends StatelessWidget {
               const SizedBox(height: 18),
               Text(
                 loading
-                    ? 'جاري تحديث الطلبات...'
+                    ? t.newRequestsUpdatingMessage
                     : count == 0
-                    ? 'لا توجد طلبات جديدة'
-                    : '$count طلب جديد بانتظارك',
+                    ? t.newRequestsNoneTitle
+                    : t.newRequestsAvailableCount(count),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 27,
@@ -164,7 +167,7 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'تابع الطلبات القريبة منك وقدّم عرضك بسرعة قبل باقي الفنيين.',
+                t.newRequestsHeroSubtitle,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.84),
                   fontSize: 14,
@@ -190,6 +193,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -209,7 +213,7 @@ class _ErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'تعذّر تحميل الطلبات',
+            t.newRequestsLoadFailedTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -229,7 +233,7 @@ class _ErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
           ),
         ],
       ),
@@ -242,6 +246,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return GlassCard(
       padding: const EdgeInsets.all(26),
       child: Column(
@@ -261,7 +266,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'لا توجد طلبات حالياً',
+            t.newRequestsEmptyTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 20,
@@ -270,7 +275,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'عند وصول طلب جديد ضمن منطقتك سيظهر هنا مباشرة.',
+            t.newRequestsEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textSecondary,

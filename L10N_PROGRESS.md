@@ -604,11 +604,13 @@ mirroring due in that same file).
 - [x] 43. `lib/features/customer/screens/offers_screen.dart` — full migration incl. real ICU plural (`offersReceivedCount`) for the offers-received hero text, `offersHeroServiceLabel({service})` wrapping backend catalog data; applied `DirectionalIcons.back` at the §3 back-icon site (line 149); `provider.error!` deferred (RequestsProvider, #45)
 - [x] 44. `lib/features/layout/admin_layout.dart` — logout dialog, appbar, nav tab labels; reused `navHome`/`navSettings`/`navSupport`, new `navUsers`/`navTopups`, new shared `cancelButton`
 - [x] 45. `lib/features/requests/provider/requests_provider.dart` — data-layer, no BuildContext, huge fan-out of consumers; `error` fallbacks deferred with `[L10N-TODO]` (same convention as #38/#42), no functional change. `_availableStatuses` and `status: 'مكتمل'` are RequestModel.status wire values — untouched, Phase 3
-- [ ] 46. `lib/features/technician/screens/new_requests_screen.dart`
-- [ ] 47. `lib/features/auth/screens/login_screen.dart`
-- [ ] 48. `lib/features/settings/screens/change_password_screen.dart`
-- [ ] 49. `lib/features/settings/screens/edit_profile_screen.dart`
-- [ ] 50. `lib/features/technician/screens/technician_orders_screen.dart`
+- [x] 46. `lib/features/technician/screens/new_requests_screen.dart` — full migration incl. real ICU plural (`newRequestsAvailableCount`) for the hero count text; `provider.error!` deferred (#45)
+- [x] 47. `lib/features/auth/screens/login_screen.dart` — full migration; new reusable field/validation keys (`emailFieldLabel`, `passwordFieldLabel`, `show/hidePasswordTooltip`, etc.) for reuse by later auth/settings screens; fixed `login_screen_test.dart` to pin `locale: const Locale('ar')` (test asserts on literal Arabic text via `find.text`, which is now ARB-driven rather than hardcoded)
+- [x] 48. `lib/features/settings/screens/change_password_screen.dart` — full migration, reused `show/hidePasswordTooltip` from #47
+- [x] 49. `lib/features/settings/screens/edit_profile_screen.dart` — full migration; new reusable `fullNameFieldLabel`/`phoneFieldLabel`/`cityFieldLabel`/`areaFieldLabel`; `AppConstants.cities` dropdown values correctly left untouched (place names rule)
+- [x] 50. `lib/features/technician/screens/technician_orders_screen.dart` — full migration incl. reusable `statAllLabel`/`statActiveLabel`/`statCompletedLabel`; `e.status` comparisons against `'مكتمل'`/`'ملغي'` are RequestModel.status wire values, untouched (Phase 3)
+
+**CI checkpoint**: batches 8+9 (files #36-45, commits `17de5c1`/`94d9804`) confirmed green via `android-build.yml` run #109 — this run also validated the screenshot-harness font fix (`2e9b636`) and the `login_screen_test.dart` Localizations-delegate fix (`b96c80e`) queued just before batch 8. **Note on CI triggering**: `android-build.yml` only runs automatically on push/PR to `main`; on this branch it must be triggered manually per push via `mcp__github__actions_run_trigger` (`method: run_workflow`) — it does not fire on its own from a push to a feature branch with no open PR.
 - [ ] 51. `lib/core/widgets/image_source_picker.dart`
 - [ ] 52. `lib/features/customer/widgets/rate_technician_sheet.dart`
 - [ ] 53. `lib/features/wallet/screens/wallet_screen.dart`

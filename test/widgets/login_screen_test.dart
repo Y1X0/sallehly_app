@@ -71,6 +71,7 @@ void main() {
   Widget wrap() => ChangeNotifierProvider.value(
         value: authProvider,
         child: MaterialApp(
+          locale: const Locale('ar'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: const LoginScreen(),

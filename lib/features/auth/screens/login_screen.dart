@@ -8,6 +8,7 @@ import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routes/route_guard.dart';
 import 'forgot_password_screen.dart';
@@ -67,12 +68,13 @@ class _LoginScreenState extends State<LoginScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'حدث خطأ أثناء تسجيل الدخول');
+      showErrorSnackBar(context, AppLocalizations.of(context)!.loginGenericErrorMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
 
     return Scaffold(
@@ -94,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeIn(
                     delay: Duration(milliseconds: 90),
                     child: Text(
-                      'أهلاً بعودتك',
+                      t.loginWelcomeBackTitle,
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 30,
@@ -106,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeIn(
                     delay: Duration(milliseconds: 160),
                     child: Text(
-                      'سجّل دخولك لإدارة طلباتك ومحادثاتك',
+                      t.loginSubtitle,
                       style: TextStyle(
                         color: AppColors.textSecondary,
                       ),
@@ -123,15 +125,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
                           textDirection: TextDirection.ltr,
-                          decoration: const InputDecoration(
-                            labelText: 'البريد الإلكتروني',
-                            prefixIcon: Icon(Icons.email_outlined),
+                          decoration: InputDecoration(
+                            labelText: t.emailFieldLabel,
+                            prefixIcon: const Icon(Icons.email_outlined),
                           ),
                           validator: (value) {
                             final email = value?.trim() ?? '';
-                            if (email.isEmpty) return 'أدخل البريد الإلكتروني';
+                            if (email.isEmpty) return t.emailRequiredValidation;
                             if (!email.contains('@')) {
-                              return 'البريد الإلكتروني غير صحيح';
+                              return t.emailInvalidValidation;
                             }
                             return null;
                           },
@@ -142,10 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: hidePassword,
                           textDirection: TextDirection.ltr,
                           decoration: InputDecoration(
-                            labelText: 'كلمة المرور',
+                            labelText: t.passwordFieldLabel,
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
-                              tooltip: hidePassword ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور',
+                              tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
                               onPressed: () {
                                 setState(() {
                                   hidePassword = !hidePassword;
@@ -160,17 +162,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'أدخل كلمة المرور';
+                              return t.passwordRequiredValidation;
                             }
                             if (value.length < 6) {
-                              return 'كلمة المرور قصيرة';
+                              return t.passwordTooShortValidation;
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 22),
                         GradientButton(
-                          label: 'تسجيل الدخول',
+                          label: t.loginSubmitButton,
                           icon: Icons.login_rounded,
                           loading: loading,
                           onPressed: loading ? null : submit,
@@ -188,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   );
                                 },
-                          child: const Text('نسيت كلمة المرور؟'),
+                          child: Text(t.forgotPasswordLink),
                         ),
                       ],
                     ),
@@ -206,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-                    child: const Text('ليس لديك حساب؟ إنشاء حساب جديد'),
+                    child: Text(t.noAccountCreateOneLink),
                   ),
                 ],
               ),
