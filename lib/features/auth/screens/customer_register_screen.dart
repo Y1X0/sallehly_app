@@ -8,6 +8,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/consent_checkbox.dart';
 import '../../../providers/auth_provider.dart';
 import 'verify_otp_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class CustomerRegisterScreen extends StatefulWidget {
   const CustomerRegisterScreen({super.key});
@@ -48,7 +49,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     if (!formKey.currentState!.validate()) return;
 
     if (!consentGiven) {
-      showError('يجب الموافقة على سياسة الخصوصية أولاً');
+      showErrorSnackBar(context, 'يجب الموافقة على سياسة الخصوصية أولاً');
       return;
     }
 
@@ -82,19 +83,10 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
         ),
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('حدث خطأ أثناء إنشاء الحساب');
+      showErrorSnackBar(context, 'حدث خطأ أثناء إنشاء الحساب');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

@@ -89,3 +89,17 @@ void showSuccessSnackBar(BuildContext context, String message) {
     ),
   );
 }
+
+/// يعرض SnackBar خطأ موحّد بلون [AppColors.danger] لـ[message] — بديل
+/// موحَّد لدوال `showError` المحلية المكرَّرة سابقاً بكل شاشة (كانت كلها
+/// نفس الجسم حرفياً). يتحقق من `context.mounted` قبل العرض لأن أغلب مواقع
+/// الاستدعاء تأتي بعد `await` لعملية شبكة قد تُنهي الودجة قبل اكتمالها.
+void showErrorSnackBar(BuildContext context, String message) {
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: AppColors.danger,
+      content: Text(message),
+    ),
+  );
+}

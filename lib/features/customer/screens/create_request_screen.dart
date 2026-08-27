@@ -91,19 +91,10 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
 
       Navigator.pop(context);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إنشاء الطلب');
+      showErrorSnackBar(context, 'تعذر إنشاء الطلب');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

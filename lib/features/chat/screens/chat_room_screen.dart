@@ -19,6 +19,7 @@ import '../../../providers/socket_provider.dart';
 import '../provider/chat_provider.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/chat_input.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final RequestModel request;
@@ -102,9 +103,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (e) {
-      showError('تعذر إرسال الرسالة: $e');
+      showErrorSnackBar(context, 'تعذر إرسال الرسالة: $e');
     }
   }
 
@@ -122,9 +123,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (e) {
-      showError('تعذر إرسال الصورة: $e');
+      showErrorSnackBar(context, 'تعذر إرسال الصورة: $e');
     }
   }
 
@@ -150,7 +151,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        showError('فعّل خدمة الموقع GPS من إعدادات الهاتف');
+        showErrorSnackBar(context, 'فعّل خدمة الموقع GPS من إعدادات الهاتف');
         return;
       }
 
@@ -174,7 +175,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (permission == LocationPermission.denied) {
-        showError('لم يتم السماح بالوصول للموقع');
+        showErrorSnackBar(context, 'لم يتم السماح بالوصول للموقع');
         return;
       }
 
@@ -192,7 +193,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (position == null) {
-        showError('تعذر تحديد الموقع، افتح GPS وجرب مرة ثانية');
+        showErrorSnackBar(context, 'تعذر تحديد الموقع، افتح GPS وجرب مرة ثانية');
         return;
       }
 
@@ -206,9 +207,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (e) {
-      showError('تعذر إرسال الموقع: $e');
+      showErrorSnackBar(context, 'تعذر إرسال الموقع: $e');
     }
   }
 
@@ -229,12 +230,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
 
         if (path == null || path.isEmpty) {
-          showError('لم يتم حفظ التسجيل');
+          showErrorSnackBar(context, 'لم يتم حفظ التسجيل');
           return;
         }
 
         if (duration < 1) {
-          showError('التسجيل قصير جداً');
+          showErrorSnackBar(context, 'التسجيل قصير جداً');
           return;
         }
 
@@ -288,7 +289,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 'إعدادات التطبيق.',
           );
         } else {
-          showError('لم يتم السماح بتسجيل الصوت');
+          showErrorSnackBar(context, 'لم يتم السماح بتسجيل الصوت');
         }
         return;
       }
@@ -338,7 +339,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
       }
 
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (e) {
       recordingTimer?.cancel();
 
@@ -349,7 +350,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
       }
 
-      showError('تعذر تسجيل الصوت: $e');
+      showErrorSnackBar(context, 'تعذر تسجيل الصوت: $e');
     }
   }
 
@@ -365,17 +366,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         );
       }
     });
-  }
-
-  void showError(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   void showInfo(String message) {
@@ -422,9 +412,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo('تم حظر هذا المستخدم');
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تنفيذ الحظر، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر تنفيذ الحظر، حاول مرة أخرى');
     }
   }
 
@@ -434,9 +424,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo('تم إلغاء الحظر');
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إلغاء الحظر، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر إلغاء الحظر، حاول مرة أخرى');
     }
   }
 
@@ -455,9 +445,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(message);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال البلاغ، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر إرسال البلاغ، حاول مرة أخرى');
     }
   }
 
@@ -476,9 +466,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(message);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال البلاغ، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر إرسال البلاغ، حاول مرة أخرى');
     }
   }
 

@@ -72,21 +72,10 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
         showSuccessSnackBar(context, 'تم اعتماد شحن الرصيد بنجاح');
       }
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر مراجعة الطلب');
+      showErrorSnackBar(context, 'تعذر مراجعة الطلب');
     }
-  }
-
-  void showError(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

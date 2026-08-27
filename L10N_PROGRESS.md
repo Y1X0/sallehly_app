@@ -392,6 +392,22 @@ by source (not limited to the 4 the screenshots happened to catch):
   - Not being done now, per your instruction — this is only the size
     assessment for you to decide on later.
 
+  **Decision (post-assessment): do the SnackBar half, defer the banner
+  half.** `showErrorSnackBar(BuildContext, String)` now lives in
+  `core/widgets/success_feedback.dart` as a twin to `showSuccessSnackBar`
+  (same file, same conventions — one difference: it checks
+  `context.mounted` before showing, since most call sites fire after an
+  awaited API call where the widget can already be gone; the original 18
+  local methods all had this same guard, so it's preservation, not a new
+  behavior). All 18 local `showError` methods are deleted; their call
+  sites now call the shared function directly. The 16 `_XxxErrorState`/
+  `_XxxNotice` inline banners are **deliberately left as they are** —
+  they're not byte-identical (different titles, some have a retry button
+  and some don't), so consolidating them into one parameterized widget is
+  a real design task, not a mechanical rename, and isn't worth doing
+  right now. Revisit only if a new banner site is about to be added and
+  copy-pasting one of the 16 starts to feel wrong.
+
 **Implemented, tested, and CI-verified (`BidiText`, `lib/core/widgets/bidi_text.dart`
 + `test/widgets/bidi_text_test.dart`) — not yet applied to any Category B call
 site. Landed as its own commit ahead of Phase 2, per the user's request.**

@@ -12,6 +12,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../routes/route_guard.dart';
 import 'forgot_password_screen.dart';
 import 'register_role_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -64,19 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
         (route) => false,
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('حدث خطأ أثناء تسجيل الدخول');
+      showErrorSnackBar(context, 'حدث خطأ أثناء تسجيل الدخول');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

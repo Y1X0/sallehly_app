@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../models/package_model.dart';
 import '../provider/wallet_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class TopupRequestScreen extends StatefulWidget {
   final PackageModel package;
@@ -42,7 +43,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
 
   Future<void> submit() async {
     if (receiptPath == null || receiptPath!.isEmpty) {
-      showError('ارفع صورة إثبات الدفع أولاً');
+      showErrorSnackBar(context, 'ارفع صورة إثبات الدفع أولاً');
       return;
     }
 
@@ -65,21 +66,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال طلب الشحن');
+      showErrorSnackBar(context, 'تعذر إرسال طلب الشحن');
     }
-  }
-
-  void showError(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

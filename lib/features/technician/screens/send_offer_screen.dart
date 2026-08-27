@@ -8,6 +8,7 @@ import '../../../models/request_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import '../../wallet/screens/packages_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class SendOfferScreen extends StatefulWidget {
   final RequestModel request;
@@ -66,20 +67,11 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       if (e.code == 'INSUFFICIENT_BALANCE') {
         showInsufficientBalanceDialog(e.message);
       } else {
-        showError(e.message);
+        showErrorSnackBar(context, e.message);
       }
     } catch (_) {
-      showError('تعذر إرسال العرض');
+      showErrorSnackBar(context, 'تعذر إرسال العرض');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   Future<void> showInsufficientBalanceDialog(String message) async {

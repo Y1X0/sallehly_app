@@ -7,6 +7,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -52,19 +53,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       Navigator.pop(context);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تغيير كلمة المرور');
+      showErrorSnackBar(context, 'تعذر تغيير كلمة المرور');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

@@ -5,6 +5,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../requests/provider/requests_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 /// نافذة منبثقة لتقديم شكوى على طلب (تذهب لإدارة المنصّة).
 /// تُعيد true إذا تم الإرسال بنجاح.
@@ -53,16 +54,10 @@ class _ComplaintSheetState extends State<ComplaintSheet> {
 
       Navigator.pop(context, true);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الشكوى');
+      showErrorSnackBar(context, 'تعذر إرسال الشكوى');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../provider/admin_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class AdminMetaScreen extends StatefulWidget {
   const AdminMetaScreen({super.key});
@@ -59,7 +60,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         icon: icon.text,
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     }
   }
 
@@ -122,9 +123,9 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         const SnackBar(content: Text('تم تحديث المهنة بنجاح')),
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تعديل المهنة');
+      showErrorSnackBar(context, 'تعذر تعديل المهنة');
     }
   }
 
@@ -188,7 +189,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         );
       }
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     }
   }
 
@@ -226,17 +227,10 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         const SnackBar(content: Text('تم الحذف بنجاح')),
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر الحذف');
+      showErrorSnackBar(context, 'تعذر الحذف');
     }
-  }
-
-  void showError(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override

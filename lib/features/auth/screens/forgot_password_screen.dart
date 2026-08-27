@@ -8,6 +8,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../providers/auth_provider.dart';
 import 'login_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -52,9 +53,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         step = 2;
       });
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الكود، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر إرسال الكود، حاول مرة أخرى');
     }
   }
 
@@ -80,19 +81,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         (_) => false,
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تغيير كلمة السر، حاول مرة أخرى');
+      showErrorSnackBar(context, 'تعذر تغيير كلمة السر، حاول مرة أخرى');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   void showInfo(String message) {

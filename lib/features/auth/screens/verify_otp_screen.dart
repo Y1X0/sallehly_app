@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routes/route_guard.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   final String email;
@@ -58,19 +59,10 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         (_) => false,
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر التحقق من الكود');
+      showErrorSnackBar(context, 'تعذر التحقق من الكود');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

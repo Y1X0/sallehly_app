@@ -10,6 +10,7 @@ import '../../../models/support_ticket_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/socket_provider.dart';
 import '../../support/provider/support_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 /// شاشة محادثة الدعم من جهة الأدمن: يقرأ رسائل التذكرة ويرد على
 /// الفني/العميل مباشرة، ويمكنه إغلاق التذكرة.
@@ -97,16 +98,10 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) => scrollToBottom());
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الرسالة');
+      showErrorSnackBar(context, 'تعذر إرسال الرسالة');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override

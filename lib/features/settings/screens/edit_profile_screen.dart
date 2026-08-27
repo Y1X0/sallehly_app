@@ -14,6 +14,7 @@ import '../../../core/widgets/services_multi_select.dart';
 import '../../../models/service_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -91,11 +92,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     // [FIX-TECH-SERVICES-01] نفس تحقق شاشة التسجيل (1 إلى 5 خدمات).
     if (isTechnician && selectedServices.isEmpty) {
-      showError('اختر خدمة واحدة على الأقل');
+      showErrorSnackBar(context, 'اختر خدمة واحدة على الأقل');
       return;
     }
     if (isTechnician && selectedServices.length > 5) {
-      showError('الحد الأقصى 5 خدمات');
+      showErrorSnackBar(context, 'الحد الأقصى 5 خدمات');
       return;
     }
 
@@ -119,19 +120,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       Navigator.pop(context);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تحديث البيانات');
+      showErrorSnackBar(context, 'تعذر تحديث البيانات');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

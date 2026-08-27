@@ -11,6 +11,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/notification_provider.dart';
 import '../../../providers/socket_provider.dart';
 import '../provider/support_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class SupportChatScreen extends StatefulWidget {
   final SupportTicketModel ticket;
@@ -118,16 +119,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) => scrollToBottom());
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر إرسال الرسالة');
+      showErrorSnackBar(context, 'تعذر إرسال الرسالة');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
   }
 
   @override

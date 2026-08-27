@@ -13,6 +13,7 @@ import '../../../core/widgets/services_multi_select.dart';
 import '../../../providers/auth_provider.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'verify_otp_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class TechnicianRegisterScreen extends StatefulWidget {
   const TechnicianRegisterScreen({super.key});
@@ -83,23 +84,23 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
     if (!formKey.currentState!.validate()) return;
 
     if (avatarPath == null || avatarPath!.isEmpty) {
-      showError('مطلوب صورة شخصية للفني');
+      showErrorSnackBar(context, 'مطلوب صورة شخصية للفني');
       return;
     }
 
     // [FIX-TECH-SERVICES-01] تحقق صريح من عدد الخدمات المختارة (1 إلى 5) قبل
     // الإرسال — نفس الحد المفروض بصريًا بودجت ServicesMultiSelect نفسها.
     if (selectedServices.isEmpty) {
-      showError('اختر خدمة واحدة على الأقل');
+      showErrorSnackBar(context, 'اختر خدمة واحدة على الأقل');
       return;
     }
     if (selectedServices.length > 5) {
-      showError('الحد الأقصى 5 خدمات');
+      showErrorSnackBar(context, 'الحد الأقصى 5 خدمات');
       return;
     }
 
     if (!consentGiven) {
-      showError('يجب الموافقة على سياسة الخصوصية أولاً');
+      showErrorSnackBar(context, 'يجب الموافقة على سياسة الخصوصية أولاً');
       return;
     }
 
@@ -136,19 +137,10 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
         ),
       );
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('حدث خطأ أثناء إنشاء الحساب');
+      showErrorSnackBar(context, 'حدث خطأ أثناء إنشاء الحساب');
     }
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override

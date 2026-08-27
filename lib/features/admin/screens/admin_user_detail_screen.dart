@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/admin_provider.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 /// [FIX-ADMINPROFILE-01] بروفايل مستخدم كامل — التاريخ الحقيقي بمكان واحد
 /// (طلبات، عروض، دفتر حساب، مخالفات) بدل شاشة القائمة المختصرة فقط.
@@ -38,13 +39,6 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
     super.dispose();
   }
 
-  void showError(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: AppColors.danger, content: Text(message)),
-    );
-  }
-
   void showSuccess(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -55,9 +49,9 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       await context.read<AdminProvider>().verifyTechnician(widget.userId);
       showSuccess('تم توثيق الفني');
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر توثيق الفني');
+      showErrorSnackBar(context, 'تعذر توثيق الفني');
     }
   }
 
@@ -128,9 +122,9 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
           );
       showSuccess('تم تحويل الدور بنجاح');
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تحويل الدور');
+      showErrorSnackBar(context, 'تعذر تحويل الدور');
     }
   }
 

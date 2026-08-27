@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../models/admin_user_model.dart';
 import '../provider/admin_provider.dart';
 import 'admin_user_detail_screen.dart';
+import '../../../core/widgets/success_feedback.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -52,9 +53,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       try {
         await context.read<AdminProvider>().toggleUser(user.id);
       } on ApiException catch (e) {
-        showError(e.message);
+        showErrorSnackBar(context, e.message);
       } catch (_) {
-        showError('تعذر تحديث الحساب');
+        showErrorSnackBar(context, 'تعذر تحديث الحساب');
       }
       return;
     }
@@ -97,9 +98,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     try {
       await context.read<AdminProvider>().toggleUser(user.id, reason: reasonController.text);
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تحديث الحساب');
+      showErrorSnackBar(context, 'تعذر تحديث الحساب');
     }
   }
 
@@ -155,9 +156,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تعديل البيانات');
+      showErrorSnackBar(context, 'تعذر تعديل البيانات');
     }
   }
 
@@ -241,7 +242,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     if (saved != true || !mounted) return;
     final raw = double.tryParse(amountController.text.trim());
     if (raw == null || raw <= 0) {
-      showError('أدخل مبلغاً صحيحاً');
+      showErrorSnackBar(context, 'أدخل مبلغاً صحيحاً');
       return;
     }
     final amount = isAdd ? raw : -raw;
@@ -257,9 +258,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر تعديل الرصيد');
+      showErrorSnackBar(context, 'تعذر تعديل الرصيد');
     }
   }
 
@@ -300,21 +301,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
-      showError(e.message);
+      showErrorSnackBar(context, e.message);
     } catch (_) {
-      showError('تعذر حذف المستخدم');
+      showErrorSnackBar(context, 'تعذر حذف المستخدم');
     }
-  }
-
-  void showError(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: AppColors.danger,
-        content: Text(message),
-      ),
-    );
   }
 
   @override
