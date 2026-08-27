@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
 
 /// أداة موحّدة لاختيار صورة: تعرض خيارَي الكاميرا والمعرض،
@@ -21,6 +22,7 @@ class ImageSourcePicker {
     int imageQuality = 82,
     double maxWidth = 1400,
   }) async {
+    final t = AppLocalizations.of(context)!;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: AppColors.surface,
@@ -44,7 +46,7 @@ class ImageSourcePicker {
                   ),
                 ),
                 Text(
-                  'إضافة صورة',
+                  t.addPhotoTitle,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 17,
@@ -57,7 +59,7 @@ class ImageSourcePicker {
                     Expanded(
                       child: _SourceOption(
                         icon: Icons.camera_alt_rounded,
-                        label: 'الكاميرا',
+                        label: t.cameraOptionLabel,
                         onTap: () =>
                             Navigator.pop(ctx, ImageSource.camera),
                       ),
@@ -66,7 +68,7 @@ class ImageSourcePicker {
                     Expanded(
                       child: _SourceOption(
                         icon: Icons.photo_library_rounded,
-                        label: 'المعرض',
+                        label: t.galleryOptionLabel,
                         onTap: () =>
                             Navigator.pop(ctx, ImageSource.gallery),
                       ),
@@ -136,13 +138,12 @@ class ImageSourcePicker {
   }
 
   static void _showGenericError(BuildContext context, bool isCamera) {
+    final t = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.danger,
         content: Text(
-          isCamera
-              ? 'تعذر الوصول إلى الكاميرا.'
-              : 'تعذر الوصول إلى معرض الصور.',
+          isCamera ? t.cameraAccessFailedMessage : t.galleryAccessFailedMessage,
         ),
       ),
     );
@@ -152,6 +153,7 @@ class ImageSourcePicker {
     BuildContext context,
     bool isCamera,
   ) async {
+    final t = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -162,31 +164,25 @@ class ImageSourcePicker {
           size: 32,
         ),
         title: Text(
-          isCamera ? 'صلاحية الكاميرا مرفوضة' : 'صلاحية معرض الصور مرفوضة',
+          isCamera ? t.cameraPermissionDeniedTitle : t.galleryPermissionDeniedTitle,
           textAlign: TextAlign.center,
         ),
         content: Text(
-          isCamera
-              ? 'رفضت صلاحية الكاميرا بشكل دائم، ولا يمكن للتطبيق طلبها '
-                  'مجدداً. لالتقاط صورة، فعّل صلاحية الكاميرا يدوياً من '
-                  'إعدادات التطبيق.'
-              : 'رفضت صلاحية الوصول لمعرض الصور بشكل دائم، ولا يمكن للتطبيق '
-                  'طلبها مجدداً. لإرفاق صورة، فعّل الصلاحية يدوياً من '
-                  'إعدادات التطبيق.',
+          isCamera ? t.cameraPermissionDeniedMessage : t.galleryPermissionDeniedMessage,
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary, height: 1.6),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إلغاء'),
+            child: Text(t.cancelButton),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
               await openAppSettings();
             },
-            child: const Text('فتح إعدادات التطبيق'),
+            child: Text(t.openAppSettingsButton),
           ),
         ],
       ),

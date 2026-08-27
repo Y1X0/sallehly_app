@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/currency_format.dart';
 import '../../../core/widgets/success_feedback.dart';
+import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
 
 class AdminTopupsScreen extends StatefulWidget {
@@ -28,28 +30,29 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
     required int id,
     required String status,
   }) async {
+    final t = AppLocalizations.of(context)!;
     final controller = TextEditingController();
 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: Text(status == 'approved' ? 'موافقة على الشحن' : 'رفض الشحن'),
+          title: Text(status == 'approved' ? t.approveTopupDialogTitle : t.rejectTopupDialogTitle),
           content: TextField(
             controller: controller,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'ملاحظة اختيارية',
+            decoration: InputDecoration(
+              labelText: t.optionalNoteLabel,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('إلغاء'),
+              child: Text(t.cancelButton),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('تأكيد'),
+              child: Text(t.confirmButton),
             ),
           ],
         );
@@ -69,17 +72,18 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
       if (!mounted) return;
 
       if (status == 'approved') {
-        showSuccessSnackBar(context, 'تم اعتماد شحن الرصيد بنجاح');
+        showSuccessSnackBar(context, t.topupApprovedMessage);
       }
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر مراجعة الطلب');
+      showErrorSnackBar(context, t.reviewFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final admin = context.watch<AdminProvider>();
 
     // [FIX-DUPLICATE-APPBAR-01] نفس السبب الموثّق بـ admin_dashboard_screen.dart
@@ -113,7 +117,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              'تعذّر تحميل طلبات الشحن',
+              t.adminTopupsLoadFailedTitle,
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
             ),
@@ -128,7 +132,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
               child: TextButton.icon(
                 onPressed: admin.loadTopups,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('إعادة المحاولة'),
+                label: Text(t.retryButton),
                 style: TextButton.styleFrom(foregroundColor: AppColors.primary),
               ),
             ),
@@ -156,7 +160,7 @@ class _AdminTopupsScreenState extends State<AdminTopupsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'لا توجد طلبات شحن',
+              t.adminTopupsEmptyTitle,
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 18),
             ),
@@ -202,6 +206,7 @@ class _TopupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final amount = double.tryParse('${topup['amount'] ?? 0}') ?? 0;
     final bonus = double.tryParse('${topup['bonus'] ?? 0}') ?? 0;
     final status = '${topup['status'] ?? ''}';
@@ -213,10 +218,10 @@ class _TopupCard extends StatelessWidget {
         : AppColors.primary;
 
     final label = status == 'approved'
-        ? 'مقبول'
+        ? t.topupStatusApprovedLabel
         : status == 'rejected'
-        ? 'مرفوض'
-        : 'قيد المراجعة';
+        ? t.topupStatusRejectedLabel
+        : t.topupStatusPendingLabel;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -234,7 +239,7 @@ class _TopupCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${topup['technician_name'] ?? 'فني'}',
+                  '${topup['technician_name'] ?? t.technicianFallbackName}',
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
@@ -261,7 +266,7 @@ class _TopupCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            '${topup['package_name'] ?? 'باقة'} • ${(amount + bonus).toStringAsFixed(2)} د.أ',
+            '${topup['package_name'] ?? t.packageFallbackName} • ${formatJod(context, amount + bonus)}',
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -272,7 +277,7 @@ class _TopupCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: loading ? null : onApprove,
                     icon: const Icon(Icons.check_rounded),
-                    label: const Text('موافقة'),
+                    label: Text(t.approveButton),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -280,7 +285,7 @@ class _TopupCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: loading ? null : onReject,
                     icon: const Icon(Icons.close_rounded),
-                    label: const Text('رفض'),
+                    label: Text(t.rejectButton),
                   ),
                 ),
               ],

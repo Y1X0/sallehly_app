@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/package_model.dart';
 import '../provider/wallet_provider.dart';
 import '../../../core/widgets/success_feedback.dart';
@@ -42,8 +44,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
   }
 
   Future<void> submit() async {
+    final t = AppLocalizations.of(context)!;
+
     if (receiptPath == null || receiptPath!.isEmpty) {
-      showErrorSnackBar(context, 'ارفع صورة إثبات الدفع أولاً');
+      showErrorSnackBar(context, t.uploadReceiptFirstMessage);
       return;
     }
 
@@ -58,8 +62,8 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم إرسال طلب الشحن بنجاح، بانتظار مراجعة الإدارة'),
+        SnackBar(
+          content: Text(t.topupRequestSuccessMessage),
         ),
       );
 
@@ -68,20 +72,21 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, 'تعذر إرسال طلب الشحن');
+      showErrorSnackBar(context, t.topupRequestFailedMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final wallet = context.watch<WalletProvider>();
     final method = wallet.firstPaymentMethod;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'طلب شحن رصيد',
+        title: Text(
+          t.topupRequestTitle,
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -106,7 +111,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'معلومات التحويل',
+                    t.transferInfoTitle,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
@@ -114,10 +119,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  _InfoLine(title: 'البنك', value: method.bankName),
-                  _InfoLine(title: 'اسم الحساب', value: method.accountName),
-                  _InfoLine(title: 'رقم الحساب', value: method.accountNumber),
-                  _InfoLine(title: 'هاتف', value: method.phone),
+                  _InfoLine(title: t.bankLabel, value: method.bankName),
+                  _InfoLine(title: t.accountNameLabel, value: method.accountName),
+                  _InfoLine(title: t.accountNumberLabel, value: method.accountNumber),
+                  _InfoLine(title: t.phoneInfoLabel, value: method.phone),
                   if (method.instructions != null &&
                       method.instructions!.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -165,7 +170,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'ارفع صورة إثبات الدفع',
+                      t.uploadReceiptTitle,
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
@@ -173,7 +178,7 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'صورة الوصل مطلوبة لمراجعة طلب الشحن',
+                      t.uploadReceiptSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.textSecondary,
@@ -201,9 +206,9 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
             onPressed: wallet.submitting ? null : submit,
             child: wallet.submitting
                 ? const CircularProgressIndicator(color: Colors.white)
-                : const Text(
-              'إرسال طلب الشحن',
-              style: TextStyle(
+                : Text(
+              t.submitTopupButton,
+              style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 16,
               ),
@@ -224,6 +229,7 @@ class _SelectedPackageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -249,19 +255,19 @@ class _SelectedPackageCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'قيمة الدفع: ${package.amount.toStringAsFixed(2)} د.أ',
+            t.paymentAmountLabel(formatJod(context, package.amount)),
             style: const TextStyle(color: Colors.white),
           ),
           if (package.bonus > 0) ...[
             const SizedBox(height: 5),
             Text(
-              'بونص: ${package.bonus.toStringAsFixed(2)} د.أ',
+              t.bonusAmountLabel(formatJod(context, package.bonus)),
               style: const TextStyle(color: Colors.white),
             ),
           ],
           const SizedBox(height: 8),
           Text(
-            'الرصيد بعد الموافقة: ${package.total.toStringAsFixed(2)} د.أ',
+            t.balanceAfterApprovalLabel(formatJod(context, package.total)),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w900,

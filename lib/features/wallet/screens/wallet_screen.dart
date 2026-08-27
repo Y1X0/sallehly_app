@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/fade_in.dart';
+import '../../../core/utils/currency_format.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../provider/wallet_provider.dart';
 import '../widgets/topup_card.dart';
@@ -30,6 +32,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final wallet = context.watch<WalletProvider>();
     final user = context.watch<AuthProvider>().user;
     final topups = wallet.topups.take(3).toList();
@@ -37,8 +40,8 @@ class _WalletScreenState extends State<WalletScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'المحفظة',
+        title: Text(
+          t.walletScreenTitle,
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
@@ -64,8 +67,8 @@ class _WalletScreenState extends State<WalletScreen> {
                       Expanded(
                         child: FadeIn(
                           child: _ActionCard(
-                            title: 'شحن الرصيد',
-                            subtitle: 'اختر باقة وارفع الوصل',
+                            title: t.walletTopupActionTitle,
+                            subtitle: t.walletTopupActionSubtitle,
                             icon: Icons.add_card_rounded,
                             onTap: () {
                               Navigator.push(
@@ -83,8 +86,8 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: FadeIn(
                           delay: const Duration(milliseconds: 60),
                           child: _ActionCard(
-                            title: 'سجل العمليات',
-                            subtitle: 'كل حركات الرصيد',
+                            title: t.ledgerTitle,
+                            subtitle: t.walletLedgerActionSubtitle,
                             icon: Icons.receipt_long_rounded,
                             onTap: () {
                               Navigator.push(
@@ -101,7 +104,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'آخر طلبات الشحن',
+                    t.walletRecentTopupsTitle,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 20,
@@ -154,6 +157,7 @@ class _BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -176,16 +180,16 @@ class _BalanceCard extends StatelessWidget {
             size: 40,
           ),
           const SizedBox(height: 18),
-          const Text(
-            'رصيدك الحالي',
-            style: TextStyle(
+          Text(
+            t.walletCurrentBalanceLabel,
+            style: const TextStyle(
               color: Colors.white70,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            '${balance.toStringAsFixed(2)} د.أ',
+            formatJod(context, balance),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 36,
@@ -195,8 +199,8 @@ class _BalanceCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             pendingCount > 0
-                ? 'لديك $pendingCount طلب شحن قيد المراجعة'
-                : 'يمكنك تقديم العروض حسب رصيدك وحالة فرصك المجانية',
+                ? t.walletPendingTopupsCount(pendingCount)
+                : t.walletNoPendingTopupsMessage,
             style: const TextStyle(
               color: Colors.white,
               height: 1.5,
@@ -287,6 +291,7 @@ class _WalletErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -303,7 +308,7 @@ class _WalletErrorState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'تعذّر تحميل المحفظة',
+            t.walletLoadFailedTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
@@ -322,7 +327,7 @@ class _WalletErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(t.retryButton),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.primary,
             ),
@@ -338,6 +343,7 @@ class _EmptyWalletState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -354,7 +360,7 @@ class _EmptyWalletState extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'لا توجد طلبات شحن بعد',
+            t.walletEmptyTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
@@ -362,7 +368,7 @@ class _EmptyWalletState extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'ابدأ باختيار باقة ورفع صورة إثبات الدفع.',
+            t.walletEmptySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textSecondary,

@@ -933,5 +933,276 @@
   "technicianOrdersEmptySubtitle": "عندما يقبل العميل عرضك سيظهر الطلب هنا لتتابع التنفيذ والدردشة.",
   "@technicianOrdersEmptySubtitle": {
     "description": "نص فرعي بالحالة الفارغة لطلبات الفني المقبولة"
+  },
+  "addPhotoTitle": "إضافة صورة",
+  "@addPhotoTitle": {
+    "description": "عنوان ورقة اختيار مصدر الصورة (كاميرا/معرض)"
+  },
+  "cameraOptionLabel": "الكاميرا",
+  "@cameraOptionLabel": {
+    "description": "خيار التقاط صورة بالكاميرا"
+  },
+  "galleryOptionLabel": "المعرض",
+  "@galleryOptionLabel": {
+    "description": "خيار اختيار صورة من معرض الصور"
+  },
+  "cameraAccessFailedMessage": "تعذر الوصول إلى الكاميرا.",
+  "@cameraAccessFailedMessage": {
+    "description": "رسالة خطأ عند تعذّر الوصول إلى الكاميرا"
+  },
+  "galleryAccessFailedMessage": "تعذر الوصول إلى معرض الصور.",
+  "@galleryAccessFailedMessage": {
+    "description": "رسالة خطأ عند تعذّر الوصول إلى معرض الصور"
+  },
+  "cameraPermissionDeniedTitle": "صلاحية الكاميرا مرفوضة",
+  "@cameraPermissionDeniedTitle": {
+    "description": "عنوان نافذة رفض صلاحية الكاميرا بشكل دائم"
+  },
+  "galleryPermissionDeniedTitle": "صلاحية معرض الصور مرفوضة",
+  "@galleryPermissionDeniedTitle": {
+    "description": "عنوان نافذة رفض صلاحية معرض الصور بشكل دائم"
+  },
+  "cameraPermissionDeniedMessage": "رفضت صلاحية الكاميرا بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لالتقاط صورة، فعّل صلاحية الكاميرا يدوياً من إعدادات التطبيق.",
+  "@cameraPermissionDeniedMessage": {
+    "description": "نص نافذة رفض صلاحية الكاميرا بشكل دائم، مع توجيه لإعدادات التطبيق"
+  },
+  "galleryPermissionDeniedMessage": "رفضت صلاحية الوصول لمعرض الصور بشكل دائم، ولا يمكن للتطبيق طلبها مجدداً. لإرفاق صورة، فعّل الصلاحية يدوياً من إعدادات التطبيق.",
+  "@galleryPermissionDeniedMessage": {
+    "description": "نص نافذة رفض صلاحية معرض الصور بشكل دائم، مع توجيه لإعدادات التطبيق"
+  },
+  "openAppSettingsButton": "فتح إعدادات التطبيق",
+  "@openAppSettingsButton": {
+    "description": "زر فتح إعدادات النظام للتطبيق"
+  },
+  "rating1StarHint": "سيئ",
+  "@rating1StarHint": {
+    "description": "وصف تقييم نجمة واحدة"
+  },
+  "rating2StarsHint": "مقبول",
+  "@rating2StarsHint": {
+    "description": "وصف تقييم نجمتين"
+  },
+  "rating3StarsHint": "جيد",
+  "@rating3StarsHint": {
+    "description": "وصف تقييم 3 نجوم"
+  },
+  "rating4StarsHint": "جيد جداً",
+  "@rating4StarsHint": {
+    "description": "وصف تقييم 4 نجوم"
+  },
+  "rating5StarsHint": "ممتاز",
+  "@rating5StarsHint": {
+    "description": "وصف تقييم 5 نجوم"
+  },
+  "tapStarsToRateHint": "اضغط على النجوم للتقييم",
+  "@tapStarsToRateHint": {
+    "description": "نص إرشادي قبل اختيار أي نجمة"
+  },
+  "selectStarsFirstMessage": "اختر عدد النجوم أولاً",
+  "@selectStarsFirstMessage": {
+    "description": "رسالة تحذير عند محاولة إرسال تقييم بلا اختيار نجوم"
+  },
+  "ratingThankYouMessage": "شكراً لتقييمك!",
+  "@ratingThankYouMessage": {
+    "description": "رسالة شكر بعد إرسال التقييم بنجاح"
+  },
+  "ratingSubmitFailedMessage": "تعذر إرسال التقييم",
+  "@ratingSubmitFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال التقييم لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "rateTechnicianTitle": "كيف كانت تجربتك؟",
+  "@rateTechnicianTitle": {
+    "description": "عنوان نافذة تقييم الفني"
+  },
+  "rateTechnicianNamedSubtitle": "قيّم الفني {name}",
+  "@rateTechnicianNamedSubtitle": {
+    "description": "نص فرعي عند وجود اسم فني معروف للتقييم",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "rateTechnicianGenericSubtitle": "قيّم الفني الذي خدمك",
+  "@rateTechnicianGenericSubtitle": {
+    "description": "نص فرعي عند عدم وجود اسم فني معروف للتقييم"
+  },
+  "ratingCommentHint": "أضف تعليقاً (اختياري)",
+  "@ratingCommentHint": {
+    "description": "نص تلميحي داخل حقل تعليق التقييم الاختياري"
+  },
+  "submitRatingButton": "إرسال التقييم",
+  "@submitRatingButton": {
+    "description": "زر إرسال التقييم"
+  },
+  "walletScreenTitle": "المحفظة",
+  "@walletScreenTitle": {
+    "description": "عنوان شاشة المحفظة"
+  },
+  "walletTopupActionTitle": "شحن الرصيد",
+  "@walletTopupActionTitle": {
+    "description": "عنوان بطاقة الانتقال لشحن الرصيد"
+  },
+  "walletTopupActionSubtitle": "اختر باقة وارفع الوصل",
+  "@walletTopupActionSubtitle": {
+    "description": "نص فرعي ببطاقة شحن الرصيد"
+  },
+  "walletLedgerActionSubtitle": "كل حركات الرصيد",
+  "@walletLedgerActionSubtitle": {
+    "description": "نص فرعي ببطاقة الانتقال لسجل العمليات (العنوان نفسه يُعاد استخدام ledgerTitle)"
+  },
+  "walletRecentTopupsTitle": "آخر طلبات الشحن",
+  "@walletRecentTopupsTitle": {
+    "description": "عنوان قسم آخر طلبات الشحن بشاشة المحفظة"
+  },
+  "walletCurrentBalanceLabel": "رصيدك الحالي",
+  "@walletCurrentBalanceLabel": {
+    "description": "تسمية بطاقة الرصيد الحالي"
+  },
+  "walletPendingTopupsCount": "{count, plural, one{لديك طلب شحن واحد قيد المراجعة} two{لديك طلبا شحن قيد المراجعة} few{لديك {count} طلبات شحن قيد المراجعة} many{لديك {count} طلب شحن قيد المراجعة} other{لديك {count} طلب شحن قيد المراجعة}}",
+  "@walletPendingTopupsCount": {
+    "description": "نص بطاقة الرصيد عند وجود طلبات شحن قيد المراجعة (count >= 1)",
+    "placeholders": {
+      "count": {"type": "num"}
+    }
+  },
+  "walletNoPendingTopupsMessage": "يمكنك تقديم العروض حسب رصيدك وحالة فرصك المجانية",
+  "@walletNoPendingTopupsMessage": {
+    "description": "نص بطاقة الرصيد عند عدم وجود أي طلب شحن قيد المراجعة"
+  },
+  "walletLoadFailedTitle": "تعذّر تحميل المحفظة",
+  "@walletLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل بيانات المحفظة"
+  },
+  "walletEmptyTitle": "لا توجد طلبات شحن بعد",
+  "@walletEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الشحن"
+  },
+  "walletEmptySubtitle": "ابدأ باختيار باقة ورفع صورة إثبات الدفع.",
+  "@walletEmptySubtitle": {
+    "description": "نص فرعي بالحالة الفارغة لقائمة طلبات الشحن"
+  },
+  "uploadReceiptFirstMessage": "ارفع صورة إثبات الدفع أولاً",
+  "@uploadReceiptFirstMessage": {
+    "description": "رسالة تحذير عند محاولة إرسال طلب شحن بلا رفع صورة إثبات الدفع"
+  },
+  "topupRequestSuccessMessage": "تم إرسال طلب الشحن بنجاح، بانتظار مراجعة الإدارة",
+  "@topupRequestSuccessMessage": {
+    "description": "رسالة تأكيد بعد نجاح إرسال طلب شحن الرصيد"
+  },
+  "topupRequestFailedMessage": "تعذر إرسال طلب الشحن",
+  "@topupRequestFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل إرسال طلب الشحن لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "topupRequestTitle": "طلب شحن رصيد",
+  "@topupRequestTitle": {
+    "description": "عنوان شاشة طلب شحن الرصيد"
+  },
+  "transferInfoTitle": "معلومات التحويل",
+  "@transferInfoTitle": {
+    "description": "عنوان قسم معلومات التحويل البنكي بشاشة طلب الشحن"
+  },
+  "bankLabel": "البنك",
+  "@bankLabel": {
+    "description": "تسمية اسم البنك بمعلومات التحويل"
+  },
+  "accountNameLabel": "اسم الحساب",
+  "@accountNameLabel": {
+    "description": "تسمية اسم صاحب الحساب بمعلومات التحويل"
+  },
+  "accountNumberLabel": "رقم الحساب",
+  "@accountNumberLabel": {
+    "description": "تسمية رقم الحساب بمعلومات التحويل"
+  },
+  "phoneInfoLabel": "هاتف",
+  "@phoneInfoLabel": {
+    "description": "تسمية مختصرة لرقم هاتف بمعلومات التحويل (أقصر من phoneFieldLabel، لعرض معلومات فقط)"
+  },
+  "uploadReceiptTitle": "ارفع صورة إثبات الدفع",
+  "@uploadReceiptTitle": {
+    "description": "عنوان منطقة رفع صورة إثبات الدفع"
+  },
+  "uploadReceiptSubtitle": "صورة الوصل مطلوبة لمراجعة طلب الشحن",
+  "@uploadReceiptSubtitle": {
+    "description": "نص فرعي تحت عنوان رفع صورة إثبات الدفع"
+  },
+  "submitTopupButton": "إرسال طلب الشحن",
+  "@submitTopupButton": {
+    "description": "زر إرسال طلب شحن الرصيد"
+  },
+  "paymentAmountLabel": "قيمة الدفع: {amount}",
+  "@paymentAmountLabel": {
+    "description": "قيمة المبلغ المطلوب دفعه ببطاقة الباقة المختارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "bonusAmountLabel": "بونص: {amount}",
+  "@bonusAmountLabel": {
+    "description": "قيمة البونص الإضافي ببطاقة الباقة المختارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "balanceAfterApprovalLabel": "الرصيد بعد الموافقة: {amount}",
+  "@balanceAfterApprovalLabel": {
+    "description": "الرصيد الإجمالي المتوقّع بعد موافقة الإدارة (amount مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "approveTopupDialogTitle": "موافقة على الشحن",
+  "@approveTopupDialogTitle": {
+    "description": "عنوان نافذة تأكيد الموافقة على طلب شحن"
+  },
+  "rejectTopupDialogTitle": "رفض الشحن",
+  "@rejectTopupDialogTitle": {
+    "description": "عنوان نافذة تأكيد رفض طلب شحن"
+  },
+  "optionalNoteLabel": "ملاحظة اختيارية",
+  "@optionalNoteLabel": {
+    "description": "تسمية حقل ملاحظة اختيارية عند مراجعة طلب شحن"
+  },
+  "confirmButton": "تأكيد",
+  "@confirmButton": {
+    "description": "زر تأكيد عام لنافذة تأكيد"
+  },
+  "topupApprovedMessage": "تم اعتماد شحن الرصيد بنجاح",
+  "@topupApprovedMessage": {
+    "description": "رسالة تأكيد بعد موافقة الأدمن على طلب شحن"
+  },
+  "reviewFailedMessage": "تعذر مراجعة الطلب",
+  "@reviewFailedMessage": {
+    "description": "رسالة خطأ عامة عند فشل مراجعة طلب شحن لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "adminTopupsLoadFailedTitle": "تعذّر تحميل طلبات الشحن",
+  "@adminTopupsLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل طلبات الشحن بلوحة الأدمن"
+  },
+  "adminTopupsEmptyTitle": "لا توجد طلبات شحن",
+  "@adminTopupsEmptyTitle": {
+    "description": "عنوان الحالة الفارغة لقائمة طلبات الشحن بلوحة الأدمن"
+  },
+  "topupStatusApprovedLabel": "مقبول",
+  "@topupStatusApprovedLabel": {
+    "description": "وسم حالة طلب شحن مقبول"
+  },
+  "topupStatusRejectedLabel": "مرفوض",
+  "@topupStatusRejectedLabel": {
+    "description": "وسم حالة طلب شحن مرفوض"
+  },
+  "topupStatusPendingLabel": "قيد المراجعة",
+  "@topupStatusPendingLabel": {
+    "description": "وسم حالة طلب شحن قيد المراجعة"
+  },
+  "packageFallbackName": "باقة",
+  "@packageFallbackName": {
+    "description": "اسم احتياطي لباقة شحن بلا اسم معروف"
+  },
+  "approveButton": "موافقة",
+  "@approveButton": {
+    "description": "زر الموافقة على طلب شحن"
+  },
+  "rejectButton": "رفض",
+  "@rejectButton": {
+    "description": "زر رفض طلب شحن"
   }
 }

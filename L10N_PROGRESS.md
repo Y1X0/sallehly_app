@@ -611,11 +611,13 @@ mirroring due in that same file).
 - [x] 50. `lib/features/technician/screens/technician_orders_screen.dart` — full migration incl. reusable `statAllLabel`/`statActiveLabel`/`statCompletedLabel`; `e.status` comparisons against `'مكتمل'`/`'ملغي'` are RequestModel.status wire values, untouched (Phase 3)
 
 **CI checkpoint**: batches 8+9 (files #36-45, commits `17de5c1`/`94d9804`) confirmed green via `android-build.yml` run #109 — this run also validated the screenshot-harness font fix (`2e9b636`) and the `login_screen_test.dart` Localizations-delegate fix (`b96c80e`) queued just before batch 8. **Note on CI triggering**: `android-build.yml` only runs automatically on push/PR to `main`; on this branch it must be triggered manually per push via `mcp__github__actions_run_trigger` (`method: run_workflow`) — it does not fire on its own from a push to a feature branch with no open PR.
-- [ ] 51. `lib/core/widgets/image_source_picker.dart`
-- [ ] 52. `lib/features/customer/widgets/rate_technician_sheet.dart`
-- [ ] 53. `lib/features/wallet/screens/wallet_screen.dart`
-- [ ] 54. `lib/features/wallet/screens/topup_request_screen.dart`
-- [ ] 55. `lib/features/admin/screens/admin_topups_screen.dart`
+- [x] 51. `lib/core/widgets/image_source_picker.dart` — full migration (bottom sheet + permission-denied dialogs), reused `cancelButton`
+- [x] 52. `lib/features/customer/widgets/rate_technician_sheet.dart` — full migration incl. 5 star-rating hint strings and named/generic subtitle split
+- [x] 53. `lib/features/wallet/screens/wallet_screen.dart` — full migration incl. real ICU plural (`walletPendingTopupsCount`) and `formatJod` for the balance display; reused `ledgerTitle`; `wallet.error!` deferred (WalletProvider)
+- [x] 54. `lib/features/wallet/screens/topup_request_screen.dart` — full migration incl. `formatJod` at 3 currency sites; backend payment-method fields (bank/account/instructions) correctly left untouched
+- [x] 55. `lib/features/admin/screens/admin_topups_screen.dart` — full migration incl. `formatJod`; reused `technicianFallbackName`/`retryButton`/`cancelButton`; new generic `confirmButton`; `status` string literals ('approved'/'rejected'/'pending') are internal API params, not Arabic wire values — left untouched as ordinary code, not a Phase 3 concern
+
+**CI checkpoint**: batches 10+11 (files #46-55, commits `ee7af8b` + this session's batch-11 commit) — CI triggered per the standing per-push manual-trigger requirement (see note above batch 9's checkpoint).
 - [ ] 56. `lib/features/customer/screens/customer_request_details_screen.dart`
 - [ ] 57. `lib/features/auth/screens/customer_register_screen.dart`
 - [ ] 58. `lib/features/chat/screens/chats_screen.dart` (also §3 forward-chevron)

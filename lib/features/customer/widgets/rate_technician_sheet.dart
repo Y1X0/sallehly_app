@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../requests/provider/requests_provider.dart';
 
 /// نافذة منبثقة لتقييم الفني بعد إكمال الطلب (1–5 نجوم + تعليق اختياري).
@@ -33,28 +34,31 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
   }
 
   String get _hintForStars {
+    final t = AppLocalizations.of(context)!;
     switch (stars) {
       case 1:
-        return 'سيئ';
+        return t.rating1StarHint;
       case 2:
-        return 'مقبول';
+        return t.rating2StarsHint;
       case 3:
-        return 'جيد';
+        return t.rating3StarsHint;
       case 4:
-        return 'جيد جداً';
+        return t.rating4StarsHint;
       case 5:
-        return 'ممتاز';
+        return t.rating5StarsHint;
       default:
-        return 'اضغط على النجوم للتقييم';
+        return t.tapStarsToRateHint;
     }
   }
 
   Future<void> submit() async {
+    final t = AppLocalizations.of(context)!;
+
     if (stars == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.warning,
-          content: Text('اختر عدد النجوم أولاً'),
+          content: Text(t.selectStarsFirstMessage),
         ),
       );
       return;
@@ -72,7 +76,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('شكراً لتقييمك!')),
+        SnackBar(content: Text(t.ratingThankYouMessage)),
       );
       Navigator.pop(context, true);
     } on ApiException catch (e) {
@@ -85,7 +89,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.danger,
-          content: Text('تعذر إرسال التقييم'),
+          content: Text(t.ratingSubmitFailedMessage),
         ),
       );
     }
@@ -93,6 +97,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final loading = context.watch<RequestsProvider>().loading;
 
     return Padding(
@@ -115,7 +120,7 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
           ),
           const SizedBox(height: 22),
           Text(
-            'كيف كانت تجربتك؟',
+            t.rateTechnicianTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 21,
@@ -125,8 +130,8 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
           const SizedBox(height: 6),
           Text(
             widget.technicianName != null
-                ? 'قيّم الفني ${widget.technicianName}'
-                : 'قيّم الفني الذي خدمك',
+                ? t.rateTechnicianNamedSubtitle(widget.technicianName!)
+                : t.rateTechnicianGenericSubtitle,
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 22),
@@ -168,14 +173,14 @@ class _RateTechnicianSheetState extends State<RateTechnicianSheet> {
             minLines: 2,
             maxLines: 4,
             maxLength: 500,
-            decoration: const InputDecoration(
-              hintText: 'أضف تعليقاً (اختياري)',
+            decoration: InputDecoration(
+              hintText: t.ratingCommentHint,
               alignLabelWithHint: true,
             ),
           ),
           const SizedBox(height: 8),
           GradientButton(
-            label: 'إرسال التقييم',
+            label: t.submitRatingButton,
             icon: Icons.send_rounded,
             loading: loading,
             onPressed: loading ? null : submit,
