@@ -13,6 +13,9 @@ on:
       - 'test/widgets/l10n_screenshot_capture_test.dart'
       - 'test/support/l10n_screen_cases.dart'
 
+permissions:
+  contents: write
+
 jobs:
   screenshots:
     runs-on: ubuntu-latest
