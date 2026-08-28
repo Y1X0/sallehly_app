@@ -346,6 +346,11 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
 
     final t = AppLocalizations.of(context)!;
     final support = context.read<SupportProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md — ScaffoldMessenger.of(context)
+    // كانت تُستدعى خام بعد await بلا أي فحص mounted (الفرق عن نجاح الإرسال
+    // أعلاه، المحمي بـif(!mounted) بالفعل). التقاطه هنا أيضاً، قبل الـawait،
+    // يجعل استخدامه لاحقاً آمناً بغضّ النظر عن حالة تثبيت الودجت وقتها.
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       await support.createTicket(
@@ -357,11 +362,11 @@ class _NewTicketSheetState extends State<_NewTicketSheet> {
       if (!mounted) return;
       Navigator.pop(context, true);
     } on ApiException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(backgroundColor: AppColors.danger, content: Text(e.message)),
       );
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           backgroundColor: AppColors.danger,
           content: Text(t.ticketCreateFailedMessage),

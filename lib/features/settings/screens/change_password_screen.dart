@@ -39,6 +39,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (!formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       await auth.changePassword(
@@ -49,14 +51,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.changePasswordSuccessMessage)),
+        SnackBar(content: Text(t.changePasswordSuccessMessage)),
       );
 
       Navigator.pop(context);
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.changePasswordFailedMessage);
+      showErrorSnackBar(context, t.changePasswordFailedMessage);
     }
   }
 

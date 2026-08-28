@@ -41,6 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       await auth.login(
@@ -68,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.loginGenericErrorMessage);
+      showErrorSnackBar(context, t.loginGenericErrorMessage);
     }
   }
 

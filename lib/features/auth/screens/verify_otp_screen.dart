@@ -35,6 +35,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     if (!formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       final result = await auth.verifyOtp(
@@ -46,7 +48,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.message ?? AppLocalizations.of(context)!.otpAccountActivatedFallback),
+          content: Text(result.message ?? t.otpAccountActivatedFallback),
         ),
       );
 
@@ -62,7 +64,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.otpVerificationFailed);
+      showErrorSnackBar(context, t.otpVerificationFailed);
     }
   }
 
