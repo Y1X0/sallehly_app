@@ -793,3 +793,41 @@ in §4/§9 — those stay exactly as they are.
   All of these still compare against or construct the raw Arabic wire
   value directly — exactly as before, per "don't change what's sent to
   the backend."
+
+---
+
+## 11. Backend branch mix-up (`main` vs `master`) — read this before touching the backend
+
+The `sallehly` (backend) repo has **two unrelated, diverged branches**:
+`main` and `master`. `main` is the repo's default branch on GitHub, but it
+is **not** what's deployed — it's stale, and nothing runs it in
+production. `master` is the branch Render actually deploys; it's modular
+(`app.js` + `server.js` + `routes/*.routes.js` + `middleware/`), while
+`main` is a single monolithic `server.js`. The two have not been merged
+or reconciled — they are simply two different codebases that happen to
+share history further back.
+
+An entire round of backend error-code work (`code` fields added to every
+`res.status(...).json({error:...})` response, ~57 codes) was done against
+`main` before this was caught. That work is real, tested, and merged on
+`main` — but because `main` is never deployed, it shipped nothing. The
+corresponding client-side ARB/resolver work in this repo
+(`api_error_codes.dart`, the `apiError*` ARB keys — `[FIX-ERRCODE-01]`)
+was consequently live but inert: the running backend never sent a `code`
+field, so the resolver never had anything to resolve.
+
+Once caught, the backend work was fully redone against `master`'s actual
+route/middleware files (`sallehly` PR #5, 127 codes across 178 sites —
+see that repo's `DECISIONS.md`, `[FIX-ERRCODE-02]`), and this repo's
+resolver/ARB entries were reconciled against the real list (`[FIX-ERRCODE-02]`
+here too — 34 old entries survived by name, 2 of those with materially
+different text on `master` and not just a rename, 23 dead entries
+removed, 93 new entries added). See `git log` on `api_error_codes.dart`
+and `lib/l10n/app_*.arb` for the reconciliation commit.
+
+**If you're picking up backend work later:** confirm which branch you're
+on and that it's `master`, not `main`, before assuming anything you write
+will actually run. `main`'s default-branch status on GitHub is scheduled
+to be corrected (Settings → Branches), but until/unless that's confirmed
+done, don't rely on the GitHub UI's default branch to tell you which one
+is live.
