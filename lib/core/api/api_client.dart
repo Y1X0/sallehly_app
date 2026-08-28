@@ -24,6 +24,17 @@ class ApiClient {
   /// شبكة/مهلة) — لتنظيف الجلسة مركزياً من مكان واحد بدل كل شاشة على حدة.
   void Function()? onUnauthorized;
 
+  /// [FIX-SESSION-EXPIRY-01] مفتاح Options.extra يسمح لطلب معيّن بتجاوز
+  /// onUnauthorized عند 401 — لموقع/سياقات لا يمثّل فيها 401 بالضرورة "جلسة
+  /// منتهية" (تحقّق فعلياً قبل استخدامه، لا تفترض). راجع
+  /// AuthApi.changePassword()/deleteAccount() للتوثيق الكامل والحالة
+  /// المُتحقَّقة فعلياً من كود الخادم لكل موقع استخدام.
+  static const skipUnauthorizedRedirectKey = 'skipUnauthorizedRedirect';
+
+  /// اختصار لبناء Options تحمل مفتاح التجاوز أعلاه.
+  Options skipUnauthorizedRedirect() =>
+      Options(extra: {skipUnauthorizedRedirectKey: true});
+
   /// [FIX-CONNECTIVITY-01] تُستدعى عند انتهاء مهلة الاتصال بينما الإنترنت
   /// نفسه قد يكون سليماً — الخادم فقط بطيء بالرد (مثلاً استيقاظ خادم Render
   /// المجاني بعد خمول). منفصلة تماماً عن onOffline لتفادي رسالة مضلِّلة.
@@ -80,7 +91,11 @@ class ApiClient {
             // [FIX-AUTH-01] 401 حقيقي من الخادم فقط (رد فعلي وصل، برمز 401) —
             // لا علاقة له بانقطاع الشبكة أو بطء الخادم (تلك تُعالَج بالفروع
             // أدناه). هذا وحده يعني أن الجلسة/التوكن لم يعودا صالحين.
-            if (error.response?.statusCode == 401) {
+            // [FIX-SESSION-EXPIRY-01] استثناء صريح لطلبات معلَّمة بـ
+            // skipUnauthorizedRedirectKey — راجع تعريفها أعلاه لمن يستخدمها ولماذا.
+            final skipRedirect =
+                error.requestOptions.extra[skipUnauthorizedRedirectKey] == true;
+            if (error.response?.statusCode == 401 && !skipRedirect) {
               onUnauthorized?.call();
             }
           } else if (_isTrueOfflineError(error)) {

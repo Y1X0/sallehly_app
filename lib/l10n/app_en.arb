@@ -698,6 +698,7 @@
   "requestStatusAwaitingPaymentConfirmation": "Awaiting Payment Confirmation",
   "requestStatusCompleted": "Completed",
   "requestStatusCancelled": "Cancelled",
+  "sessionExpiredMessage": "Your session has expired. Please log in again.",
   "apiErrorAuthRequired": "Please log in",
   "apiErrorAuthSessionInvalid": "Invalid session",
   "apiErrorAuthAccountSuspended": "This account is suspended",

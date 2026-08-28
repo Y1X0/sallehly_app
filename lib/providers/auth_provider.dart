@@ -31,11 +31,29 @@ class AuthProvider extends ChangeNotifier {
   bool _loading = false;
   String? _error;
 
+  /// [FIX-SESSION-EXPIRY-01] يمنع أكثر من معالجة متزامنة لـhandleUnauthorized()
+  /// — عدّة طلبات API قد تصل لـ401 بنفس اللحظة تقريباً (مثلاً: إرسال توكن FCM
+  /// + إعادة اتصال السوكت + تحميل الإشعارات، كلها قد تكون قيد التنفيذ معاً).
+  /// بدون هذا الحارس، كل واحد منها كان سيمر من فحص isLoggedIn (لا يزال true
+  /// حتى ينتهي أول استدعاء فعلياً من مسح _user) ويستدعي onSessionExpired
+  /// بشكل مستقل — إعادة توجيه/رسالة متكررة لحدث واحد فعلياً. يُصفَّر دائماً
+  /// بـfinally بغض النظر عن النتيجة (نجاح/استثناء)، وأيضاً عند أي نجاح مصادقة
+  /// لاحق (login/verifyOtp/loadMe) كمسار استرداد مستقل — لا يجوز أن يبقى true
+  /// للأبد مهما حدث.
+  bool _handlingSessionExpiry = false;
+
   /// تُستدعى بعد نجاح تسجيل الدخول أو استعادة الجلسة → لإعادة وصل السوكت.
   Future<void> Function()? onAuthenticated;
 
   /// تُستدعى عند تسجيل الخروج → لقطع السوكت.
   void Function()? onLoggedOut;
+
+  /// [FIX-SESSION-EXPIRY-01] تُستدعى فقط من handleUnauthorized() (401 حقيقي
+  /// أثناء جلسة كانت نشطة) — وليس من logout() نفسها، حتى لا يُعاد توجيه
+  /// المستخدم مرتين عند ضغطه زر "تسجيل الخروج" الصريح (تلك الشاشة تتولى
+  /// تنقّلها الخاص أصلاً). المستمع (app.dart) يتولى التنقّل الفعلي وعرض رسالة
+  /// مترجَمة — AuthProvider نفسه يبقى بلا أي استيراد لواجهة/تنقّل.
+  void Function()? onSessionExpired;
 
   UserModel? get user => _user;
   bool get loading => _loading;
@@ -67,6 +85,10 @@ class AuthProvider extends ChangeNotifier {
 
       _user = result.user;
       _error = null;
+      // [FIX-SESSION-EXPIRY-01] مسار استرداد مستقل عن finally بـ
+      // handleUnauthorized() — أي مصادقة ناجحة لاحقة تُصفِّر الحارس بغض
+      // النظر عن حالته السابقة، فلا يمكن أن يبقى عالقاً true للأبد.
+      _handlingSessionExpiry = false;
 
       await _sendFcmTokenToServer();
 
@@ -154,6 +176,10 @@ class AuthProvider extends ChangeNotifier {
 
       _user = result.user;
       _error = null;
+      // [FIX-SESSION-EXPIRY-01] مسار استرداد مستقل عن finally بـ
+      // handleUnauthorized() — أي مصادقة ناجحة لاحقة تُصفِّر الحارس بغض
+      // النظر عن حالته السابقة، فلا يمكن أن يبقى عالقاً true للأبد.
+      _handlingSessionExpiry = false;
 
       await _sendFcmTokenToServer();
 
@@ -253,6 +279,8 @@ class AuthProvider extends ChangeNotifier {
       await appStorage.saveUserName(_user!.name);
 
       _error = null;
+      // [FIX-SESSION-EXPIRY-01] راجع تعليق login() أعلاه — نفس مسار الاسترداد المستقل.
+      _handlingSessionExpiry = false;
 
       await _sendFcmTokenToServer();
 
@@ -287,9 +315,21 @@ class AuthProvider extends ChangeNotifier {
   /// الشرط isLoggedIn ضروري: طلب تسجيل الدخول بكلمة سر خاطئة يرجع 401 أيضاً
   /// وهو أمر طبيعي تماماً وليس "انتهاء جلسة" — فلا يجوز تنظيف أي شيء حينها
   /// (لا يوجد أصلاً جلسة لتنظيفها بهذه الحالة).
+  /// [FIX-SESSION-EXPIRY-01] كانت تكتفي بمسح الجلسة محلياً (logout()) بلا أي
+  /// تنقّل — أي شاشة تعرض بيانات المستخدم (مثلاً الإعدادات) تبقى ظاهرة
+  /// بصمت مع كل حقولها فارغة/احتياطية، بلا أي مؤشر لسبب ذلك. الآن تستدعي
+  /// onSessionExpired بعد logout() لإعادة التوجيه وعرض رسالة مترجَمة —
+  /// محمية بـ_handlingSessionExpiry من التكرار عند وصول أكثر من 401 بنفس
+  /// اللحظة تقريباً (راجع تعليق الحقل أعلاه).
   Future<void> handleUnauthorized() async {
-    if (!isLoggedIn) return;
-    await logout();
+    if (!isLoggedIn || _handlingSessionExpiry) return;
+    _handlingSessionExpiry = true;
+    try {
+      await logout();
+      onSessionExpired?.call();
+    } finally {
+      _handlingSessionExpiry = false;
+    }
   }
 
   Future<void> logout() async {

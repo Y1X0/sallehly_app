@@ -2993,6 +2993,10 @@
   "@requestStatusCancelled": {
     "description": "[L10N-PHASE3] تسمية عرض لحالة الطلب wire value 'ملغي'"
   },
+  "sessionExpiredMessage": "انتهت جلستك، الرجاء تسجيل الدخول مرة أخرى",
+  "@sessionExpiredMessage": {
+    "description": "[FIX-SESSION-EXPIRY-01] رسالة تُعرض عند إعادة توجيه المستخدم لشاشة البداية بعد فقدان الجلسة (401 حقيقي أثناء تصفّح نشط)"
+  },
   "apiErrorAuthRequired": "يرجى تسجيل الدخول",
   "@apiErrorAuthRequired": {
     "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_REQUIRED — راجع server.js"

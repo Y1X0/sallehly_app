@@ -269,6 +269,15 @@ class AuthApi {
           'current_password': currentPassword,
           'new_password': newPassword,
         },
+        // [FIX-SESSION-EXPIRY-01] [VERIFIED 2026-08-28 من server.js]: خطأ
+        // كلمة السر الحالية بهذا المسار يرجع 400 (`{error:'كلمة السر الحالية
+        // غير صحيحة'}`) وليس 401 — الـ401 الوحيد الممكن هنا فعلياً يأتي من
+        // middleware المصادقة نفسه (auth()) قبل وصول الطلب لمنطق هذا المسار
+        // إطلاقاً، وهو انتهاء صلاحية/بطلان توكن حقيقي يستحق إعادة التوجيه.
+        // هذا التجاوز حالياً بلا أثر فعلي (لا يوجد 401 حقيقي ليُستثنى) —
+        // مُبقًى موثَّقاً كضمان دفاعي إن تغيّر منطق الخادم مستقبلاً؛ لا تُحذف
+        // كـ"كود ميت" دون التحقق من server.js مجدداً أولاً.
+        options: apiClient.skipUnauthorizedRedirect(),
       );
     } catch (e) {
       throw apiClient.handleError(e);
@@ -282,6 +291,16 @@ class AuthApi {
       final response = await apiClient.dio.delete(
         ApiEndpoints.me,
         data: {'password': password},
+        // [FIX-SESSION-EXPIRY-01] [VERIFIED 2026-08-28 من server.js]: لا يوجد
+        // أي معالج مسار مسجَّل لـDELETE /api/me بالخادم إطلاقاً حالياً (بحث
+        // شامل بكل app.delete(...) — واحد فقط، لإلغاء طلب صيانة، لا علاقة له
+        // بحذف حساب) — هذا النداء يرجع 404 من معالج Express الافتراضي قبل
+        // الوصول لأي middleware مصادقة، أي خلل منفصل حقيقي (حذف الحساب معطَّل
+        // فعلياً بالإنتاج) غير مُصلَح هنا. مُبقًى هذا التجاوز موثَّقاً ليكون
+        // صحيحاً تلقائياً يوم يُنفَّذ هذا المسار بالخادم — بافتراض اتّباعه نفس
+        // نمط changePassword أعلاه (400 لكلمة سر خاطئة، 401 فقط من auth() لتوكن
+        // فعلياً غير صالح). لا تُحذف كـ"كود ميت" دون التحقق من server.js أولاً.
+        options: apiClient.skipUnauthorizedRedirect(),
       );
       final data = Map<String, dynamic>.from(response.data);
       // [L10N-TODO] احتياطي بلا BuildContext هنا — يُنقَل للودجت المستهلِك عند ترحيله. راجع L10N_PROGRESS.md §9.
