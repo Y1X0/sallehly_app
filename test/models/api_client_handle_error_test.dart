@@ -76,10 +76,19 @@ void main() {
       expect(e.message, 'رصيدك غير كافٍ');
     });
 
-    test('[FIX-OFFERQUOTA-01] data فيها code صريح → يُمرَّر بمعزل عن الرسالة', () {
-      final e = client.handleError(withResponse(402, {'error': 'رصيد غير كافٍ', 'code': 'INSUFFICIENT_BALANCE'}));
+    // [FIX-ERRCODE-02] كان هذا الاختبار يستخدم INSUFFICIENT_BALANCE كمثال على
+    // رمز غير محلول (قبل أن يصبح له params حقيقية على master) — نجاحه كان
+    // مصادفة (params غائبة، فيتراجع للنص الخام) لا ضماناً. الآن أصبح رمزاً
+    // حقيقياً قابلاً للحل، فالاختبار يغطي مساره الفعلي بدل الاعتماد على تراجع
+    // غير مقصود.
+    test('[FIX-OFFERQUOTA-01] data فيها code صريح مع params → يُمرَّر ويُترجَم فعلياً', () {
+      final e = client.handleError(withResponse(402, {
+        'error': 'رصيدك غير كافي. استخدمت أول فرصتين مجاناً، يجب شحن الرصيد قبل تقديم عرض جديد. الحد الأدنى المطلوب 5 د.أ',
+        'code': 'INSUFFICIENT_BALANCE',
+        'params': {'required_balance': 5, 'current_balance': 0, 'free_quota_used': 2},
+      }));
       expect(e.code, 'INSUFFICIENT_BALANCE');
-      expect(e.message, 'رصيد غير كافٍ');
+      expect(e.message, 'رصيدك غير كافي. استخدمت أول فرصتين مجاناً، يجب شحن الرصيد قبل تقديم عرض جديد. الحد الأدنى المطلوب 5 د.أ');
     });
 
     test('data نص عادي قصير (ليس HTML) → يُستخدم كرسالة', () {
