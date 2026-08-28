@@ -697,5 +697,6 @@
   "requestStatusInProgress": "In Progress",
   "requestStatusAwaitingPaymentConfirmation": "Awaiting Payment Confirmation",
   "requestStatusCompleted": "Completed",
-  "requestStatusCancelled": "Cancelled"
+  "requestStatusCancelled": "Cancelled",
+  "sessionExpiredMessage": "Your session has expired. Please log in again."
 }

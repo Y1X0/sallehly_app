@@ -9,6 +9,7 @@ import 'core/storage/token_storage.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'features/admin/provider/admin_provider.dart';
+import 'features/auth/screens/landing_screen.dart';
 import 'features/chat/provider/chat_provider.dart';
 import 'features/requests/provider/requests_provider.dart';
 import 'features/splash/splash_screen.dart';
@@ -21,6 +22,14 @@ import 'providers/locale_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/socket_provider.dart';
 import 'providers/theme_controller.dart';
+
+/// [FIX-SESSION-EXPIRY-01] يسمحان بالتنقّل وعرض رسالة من خارج شجرة الودجت
+/// (من AuthProvider.onSessionExpired، مُستدعاة من طبقة بيانات صرفة بلا أي
+/// BuildContext خاص بها) — النمط القياسي بفلَتّر لهذه الحالة بالضبط. مُعرَّفان
+/// هنا (لا داخل auth_provider.dart) حتى يبقى AuthProvider خالياً من أي
+/// استيراد لواجهة/تنقّل، بنفس نمط بقية hooks الملف (onAuthenticated/onLoggedOut).
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class SallehlyApp extends StatelessWidget {
   const SallehlyApp({super.key});
@@ -233,6 +242,25 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
         // التطبيق بينهما.
         notificationProvider.clear();
       };
+      // [FIX-SESSION-EXPIRY-01] فقط عند 401 حقيقي أثناء جلسة كانت نشطة
+      // (راجع handleUnauthorized()) — وليس عند تسجيل الخروج الصريح من
+      // المستخدم (تلك الشاشة تتولى تنقّلها الخاص أصلاً، فلا يُعاد التوجيه
+      // مرتين). يعيد المستخدم لشاشة البداية (وليس شاشة تسجيل الدخول مباشرة،
+      // حتى يبقى خيار "إنشاء حساب" متاحاً أيضاً — نفس ما تفعله SplashScreen
+      // لمستخدم بلا جلسة) مع رسالة توضّح السبب.
+      authProvider.onSessionExpired = () {
+        final ctx = rootNavigatorKey.currentContext;
+        if (ctx == null) return;
+
+        rootNavigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LandingScreen()),
+          (route) => false,
+        );
+
+        rootScaffoldMessengerKey.currentState?.showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(ctx)!.sessionExpiredMessage)),
+        );
+      };
 
       // [FIX-AUTH-01] عند 401 حقيقي من أي طلب بالتطبيق (توكن منتهي فعلياً أو
       // حساب أُوقف)، نظّف الجلسة مركزياً بنفس مسار تسجيل الخروج المعتاد.
@@ -255,6 +283,11 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
     final localeProvider = context.watch<LocaleProvider>();
 
     return MaterialApp(
+      // [FIX-SESSION-EXPIRY-01] يسمحان بالتنقّل وعرض رسالة من AuthProvider
+      // (طبقة بيانات صرفة بلا BuildContext خاص بها) عند فقدان الجلسة —
+      // راجع تعريفهما أعلى هذا الملف.
+      navigatorKey: rootNavigatorKey,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       // [L10N-03] MaterialApp.title يُقيَّم بسياق (context) هذا الودجت نفسه —
       // فوق حيث تُبنى Localizations داخلياً بـMaterialApp، فـ
       // AppLocalizations.of(context) هنا سيفشل (ليس هناك سليل فعلي بعد).

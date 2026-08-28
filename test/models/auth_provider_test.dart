@@ -138,6 +138,84 @@ void main() {
     });
   });
 
+  group('handleUnauthorized', () {
+    Future<void> logIn() async {
+      when(
+        () => mockAuthApi.login(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => AuthResult(token: 'tok-123', user: _sampleUser()));
+      await provider.login(email: 'ahmad@test.com', password: 'password123');
+    }
+
+    setUp(() {
+      when(() => mockAuthApi.logout()).thenAnswer((_) async {});
+    });
+
+    test('لا شيء يحدث إن لم تكن هناك جلسة أصلاً (401 عادي من محاولة دخول خاطئة)',
+        () async {
+      var sessionExpiredCount = 0;
+      provider.onSessionExpired = () => sessionExpiredCount++;
+
+      await provider.handleUnauthorized();
+
+      expect(sessionExpiredCount, 0);
+      verifyNever(() => mockAuthApi.logout());
+    });
+
+    test('401 حقيقي أثناء جلسة نشطة: يمسح الجلسة ويستدعي onSessionExpired مرة واحدة',
+        () async {
+      await logIn();
+      expect(provider.isLoggedIn, isTrue);
+
+      var sessionExpiredCount = 0;
+      provider.onSessionExpired = () => sessionExpiredCount++;
+
+      await provider.handleUnauthorized();
+
+      expect(provider.isLoggedIn, isFalse);
+      expect(sessionExpiredCount, 1);
+    });
+
+    // [FIX-SESSION-EXPIRY-01] الاختبار المطلوب صراحة: عدة طلبات قد تصل لـ401
+    // بنفس اللحظة تقريباً (مثال واقعي: توكن FCM + إعادة اتصال السوكت معاً) —
+    // يجب أن يُعاد التوجيه/تُعرض الرسالة مرة واحدة فقط لحدث انتهاء جلسة واحد
+    // فعلياً، لا مرة لكل طلب فشل بشكل مستقل.
+    test('استدعاءان متزامنان (بنفس الدورة) ينتجان استدعاء onSessionExpired واحداً فقط',
+        () async {
+      await logIn();
+      expect(provider.isLoggedIn, isTrue);
+
+      var sessionExpiredCount = 0;
+      provider.onSessionExpired = () => sessionExpiredCount++;
+
+      final first = provider.handleUnauthorized();
+      final second = provider.handleUnauthorized();
+      await Future.wait([first, second]);
+
+      expect(sessionExpiredCount, 1);
+      expect(provider.isLoggedIn, isFalse);
+    });
+
+    test('حارس التزامن لا يعلق true للأبد — استدعاء لاحق بعد اكتمال الأول يعمل طبيعياً',
+        () async {
+      await logIn();
+      var sessionExpiredCount = 0;
+      provider.onSessionExpired = () => sessionExpiredCount++;
+
+      await provider.handleUnauthorized();
+      expect(sessionExpiredCount, 1);
+
+      // جلسة جديدة، ثم 401 لاحق مستقل تماماً — يجب أن يُعالَج بشكل طبيعي،
+      // لا أن يُبتلَع صامتاً بسبب حارس عالق من المرة السابقة.
+      await logIn();
+      await provider.handleUnauthorized();
+
+      expect(sessionExpiredCount, 2);
+    });
+  });
+
   group('loadMe', () {
     test('لا يستدعي authApi.me() إطلاقاً إن لم يوجد توكن محفوظ', () async {
       when(() => mockTokenStorage.hasToken()).thenAnswer((_) async => false);
