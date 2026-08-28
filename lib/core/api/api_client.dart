@@ -304,8 +304,10 @@ class ApiClient {
       final String? errorCode =
           (data is Map && data['code'] != null) ? data['code'].toString() : null;
 
-      // [FIX-ERRCODE-01] بيانات إضافية لبعض الرموز (حالياً
-      // OFFER_ACTIVE_REQUEST_EXISTS فقط) — راجع server.js وresolveApiErrorCode.
+      // [FIX-ERRCODE-02] بيانات إضافية لبعض الرموز (حالياً 6 رموز ديناميكية:
+      // OFFER_ACTIVE_REQUEST_EXISTS، DELETE_ACCOUNT_ACTIVE_REQUEST،
+      // DELETE_ACCOUNT_BALANCE_REMAINING، OTP_INCORRECT، SUPPORT_INVALID_TYPE،
+      // INSUFFICIENT_BALANCE) — راجع server.js وresolveApiErrorCode.
       final Map<String, dynamic>? errorParams =
           (data is Map && data['params'] is Map)
               ? Map<String, dynamic>.from(data['params'] as Map)
