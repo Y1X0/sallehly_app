@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/i18n/current_locale.dart';
+
 /// [FIX-L10N-01] يتحكّم بلغة واجهة التطبيق (عربي/إنجليزي)، ويحفظ اختيار
 /// المستخدم محلياً حتى تبقى نفس اللغة بعد إغلاق التطبيق وفتحه من جديد.
 ///
@@ -24,12 +26,17 @@ class LocaleProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(_prefsKey);
     _locale = saved == englishLocale.languageCode ? englishLocale : fallbackLocale;
+    // [FIX-ERRCODE-01] راجع core/i18n/current_locale.dart — يجب أن تبقى
+    // مطابقة لـ_locale دائماً، بما فيها هذا المسار الابتدائي (لا فقط
+    // setLocale أدناه)، وإلا يستخدم resolveApiErrorCode لغة قديمة/افتراضية.
+    currentAppLocale = _locale;
     notifyListeners();
   }
 
   Future<void> setLocale(Locale value) async {
     if (_locale == value) return;
     _locale = value;
+    currentAppLocale = _locale;
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();

@@ -2996,5 +2996,237 @@
   "sessionExpiredMessage": "انتهت جلستك، الرجاء تسجيل الدخول مرة أخرى",
   "@sessionExpiredMessage": {
     "description": "[FIX-SESSION-EXPIRY-01] رسالة تُعرض عند إعادة توجيه المستخدم لشاشة البداية بعد فقدان الجلسة (401 حقيقي أثناء تصفّح نشط)"
+  },
+  "apiErrorAuthRequired": "يرجى تسجيل الدخول",
+  "@apiErrorAuthRequired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_REQUIRED — راجع server.js"
+  },
+  "apiErrorAuthSessionInvalid": "جلسة غير صالحة",
+  "@apiErrorAuthSessionInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_SESSION_INVALID — راجع server.js"
+  },
+  "apiErrorAuthAccountSuspended": "الحساب موقوف",
+  "@apiErrorAuthAccountSuspended": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_ACCOUNT_SUSPENDED — راجع server.js"
+  },
+  "apiErrorAuthForbidden": "لا تملك صلاحية",
+  "@apiErrorAuthForbidden": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_FORBIDDEN — راجع server.js"
+  },
+  "apiErrorAuthInvalidCredentials": "بيانات الدخول غير صحيحة",
+  "@apiErrorAuthInvalidCredentials": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUTH_INVALID_CREDENTIALS — راجع server.js"
+  },
+  "apiErrorForbiddenGeneric": "غير مصرح",
+  "@apiErrorForbiddenGeneric": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز FORBIDDEN_GENERIC — راجع server.js"
+  },
+  "apiErrorRegisterInvalidRole": "نوع الحساب غير صحيح",
+  "@apiErrorRegisterInvalidRole": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_INVALID_ROLE — راجع server.js"
+  },
+  "apiErrorRegisterNameRequired": "الرجاء إدخال الاسم الكامل",
+  "@apiErrorRegisterNameRequired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_NAME_REQUIRED — راجع server.js"
+  },
+  "apiErrorRegisterTechAvatarRequired": "الصورة الشخصية مطلوبة للفني فقط",
+  "@apiErrorRegisterTechAvatarRequired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_TECH_AVATAR_REQUIRED — راجع server.js"
+  },
+  "apiErrorRegisterInvalidEmail": "البريد غير صحيح",
+  "@apiErrorRegisterInvalidEmail": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_INVALID_EMAIL — راجع server.js"
+  },
+  "apiErrorRegisterInvalidPhone": "رقم الهاتف يجب أن يبدأ 07 ويتكون من 10 أرقام",
+  "@apiErrorRegisterInvalidPhone": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_INVALID_PHONE — راجع server.js"
+  },
+  "apiErrorRegisterInvalidNationalNumber": "الرقم الوطني يجب أن يكون 10 أرقام",
+  "@apiErrorRegisterInvalidNationalNumber": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_INVALID_NATIONAL_NUMBER — راجع server.js"
+  },
+  "apiErrorRegisterEmailOrPhoneTaken": "البريد أو رقم الهاتف مستخدم مسبقاً",
+  "@apiErrorRegisterEmailOrPhoneTaken": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_EMAIL_OR_PHONE_TAKEN — راجع server.js"
+  },
+  "apiErrorRegisterNationalNumberTaken": "الرقم الوطني مستخدم مسبقاً",
+  "@apiErrorRegisterNationalNumberTaken": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_NATIONAL_NUMBER_TAKEN — راجع server.js"
+  },
+  "apiErrorRegisterDuplicate": "البريد أو رقم الهاتف أو الرقم الوطني مستخدم مسبقاً",
+  "@apiErrorRegisterDuplicate": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REGISTER_DUPLICATE — راجع server.js"
+  },
+  "apiErrorAccountCreateFailed": "تعذر إنشاء الحساب",
+  "@apiErrorAccountCreateFailed": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز ACCOUNT_CREATE_FAILED — راجع server.js"
+  },
+  "apiErrorAccountAlreadyExists": "الحساب موجود مسبقاً",
+  "@apiErrorAccountAlreadyExists": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز ACCOUNT_ALREADY_EXISTS — راجع server.js"
+  },
+  "apiErrorOtpMissingFields": "البريد والكود مطلوبان",
+  "@apiErrorOtpMissingFields": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_MISSING_FIELDS — راجع server.js"
+  },
+  "apiErrorOtpNotFound": "لم يتم إرسال كود لهذا البريد، سجّل مجدداً",
+  "@apiErrorOtpNotFound": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_NOT_FOUND — راجع server.js"
+  },
+  "apiErrorOtpExpired": "انتهت صلاحية الكود، اضغط إعادة الإرسال",
+  "@apiErrorOtpExpired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_EXPIRED — راجع server.js"
+  },
+  "apiErrorOtpInvalid": "الكود غير صحيح",
+  "@apiErrorOtpInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_INVALID — راجع server.js"
+  },
+  "apiErrorOtpRegistrationMissing": "بيانات التسجيل غير موجودة، سجّل مجدداً",
+  "@apiErrorOtpRegistrationMissing": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_REGISTRATION_MISSING — راجع server.js"
+  },
+  "apiErrorOtpResendNoPending": "لا يوجد طلب تسجيل لهذا البريد",
+  "@apiErrorOtpResendNoPending": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OTP_RESEND_NO_PENDING — راجع server.js"
+  },
+  "apiErrorPasswordTooShort": "كلمة السر يجب أن تكون 8 أحرف على الأقل",
+  "@apiErrorPasswordTooShort": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز PASSWORD_TOO_SHORT — راجع server.js"
+  },
+  "apiErrorPasswordCurrentIncorrect": "كلمة السر الحالية غير صحيحة",
+  "@apiErrorPasswordCurrentIncorrect": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز PASSWORD_CURRENT_INCORRECT — راجع server.js"
+  },
+  "apiErrorRequestInvalidFields": "أكمل بيانات الطلب: الخدمة، المحافظة، ووصف لا يقل عن 10 أحرف",
+  "@apiErrorRequestInvalidFields": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_INVALID_FIELDS — راجع server.js"
+  },
+  "apiErrorRequestNotFound": "الطلب غير موجود",
+  "@apiErrorRequestNotFound": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_NOT_FOUND — راجع server.js"
+  },
+  "apiErrorRequestCannotDeleteCompleted": "لا يمكن حذف طلب مكتمل من السجل",
+  "@apiErrorRequestCannotDeleteCompleted": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_CANNOT_DELETE_COMPLETED — راجع server.js"
+  },
+  "apiErrorRequestNotAcceptingOffers": "هذا الطلب لم يعد يستقبل عروضاً",
+  "@apiErrorRequestNotAcceptingOffers": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_NOT_ACCEPTING_OFFERS — راجع server.js"
+  },
+  "apiErrorRequestInvalidStatus": "حالة غير صحيحة",
+  "@apiErrorRequestInvalidStatus": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_INVALID_STATUS — راجع server.js"
+  },
+  "apiErrorRequestCompleteCustomerOnly": "إكمال الطلب يكون من العميل فقط",
+  "@apiErrorRequestCompleteCustomerOnly": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز REQUEST_COMPLETE_CUSTOMER_ONLY — راجع server.js"
+  },
+  "apiErrorOfferActiveRequestExists": "لا يمكنك إرسال عرض جديد قبل إنهاء طلبك الحالي رقم {id} - {service}",
+  "@apiErrorOfferActiveRequestExists": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_ACTIVE_REQUEST_EXISTS — راجع server.js",
+    "placeholders": {
+      "id": {"type": "int"},
+      "service": {"type": "String"}
+    }
+  },
+  "apiErrorOfferInvalidPrice": "أدخل سعر صحيح",
+  "@apiErrorOfferInvalidPrice": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_INVALID_PRICE — راجع server.js"
+  },
+  "apiErrorOfferDurationRequired": "أدخل مدة التنفيذ أو الوصول",
+  "@apiErrorOfferDurationRequired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_DURATION_REQUIRED — راجع server.js"
+  },
+  "apiErrorOfferNotFound": "العرض غير موجود",
+  "@apiErrorOfferNotFound": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_NOT_FOUND — راجع server.js"
+  },
+  "apiErrorOfferNotYours": "هذا العرض لا يخصك",
+  "@apiErrorOfferNotYours": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_NOT_YOURS — راجع server.js"
+  },
+  "apiErrorOfferTechnicianBusy": "الفني أصبح لديه طلب نشط حالياً، اختر عرضاً آخر",
+  "@apiErrorOfferTechnicianBusy": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز OFFER_TECHNICIAN_BUSY — راجع server.js"
+  },
+  "apiErrorDecisionInvalid": "قرار غير صحيح",
+  "@apiErrorDecisionInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز DECISION_INVALID — راجع server.js"
+  },
+  "apiErrorChatBlockedContactInfo": "⚠️ الرسائل العادية مسموحة. الممنوع فقط مشاركة رقم هاتف أو واتساب أو تيليجرام أو إيميل أو روابط تواصل خارجية.",
+  "@apiErrorChatBlockedContactInfo": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز CHAT_BLOCKED_CONTACT_INFO — راجع server.js"
+  },
+  "apiErrorMessageEmpty": "الرسالة فارغة",
+  "@apiErrorMessageEmpty": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز MESSAGE_EMPTY — راجع server.js"
+  },
+  "apiErrorAudioFileMissing": "لم يتم استقبال التسجيل الصوتي",
+  "@apiErrorAudioFileMissing": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUDIO_FILE_MISSING — راجع server.js"
+  },
+  "apiErrorRatingNotAllowed": "لا يمكن تقييم هذا الطلب",
+  "@apiErrorRatingNotAllowed": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز RATING_NOT_ALLOWED — راجع server.js"
+  },
+  "apiErrorRatingStarsInvalid": "اختر تقييم من 1 إلى 5",
+  "@apiErrorRatingStarsInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز RATING_STARS_INVALID — راجع server.js"
+  },
+  "apiErrorRatingAlreadyExists": "تم تقييم هذا الطلب مسبقاً",
+  "@apiErrorRatingAlreadyExists": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز RATING_ALREADY_EXISTS — راجع server.js"
+  },
+  "apiErrorPackageNotFound": "الباقة غير موجودة",
+  "@apiErrorPackageNotFound": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز PACKAGE_NOT_FOUND — راجع server.js"
+  },
+  "apiErrorTopupReceiptRequired": "يجب رفع صورة إثبات الدفع",
+  "@apiErrorTopupReceiptRequired": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز TOPUP_RECEIPT_REQUIRED — راجع server.js"
+  },
+  "apiErrorTopupInvalid": "طلب الشحن غير صالح",
+  "@apiErrorTopupInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز TOPUP_INVALID — راجع server.js"
+  },
+  "apiErrorTechnicianBalanceInsufficient": "رصيد الفني غير كافٍ لإكمال الطلب. يجب شحن الرصيد أولاً.",
+  "@apiErrorTechnicianBalanceInsufficient": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز TECHNICIAN_BALANCE_INSUFFICIENT — راجع server.js"
+  },
+  "apiErrorProfileNameTooShort": "الاسم قصير",
+  "@apiErrorProfileNameTooShort": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز PROFILE_NAME_TOO_SHORT — راجع server.js"
+  },
+  "apiErrorProfilePhoneInvalid": "رقم الهاتف غير صحيح",
+  "@apiErrorProfilePhoneInvalid": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز PROFILE_PHONE_INVALID — راجع server.js"
+  },
+  "apiErrorServiceNameTooShort": "اسم المهنة قصير",
+  "@apiErrorServiceNameTooShort": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز SERVICE_NAME_TOO_SHORT — راجع server.js"
+  },
+  "apiErrorServiceAlreadyExists": "هذه المهنة موجودة مسبقاً",
+  "@apiErrorServiceAlreadyExists": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز SERVICE_ALREADY_EXISTS — راجع server.js"
+  },
+  "apiErrorServiceCreateFailed": "تعذر إضافة المهنة",
+  "@apiErrorServiceCreateFailed": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز SERVICE_CREATE_FAILED — راجع server.js"
+  },
+  "apiErrorSupportInvalidFields": "اكتب عنوان وتفاصيل واضحة للدعم",
+  "@apiErrorSupportInvalidFields": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز SUPPORT_INVALID_FIELDS — راجع server.js"
+  },
+  "apiErrorFileTooLarge": "حجم الصورة كبير، الحد الأقصى 3MB",
+  "@apiErrorFileTooLarge": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز FILE_TOO_LARGE — راجع server.js"
+  },
+  "apiErrorFileTypeNotAllowed": "نوع الملف غير مسموح",
+  "@apiErrorFileTypeNotAllowed": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز FILE_TYPE_NOT_ALLOWED — راجع server.js"
+  },
+  "apiErrorAudioTypeNotAllowed": "نوع التسجيل الصوتي غير مسموح",
+  "@apiErrorAudioTypeNotAllowed": {
+    "description": "[FIX-ERRCODE-01] رسالة خطأ من الخادم برمز AUDIO_TYPE_NOT_ALLOWED — راجع server.js"
   }
 }
