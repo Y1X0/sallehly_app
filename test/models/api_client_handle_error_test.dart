@@ -3,11 +3,13 @@
 // دالة نقية بالكامل (لا تحتاج اتصال شبكة حقيقي): تُبنى DioException يدوياً
 // وتُقاس رسالة/رمز ApiException الناتجة.
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/core/api/api_exception.dart';
+import 'package:sallehly_app/core/i18n/current_locale.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
 
 class MockTokenStorage extends Mock implements TokenStorage {}
@@ -131,6 +133,108 @@ void main() {
   test('خطأ ليس DioException إطلاقاً → رسالة عامة غير متوقعة', () {
     final e = client.handleError(Exception('شيء عشوائي'));
     expect(e.message, 'حدث خطأ غير متوقع');
+  });
+
+  // [FIX-ERRCODE-01] resolveApiErrorCode() — راجع core/api/api_error_codes.dart.
+  // الأربع حالات المطلوب أن تتدهور جميعها لنص قابل للقراءة بلا استثناء ولا
+  // سناك بار فارغ: رمز غير معروف، لا يوجد رمز إطلاقاً، رمز يحتاج params لكنها
+  // مفقودة، ورمز يحتاج params لكنها من نوع خاطئ. كل حالة أدناه مغطاة صراحة.
+  group('[FIX-ERRCODE-01] ترجمة code إلى نص ARB', () {
+    // currentAppLocale متغيّر عام (راجع core/i18n/current_locale.dart) —
+    // نعيده لقيمته الافتراضية بعد أي اختبار يغيّره كي لا يتسرّب لاختبارات
+    // أخرى بنفس الملف.
+    tearDown(() {
+      currentAppLocale = const Locale('ar');
+    });
+
+    test('code معروف بلا params + عربي (الافتراضي) → نص ARB مطابق حرفياً لنص الخادم', () {
+      final e = client.handleError(
+        withResponse(404, {'error': 'الطلب غير موجود', 'code': 'REQUEST_NOT_FOUND'}),
+      );
+      expect(e.code, 'REQUEST_NOT_FOUND');
+      expect(e.message, 'الطلب غير موجود');
+    });
+
+    test('نفس code لكن بالإنجليزية → نص ARB الإنجليزي فعلاً (يثبت أن الترجمة حصلت، وليس تمريراً للنص الخام)', () {
+      currentAppLocale = const Locale('en');
+      final e = client.handleError(
+        withResponse(404, {'error': 'الطلب غير موجود', 'code': 'REQUEST_NOT_FOUND'}),
+      );
+      expect(e.message, 'Request not found');
+    });
+
+    test('حالة 1: code غير معروف (خادم أحدث/أقدم) → العودة لنص الخادم الخام بلا كسر', () {
+      final e = client.handleError(
+        withResponse(400, {'error': 'رسالة من رمز لم يُبنَ التطبيق ليعرفه', 'code': 'SOME_FUTURE_CODE_NOT_MAPPED_YET'}),
+      );
+      expect(e.code, 'SOME_FUTURE_CODE_NOT_MAPPED_YET');
+      expect(e.message, 'رسالة من رمز لم يُبنَ التطبيق ليعرفه');
+    });
+
+    test('حالة 2: لا يوجد code إطلاقاً → السلوك القديم تماماً، رسالة الخادم كما هي', () {
+      final e = client.handleError(withResponse(400, {'error': 'رسالة بلا رمز على الإطلاق'}));
+      expect(e.code, isNull);
+      expect(e.message, 'رسالة بلا رمز على الإطلاق');
+    });
+
+    test('code معروف يحتاج params (الطلب النشط) + params صحيحة كاملة بالإنجليزية → نص مترجَم فعلياً بالقيم', () {
+      currentAppLocale = const Locale('en');
+      final e = client.handleError(withResponse(409, {
+        'error': 'لا يمكنك إرسال عرض جديد قبل إنهاء طلبك الحالي رقم 7 - كهربائي',
+        'code': 'OFFER_ACTIVE_REQUEST_EXISTS',
+        'params': {'id': 7, 'service': 'كهربائي'},
+      }));
+      expect(e.message, "You can't send a new offer before finishing your current request #7 - كهربائي");
+    });
+
+    test('نفس الرمز، id بصيغة عدد عشري (شائع بعد فك ترميز JSON) → لا يزال يُحل بأمان', () {
+      currentAppLocale = const Locale('en');
+      final e = client.handleError(withResponse(409, {
+        'error': 'نص احتياطي',
+        'code': 'OFFER_ACTIVE_REQUEST_EXISTS',
+        'params': {'id': 7.0, 'service': 'نجار'},
+      }));
+      expect(e.message, contains('#7 - نجار'));
+    });
+
+    test('حالة 3: نفس الرمز لكن params مفقودة تماماً → العودة لنص الخادم الخام، لا فراغات مكسورة', () {
+      final e = client.handleError(withResponse(409, {
+        'error': 'لا يمكنك إرسال عرض جديد قبل إنهاء طلبك الحالي رقم 5 - سباك',
+        'code': 'OFFER_ACTIVE_REQUEST_EXISTS',
+      }));
+      expect(e.message, 'لا يمكنك إرسال عرض جديد قبل إنهاء طلبك الحالي رقم 5 - سباك');
+    });
+
+    test('حالة 4أ: params من نوع خاطئ تماماً (List بدل Map) → تُهمَل، رسالة الخادم الخام تظهر', () {
+      final e = client.handleError(withResponse(409, {
+        'error': 'رسالة احتياطية أخرى',
+        'code': 'OFFER_ACTIVE_REQUEST_EXISTS',
+        'params': [1, 2, 3],
+      }));
+      expect(e.message, 'رسالة احتياطية أخرى');
+    });
+
+    test('حالة 4ب: params من نوع Map لكن id/service بقيم غير صالحة (id نصي، service فارغ) → نفس التراجع الآمن', () {
+      final e = client.handleError(withResponse(409, {
+        'error': 'رسالة احتياطية ثالثة',
+        'code': 'OFFER_ACTIVE_REQUEST_EXISTS',
+        'params': {'id': 'not-a-number', 'service': ''},
+      }));
+      expect(e.message, 'رسالة احتياطية ثالثة');
+    });
+
+    test('لا سناك بار فارغ إطلاقاً بأي من الحالات أعلاه — الرسالة دائماً غير فارغة', () {
+      final cases = [
+        withResponse(400, {'error': 'أ', 'code': 'UNKNOWN_X'}),
+        withResponse(400, {'error': 'ب'}),
+        withResponse(409, {'error': 'ج', 'code': 'OFFER_ACTIVE_REQUEST_EXISTS'}),
+        withResponse(409, {'error': 'د', 'code': 'OFFER_ACTIVE_REQUEST_EXISTS', 'params': 'ليست خريطة'}),
+      ];
+      for (final err in cases) {
+        final e = client.handleError(err);
+        expect(e.message, isNotEmpty);
+      }
+    });
   });
 
   test('ApiException.toString() يرجع نص الرسالة نفسه (يُستخدم مباشرة بالواجهة أحياناً)', () {

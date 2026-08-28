@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 import '../../config/app_config.dart';
+import '../../l10n/app_localizations.dart';
+import '../i18n/current_locale.dart';
 import '../storage/token_storage.dart';
+import 'api_error_codes.dart';
 import 'api_exception.dart';
 
 class ApiClient {
@@ -235,9 +238,15 @@ class ApiClient {
   // [L10N-TODO] كل رسائل الفشل الثابتة بهذه الدالة (مهلة/انقطاع اتصال/رموز
   // حالة HTTP الافتراضية، السطر 312 نهاية الدالة) عربية ثابتة حالياً — طبقة
   // شبكة صرفة بلا BuildContext إطلاقاً، ومُستهلَكة عبر ApiException.message
-  // من كل شاشة تقريباً بالتطبيق (أكبر مستهلِك واحد بكل الكود). `serverMessage`
-  // أدناه (نص فعلي من السيرفر) مستثنى عمداً — رسالة خادم حقيقية، لا نص ثابت
-  // بهذا الملف، ومطابق لقاعدة "لا تلمس رسائل خطأ الخادم" بخطة الترحيل.
+  // من كل شاشة تقريباً بالتطبيق (أكبر مستهلِك واحد بكل الكود). هذا الجزء لا
+  // يزال بلا ترجمة (خارج نطاق [FIX-ERRCODE-01] أدناه، الذي يعالج رسائل
+  // الخادم فقط).
+  //
+  // [FIX-ERRCODE-01] `serverMessage` أدناه (نص فعلي من السيرفر) كان مستثنى
+  // بالكامل سابقاً من أي ترجمة — الآن، إن أرسل الخادم code معروفاً بجانبه
+  // (راجع server.js)، يُستخدم نص ARB مترجَم بدله عبر resolveApiErrorCode()
+  // قبل الوصول لـserverMessage. عندما لا يوجد code أو كان غير معروف، يبقى
+  // السلوك القديم تماماً: نص الخادم الخام كما هو، لا تغيير ولا فرق ملحوظ.
   ApiException handleError(dynamic error) {
     if (error is DioException) {
       // أخطاء الشبكة/الاتصال — رسائل واضحة للمستخدم
@@ -280,6 +289,13 @@ class ApiClient {
       final String? errorCode =
           (data is Map && data['code'] != null) ? data['code'].toString() : null;
 
+      // [FIX-ERRCODE-01] بيانات إضافية لبعض الرموز (حالياً
+      // OFFER_ACTIVE_REQUEST_EXISTS فقط) — راجع server.js وresolveApiErrorCode.
+      final Map<String, dynamic>? errorParams =
+          (data is Map && data['params'] is Map)
+              ? Map<String, dynamic>.from(data['params'] as Map)
+              : null;
+
       // رسالة الخطأ القادمة من السيرفر إن وُجدت
       String? serverMessage;
       if (data is Map && data['message'] != null) {
@@ -291,6 +307,31 @@ class ApiClient {
         final text = data.trim();
         if (!text.startsWith('<') && text.length < 200) {
           serverMessage = text;
+        }
+      }
+
+      // [FIX-ERRCODE-01] إن كان code معروفاً، استخدم النص المترجَم محلياً عبر
+      // ARB بدل نص الخادم العربي الخام — يعمل بأي لغة مدعومة، بما فيها
+      // العربية (نص ARB مطابق حرفياً لنص الخادم). currentAppLocale (راجع
+      // core/i18n/current_locale.dart) لأن هذه الطبقة صرفة بلا BuildContext.
+      //
+      // أي فشل هنا (رمز غير معروف، params ناقصة/تالفة لرمز يحتاجها، أو أي
+      // استثناء غير متوقَّع من طبقة الترجمة نفسها) يُعيدنا لنفس سلوك
+      // serverMessage أدناه تماماً كما كان قبل هذا التغيير — لا شاشة تنكسر
+      // بسبب رمز خطأ لم يُبنَ التطبيق ليعرفه بعد.
+      if (errorCode != null) {
+        String? localized;
+        try {
+          localized = resolveApiErrorCode(
+            lookupAppLocalizations(currentAppLocale),
+            errorCode,
+            params: errorParams,
+          );
+        } catch (_) {
+          localized = null;
+        }
+        if (localized != null && localized.isNotEmpty) {
+          return ApiException(localized, statusCode: status, code: errorCode);
         }
       }
 
