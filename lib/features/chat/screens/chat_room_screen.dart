@@ -92,6 +92,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md — يجب التقاط AppLocalizations
+    // قبل أي await بالدالة، لا استدعاؤها لاحقاً (حتى داخل catch) — لو أُلغي
+    // تثبيت الودجت أثناء الانتظار، AppLocalizations.of(context) بعد ذلك يرمي
+    // استثناءً فوراً، قبل أن تصل حتى لـshowErrorSnackBar (الذي يفحص mounted
+    // داخلياً لكنه لا يحمي معامِلاته من التقييم المسبق).
+    final t = AppLocalizations.of(context)!;
+
     try {
       // [FIX-CHAT-03] كان يُمسح النص هنا قبل التأكد من نجاح الإرسال فعلياً —
       // لو فشل الإرسال (شبكة، محادثة محظورة، طلب أُغلق أثناء الكتابة)، كان
@@ -108,11 +115,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.sendMessageFailedMessage('$e'));
+      showErrorSnackBar(context, t.sendMessageFailedMessage('$e'));
     }
   }
 
   Future<void> sendImage() async {
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
     try {
       final path = await ImageSourcePicker.pick(context, maxWidth: 1400);
 
@@ -128,15 +137,19 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.sendImageFailedMessage('$e'));
+      showErrorSnackBar(context, t.sendImageFailedMessage('$e'));
     }
   }
 
   Future<void> sendLocation() async {
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md — التقاط واحد بأول الدالة يكفي
+    // لكل استخدامات t اللاحقة مهما تعدّدت الـawait بعده (t نفسه لا يلمس
+    // context مرة أخرى بعد هذا السطر، فهو آمن حتى لو أصبح الودجت غير مثبَّت).
+    final t = AppLocalizations.of(context)!;
+
     // [FIX-DISCLOSURE-01] اشرح سبب الحاجة للموقع قبل أي طلب صلاحية فعلي —
     // مرة واحدة فقط بهذه الجلسة. إن ألغى المستخدم، لا نطلب الصلاحية إطلاقاً.
     if (!_locationRationaleShown) {
-      final t = AppLocalizations.of(context)!;
       final proceed = await _showPermissionRationale(
         context,
         icon: Icons.location_on_rounded,
@@ -152,7 +165,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        showErrorSnackBar(context, AppLocalizations.of(context)!.enableGpsMessage);
+        showErrorSnackBar(context, t.enableGpsMessage);
         return;
       }
 
@@ -164,7 +177,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       if (permission == LocationPermission.deniedForever) {
         if (!mounted) return;
-        final t = AppLocalizations.of(context)!;
         await _showOpenSettingsDialog(
           context,
           icon: Icons.location_on_rounded,
@@ -175,7 +187,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (permission == LocationPermission.denied) {
-        showErrorSnackBar(context, AppLocalizations.of(context)!.locationAccessDeniedMessage);
+        showErrorSnackBar(context, t.locationAccessDeniedMessage);
         return;
       }
 
@@ -193,7 +205,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (position == null) {
-        showErrorSnackBar(context, AppLocalizations.of(context)!.locationDeterminationFailedMessage);
+        showErrorSnackBar(context, t.locationDeterminationFailedMessage);
         return;
       }
 
@@ -209,11 +221,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (e) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.sendLocationFailedMessage('$e'));
+      showErrorSnackBar(context, t.sendLocationFailedMessage('$e'));
     }
   }
 
   Future<void> toggleRecord() async {
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
+
     try {
       if (recording) {
         final path = await audioRecorder.stop();
@@ -230,12 +245,12 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
 
         if (path == null || path.isEmpty) {
-          showErrorSnackBar(context, AppLocalizations.of(context)!.recordingNotSavedMessage);
+          showErrorSnackBar(context, t.recordingNotSavedMessage);
           return;
         }
 
         if (duration < 1) {
-          showErrorSnackBar(context, AppLocalizations.of(context)!.recordingTooShortMessage);
+          showErrorSnackBar(context, t.recordingTooShortMessage);
           return;
         }
 
@@ -251,7 +266,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       // [FIX-DISCLOSURE-01] اشرح سبب الحاجة للميكروفون قبل أي طلب صلاحية فعلي.
       if (!_micRationaleShown) {
-        final t = AppLocalizations.of(context)!;
         final proceed = await _showPermissionRationale(
           context,
           icon: Icons.mic_rounded,
@@ -277,7 +291,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         if (!mounted) return;
 
         if (micStatus.isPermanentlyDenied) {
-          final t = AppLocalizations.of(context)!;
           await _showOpenSettingsDialog(
             context,
             icon: Icons.mic_rounded,
@@ -285,7 +298,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             message: t.micPermissionDeniedForeverMessage,
           );
         } else {
-          showErrorSnackBar(context, AppLocalizations.of(context)!.micAccessDeniedMessage);
+          showErrorSnackBar(context, t.micAccessDeniedMessage);
         }
         return;
       }
@@ -346,7 +359,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         });
       }
 
-      showErrorSnackBar(context, AppLocalizations.of(context)!.recordAudioFailedMessage('$e'));
+      showErrorSnackBar(context, t.recordAudioFailedMessage('$e'));
     }
   }
 
@@ -428,6 +441,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   // [FIX-UGC-01] الإبلاغ عن آخر رسالة/المحادثة عموماً — راجع chat_bubble.dart
   // للإبلاغ عن رسالة محددة بالضغط المطوّل عليها مباشرة.
   Future<void> reportConversationFlow() async {
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
     final reason = await _pickReportReason(context);
     if (reason == null) return;
     if (!mounted) return;
@@ -442,12 +457,14 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.reportFailedMessage);
+      showErrorSnackBar(context, t.reportFailedMessage);
     }
   }
 
   /// إبلاغ عن رسالة محددة (يُستدعى من الضغط المطوّل على فقاعة الرسالة).
   Future<void> reportMessageFlow(int messageId) async {
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
     final reason = await _pickReportReason(context);
     if (reason == null) return;
     if (!mounted) return;
@@ -463,7 +480,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.reportFailedMessage);
+      showErrorSnackBar(context, t.reportFailedMessage);
     }
   }
 

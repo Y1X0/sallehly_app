@@ -43,6 +43,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!emailFormKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       final message = await auth.forgotPassword(email: emailController.text);
@@ -56,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.sendCodeFailedMessage);
+      showErrorSnackBar(context, t.sendCodeFailedMessage);
     }
   }
 
@@ -64,6 +66,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!resetFormKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       final message = await auth.resetPassword(
@@ -84,7 +88,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.resetPasswordFailedMessage);
+      showErrorSnackBar(context, t.resetPasswordFailedMessage);
     }
   }
 

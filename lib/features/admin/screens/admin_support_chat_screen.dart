@@ -93,6 +93,8 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
     if (text.isEmpty) return;
 
     final support = context.read<SupportProvider>();
+    // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
+    final t = AppLocalizations.of(context)!;
 
     try {
       messageController.clear();
@@ -102,7 +104,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
     } on ApiException catch (e) {
       showErrorSnackBar(context, e.message);
     } catch (_) {
-      showErrorSnackBar(context, AppLocalizations.of(context)!.supportSendMessageFailed);
+      showErrorSnackBar(context, t.supportSendMessageFailed);
     }
   }
 
