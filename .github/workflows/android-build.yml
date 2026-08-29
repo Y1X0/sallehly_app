@@ -43,15 +43,55 @@ jobs:
       - name: Test
         run: flutter test --exclude-tags screenshot
 
-      # No android/key.properties in CI (release keystore is not committed,
-      # by design — see android/app/build.gradle.kts). The release build
-      # type falls back to debug signing when key.properties is absent, so
-      # this validates that the app actually builds; it is not a
-      # Play-Store-ready artifact and must not be uploaded as one.
-      - name: Build Android App Bundle (CI validation only, debug-signed)
+      # Reconstructs android/key.properties + the .jks keystore from repo
+      # secrets at build time — neither is ever committed (see
+      # android/.gitignore, android/key.properties.example). Runs only when
+      # ANDROID_KEYSTORE_BASE64 is actually configured as a repo secret; a
+      # fork's pull_request run (no secret access by GitHub design) or this
+      # repo before the secret is set both fall through to the debug-signed
+      # validation build below instead — never to a silently-broken signing
+      # attempt.
+      - name: Set up Android release signing
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/android/app/sallehly-release.jks"
+          cat > "$GITHUB_WORKSPACE/android/key.properties" <<EOF
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=$GITHUB_WORKSPACE/android/app/sallehly-release.jks
+          EOF
+
+      # Real, Play-Store-signable artifact — only produced when the signing
+      # secrets above were actually available this run.
+      - name: Build Android App Bundle (release-signed)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
         run: flutter build appbundle --release
 
-      - name: Upload App Bundle
+      - name: Upload App Bundle (release-signed)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sallehly-android-aab-release-signed
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+      # Fallback only: no android/key.properties in CI (secret not
+      # configured for this run — e.g. a fork's PR). The release build type
+      # falls back to debug signing when key.properties is absent, so this
+      # only validates that the app compiles; it is not a Play-Store-ready
+      # artifact and must not be uploaded as one.
+      - name: Build Android App Bundle (CI validation only, debug-signed)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        run: flutter build appbundle --release
+
+      - name: Upload App Bundle (debug-signed, validation only)
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
         uses: actions/upload-artifact@v4
         with:
           name: sallehly-android-aab-unsigned
