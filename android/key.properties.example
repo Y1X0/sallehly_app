@@ -14,7 +14,7 @@
 #   ANDROID_KEYSTORE_BASE64  — ناتج: base64 -w0 sallehly-release.jks  (أو base64 -i على macOS)
 #   ANDROID_KEY_ALIAS        — نفس قيمة keyAlias أدناه
 #   ANDROID_KEY_PASSWORD     — نفس قيمة keyPassword أدناه
-#   ANDROID_STORE_PASSWORD   — نفس قيمة storePassword أدناه
+#   ANDROID_KEYSTORE_PASSWORD — نفس قيمة storePassword أدناه
 # الـCI يعيد بناء android/key.properties وملف .jks من هذه الأسرار وقت التشغيل
 # فقط — لا يُحفظان بالمستودع أبداً حتى مؤقتاً.
 

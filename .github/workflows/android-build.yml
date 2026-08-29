@@ -59,17 +59,42 @@ jobs:
       # repo before the secret is set both fall through to the debug-signed
       # validation build below instead — never to a silently-broken signing
       # attempt.
+      # A missing/misnamed secret used to resolve silently to an empty
+      # string and only surface ~2 minutes later as an opaque Gradle
+      # keystore error ("tampered with, or password was incorrect") — that's
+      # exactly what happened with ANDROID_STORE_PASSWORD vs. the actual
+      # secret name ANDROID_KEYSTORE_PASSWORD. Fail fast here instead, with
+      # the real secret name in the message, before spending any build time.
+      - name: Verify required signing secrets are present
+        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=""
+          [ -z "$ANDROID_KEYSTORE_BASE64" ] && missing="$missing ANDROID_KEYSTORE_BASE64"
+          [ -z "$ANDROID_KEYSTORE_PASSWORD" ] && missing="$missing ANDROID_KEYSTORE_PASSWORD"
+          [ -z "$ANDROID_KEY_ALIAS" ] && missing="$missing ANDROID_KEY_ALIAS"
+          [ -z "$ANDROID_KEY_PASSWORD" ] && missing="$missing ANDROID_KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing or empty required secret(s):$missing — check Settings -> Secrets and variables -> Actions. Not falling through to a broken signing attempt."
+            exit 1
+          fi
+          echo "All required signing secrets are present."
+
       - name: Set up Android release signing
         if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/android/app/sallehly-release.jks"
           cat > "$GITHUB_WORKSPACE/android/key.properties" <<EOF
-          storePassword=$ANDROID_STORE_PASSWORD
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
           keyPassword=$ANDROID_KEY_PASSWORD
           keyAlias=$ANDROID_KEY_ALIAS
           storeFile=$GITHUB_WORKSPACE/android/app/sallehly-release.jks
