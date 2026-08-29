@@ -10,6 +10,14 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    # `secrets` is not a recognized named-value inside a step-level `if:`
+    # expression (confirmed directly: manually dispatching this workflow
+    # before this fix failed validation at parse time — "Unrecognized
+    # named-value: 'secrets'" — before any job could even start). Routing
+    # it through a job-level env var first works: `env` *is* available in
+    # `if:`. This single check below is then reused by every gated step.
+    env:
+      HAS_RELEASE_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
 
     steps:
       - name: Checkout repository
@@ -52,7 +60,7 @@ jobs:
       # validation build below instead — never to a silently-broken signing
       # attempt.
       - name: Set up Android release signing
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -70,11 +78,11 @@ jobs:
       # Real, Play-Store-signable artifact — only produced when the signing
       # secrets above were actually available this run.
       - name: Build Android App Bundle (release-signed)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
         run: flutter build appbundle --release
 
       - name: Upload App Bundle (release-signed)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: sallehly-android-aab-release-signed
@@ -87,11 +95,11 @@ jobs:
       # only validates that the app compiles; it is not a Play-Store-ready
       # artifact and must not be uploaded as one.
       - name: Build Android App Bundle (CI validation only, debug-signed)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        if: ${{ env.HAS_RELEASE_KEYSTORE != 'true' }}
         run: flutter build appbundle --release
 
       - name: Upload App Bundle (debug-signed, validation only)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
+        if: ${{ env.HAS_RELEASE_KEYSTORE != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: sallehly-android-aab-unsigned
