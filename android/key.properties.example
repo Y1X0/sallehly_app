@@ -8,15 +8,13 @@
 # 3) ضع القيم الصحيحة هنا، ولا ترفع key.properties ولا ملف .jks إلى Git إطلاقاً
 #    (كلاهما مُستثنى فعلاً بـ android/.gitignore).
 #
-# ── لبناء CI/GitHub Actions (.github/workflows/android-build.yml) ──
-# نفس الملف .jks والقيم الأربعة أدناه لازم تُضافوا كـ Repository Secrets
-# (GitHub → Settings → Secrets and variables → Actions → New repository secret):
-#   ANDROID_KEYSTORE_BASE64  — ناتج: base64 -w0 sallehly-release.jks  (أو base64 -i على macOS)
-#   ANDROID_KEY_ALIAS        — نفس قيمة keyAlias أدناه
-#   ANDROID_KEY_PASSWORD     — نفس قيمة keyPassword أدناه
-#   ANDROID_KEYSTORE_PASSWORD — نفس قيمة storePassword أدناه
-# الـCI يعيد بناء android/key.properties وملف .jks من هذه الأسرار وقت التشغيل
-# فقط — لا يُحفظان بالمستودع أبداً حتى مؤقتاً.
+# ── لبناء إصدار موقَّع حقيقي عبر CI ──
+# راجع android/SIGNING.md — هناك التعليمات الكاملة والـworkflow المخصَّص لهذا
+# (.github/workflows/android-release-signed.yml، تشغيل يدوي فقط). نفس الملف
+# .jks والقيم الثلاثة أدناه (ANDROID_KEYSTORE_BASE64 + ANDROID_KEYSTORE_PASSWORD
+# + ANDROID_KEY_ALIAS + ANDROID_KEY_PASSWORD) تُضاف كـ Repository Secrets — لا
+# تُحفظ بالمستودع أبداً حتى مؤقتاً. android-build.yml (بناء التحقق العادي على
+# كل push/PR) لا يمس أي سرّ توقيع إطلاقاً، ويبني بتوقيع debug فقط عمداً.
 
 storePassword=كلمة_سر_المتجر
 keyPassword=كلمة_سر_المفتاح

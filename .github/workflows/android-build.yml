@@ -10,14 +10,6 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    # `secrets` is not a recognized named-value inside a step-level `if:`
-    # expression (confirmed directly: manually dispatching this workflow
-    # before this fix failed validation at parse time — "Unrecognized
-    # named-value: 'secrets'" — before any job could even start). Routing
-    # it through a job-level env var first works: `env` *is* available in
-    # `if:`. This single check below is then reused by every gated step.
-    env:
-      HAS_RELEASE_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
 
     steps:
       - name: Checkout repository
@@ -51,80 +43,22 @@ jobs:
       - name: Test
         run: flutter test --exclude-tags screenshot
 
-      # Reconstructs android/key.properties + the .jks keystore from repo
-      # secrets at build time — neither is ever committed (see
-      # android/.gitignore, android/key.properties.example). Runs only when
-      # ANDROID_KEYSTORE_BASE64 is actually configured as a repo secret; a
-      # fork's pull_request run (no secret access by GitHub design) or this
-      # repo before the secret is set both fall through to the debug-signed
-      # validation build below instead — never to a silently-broken signing
-      # attempt.
-      # A missing/misnamed secret used to resolve silently to an empty
-      # string and only surface ~2 minutes later as an opaque Gradle
-      # keystore error ("tampered with, or password was incorrect") — that's
-      # exactly what happened with ANDROID_STORE_PASSWORD vs. the actual
-      # secret name ANDROID_KEYSTORE_PASSWORD. Fail fast here instead, with
-      # the real secret name in the message, before spending any build time.
-      - name: Verify required signing secrets are present
-        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: |
-          missing=""
-          [ -z "$ANDROID_KEYSTORE_BASE64" ] && missing="$missing ANDROID_KEYSTORE_BASE64"
-          [ -z "$ANDROID_KEYSTORE_PASSWORD" ] && missing="$missing ANDROID_KEYSTORE_PASSWORD"
-          [ -z "$ANDROID_KEY_ALIAS" ] && missing="$missing ANDROID_KEY_ALIAS"
-          [ -z "$ANDROID_KEY_PASSWORD" ] && missing="$missing ANDROID_KEY_PASSWORD"
-          if [ -n "$missing" ]; then
-            echo "::error::Missing or empty required secret(s):$missing — check Settings -> Secrets and variables -> Actions. Not falling through to a broken signing attempt."
-            exit 1
-          fi
-          echo "All required signing secrets are present."
-
-      - name: Set up Android release signing
-        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/android/app/sallehly-release.jks"
-          cat > "$GITHUB_WORKSPACE/android/key.properties" <<EOF
-          storePassword=$ANDROID_KEYSTORE_PASSWORD
-          keyPassword=$ANDROID_KEY_PASSWORD
-          keyAlias=$ANDROID_KEY_ALIAS
-          storeFile=$GITHUB_WORKSPACE/android/app/sallehly-release.jks
-          EOF
-
-      # Real, Play-Store-signable artifact — only produced when the signing
-      # secrets above were actually available this run.
-      - name: Build Android App Bundle (release-signed)
-        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
-        run: flutter build appbundle --release
-
-      - name: Upload App Bundle (release-signed)
-        if: ${{ env.HAS_RELEASE_KEYSTORE == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: sallehly-android-aab-release-signed
-          path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 14
-
-      # Fallback only: no android/key.properties in CI (secret not
-      # configured for this run — e.g. a fork's PR). The release build type
-      # falls back to debug signing when key.properties is absent, so this
-      # only validates that the app compiles; it is not a Play-Store-ready
-      # artifact and must not be uploaded as one.
+      # No android/key.properties in CI (release keystore is not committed,
+      # by design — see android/app/build.gradle.kts). The release build
+      # type falls back to debug signing when key.properties is absent, so
+      # this validates that the app actually builds; it is not a
+      # Play-Store-ready artifact and must not be uploaded as one.
+      #
+      # A real, production-signed AAB is produced by the separate, manual
+      # -only "Build Signed Android Release (AAB)" workflow
+      # (android-release-signed.yml, see android/SIGNING.md) — deliberately
+      # kept out of this one so an ordinary push/PR never touches the
+      # signing secrets, and so there is exactly one place that knows how
+      # to sign a release instead of two copies that can drift apart.
       - name: Build Android App Bundle (CI validation only, debug-signed)
-        if: ${{ env.HAS_RELEASE_KEYSTORE != 'true' }}
         run: flutter build appbundle --release
 
-      - name: Upload App Bundle (debug-signed, validation only)
-        if: ${{ env.HAS_RELEASE_KEYSTORE != 'true' }}
+      - name: Upload App Bundle
         uses: actions/upload-artifact@v4
         with:
           name: sallehly-android-aab-unsigned
