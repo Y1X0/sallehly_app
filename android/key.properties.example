@@ -1,10 +1,20 @@
 # ── قالب بيانات توقيع نسخة الإصدار ──
 # 1) انسخ هذا الملف إلى:  android/key.properties
-# 2) أنشئ مفتاح التوقيع (keystore) بالأمر التالي (مرة واحدة فقط، واحفظه في مكان آمن):
+# 2) أنشئ مفتاح التوقيع (keystore) بالأمر التالي (مرة واحدة فقط، واحفظه في مكان آمن —
+#    فقدانه يعني عدم القدرة على نشر أي تحديث لاحق لنفس التطبيق على المتجر):
 #
 #    keytool -genkey -v -keystore sallehly-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias sallehly
 #
-# 3) ضع القيم الصحيحة هنا، ولا ترفع key.properties ولا ملف .jks إلى Git إطلاقاً.
+# 3) ضع القيم الصحيحة هنا، ولا ترفع key.properties ولا ملف .jks إلى Git إطلاقاً
+#    (كلاهما مُستثنى فعلاً بـ android/.gitignore).
+#
+# ── لبناء إصدار موقَّع حقيقي عبر CI ──
+# راجع android/SIGNING.md — هناك التعليمات الكاملة والـworkflow المخصَّص لهذا
+# (.github/workflows/android-release-signed.yml، تشغيل يدوي فقط). نفس الملف
+# .jks والقيم الثلاثة أدناه (ANDROID_KEYSTORE_BASE64 + ANDROID_KEYSTORE_PASSWORD
+# + ANDROID_KEY_ALIAS + ANDROID_KEY_PASSWORD) تُضاف كـ Repository Secrets — لا
+# تُحفظ بالمستودع أبداً حتى مؤقتاً. android-build.yml (بناء التحقق العادي على
+# كل push/PR) لا يمس أي سرّ توقيع إطلاقاً، ويبني بتوقيع debug فقط عمداً.
 
 storePassword=كلمة_سر_المتجر
 keyPassword=كلمة_سر_المفتاح

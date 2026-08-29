@@ -48,6 +48,13 @@ jobs:
       # type falls back to debug signing when key.properties is absent, so
       # this validates that the app actually builds; it is not a
       # Play-Store-ready artifact and must not be uploaded as one.
+      #
+      # A real, production-signed AAB is produced by the separate, manual
+      # -only "Build Signed Android Release (AAB)" workflow
+      # (android-release-signed.yml, see android/SIGNING.md) — deliberately
+      # kept out of this one so an ordinary push/PR never touches the
+      # signing secrets, and so there is exactly one place that knows how
+      # to sign a release instead of two copies that can drift apart.
       - name: Build Android App Bundle (CI validation only, debug-signed)
         run: flutter build appbundle --release
 
