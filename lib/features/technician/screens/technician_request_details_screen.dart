@@ -5,6 +5,7 @@ import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/authenticated_network_image.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../l10n/app_localizations.dart';
@@ -146,16 +147,12 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
               delay: const Duration(milliseconds: 140),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  '${AppConfig.baseUrl}${request.problemImageUrl}',
+                child: AuthenticatedNetworkImage(
+                  url: '${AppConfig.baseUrl}${request.problemImageUrl}',
                   // [RESPONSIVE-02] نفس المبدأ الموثّق بـ create_request_screen.dart —
                   // ارتفاع متناسب مع عرض الشاشة بدل قيمة ثابتة، بدون تغيير على
                   // الهواتف العادية (العرض المرجعي 390).
                   height: MediaQuery.of(context).size.width * (220 / 390),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const SizedBox();
-                  },
                 ),
               ),
             ),
