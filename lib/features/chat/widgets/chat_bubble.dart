@@ -1,10 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/authenticated_media.dart';
 import '../../../core/widgets/bidi_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/message_model.dart';
@@ -17,33 +17,6 @@ String _mediaUrl(String path) {
     return path;
   }
   return '${AppConfig.baseUrl}$path';
-}
-
-/// [SEC-FIX-C1] هل هذا الرابط يشير لخادمنا نفسه (نفس host الخاص بـ baseUrl)؟
-/// [image]/[audio] بالشات مصدرها جسم رسالة نصية يُخزَّن كما هو — لو أُرسِل
-/// رابط خارجي (مثلاً بعد استغلال ثغرة انتحال صيغة الوسائط) فلا يجوز إطلاقاً
-/// إرفاق هيدر Authorization معه؛ هذا يُسرّب توكن جلسة المستخدم لأي
-/// خادم خارجي يتحكم به المهاجم بمجرد فتح الصورة كاملة الحجم.
-bool _isFirstPartyUrl(String url) {
-  final uri = Uri.tryParse(url);
-  if (uri == null || !uri.hasAuthority) return false;
-  return uri.host == Uri.parse(AppConfig.baseUrl).host;
-}
-
-/// يجلب هيدر المصادقة (التوكن) لاستخدامه مع Image.network — فقط لو كان
-/// الرابط المستهدَف يعود فعلاً لخادم API الخاص بنا. أي رابط خارجي (host
-/// مختلف) يُعامَل كرابط عادي بلا أي هيدر مصادقة إطلاقاً.
-Future<Map<String, String>> _authHeadersFor(String url) async {
-  if (!_isFirstPartyUrl(url)) return {};
-
-  const storage = FlutterSecureStorage();
-  final token = await storage.read(key: 'sallehly_token');
-
-  if (token != null && token.isNotEmpty) {
-    return {'Authorization': 'Bearer $token'};
-  }
-
-  return {};
 }
 
 class ChatBubble extends StatefulWidget {
@@ -410,19 +383,50 @@ class _LocationMessage extends StatelessWidget {
   }
 }
 
-class _ImageMessage extends StatelessWidget {
+class _ImageMessage extends StatefulWidget {
   final String imageUrl;
 
   const _ImageMessage({required this.imageUrl});
 
   @override
+  State<_ImageMessage> createState() => _ImageMessageState();
+}
+
+class _ImageMessageState extends State<_ImageMessage> {
+  // [SEC-FIX-UPLOADS-01] راجع DECISIONS.md (backend) — صور الشات أصبحت وراء
+  // مصادقة حقيقية، فهذه الصورة تحتاج هيدر Authorization الآن (بعكس وقت
+  // [FIX-CHATIMG-03] أدناه، يوم كان التوكن غير مستخدَم أصلاً من الخادم).
+  // الحل هون يحترم درس [FIX-CHATIMG-03] بالضبط: الهيدرز تُجلَب مرة واحدة فقط
+  // بـinitState وتُخزَّن بالـstate — لا FutureBuilder جديد بكل build() (نفس
+  // العلّة اللي كانت تُلغي ImageCache وتُعيد التحميل من الصفر مع كل حدث
+  // Socket.IO يمسّ شاشة الشات).
+  Map<String, String>? _headers;
+
+  @override
+  void initState() {
+    super.initState();
+    authHeadersForMediaUrl(widget.imageUrl).then((headers) {
+      if (mounted) setState(() => _headers = headers);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_headers == null) {
+      return const SizedBox(
+        width: 200,
+        height: 200,
+        child: Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: () {
         // فتح الصورة بحجم كامل عند الضغط
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => _FullImageView(imageUrl: imageUrl),
+            builder: (_) => _FullImageView(imageUrl: widget.imageUrl),
           ),
         );
       },
@@ -433,18 +437,9 @@ class _ImageMessage extends StatelessWidget {
             maxWidth: 220,
             maxHeight: 260,
           ),
-          // [FIX-CHATIMG-03] كانت هذه الصورة ملفوفة بـFutureBuilder ينتظر
-          // _authHeaders() (توكن غير مستخدَم أصلاً من الخادم — /uploads
-          // بلا أي تحقق مصادقة). لأن _ImageMessage تُعاد بناؤها مع كل
-          // إعادة بناء لشاشة الشات (كل حدث Socket.IO يمسّها)، كل إعادة بناء
-          // كانت تُنشئ Future جديداً فتستبدل الصورة المعروضة فعلياً بسبينر
-          // مؤقتاً ثم تبني Image.network **جديداً بالكامل** — أي طلب شبكة
-          // جديد من الصفر لنفس الصورة في كل مرة، بدل تحميلها مرة واحدة
-          // والاستفادة من ImageCache الطبيعي لـFlutter. نفس نمط
-          // customer/technician_request_details_screen.dart بالضبط (تعمل
-          // بثبات لنفس نوع الروابط بلا أي headers).
           child: Image.network(
-            imageUrl,
+            widget.imageUrl,
+            headers: _headers,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, progress) {
               if (progress == null) return child;
@@ -500,7 +495,7 @@ class _FullImageView extends StatelessWidget {
       ),
       body: Center(
         child: FutureBuilder<Map<String, String>>(
-          future: _authHeadersFor(imageUrl),
+          future: authHeadersForMediaUrl(imageUrl),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const CircularProgressIndicator(color: Colors.white);
