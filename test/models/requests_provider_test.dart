@@ -7,6 +7,7 @@ import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/core/api/api_exception.dart';
 import 'package:sallehly_app/features/requests/data/requests_api.dart';
 import 'package:sallehly_app/features/requests/provider/requests_provider.dart';
+import 'package:sallehly_app/models/offer_model.dart';
 import 'package:sallehly_app/models/request_model.dart';
 
 class MockRequestsApi extends Mock implements RequestsApi {}
@@ -242,6 +243,31 @@ void main() {
         'لا يمكن إلغاء الطلب بعد قبول عرض الفني. تواصل مع الدعم الفني إذا واجهت مشكلة.',
       );
       verifyNever(() => mockApi.getRequests());
+    });
+  });
+
+  // [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — clear() تُستدعى من app.dart
+  // عند تسجيل الخروج/الدخول، حتى لا تبقى طلبات/عروض حساب سابق بالذاكرة.
+  group('clear', () {
+    test('يُفرّغ الطلبات والعروض المخبَّأة', () async {
+      when(() => mockApi.getRequests()).thenAnswer((_) async => [_sampleRequest()]);
+      await provider.loadRequests();
+      expect(provider.requests, isNotEmpty);
+
+      when(() => mockApi.getOffers(1)).thenAnswer((_) async => [
+            const OfferModel(
+              id: 1, requestId: 1, technicianId: 2, price: 10, duration: 'خلال ساعة',
+              status: 'pending', ratingAvg: 0, ratingCount: 0, completedJobs: 0,
+            ),
+          ]);
+      await provider.loadOffers(1);
+      expect(provider.offers, isNotEmpty);
+
+      provider.clear();
+
+      expect(provider.requests, isEmpty);
+      expect(provider.offers, isEmpty);
+      expect(provider.error, isNull);
     });
   });
 }

@@ -206,19 +206,31 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
       // عند تسجيل الدخول/استعادة الجلسة → اتصال، وعند الخروج → قطع.
       final authProvider = context.read<AuthProvider>();
       final chatProvider = context.read<ChatProvider>();
+      final requestsProvider = context.read<RequestsProvider>();
+      final walletProvider = context.read<WalletProvider>();
+      final adminProvider = context.read<AdminProvider>();
+      final supportProvider = context.read<SupportProvider>();
       authProvider.onAuthenticated = () async {
-        // [CRIT-FIX-02] أول شيء يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة
-        // جلسة — قبل أي شيء آخر. AuthProvider.login()/verifyOtp() يمسحان
-        // tokenStorage/appStorage دفاعياً بدايةً بغض النظر عن استدعاء
-        // logout() صراحة قبلهما أم لا (نفس النمط بالضبط بـ
-        // lib/providers/auth_provider.dart) — أي "تسجيل دخول" قد يكون فعلياً
-        // تبديل مستخدم على نفس الجهاز دون مرور صريح بمسار تسجيل خروج. قبل
-        // هذا الإصلاح، loadNotifications() (أدناه) كانت تدمج إشعارات
-        // المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة سابقاً) للمستخدم
-        // *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين حسابين مختلفين
-        // على نفس الجهاز. clear() هنا يضمن قائمة فارغة قبل أي تحميل جديد،
-        // بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل.
+        // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — أول شيء
+        // يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة جلسة — قبل أي شيء آخر.
+        // AuthProvider.login()/verifyOtp() يمسحان tokenStorage/appStorage
+        // دفاعياً بدايةً بغض النظر عن استدعاء logout() صراحة قبلهما أم لا
+        // (نفس النمط بالضبط بـlib/providers/auth_provider.dart) — أي "تسجيل
+        // دخول" قد يكون فعلياً تبديل مستخدم على نفس الجهاز دون مرور صريح
+        // بمسار تسجيل خروج. قبل هذا الإصلاح، loadNotifications() (أدناه)
+        // كانت تدمج إشعارات المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة
+        // سابقاً) للمستخدم *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين
+        // حسابين مختلفين على نفس الجهاز. clear() هنا يضمن حالة فارغة قبل أي
+        // تحميل جديد، بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل. نفس
+        // المنطق يشمل الآن كل Provider يخبّئ بيانات خاصة بحساب مُعيَّن —
+        // رسائل الشات، الطلبات/العروض، سجل الشحن/دفتر الحساب، بيانات لوحة
+        // الأدمن، تذاكر الدعم — لا الإشعارات وحدها.
         notificationProvider.clear();
+        chatProvider.clear();
+        requestsProvider.clear();
+        walletProvider.clear();
+        adminProvider.clear();
+        supportProvider.clear();
         await socketProvider.reconnect();
         // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
         // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
@@ -235,12 +247,18 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
       };
       authProvider.onLoggedOut = () {
         socketProvider.disconnect();
-        // [CRIT-FIX-02] امسح فوراً عند تسجيل الخروج أيضاً (logout()،
-        // deleteAccount()، وhandleUnauthorized() عبر logout() الداخلي —
-        // الثلاثة تستدعي onLoggedOut) — لا تترك بيانات المستخدم الذي خرج
-        // للتو جالسة بالذاكرة حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق
-        // التطبيق بينهما.
+        // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — امسح
+        // فوراً عند تسجيل الخروج أيضاً (logout()، deleteAccount()،
+        // وhandleUnauthorized() عبر logout() الداخلي — الثلاثة تستدعي
+        // onLoggedOut) — لا تترك بيانات المستخدم الذي خرج للتو جالسة بالذاكرة
+        // حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق التطبيق بينهما.
+        // نفس القائمة المُنظَّفة بـonAuthenticated أعلاه بالضبط.
         notificationProvider.clear();
+        chatProvider.clear();
+        requestsProvider.clear();
+        walletProvider.clear();
+        adminProvider.clear();
+        supportProvider.clear();
       };
       // [FIX-SESSION-EXPIRY-01] فقط عند 401 حقيقي أثناء جلسة كانت نشطة
       // (راجع handleUnauthorized()) — وليس عند تسجيل الخروج الصريح من

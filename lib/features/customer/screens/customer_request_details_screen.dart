@@ -207,8 +207,26 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                     onPressed: provider.loading
                         ? null
                         : () async {
-                      await provider.completeRequest(request.id);
-                      if (context.mounted) Navigator.pop(context);
+                      // [SEC-FIX-COMPLETEREQUEST-01] راجع DECISIONS.md — بلا
+                      // try/catch، فشل الشبكة (مثلاً استيقاظ خادم الإنتاج
+                      // المجاني، راجع FIX-CONNECTIVITY-01) كان يوقف الدوران
+                      // بصمت بلا أي رسالة ولا انتقال — يبقى المستخدم بلا أي
+                      // فكرة هل أُنهي الطلب فعلاً أم لا. نفس نمط
+                      // _confirmAndCancel أعلاه بالضبط.
+                      try {
+                        await provider.completeRequest(request.id);
+                        if (context.mounted) Navigator.pop(context);
+                      } on ApiException catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(backgroundColor: AppColors.danger, content: Text(e.message)),
+                        );
+                      } catch (_) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(backgroundColor: AppColors.danger, content: Text(t.completeRequestFailedMessage)),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.check_circle_outline),
                     label: Text(t.completeRequestButton),

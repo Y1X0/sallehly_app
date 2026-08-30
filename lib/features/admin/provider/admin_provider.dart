@@ -137,6 +137,32 @@ class AdminProvider extends ChangeNotifier {
     userDetailError = null;
   }
 
+  /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
+  /// (app.dart's authProvider.onLoggedOut). بدونها، بيانات حسّاسة لمستخدمي
+  /// المنصة كلهم (قائمة مستخدمين، سجل تدقيق، بلاغات، شكاوى، دفتر حساب) تبقى
+  /// بالذاكرة حتى دخول حساب أدمن تالٍ على نفس الجهاز. `services`/`packages`
+  /// مُستثناتان عمداً — قوائم مرجعية عامة (نفسها لكل الأدمنز)، لا بيانات
+  /// خاصة بحساب مُعيَّن، فتنظيفها فقط يهدر استدعاء شبكة إضافي بلا فائدة أمنية.
+  void clear() {
+    stats = AdminStatsModel.empty;
+    users = [];
+    topups = [];
+    tickets = [];
+    auditLogs = [];
+    auditTotal = 0;
+    allRequests = [];
+    violations = [];
+    complaints = [];
+    messageReports = [];
+    userDetail = null;
+    userDetailError = null;
+    ledgerEntries = [];
+    ledgerTotal = 0;
+    _ledgerUserId = null;
+    error = null;
+    notifyListeners();
+  }
+
   /// [FIX-ROLECHANGE-01] تحويل دور مستخدم (super admin فقط — السيرفر يرفض
   /// غير ذلك بـ403 بغض النظر عمّا تعرضه الواجهة).
   Future<void> changeUserRole({

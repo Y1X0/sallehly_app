@@ -49,6 +49,18 @@ class RequestsProvider extends ChangeNotifier {
   bool _requestsRefreshRunning = false;
   bool _requestsRefreshPending = false;
 
+  /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
+  /// (app.dart's authProvider.onLoggedOut). بدونها، طلبات/عروض حساب سابق
+  /// (وصف، سعر، مدينة/منطقة) تبقى بالذاكرة حتى دخول مستخدم تالٍ على نفس
+  /// الجهاز. `meta` مُستثناة عمداً — بيانات مرجعية عامة (خدمات/مدن)، ليست
+  /// خاصة بحساب مُعيَّن.
+  void clear() {
+    requests = [];
+    offers = [];
+    error = null;
+    notifyListeners();
+  }
+
   Future<void> loadMeta({bool force = false}) async {
     try {
       // [FIX-SERVICES-01] force=true يُستخدم عند وصول حدث services-updated
