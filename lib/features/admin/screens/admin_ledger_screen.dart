@@ -60,9 +60,20 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                       onRefresh: () => context.read<AdminProvider>().loadLedger(),
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(16, 66, 16, 16),
-                        itemCount: admin.ledgerEntries.length,
+                        // [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — صف إضافي
+                        // بنهاية القائمة فقط إن كان هناك المزيد فعلياً
+                        // (ledgerEntries.length < ledgerTotal)، يعرض إما مؤشر
+                        // تحميل (أثناء جلب الصفحة التالية) أو زر "تحميل المزيد".
+                        itemCount: admin.ledgerEntries.length +
+                            (admin.ledgerEntries.length < admin.ledgerTotal ? 1 : 0),
                         separatorBuilder: (_, _) => const SizedBox(height: 10),
                         itemBuilder: (_, i) {
+                          if (i == admin.ledgerEntries.length) {
+                            return _LoadMoreFooter(
+                              loading: admin.ledgerLoadingMore,
+                              onPressed: () => context.read<AdminProvider>().loadMoreLedger(),
+                            );
+                          }
                           final entry = admin.ledgerEntries[i];
                           final amount = double.tryParse('${entry['amount']}') ?? 0;
                           final color = amount >= 0 ? AppColors.success : AppColors.danger;
@@ -118,6 +129,39 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                       ),
                     ),
         ),
+      ),
+    );
+  }
+}
+
+/// [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — نفس الودجت يُعاد استخدامه
+/// حرفياً بـadmin_audit_screen.dart (نُسخ لا استورد مشترك عمداً: كلا الشاشتين
+/// بمجلد features/admin/screens المستقل أصلاً، ولا يوجد ملف widgets مشترك
+/// لهما بعد — استخلاصه لملف مشترك قرار تصميمي أوسع مؤجَّل، لا خطأ هنا).
+class _LoadMoreFooter extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onPressed;
+
+  const _LoadMoreFooter({required this.loading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: loading
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+              )
+            : TextButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.expand_more_rounded),
+                label: Text(t.adminLoadMoreButton),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              ),
       ),
     );
   }

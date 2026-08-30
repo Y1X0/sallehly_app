@@ -161,6 +161,125 @@ void main() {
     });
   });
 
+  // [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — قبل هذا الإصلاح، دفتر
+  // الحساب كان محدوداً بأول 100 صف بلا أي طريقة لرؤية الباقي رغم أن الخادم
+  // والـAPI كليهما يدعمان offset فعلياً.
+  group('loadMoreLedger', () {
+    test('يجلب الصفحة التالية بـoffset صحيح ويُلحقها بالقائمة الحالية', () async {
+      when(() => mockApi.getLedger(userId: null, limit: 100)).thenAnswer((_) async => {
+            'entries': List.generate(100, (i) => {'id': i, 'type': 'a', 'amount': 1}),
+            'total': 150,
+          });
+      await provider.loadLedger();
+      expect(provider.ledgerEntries, hasLength(100));
+
+      when(() => mockApi.getLedger(userId: null, limit: 100, offset: 100)).thenAnswer((_) async => {
+            'entries': List.generate(50, (i) => {'id': 100 + i, 'type': 'b', 'amount': 2}),
+            'total': 150,
+          });
+
+      await provider.loadMoreLedger();
+
+      expect(provider.ledgerEntries, hasLength(150));
+      expect(provider.ledgerTotal, 150);
+      expect(provider.ledgerLoadingMore, isFalse);
+      verify(() => mockApi.getLedger(userId: null, limit: 100, offset: 100)).called(1);
+    });
+
+    test('لا يستدعي الـAPI إطلاقاً لو كل الصفوف محمَّلة أصلاً', () async {
+      when(() => mockApi.getLedger(userId: null, limit: 100)).thenAnswer((_) async => {
+            'entries': [
+              {'id': 1, 'type': 'a', 'amount': 1},
+            ],
+            'total': 1,
+          });
+      await provider.loadLedger();
+
+      await provider.loadMoreLedger();
+
+      // "called(1)" هو التحقّق الحاسم هنا: لو loadMoreLedger() حاول (خطأً)
+      // جلب صفحة إضافية بـoffset مختلف، هذا التحقّق كان سيفشل لأن العدد
+      // سيبقى 1 فقط بينما نداء ثانٍ (لو حدث) لن يُطابق هذا الـstub بالذات.
+      verify(() => mockApi.getLedger(userId: null, limit: 100)).called(1);
+    });
+
+    test('يحافظ على فلتر user_id عبر استدعاءات "تحميل المزيد" المتتالية', () async {
+      when(() => mockApi.getLedger(userId: 7, limit: 100)).thenAnswer((_) async => {
+            'entries': List.generate(100, (i) => {'id': i}),
+            'total': 120,
+          });
+      await provider.loadLedger(userId: 7);
+
+      when(() => mockApi.getLedger(userId: 7, limit: 100, offset: 100)).thenAnswer((_) async => {
+            'entries': List.generate(20, (i) => {'id': 100 + i}),
+            'total': 120,
+          });
+
+      await provider.loadMoreLedger();
+
+      verify(() => mockApi.getLedger(userId: 7, limit: 100, offset: 100)).called(1);
+    });
+  });
+
+  // [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — نفس مشكلة دفتر الحساب
+  // بالضبط، بسجل عمليات الأدمن.
+  group('loadMoreAuditLogs', () {
+    test('يجلب الصفحة التالية بـoffset صحيح ويُلحقها بالقائمة الحالية', () async {
+      when(() => mockApi.getAuditLogs(search: '', limit: 100)).thenAnswer((_) async => {
+            'logs': List.generate(100, (i) => {'id': i, 'action': 'a'}),
+            'total': 130,
+          });
+      await provider.loadAuditLogs();
+      expect(provider.auditLogs, hasLength(100));
+
+      when(() => mockApi.getAuditLogs(search: '', limit: 100, offset: 100)).thenAnswer((_) async => {
+            'logs': List.generate(30, (i) => {'id': 100 + i, 'action': 'b'}),
+            'total': 130,
+          });
+
+      await provider.loadMoreAuditLogs();
+
+      expect(provider.auditLogs, hasLength(130));
+      expect(provider.auditTotal, 130);
+      expect(provider.auditLoadingMore, isFalse);
+      verify(() => mockApi.getAuditLogs(search: '', limit: 100, offset: 100)).called(1);
+    });
+
+    test('لا يستدعي الـAPI إطلاقاً لو كل السجلات محمَّلة أصلاً', () async {
+      when(() => mockApi.getAuditLogs(search: '', limit: 100)).thenAnswer((_) async => {
+            'logs': [
+              {'id': 1, 'action': 'a'},
+            ],
+            'total': 1,
+          });
+      await provider.loadAuditLogs();
+
+      await provider.loadMoreAuditLogs();
+
+      // "called(1)" هو التحقّق الحاسم هنا: لو loadMoreAuditLogs() حاول (خطأً)
+      // جلب صفحة إضافية بـoffset مختلف، هذا التحقّق كان سيفشل لأن العدد
+      // سيبقى 1 فقط بينما نداء ثانٍ (لو حدث) لن يُطابق هذا الـstub بالذات.
+      verify(() => mockApi.getAuditLogs(search: '', limit: 100)).called(1);
+    });
+
+    test('يحافظ على نص البحث عبر استدعاءات "تحميل المزيد" المتتالية', () async {
+      when(() => mockApi.getAuditLogs(search: 'محذوف', limit: 100)).thenAnswer((_) async => {
+            'logs': List.generate(100, (i) => {'id': i}),
+            'total': 105,
+          });
+      await provider.loadAuditLogs(search: 'محذوف');
+
+      when(() => mockApi.getAuditLogs(search: 'محذوف', limit: 100, offset: 100)).thenAnswer((_) async => {
+            'logs': List.generate(5, (i) => {'id': 100 + i}),
+            'total': 105,
+          });
+
+      await provider.loadMoreAuditLogs();
+
+      verify(() => mockApi.getAuditLogs(search: 'محذوف', limit: 100, offset: 100)).called(1);
+    });
+  });
+
   group('updateViolationStatus / updateMessageReportStatus', () {
     test('updateViolationStatus يحدّث العنصر محلياً دون إعادة تحميل كامل القائمة', () async {
       provider.violations = [

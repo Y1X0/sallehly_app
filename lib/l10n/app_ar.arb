@@ -101,6 +101,10 @@
   "@retryButton": {
     "description": "زر إعادة المحاولة العام (يُستخدم بعدة شاشات)"
   },
+  "adminLoadMoreButton": "تحميل المزيد",
+  "@adminLoadMoreButton": {
+    "description": "[FIX-ADMINPAGINATION-01] زر تحميل الصفحة التالية بقوائم الأدمن المُقسَّمة لصفحات (دفتر الحساب، سجل العمليات)"
+  },
   "packagesEmptyTitle": "لا توجد باقات حالياً",
   "@packagesEmptyTitle": {
     "description": "عنوان حالة عدم وجود باقات شحن"
