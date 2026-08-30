@@ -5,9 +5,35 @@
 //
 // بيئة flutter test لا تحمل قناة منصّة أصلية لـflutter_local_notifications
 // (بلا محاكاة) — استدعاء _localNotifications.show() داخلياً يفشل حتماً
-// (MissingPluginException)، وهذا بالضبط ما يثبته هذا الاختبار: الفشل الآن
+// (MissingPluginException)، وهذا بالضبط ما يثبته الاختبار الأول: الفشل الآن
 // يُبتلَع بدل أن يرمى للخارج.
+//
+// [TEST-FIX-NOTIFSHOW-01] راجع DECISIONS.md — الاختبار الثاني يثبت ادّعاءً
+// أدقّ لا يثبته الاختبار الأول: ليس فقط "لا يرمي استثناءً"، بل "يستدعي
+// show() فعلاً بالعنوان/النص/الحمولة الصحيحة المُستخرَجة من رسالة FCM
+// الواردة". هذا يتطلَّب أن ينجح استدعاء show() فعلياً (لا أن يفشل بصمت كما
+// بالاختبار الأول) — عبر تسجيل AndroidFlutterLocalNotificationsPlugin
+// الحقيقية (لا مزيَّفة يدوياً) كمنفِّذ المنصّة، وuseDefaultTargetPlatformOverride
+// = android (استعلام resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+// الداخلي يتحقق من كليهما معاً)، ثم محاكاة القناة الأصلية نفسها
+// (dexterous.com/flutter/local_notifications، مصدرها الحقيقي بالحزمة —
+// راجعناه مباشرة لا خمّناه) لالتقاط استدعاء 'show' الفعلي والتحقق من
+// معاملاته، بدل مجرد قبول أن الاستدعاء "لا يرمي".
+//
+// **حدود هذين الاختبارين معاً — ما لا يثبتانه**: أن الإشعار وصل فعلياً من
+// خوادم Google، أو أن Google Play Services على الجهاز عالجه، أو أن نظام
+// أندرويد نفسه عرضه على الشاشة فعلياً، أو أن الضغط عليه فتح التطبيق حقاً.
+// السلسلة من استلام الرسالة الفعلي وحتى ظهورها على الشاشة تمر بكود
+// Java/Kotlin أصلي للحزمة نفسها خارج أي قناة تختبرها بيئة flutter test —
+// هذا الجزء يحتاج فحصاً يدوياً حقيقياً على جهاز فعلي (راجع وصف الفحص
+// المطلوب بمحادثة هذا التغيير)، ولا بديل برمجي كامل عنه بمعزل عن هذا
+// المشروع بالذات.
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sallehly_app/core/notifications/firebase_notification_service.dart';
@@ -28,4 +54,84 @@ void main() {
       );
     },
   );
+
+  group('[TEST-FIX-NOTIFSHOW-01] show() يُستدعى بالمعاملات الصحيحة عند وصول رسالة', () {
+    const channel = MethodChannel('dexterous.com/flutter/local_notifications');
+
+    // [ملاحظة تقنية] debugDefaultTargetPlatformOverride متغيّر تصحيح على
+    // مستوى foundation — إطار flutter_test يتحقق أنه يعود null بعد كل
+    // اختبار عبر _verifyInvariants، الذي يُنفَّذ **داخل** استدعاء testWidgets
+    // نفسه (قبل أن يصل الدور لأي tearDown مسجَّل خارجياً بمستوى group/main).
+    // لذلك، بعكس ما قد يبدو طبيعياً، الضبط والاستعادة يجب أن يكونا داخل كل
+    // اختبار مباشرة (try/finally)، لا بـsetUp/tearDown منفصلين.
+    Future<List<MethodCall>> runWithMockedAndroidChannel(
+      Future<void> Function() body,
+    ) async {
+      final calls = <MethodCall>[];
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      AndroidFlutterLocalNotificationsPlugin.registerWith();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+        calls.add(call);
+        return null;
+      });
+      try {
+        await body();
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      }
+      return calls;
+    }
+
+    testWidgets(
+      'رسالة FCM (بيانات فقط، بلا notification) بالخلفية: show() تستقبل العنوان/النص/الحمولة الصحيحة',
+      (tester) async {
+        const message = RemoteMessage(
+          data: {
+            'title': 'رسالة جديدة من العميل',
+            'body': 'أهلاً، متى تصل؟',
+            'type': 'chat',
+            'requestId': '55',
+          },
+        );
+
+        final calls = await runWithMockedAndroidChannel(
+          () => firebaseBackgroundHandler(message),
+        );
+
+        final showCalls = calls.where((c) => c.method == 'show').toList();
+        expect(showCalls, hasLength(1));
+
+        final args = Map<String, dynamic>.from(showCalls.single.arguments as Map);
+        expect(args['title'], 'رسالة جديدة من العميل');
+        expect(args['body'], 'أهلاً، متى تصل؟');
+
+        final payload = Map<String, dynamic>.from(
+          jsonDecode(args['payload'] as String) as Map,
+        );
+        expect(payload['type'], 'chat');
+        expect(payload['requestId'], '55');
+      },
+    );
+
+    testWidgets(
+      'رسالة FCM بلا title/body بالحمولة (حالة احتياطية): عنوان/نص افتراضيان، بلا فشل',
+      (tester) async {
+        const message = RemoteMessage(data: {'type': 'chat'});
+
+        final calls = await runWithMockedAndroidChannel(
+          () => firebaseBackgroundHandler(message),
+        );
+
+        final showCalls = calls.where((c) => c.method == 'show').toList();
+        expect(showCalls, hasLength(1));
+        final args = Map<String, dynamic>.from(showCalls.single.arguments as Map);
+        // القيم الافتراضية المعرَّفة بـ_showLocalNotificationStatic بالضبط.
+        expect(args['title'], 'صلّحلي');
+        expect(args['body'], 'لديك إشعار جديد');
+      },
+    );
+  });
 }
