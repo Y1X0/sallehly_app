@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,6 +16,7 @@ class AuthProvider extends ChangeNotifier {
   final AppStorage appStorage;
 
   late final AuthApi authApi;
+  StreamSubscription<String>? _tokenRefreshSubscription;
 
   // [FIX-TEST-01] معامل اختياري جديد يسمح بحقن AuthApi جاهز (Mock) للاختبار،
   // بدون أي تأثير على أي مكان يُنشئ AuthProvider حالياً (app.dart لا يمرره
@@ -25,6 +28,39 @@ class AuthProvider extends ChangeNotifier {
     AuthApi? authApiOverride,
   }) {
     authApi = authApiOverride ?? AuthApi(apiClient);
+
+    // [FIX-FCMREFRESH-01] راجع DECISIONS.md — قبل هذا الإصلاح، تجدد توكن FCM
+    // (يحدث فعلياً بالاستخدام الطبيعي، لا فقط عند إعادة التثبيت) كان يصل فقط
+    // لمسار ميت بـFirebaseNotificationService (configure()/sendPendingToken()
+    // لم يكن يستدعيهما أي كود إطلاقاً) — التوكن الجديد يُحفظ محلياً فقط ولا
+    // يصل السيرفر أبداً، فتموت الإشعارات لهذا التثبيت بصمت لأي مستخدم لا يزال
+    // مسجَّلاً دخوله. الاستماع هنا يعيد استخدام _sendFcmTokenToServer نفسها
+    // (المسار الحقيقي المُثبَت أصلاً، يُستدعى بعد login/verifyOtp/loadMe) —
+    // تجلب توكناً طازجاً بنفسها فلا حاجة لتمرير التوكن الجديد إليها. try/catch
+    // هنا (لا داخل _sendFcmTokenToServer فقط) لأن مجرد الوصول لـ
+    // FirebaseMessaging.instance.onTokenRefresh نفسه قد يفشل ببيئة flutter
+    // test (لا Firebase مُهيَّأ) — نفس السبب الموثَّق أصلاً بتعليق
+    // test/models/auth_provider_test.dart لـ_sendFcmTokenToServer.
+    try {
+      _tokenRefreshSubscription = FirebaseMessaging.instance.onTokenRefresh.listen(
+        (_) => _sendFcmTokenToServer(),
+        onError: (Object e) {
+          // Stream-side failure (لا Firebase مُهيَّأ ببيئة الاختبار مثلاً) قد
+          // تصل هنا بشكل غير متزامن، بعد أن يكون try/catch أعلاه قد انتهى
+          // فعلاً — بلا هذا onError صراحة، قد تنتشر كخطأ غير مُلتقَط بالـZone
+          // الحالي بدل الفشل الصامت المتوقَّع (نفس فلسفة try/catch أعلاه).
+          if (kDebugMode) debugPrint('[FCM] onTokenRefresh stream error: $e');
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FCM] onTokenRefresh listen failed: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _tokenRefreshSubscription?.cancel();
+    super.dispose();
   }
 
   UserModel? _user;
