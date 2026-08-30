@@ -366,3 +366,54 @@ test` — **المجموعة الكاملة تمر بالكامل باستثنا
 فلا "مفتاح تشفير فاسد" ممكن)، لذا لم يكن التوسّع لها ذا معنى بنفس الإصلاح.
 لم يُضَف أي مؤشر/سجلّ (telemetry) لعدد مرات حدوث هذا العطل فعلياً بالإنتاج
 — قد يفيد لاحقاً لمعرفة مدى تكرار المشكلة الحقيقي.
+
+# [FIX-TOGGLEFEEDBACK-01] تبديل حالة مهنة فاشل يمر بصمت — بلا أي رسالة خطأ للأدمن
+
+## الاكتشاف
+`AdminMetaScreen`: `onToggle: (e) => admin.toggleService(int.tryParse('${e['id']}') ?? 0, e['is_active'] == 0)`
+— استدعاء مباشر بلا `await` ولا `try/catch`. بالمقابل، `onDelete` بنفس
+الشاشة يمر عبر `confirmDelete()` التي **هي وحدها** تلتقط الأخطاء وتعرضها
+(`showErrorSnackBar`)؛ `AdminProvider.toggleService()` نفسها أيضاً بلا
+`catch` (بعكس `toggleUser`/`deleteUser` بنفس الملف، اللذين يضبطان `error`
+صراحة عند الفشل).
+
+النتيجة: فشل فعلي (شبكة، 403 صلاحيات، 500 خادم) عند تفعيل/تعطيل مهنة كان
+يمر بصمت تماماً — لا `SnackBar`، لا أي مؤشر للأدمن أن حالة المهنة لم تتغيّر
+فعلياً بالخادم رغم أن المفتاح (`Switch`) قد يبدو أنه تبدّل بصرياً لحظياً
+قبل أن يعيد `loadMeta()`/الحالة الفعلية تصحيحه بصمت أيضاً.
+
+## الحل
+دالة جديدة `toggleServiceWithFeedback()` بـ`_AdminMetaScreenState`، بنفس
+نمط `try/catch`/`showErrorSnackBar` المُستخدَم أصلاً بـ`confirmDelete()`
+و`editService()` بنفس الملف (`on ApiException catch (e) => showErrorSnackBar(context, e.message)`،
+`catch (_) => showErrorSnackBar(context, t.editDataFailedMessage)` —
+رسالة عامة موجودة أصلاً، بلا إضافة مفتاح ARB جديد). `onToggle` بقائمة
+"المهن" يستدعيها الآن بدل `admin.toggleService(...)` المباشرة.
+
+## الإثبات
+`test/widgets/admin_toggle_feedback_test.dart` — ملف جديد: `AdminProvider`
+بـ`apiOverride: MockAdminApi` (`getMeta`/`getAllServices` ناجحتان بمهنة
+واحدة، `toggleService` تُلقي استثناءً)، يبني `AdminMetaScreen` فعلياً،
+يضغط `Switch` المهنة، ويتحقّق من ظهور `SnackBar` برسالة الخطأ العامة.
+
+**تحقَّق يدوياً أن الاختبار يفشل فعلاً بدون الإصلاح** (`git stash` مؤقت
+لـ`admin_meta_screen.dart` فقط): فشل بـ
+`Expected: exactly one matching candidate, Actual: Found 0 widgets` —
+لا أي رسالة تظهر إطلاقاً، بالضبط العطل الموصوف. استُعيد الإصلاح بعدها،
+نجاح الاختبار.
+
+`flutter analyze`: صفر أخطاء جديدة (42 تحذير info مسبق الوجود، بلا علاقة
+بهذا التغيير). `flutter test`: **286/286** فعلياً (كانت 285، +1 هنا)
+باستثناء نفس الفشل الوحيد المعروف مسبقاً وغير المرتبط
+(`l10n_screenshot_capture_test.dart`، خطوط عربية غير متوفرة بهذه البيئة).
+
+## نطاق متروك عمداً
+`updateService`/`createService`/`deleteService`/`deletePackage` (نفس
+الملف) و`togglePackageActive` (تبويب "الباقات"، سطر ~313) تشترك نفس فئة
+الفجوة جزئياً: `AdminProvider` نفسها بلا `catch` يضبط `error`، لكن معظم
+مواقع الاستدعاء تمر فعلياً عبر `confirmDelete()`/`addPackage()` اللتين
+تلتقطان الخطأ بمستوى الشاشة — **إلا** `togglePackageActive` تحديداً
+(`onToggle: (e) => admin.togglePackageActive(e)` بتبويب الباقات) التي
+تشترك بالضبط نفس الفجوة غير المُصلَحة هنا (استدعاء مباشر بلا `await`/
+`try/catch`). لم يُطلَب صراحةً بهذه الجولة — يُترَك لطلب لاحق إن أُريد،
+بنفس نمط الحل المُطبَّق هنا بالضبط.

@@ -198,6 +198,24 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
     }
   }
 
+  // [FIX-TOGGLEFEEDBACK-01] راجع DECISIONS.md — onToggle أدناه كان يستدعي
+  // admin.toggleService(...) مباشرة بلا await ولا try/catch (بعكس onDelete
+  // الذي يمر عبر confirmDelete، وهي الوحيدة التي تلتقط الأخطاء وتعرضها). فشل
+  // فعلي (شبكة، 403، 500) كان يمر بصمت تماماً — لا SnackBar خطأ، لا أي مؤشّر
+  // للأدمن أن الحالة لم تتغيّر فعلياً على الخادم رغم تبديل المفتاح بصرياً.
+  Future<void> toggleServiceWithFeedback(int id, bool isActive) async {
+    final t = AppLocalizations.of(context)!;
+    try {
+      await context.read<AdminProvider>().toggleService(id, isActive);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.editDataFailedMessage);
+    }
+  }
+
   Future<void> confirmDelete({
     required String title,
     required String name,
@@ -280,7 +298,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
                   ? t.professionDisabledSubtitle
                   : t.professionActiveSubtitle,
               isActiveGetter: (e) => e['is_active'] != 0,
-              onToggle: (e) => admin.toggleService(
+              onToggle: (e) => toggleServiceWithFeedback(
                 int.tryParse('${e['id']}') ?? 0,
                 e['is_active'] == 0,
               ),
