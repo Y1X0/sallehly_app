@@ -40,6 +40,13 @@ class ChatProvider extends ChangeNotifier {
   String? chatsError;
   bool _loadingChats = false;
 
+  // [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — عدّاد جيل، نفس نمط
+  // NotificationProvider._generation (HIGH-FIX-STALEGEN-01) بالضبط: يُلتقَط
+  // قبل await بكل دالة تدمج رداً بالحالة المشتركة، فلو حصل clear() (تسجيل
+  // خروج/دخول لحساب آخر) أثناء الانتظار، يختلف الجيل الملتقَط عن الحالي بعد
+  // العودة، فيُهمَل الرد كاملاً بدل دمج بيانات حساب سابق بحساب حالي مختلف.
+  int _generation = 0;
+
   int unreadCountFor(int requestId) {
     for (final c in chats) {
       if (c.requestId == requestId) return c.unreadCount;
@@ -47,9 +54,28 @@ class ChatProvider extends ChangeNotifier {
     return 0;
   }
 
+  /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
+  /// (app.dart's authProvider.onLoggedOut). بدونها، رسائل الشات الفعلية
+  /// (عناوين، أرقام، تفاوض سعر) لحساب سابق تبقى بالذاكرة (_messagesByRequest)
+  /// حتى لحظة دخول مستخدم تالٍ على نفس الجهاز — ChatRoomScreen.build() يقرأ
+  /// messagesFor() بشكل متزامن قبل اكتمال أي تحميل جديد، فقد تُعرَض فوراً لو
+  /// تطابق معرّف الطلب صدفةً. نفس فلسفة NotificationProvider.clear() تماماً.
+  void clear() {
+    _generation++;
+    _messagesByRequest.clear();
+    _blockStatusByRequest.clear();
+    _loadingRequestIds.clear();
+    chats = [];
+    totalUnread = 0;
+    error = null;
+    chatsError = null;
+    notifyListeners();
+  }
+
   Future<void> loadChats({bool silent = false}) async {
     if (_loadingChats) return;
     _loadingChats = true;
+    final capturedGeneration = _generation;
 
     if (!silent) {
       chatsLoading = true;
@@ -59,15 +85,17 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       final (result, total) = await api.getChats();
+      if (capturedGeneration != _generation) return;
       chats = result;
       totalUnread = total;
       chatsError = null;
     } catch (e) {
+      if (capturedGeneration != _generation) return;
       chatsError = e is ApiException ? e.message : 'تعذر تحميل المحادثات';
     } finally {
       _loadingChats = false;
       if (!silent) chatsLoading = false;
-      notifyListeners();
+      if (capturedGeneration == _generation) notifyListeners();
     }
   }
 
@@ -83,6 +111,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> loadMessages(int requestId, {bool silent = false}) async {
     if (_loadingRequestIds.contains(requestId)) return;
     _loadingRequestIds.add(requestId);
+    final capturedGeneration = _generation;
 
     if (!silent) {
       loading = true;
@@ -92,14 +121,16 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       final messages = await api.getMessages(requestId);
+      if (capturedGeneration != _generation) return;
       _messagesByRequest[requestId] = messages;
       error = null;
     } catch (e) {
+      if (capturedGeneration != _generation) return;
       error = e is ApiException ? e.message : 'تعذر تحميل الرسائل';
     } finally {
       _loadingRequestIds.remove(requestId);
       if (!silent) loading = false;
-      notifyListeners();
+      if (capturedGeneration == _generation) notifyListeners();
     }
   }
 

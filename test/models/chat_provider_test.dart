@@ -1,6 +1,8 @@
 // [FIX-CHATUNREAD-01] اختبارات ChatProvider.loadChats — يتحقق من تعبئة قائمة
 // المحادثات وعدّاد غير المقروء الكلي عند النجاح، وعدم بقاء chatsLoading
 // معلّقاً عند الفشل، بنفس نمط requests_provider_test.dart.
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -9,6 +11,7 @@ import 'package:sallehly_app/core/api/api_exception.dart';
 import 'package:sallehly_app/features/chat/data/chat_api.dart';
 import 'package:sallehly_app/features/chat/provider/chat_provider.dart';
 import 'package:sallehly_app/models/chat_summary_model.dart';
+import 'package:sallehly_app/models/message_model.dart';
 
 class MockChatApi extends Mock implements ChatApi {}
 
@@ -91,6 +94,53 @@ void main() {
       await Future.wait([first, second]);
 
       expect(callCount, 1);
+    });
+  });
+
+  // [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — تُثبت أن clear() (المُستدعاة
+  // من app.dart عند تسجيل الخروج/الدخول) لا تترك أي بيانات حساب سابق بالذاكرة،
+  // وأن عدّاد الجيل يمنع رداً وصل متأخراً لحساب سابق من إعادة تعبئة الحالة
+  // بعد clear() — نفس اختبار NotificationProvider._generation (HIGH-FIX-STALEGEN-01)
+  // لكن على ChatProvider.
+  group('clear', () {
+    test('يُفرّغ الرسائل، المحادثات، وحالة الحظر المخبَّأة بالكامل', () async {
+      when(() => mockApi.getMessages(1)).thenAnswer((_) async => [
+            MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة سرّية من الحساب السابق'),
+          ]);
+      await provider.loadMessages(1);
+      expect(provider.messagesFor(1), isNotEmpty);
+
+      when(() => mockApi.getChats()).thenAnswer((_) async => (
+            [_sampleChat(requestId: 1, unreadCount: 2)],
+            2,
+          ));
+      await provider.loadChats();
+      expect(provider.chats, isNotEmpty);
+      expect(provider.totalUnread, 2);
+
+      provider.clear();
+
+      expect(provider.messagesFor(1), isEmpty);
+      expect(provider.chats, isEmpty);
+      expect(provider.totalUnread, 0);
+      expect(provider.error, isNull);
+      expect(provider.chatsError, isNull);
+    });
+
+    test('رد متأخر لطلب بدأ قبل clear() (حساب سابق) لا يُعيد ملء الحالة بعد الخروج', () async {
+      final gate = Completer<void>();
+      when(() => mockApi.getMessages(1)).thenAnswer((_) async {
+        await gate.future;
+        return [MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة وصلت متأخرة لحساب سابق')];
+      });
+
+      final pendingLoad = provider.loadMessages(1);
+      // تسجيل خروج (أو دخول لحساب آخر) بينما الطلب لا يزال معلَّقاً.
+      provider.clear();
+      gate.complete();
+      await pendingLoad;
+
+      expect(provider.messagesFor(1), isEmpty, reason: 'رد متأخر لحساب سابق أعاد ملء الحالة بعد clear() — لا حماية جيل');
     });
   });
 }

@@ -26,6 +26,18 @@ class WalletProvider extends ChangeNotifier {
   List<TopupModel> topups = [];
   List<LedgerModel> ledger = [];
 
+  /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
+  /// (app.dart's authProvider.onLoggedOut). بدونها، سجل شحن الرصيد وحركات
+  /// دفتر الحساب المالية لحساب سابق تبقى بالذاكرة حتى دخول مستخدم تالٍ على
+  /// نفس الجهاز. `packages`/`paymentMethods` مُستثناتان عمداً — قوائم مرجعية
+  /// عامة (نفسها لكل المستخدمين)، ليست خاصة بحساب مُعيَّن.
+  void clear() {
+    topups = [];
+    ledger = [];
+    error = null;
+    notifyListeners();
+  }
+
   Future<void> loadWallet() async {
     _setLoading(true);
 

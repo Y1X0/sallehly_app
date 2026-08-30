@@ -129,4 +129,15 @@ class SupportProvider extends ChangeNotifier {
   void clearMessages() {
     messages = [];
   }
+
+  /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
+  /// (app.dart's authProvider.onLoggedOut). بدونها، محتوى تذاكر/رسائل دعم
+  /// حساب سابق (قد تتضمن شكاوى شخصية) يبقى بالذاكرة حتى دخول مستخدم تالٍ
+  /// على نفس الجهاز.
+  void clear() {
+    tickets = [];
+    messages = [];
+    error = null;
+    notifyListeners();
+  }
 }
