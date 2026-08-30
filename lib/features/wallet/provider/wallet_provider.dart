@@ -11,10 +11,14 @@ import '../data/wallet_api.dart';
 class WalletProvider extends ChangeNotifier {
   late final WalletApi api;
 
+  // [FIX-TEST-01] معامل اختياري يسمح بحقن WalletApi جاهز (Mock) للاختبار —
+  // بنفس نمط ChatProvider/AdminProvider/RequestsProvider أصلاً بهذا المشروع.
+  // بلا أي تأثير على app.dart الذي لا يمرره إطلاقاً.
   WalletProvider({
     required ApiClient apiClient,
+    WalletApi? apiOverride,
   }) {
-    api = WalletApi(apiClient);
+    api = apiOverride ?? WalletApi(apiClient);
   }
 
   bool loading = false;
@@ -125,6 +129,10 @@ class WalletProvider extends ChangeNotifier {
     required int packageId,
     required String receiptPath,
   }) async {
+    // [SEC-FIX-DOUBLESUBMIT-01] راجع DECISIONS.md — بلا هذا الحارس، ضغطتان
+    // متقاربتان جداً على زر الشحن (أسرع من إعادة رسم الواجهة التي تعطّله
+    // فعلياً) كانتا سترسلان طلبَي شحن حقيقيين منفصلين للخادم بنفس الإيصال.
+    if (submitting) return;
     submitting = true;
     error = null;
     notifyListeners();

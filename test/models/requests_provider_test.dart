@@ -270,4 +270,104 @@ void main() {
       expect(provider.error, isNull);
     });
   });
+
+  // [SEC-FIX-DOUBLESUBMIT-01] راجع DECISIONS.md — "يبدو حامياً لكنه ليس
+  // كذلك دائماً": الأزرار المعنية كانت تعتمد حصراً على `loading ? null :
+  // onPressed` بالواجهة، بلا أي حارس فعلي داخل الحالة نفسها. `notifyListeners`
+  // يُجدوِل إعادة رسم للإطار التالي، لا يُنفِّذها فوراً — فضغطتان متلاحقتان
+  // جداً (أسرع من إطار واحد) كانتا تصلان كلتاهما لدالة الكتابة قبل أن تُعطَّل
+  // أي منهما بصرياً. السيناريو العدائي هنا مطابق تماماً لذلك: استدعاء الدالة
+  // مرتين بلا `await` بين الاستدعاءين (تماماً كضغطتين سريعتين على نفس الزر
+  // قبل إعادة رسم الواجهة)، والتحقق من وصول طلب حقيقي واحد فقط للخادم.
+  group('SEC-FIX-DOUBLESUBMIT-01 — حارس الضغط المزدوج', () {
+    test('acceptOffer: استدعاءان متزامنان (بلا انتظار الأول) ينفّذان قراراً واحداً فقط', () async {
+      when(
+        () => mockApi.decideOffer(
+          offerId: any(named: 'offerId'),
+          decision: any(named: 'decision'),
+        ),
+      ).thenAnswer((_) async {
+        await Future.delayed(const Duration(milliseconds: 10));
+        return _sampleRequest(status: 'تم اختيار عرض');
+      });
+      when(() => mockApi.getOffers(any())).thenAnswer((_) async => []);
+      when(() => mockApi.getRequests()).thenAnswer(
+        (_) async => [_sampleRequest(status: 'تم اختيار عرض')],
+      );
+
+      // محاكاة ضغطتين سريعتين جداً على زر "قبول" — بلا await بين
+      // الاستدعاءين، تماماً كما يحدث فعلياً لو ضغط المستخدم الزر مرتين قبل
+      // أن تعيد الواجهة رسم نفسها بحالة loading الجديدة.
+      final first = provider.acceptOffer(requestId: 1, offerId: 5);
+      final second = provider.acceptOffer(requestId: 1, offerId: 5);
+
+      await first;
+      await second;
+
+      verify(
+        () => mockApi.decideOffer(offerId: 5, decision: 'accepted'),
+      ).called(1);
+    });
+
+    test('createRequest: استدعاءان متزامنان لا يُنشئان طلبَين حقيقيين', () async {
+      when(
+        () => mockApi.createRequest(
+          service: any(named: 'service'),
+          city: any(named: 'city'),
+          area: any(named: 'area'),
+          description: any(named: 'description'),
+          preferredTime: any(named: 'preferredTime'),
+          imagePath: any(named: 'imagePath'),
+        ),
+      ).thenAnswer((_) async {
+        await Future.delayed(const Duration(milliseconds: 10));
+        return _sampleRequest();
+      });
+      when(() => mockApi.getRequests())
+          .thenAnswer((_) async => [_sampleRequest()]);
+
+      final first = provider.createRequest(
+        service: 'كهربائي',
+        city: 'عمان',
+        area: 'خلدا',
+        description: 'وصف تجريبي طويل بما فيه الكفاية لتجاوز التحقق',
+      );
+      final second = provider.createRequest(
+        service: 'كهربائي',
+        city: 'عمان',
+        area: 'خلدا',
+        description: 'وصف تجريبي طويل بما فيه الكفاية لتجاوز التحقق',
+      );
+
+      await first;
+      await second;
+
+      verify(
+        () => mockApi.createRequest(
+          service: any(named: 'service'),
+          city: any(named: 'city'),
+          area: any(named: 'area'),
+          description: any(named: 'description'),
+          preferredTime: any(named: 'preferredTime'),
+          imagePath: any(named: 'imagePath'),
+        ),
+      ).called(1);
+    });
+
+    test('cancelRequest: استدعاءان متزامنان لا يُلغيان نفس الطلب مرتين', () async {
+      when(() => mockApi.cancelRequest(any())).thenAnswer((_) async {
+        await Future.delayed(const Duration(milliseconds: 10));
+        return _sampleRequest(status: 'ملغي');
+      });
+      when(() => mockApi.getRequests()).thenAnswer((_) async => []);
+
+      final first = provider.cancelRequest(1);
+      final second = provider.cancelRequest(1);
+
+      await first;
+      await second;
+
+      verify(() => mockApi.cancelRequest(1)).called(1);
+    });
+  });
 }
