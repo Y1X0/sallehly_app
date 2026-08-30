@@ -331,6 +331,8 @@
   "requestServiceNowLabel": "Request this service now",
   "offerSentSuccessMessage": "Offer sent successfully",
   "offerSendFailedMessage": "Couldn't send the offer",
+  "offerAcceptFailedMessage": "Couldn't accept the offer",
+  "offerRejectFailedMessage": "Couldn't reject the offer",
   "freeOffersExhaustedTitle": "You've used your 2 free offers",
   "laterButton": "Later",
   "submitOfferTitle": "Submit Offer",

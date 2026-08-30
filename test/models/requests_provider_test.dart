@@ -147,6 +147,67 @@ void main() {
       ).called(1);
       verify(() => mockApi.getOffers(1)).called(1);
     });
+
+    // [FIX-OFFERDECISION-01] راجع DECISIONS.md — قبل هذا الإصلاح، acceptOffer
+    // لم يكن لديه catch إطلاقاً، فـ`error` كان يبقى null دائماً حتى عند فشل
+    // الشبكة، ولا شيء يميّز الفشل عن النجاح للمستدعي غير الاستثناء المرمي.
+    test('عند فشل السيرفر: يسجّل رسالة الخطأ ويعيد رمي الاستثناء', () async {
+      when(
+        () => mockApi.decideOffer(
+          offerId: any(named: 'offerId'),
+          decision: any(named: 'decision'),
+        ),
+      ).thenThrow(ApiException('تعذر قبول العرض'));
+
+      await expectLater(
+        provider.acceptOffer(requestId: 1, offerId: 5),
+        throwsA(isA<ApiException>()),
+      );
+
+      expect(provider.error, 'تعذر قبول العرض');
+      expect(provider.loading, isFalse);
+    });
+  });
+
+  group('rejectOffer', () {
+    test('يرسل قرار rejected ثم يحدّث العروض والطلبات', () async {
+      when(
+        () => mockApi.decideOffer(
+          offerId: any(named: 'offerId'),
+          decision: any(named: 'decision'),
+        ),
+      ).thenAnswer((_) async => _sampleRequest(status: 'وصلت عروض'));
+      when(() => mockApi.getOffers(any())).thenAnswer((_) async => []);
+      when(() => mockApi.getRequests()).thenAnswer(
+        (_) async => [_sampleRequest(status: 'وصلت عروض')],
+      );
+
+      await provider.rejectOffer(requestId: 1, offerId: 5);
+
+      verify(
+        () => mockApi.decideOffer(offerId: 5, decision: 'rejected'),
+      ).called(1);
+      verify(() => mockApi.getOffers(1)).called(1);
+      expect(provider.error, isNull);
+    });
+
+    // [FIX-OFFERDECISION-01] نفس فحص acceptOffer أعلاه بالضبط، على rejectOffer.
+    test('عند فشل السيرفر: يسجّل رسالة الخطأ ويعيد رمي الاستثناء', () async {
+      when(
+        () => mockApi.decideOffer(
+          offerId: any(named: 'offerId'),
+          decision: any(named: 'decision'),
+        ),
+      ).thenThrow(ApiException('تعذر رفض العرض'));
+
+      await expectLater(
+        provider.rejectOffer(requestId: 1, offerId: 5),
+        throwsA(isA<ApiException>()),
+      );
+
+      expect(provider.error, 'تعذر رفض العرض');
+      expect(provider.loading, isFalse);
+    });
   });
 
   group('cancelRequest', () {

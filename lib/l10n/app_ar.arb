@@ -1409,6 +1409,14 @@
   "@offerSendFailedMessage": {
     "description": "رسالة خطأ عامة عند فشل إرسال العرض لسبب غير معروف (استثناء غير ApiException)"
   },
+  "offerAcceptFailedMessage": "تعذر قبول العرض",
+  "@offerAcceptFailedMessage": {
+    "description": "[FIX-OFFERDECISION-01] رسالة خطأ عامة عند فشل قبول عرض لسبب غير معروف (استثناء غير ApiException)"
+  },
+  "offerRejectFailedMessage": "تعذر رفض العرض",
+  "@offerRejectFailedMessage": {
+    "description": "[FIX-OFFERDECISION-01] رسالة خطأ عامة عند فشل رفض عرض لسبب غير معروف (استثناء غير ApiException)"
+  },
   "freeOffersExhaustedTitle": "استُهلكت فرصتاك المجانيتان",
   "@freeOffersExhaustedTitle": {
     "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد"
