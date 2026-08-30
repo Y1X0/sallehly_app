@@ -1606,3 +1606,59 @@ Java/Kotlin أصلي بالحزمة → نظام إشعارات أندرويد) 
 مبنية على أن `SEC-FIX-MEPWSOCKET-01` (الخادم) يُصدر توكناً يحمل
 `token_version` الجديد فعلياً (مُثبَت هناك بالفعل)، وأن `ApiClient`'s حفظ
 التوكن من `Set-Cookie` آلية عامة مُختبَرة ضمنياً بمسارات أخرى.
+
+# [SEC-FIX-ADMINDOUBLESUBMIT-01] `AdminProvider.actionLoading` يُكتَب بـ17 دالة كتابة، يُقرَأ كحارس بصفر منها — على الطريقتين اللتين تحرِّكان أموالاً فعلياً
+
+## الخطورة
+متوسط — نفس فئة وحجم `SEC-FIX-DOUBLESUBMIT-01` بالضبط (نافذة استغلال ضيقة
+جداً، أسرع من إطار رسم واحد؛ ~16ms)، لكن العواقب هنا أوضح مالياً:
+`reviewTopup` تعتمد شحن رصيد (يزيد رصيد فني فعلياً)، `adjustUserBalance`
+تُعدِّل رصيد مستخدم مباشرة — ضغطتان سريعتان على نفس الزر (تلامس بشري
+غير مقصود، أو اتصال بطيء يُغري الأدمن بالضغط ثانية) كانتا تُرسلان العملية
+مرتين حقيقيتين للخادم.
+
+## الاكتشاف
+جولة تدقيق عاشرة، فحص مباشر لكل الـ17 دالة كتابة بـ`AdminProvider`
+(`lib/features/admin/provider/admin_provider.dart`) التي تكتب
+`actionLoading = true/false`: **لا دالة واحدة منها تقرأ `actionLoading`
+كحارس قبل البدء** — بالضبط فئة `SEC-FIX-DOUBLESUBMIT-01` (`RequestsProvider`/
+`WalletProvider`/`SupportProvider`، جولة سابقة) التي فاتت `AdminProvider`
+حينها. تعطيل الزر بالواجهة (`actionLoading ? null : onPressed`) وحده لا
+يمنع نداءين حقيقيين متتاليين وصلا بلا `await` بينهما، لأن
+`notifyListeners()` لا يُعيد رسم الودجت بنفس السطر — يُجدوِل ذلك للإطار
+التالي فقط.
+
+**لماذا حارسان فقط، لا 17**: نفس حجة `SEC-FIX-DOUBLESUBMIT-01` بالضبط —
+`actionLoading` مشترك بكل الـ17 دالة معاً، فحارس ساذج عليه مباشرة
+(`if (actionLoading) return;`) كان سيمنع بصمت إجراءً أدمن حقيقياً لو كان
+إجراء *آخر* مختلف قيد التنفيذ صدفة بنفس اللحظة (مثال: تعديل رصيد مستخدم
+بينما مراجعة شحن منفصلة لا تزال معلَّقة). الطلب من المستخدم (محادثة هذا
+التغيير) كان مقصوراً صراحة على الطريقتين اللتين تحرِّكان أموالاً فعلياً —
+`reviewTopup`/`adjustUserBalance` — لا كل الـ17.
+
+## الحل
+حارسان مخصَّصان منفصلان (`_reviewingTopup`/`_adjustingBalance`)، بنفس
+نمط `_creatingRequest`/`_sendingOffer`/... بـ`RequestsProvider` حرفياً:
+`if (_flag) return; _flag = true;` في أول سطر بجسم الدالة، قبل حتى
+`actionLoading = true`، تُصفَّر بـ`finally` مع `actionLoading`.
+
+## الإثبات
+`test/models/admin_provider_doublesubmit_test.dart` (جديد) — بنفس نمط
+`wallet_provider_doublesubmit_test.dart` تماماً: استدعاءان متزامنان (بلا
+`await` بينهما) لكل من `reviewTopup`/`adjustUserBalance`، يثبت أن طلباً
+حقيقياً واحداً فقط يصل للـAPI المُقلَّد بكل حالة. **تحقَّق يدوياً
+fail-before/pass-after** (`git stash` مؤقت لـ`admin_provider.dart` فقط):
+بدون الإصلاح، فشل حقيقي — `Expected: <1>, Actual: <2>` بكلا الاختبارين
+(نداءان حقيقيان فعلاً، لا واحد كما يوحي مظهر الزر "المعطَّل"). المجموعة
+الكاملة: **316 اختباراً ناجحاً** (زيادة اختبارين)، لا تراجع.
+
+## نطاق متروك عمداً
+الـ15 دالة كتابة الأخرى بـ`AdminProvider` (`toggleUser`، `changeUserRole`،
+`verifyTechnician`، `updateSupportStatus`، `toggleService`، `updateService`،
+`createService`، `deleteService`، `deletePackage`، `createPackage`،
+`cancelRequest`، `changeRequestStatus`، `updateUserProfile`، `deleteUser`،
+`updatePackage`) تبقى بلا حارس مخصَّص — نفس ثغرة الضغطة المزدوجة قائمة
+بها (عمليات مكرَّرة عند حدوثها: توثيق فني مزدوج، تعديل باقة مزدوج...) لكن
+لا تحرِّك أموالاً مباشرة مثل الاثنتين أعلاه؛ على قائمة المؤجَّل بخطورة
+منخفض–متوسط (نفس تصنيف نظرائها بـ`RequestsProvider` قبل
+`SEC-FIX-DOUBLESUBMIT-01`، لو أُريد توسيع التغطية لاحقاً بجولة مخصَّصة).
