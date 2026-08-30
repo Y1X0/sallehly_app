@@ -169,7 +169,24 @@ class _ChatBubbleState extends State<ChatBubble> {
       'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
     );
 
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    // [SEC-FIX-OPENLOCATION-01] راجع DECISIONS.md — launchUrl (توثيقها
+    // الرسمي) قد ترمي استثناءً أو تُرجع false بهدوء، حسب نوع الفشل — لا يوجد
+    // أي تطبيق/متصفح على الجهاز يقدر يفتح الرابط (نادر لكن حقيقي، خاصة أجهزة
+    // أندرويد مقيَّدة/مصغَّرة) بكلتا الحالتين. بلا هذا الفحص، الضغط على رسالة
+    // الموقع لا يفعل شيئاً بصمت — نفس نمط showErrorSnackBar المستخدَم أعلاه
+    // بهذا الملف بالضبط (playAudioFailedMessage).
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        final t = AppLocalizations.of(context)!;
+        showErrorSnackBar(context, t.openLocationFailedMessage);
+      }
+    } catch (e) {
+      if (mounted) {
+        final t = AppLocalizations.of(context)!;
+        showErrorSnackBar(context, t.openLocationFailedMessage);
+      }
+    }
   }
 
   @override
