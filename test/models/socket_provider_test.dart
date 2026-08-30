@@ -58,13 +58,35 @@ void main() {
     verify(() => mockSocket.on(SocketEvents.connect, any())).called(1);
   });
 
-  test('connect() مرتين متتاليتين: المستمعون يُسجَّلون مرة واحدة فقط (_listenersBound)', () async {
-    when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
-    await provider.connect();
-    await provider.connect();
-    // نفس مجموعة on() الكاملة لا تتكرر بمكالمة ثانية
-    verify(() => mockSocket.on(SocketEvents.connect, any())).called(1);
-  });
+  test(
+    '[FIX-SOCKETREBIND-01] connect() مرتين متتاليتين بلا reconnect()/disconnect() بينهما: '
+    'المستمعون يُعاد تسجيلهم بالكامل في كل مرة — لا يبقون على "مرة واحدة فقط"',
+    () async {
+      when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
+
+      await provider.connect();
+      verify(() => mockSocket.on(SocketEvents.connect, any())).called(1);
+
+      // [FIX-SOCKETREBIND-01] استدعاء ثانٍ لـconnect() بلا المرور بـ
+      // reconnect()/disconnect() أولاً — بالضبط كما يحدث فعلياً بمسار استئناف
+      // التطبيق من الخلفية (app.dart: didChangeAppLifecycleState يستدعي
+      // .connect() مباشرة عند !connected، لا .reconnect()). الكود الحقيقي
+      // بـsocket_service.dart ينشئ كائن io.Socket جديداً تماماً بكل استدعاء
+      // connect() — فيلزم تسجيل المستمعين من جديد على الكائن الجديد، لا
+      // الاكتفاء بتسجيل واحد يبقى "صالحاً" للأبد.
+      clearInteractions(mockSocket);
+      await provider.connect();
+
+      // capturedCallbackFor نفسها تفشل (StateError "لم يُسجَّل أي مستمع
+      // للحدث") إن لم يُسجَّل .on(SocketEvents.connect, ...) إطلاقاً بهذه
+      // الدفعة الثانية — وهذا بالضبط ما كان يحدث قبل [FIX-SOCKETREBIND-01]
+      // (المستمعون يبقون على تسجيل المرة الأولى فقط). ثم نُثبت أن المستمع
+      // المُسجَّل هنا فعلياً حي ويعمل، لا مجرد موجود بالسجل.
+      final onConnectSecond = capturedCallbackFor(SocketEvents.connect);
+      onConnectSecond(null);
+      expect(provider.connected, isTrue);
+    },
+  );
 
   test('[FIX-CHAT-02] joinRequest ثم حدث connect (إعادة اتصال): ينضم تلقائياً لنفس الغرفة على الخادم', () async {
     when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
