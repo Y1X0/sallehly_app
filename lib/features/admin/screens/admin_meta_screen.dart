@@ -216,6 +216,24 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
     }
   }
 
+  // [FIX-TOGGLEFEEDBACK-02] راجع DECISIONS.md — نفس علة toggleServiceWithFeedback
+  // أعلاه بالضبط، لكن بتبويب الباقات: onToggle كان يستدعي admin.togglePackageActive(e)
+  // مباشرة بلا await ولا try/catch. togglePackageActive نفسها تُعيد رمي (rethrow)
+  // أي فشل من updatePackage الداخلية (راجع admin_provider.dart) — لكن بلا أي
+  // مستدعٍ يلتقط ذلك الرمي هنا، الفشل يمرّ بصمت تماماً بالواجهة رغم وصوله فعلياً.
+  Future<void> togglePackageWithFeedback(Map<String, dynamic> package) async {
+    final t = AppLocalizations.of(context)!;
+    try {
+      await context.read<AdminProvider>().togglePackageActive(package);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.editDataFailedMessage);
+    }
+  }
+
   Future<void> confirmDelete({
     required String title,
     required String name,
@@ -328,7 +346,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
                 return activeText;
               },
               isActiveGetter: (e) => e['is_active'] != 0,
-              onToggle: (e) => admin.togglePackageActive(e),
+              onToggle: (e) => togglePackageWithFeedback(e),
               onEdit: (e) => addPackage(existing: e),
               onDelete: (e) => confirmDelete(
                 title: t.deletePackageTitle,
