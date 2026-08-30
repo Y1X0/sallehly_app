@@ -56,8 +56,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       try {
         await context.read<AdminProvider>().toggleUser(user.id);
       } on ApiException catch (e) {
+        if (!mounted) return;
         showErrorSnackBar(context, e.message);
       } catch (_) {
+        if (!mounted) return;
         showErrorSnackBar(context, t.accountUpdateFailedMessage);
       }
       return;
@@ -101,8 +103,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     try {
       await context.read<AdminProvider>().toggleUser(user.id, reason: reasonController.text);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.accountUpdateFailedMessage);
     }
   }
@@ -160,8 +164,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.editDataFailedMessage);
     }
   }
@@ -263,8 +269,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.adjustBalanceFailedMessage);
     }
   }
@@ -306,8 +314,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         );
       }
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.deleteUserFailedMessage);
     }
   }

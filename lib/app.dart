@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/api/api_client.dart';
+import 'core/notifications/firebase_notification_service.dart';
 import 'core/socket/socket_service.dart';
 import 'core/storage/app_storage.dart';
 import 'core/storage/token_storage.dart';
@@ -231,6 +232,13 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
         walletProvider.clear();
         adminProvider.clear();
         supportProvider.clear();
+        // [SEC-FIX-DEEPLINKCLEAR-01] راجع DECISIONS.md — نفس فئة SEC-FIX-CHATCLEAR-01
+        // لكن على FirebaseNotificationService.pendingDeepLink (متغيّر ثابت
+        // على مستوى العملية، خارج شجرة الـProviders). حساب سابق قد يترك هدف
+        // تنقّل معلَّقاً (ضغط إشعاراً ثم سجَّل خروجه قبل أن يُستهلَك) — بلا
+        // هذا المسح، الحساب التالي على نفس الجهاز قد يُنقَل تلقائياً لتبويب
+        // لم يطلبه هو.
+        FirebaseNotificationService.pendingDeepLink.value = null;
         await socketProvider.reconnect();
         // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
         // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
@@ -259,6 +267,9 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
         walletProvider.clear();
         adminProvider.clear();
         supportProvider.clear();
+        // [SEC-FIX-DEEPLINKCLEAR-01] راجع DECISIONS.md — نفس القائمة المُنظَّفة
+        // بـonAuthenticated أعلاه بالضبط.
+        FirebaseNotificationService.pendingDeepLink.value = null;
       };
       // [FIX-SESSION-EXPIRY-01] فقط عند 401 حقيقي أثناء جلسة كانت نشطة
       // (راجع handleUnauthorized()) — وليس عند تسجيل الخروج الصريح من

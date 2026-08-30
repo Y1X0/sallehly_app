@@ -7,8 +7,19 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // ─── Background handler — لازم تكون top-level function خارج الكلاس ───
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
-  // التطبيق في الخلفية أو مغلق — أظهر الإشعار محلياً
-  await FirebaseNotificationService._showLocalNotificationStatic(message);
+  // [SEC-FIX-BGHANDLERCATCH-01] راجع DECISIONS.md — هذا isolate يعمل خارج
+  // main()'s runZonedGuarded/FlutterError.onError (المُضافة بـFIX-CRASHREPORT-01)
+  // إطلاقاً — تلك الشبكة الآمنة تُنشَأ فقط داخل zone عملية main() نفسها، لا
+  // تشمل isolate الخلفية المنفصل هذا. بلا try/catch هنا، أي فشل بمكوّن
+  // الإشعارات المحلية (اختلاف جهاز/نظام تشغيل) كان يفشل بصمت تام — لا الإشعار
+  // يظهر، ولا أي تقرير عطل يصل Crashlytics، رغم أن كل الهدف من الاستثمار
+  // بالتبليغ عن الأعطال أصلاً هو ألا يمر أي فشل بلا أثر.
+  try {
+    // التطبيق في الخلفية أو مغلق — أظهر الإشعار محلياً
+    await FirebaseNotificationService._showLocalNotificationStatic(message);
+  } catch (e) {
+    if (kDebugMode) debugPrint('[firebaseBackgroundHandler] فشل عرض إشعار الخلفية: $e');
+  }
 }
 
 class FirebaseNotificationService {

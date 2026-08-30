@@ -56,8 +56,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         step = 2;
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.sendCodeFailedMessage);
     }
   }
@@ -86,8 +88,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         (_) => false,
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.resetPasswordFailedMessage);
     }
   }

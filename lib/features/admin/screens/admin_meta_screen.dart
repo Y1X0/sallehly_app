@@ -63,6 +63,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         icon: icon.text,
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     }
   }
@@ -127,8 +128,10 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         SnackBar(content: Text(t.professionUpdatedMessage)),
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.editProfessionFailedMessage);
     }
   }
@@ -194,6 +197,7 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         );
       }
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     }
   }
@@ -269,8 +273,10 @@ class _AdminMetaScreenState extends State<AdminMetaScreen> {
         SnackBar(content: Text(t.deletedSuccessMessage)),
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.deleteFailedMessage);
     }
   }

@@ -123,8 +123,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) => scrollToBottom());
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.supportChatSendFailedMessage);
     }
   }

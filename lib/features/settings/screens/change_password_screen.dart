@@ -56,8 +56,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       Navigator.pop(context);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.changePasswordFailedMessage);
     }
   }

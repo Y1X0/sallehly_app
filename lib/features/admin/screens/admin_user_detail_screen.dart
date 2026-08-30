@@ -52,8 +52,10 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
       await context.read<AdminProvider>().verifyTechnician(widget.userId);
       showSuccess(t.technicianVerifiedMessage);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.verifyTechnicianFailedMessage);
     }
   }
@@ -126,8 +128,10 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
           );
       showSuccess(t.roleChangedMessage);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.changeRoleFailedMessage);
     }
   }
