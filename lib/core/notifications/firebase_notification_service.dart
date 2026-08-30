@@ -116,7 +116,7 @@ class FirebaseNotificationService {
     const settings = InitializationSettings(android: androidSettings);
 
     await _localNotifications.initialize(
-      settings,
+      settings: settings,
       // [FIX-DEEPLINK-02] هذا هو الاستدعاء الفعلي عند الضغط على الإشعار
       // بينما التطبيق مفتوح (onMessage يعرضه محلياً عبر
       // _showLocalNotificationStatic، وليس عبر عرض FCM التلقائي) — كان بلا
@@ -191,10 +191,10 @@ class FirebaseNotificationService {
     // بمساري الخلفية/الإغلاق. message.data كلها نصوص أصلاً (سيرفر Push يحوّلها
     // بـString(v) قبل الإرسال) فـjsonEncode آمن هنا بلا أي قيمة معقّدة متوقَّعة.
     await _localNotifications.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      body,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: jsonEncode(message.data),
     );
   }
