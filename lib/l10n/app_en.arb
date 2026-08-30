@@ -637,6 +637,7 @@
   "micPermissionDeniedForeverMessage": "You've permanently denied microphone permission, and the app can't request it again. To record a voice message, enable it manually from the app settings.",
   "micAccessDeniedMessage": "Audio recording was not allowed",
   "recordAudioFailedMessage": "Failed to record audio: {error}",
+  "playAudioFailedMessage": "Failed to play the voice message",
   "blockThisUserTitle": "Block This User",
   "blockUserConfirmMessage": "Neither of you will be able to send messages to the other on this request after blocking. You can unblock them later at any time.",
   "blockButton": "Block",

@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:audioplayers/audioplayers.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -6,6 +9,7 @@ import '../../../config/app_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/authenticated_media.dart';
 import '../../../core/widgets/bidi_text.dart';
+import '../../../core/widgets/success_feedback.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/message_model.dart';
 
@@ -33,6 +37,13 @@ class ChatBubble extends StatefulWidget {
     this.onReport,
   });
 
+  // [SEC-FIX-AUDIOAUTH-01] يسمح للاختبارات فقط باستبدال عميل Dio المستخدَم
+  // لجلب بايتات الرسالة الصوتية المصادَق عليها، بدل الاتصال بشبكة حقيقية
+  // (بما فيها baseUrl الفعلي لإنتاج sallehly.com). null دائماً بالتطبيق
+  // الفعلي — لا يغيّر أي سلوك إنتاجي.
+  @visibleForTesting
+  static Dio? debugAudioDio;
+
   @override
   State<ChatBubble> createState() => _ChatBubbleState();
 }
@@ -47,6 +58,17 @@ class _ChatBubbleState extends State<ChatBubble> {
   bool playing = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+
+  // [SEC-FIX-AUDIOAUTH-01] راجع DECISIONS.md (كلا المستودعين) —
+  // audioplayers's UrlSource لا يدعم هيدرز إطلاقاً (تحقَّق مباشرة من
+  // توثيق الحزمة، كل الإصدارات لحد الأحدث)، فكانت رسائل الشات الصوتية
+  // تُشغَّل من express.static العام بلا أي مصادقة — نفس الفجوة التي أُغلقت
+  // لصور الشات بـSEC-FIX-UPLOADS-01. البديل: تحميل البايتات كاملة عبر طلب
+  // مصادَق صريح (نفس هيدرز authHeadersForMediaUrl المستخدَمة أصلاً للصور)،
+  // ثم تشغيلها من الذاكرة مباشرة (BytesSource) بلا أي ملف مؤقت. البايتات
+  // تُخزَّن هنا بعد أول تحميل ناجح — ضغطات تشغيل/إيقاف لاحقة لا تُعيد التحميل.
+  Uint8List? _audioBytes;
+  bool _loadingAudio = false;
 
   @override
   void initState() {
@@ -95,9 +117,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 
   Future<void> playAudio() async {
     final player = _player;
-    if (player == null) return;
-
-    final url = _mediaUrl(widget.message.audioUrl);
+    if (player == null || _loadingAudio) return;
 
     if (playing) {
       await player.pause();
@@ -105,8 +125,37 @@ class _ChatBubbleState extends State<ChatBubble> {
       return;
     }
 
-    await player.play(UrlSource(url));
-    setState(() => playing = true);
+    try {
+      var bytes = _audioBytes;
+      if (bytes == null) {
+        setState(() => _loadingAudio = true);
+        final url = _mediaUrl(widget.message.audioUrl);
+        final headers = await authHeadersForMediaUrl(url);
+        final dio = ChatBubble.debugAudioDio ?? Dio();
+        final response = await dio.get<List<int>>(
+          url,
+          options: Options(
+            responseType: ResponseType.bytes,
+            headers: headers,
+          ),
+        );
+        bytes = Uint8List.fromList(response.data ?? const []);
+        _audioBytes = bytes;
+      }
+
+      if (!mounted) return;
+      await player.play(BytesSource(bytes));
+      setState(() {
+        playing = true;
+        _loadingAudio = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadingAudio = false);
+        final t = AppLocalizations.of(context)!;
+        showErrorSnackBar(context, t.playAudioFailedMessage);
+      }
+    }
   }
 
   Future<void> openLocation() async {
@@ -167,6 +216,7 @@ class _ChatBubbleState extends State<ChatBubble> {
               _AudioMessage(
                 isMe: isMe,
                 playing: playing,
+                loading: _loadingAudio,
                 position: position,
                 duration: duration,
                 onTap: playAudio,
@@ -229,6 +279,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 class _AudioMessage extends StatelessWidget {
   final bool isMe;
   final bool playing;
+  final bool loading;
   final Duration position;
   final Duration duration;
   final VoidCallback onTap;
@@ -237,6 +288,7 @@ class _AudioMessage extends StatelessWidget {
   const _AudioMessage({
     required this.isMe,
     required this.playing,
+    required this.loading,
     required this.position,
     required this.duration,
     required this.onTap,
@@ -253,18 +305,31 @@ class _AudioMessage extends StatelessWidget {
     final textColor = isMe ? Colors.white : AppColors.textPrimary;
     final mutedColor =
     isMe ? Colors.white.withValues(alpha: 0.75) : AppColors.textSecondary;
+    final iconColor = isMe ? Colors.white : AppColors.primary;
 
     return SizedBox(
       width: 215,
       child: Row(
         children: [
           InkWell(
-            onTap: onTap,
+            onTap: loading ? null : onTap,
             borderRadius: BorderRadius.circular(100),
-            child: Icon(
-              playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
-              color: isMe ? Colors.white : AppColors.primary,
-              size: 38,
+            child: SizedBox(
+              width: 38,
+              height: 38,
+              child: loading
+                  ? Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+                      ),
+                    )
+                  : Icon(
+                      playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                      color: iconColor,
+                      size: 38,
+                    ),
             ),
           ),
           const SizedBox(width: 8),

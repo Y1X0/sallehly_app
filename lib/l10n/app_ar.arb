@@ -2749,6 +2749,10 @@
       "error": {"type": "String"}
     }
   },
+  "playAudioFailedMessage": "تعذر تشغيل التسجيل الصوتي",
+  "@playAudioFailedMessage": {
+    "description": "[SEC-FIX-AUDIOAUTH-01] رسالة خطأ عند فشل تحميل/تشغيل رسالة صوتية بالمحادثة (فشل شبكة أو مصادقة أثناء جلب البايتات)"
+  },
   "blockThisUserTitle": "حظر هذا المستخدم",
   "@blockThisUserTitle": {
     "description": "عنوان حوار تأكيد حظر الطرف الآخر بالمحادثة"
