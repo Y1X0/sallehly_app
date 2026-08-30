@@ -1038,3 +1038,103 @@ diff`، (ج) `flutter analyze`/`flutter test` الكاملين بلا انحدا
 الأخرى المفحوصة (`StatelessWidget`، `settings_screen.dart`/`support_screen.dart`
 بالتقاط `messenger` مسبقاً) صحيحة أصلاً. أي اكتشاف مستقبلي بنفس الفئة
 يستحق نفس المعالجة الفورية.
+
+# [SEC-FIX-CTXLINT-01] `use_build_context_synchronously` مفعَّلة لكن غير قاتلة بـCI — رفعها لـerror كشف بقّتين حقيقيتين إضافيتين
+
+## الخطورة
+خطير — نفس فئة `SEC-FIX-CTXAWAIT-01`/`02` بالضبط. لكن الأهم من موقعين
+جديدين هنا: هذا إصلاح **بنيوي**، لا موقعي — بدونه، أي موقع ٦٥ مستقبلي من
+نفس الفئة يمر بصمت تام عبر CI مهما كان عدد جولات التدقيق اليدوي.
+
+## السبب — سؤال مباشر بعد الجولة السابعة
+بعد أن أظهرت الجولة السابعة أن التدقيق اليدوي الأول (`SEC-FIX-CTXAWAIT-01`،
+١٥ موقعاً) وصف أربعة مواقع بـ`chat_room_screen.dart` بأنها "صحيحة" بينما
+حارسها كان بمكان خاطئ فعلياً، السؤال المباشر كان: هل `use_build_context_synchronously`
+(قاعدة lint رسمية بمكتبة `package:flutter_lints`، مصمَّمة خصيصاً لهذه الفئة
+من الأخطاء) مفعَّلة أصلاً؟ ولو كانت مفعَّلة، هل تفشل CI فعلاً أم تمر بصمت؟
+
+## الاكتشاف
+القاعدة مفعَّلة فعلاً (جزء من `package:flutter_lints/flutter.yaml`
+المُضمَّن بـ`analysis_options.yaml`) — لكنها، كبقية قواعد lint، بseverity
+افتراضية `INFO`. وسير عمل `.github/workflows/android-build.yml` يشغّل
+`flutter analyze --no-fatal-infos` **عمداً** (بتعليق موثِّق بالكود يشرح
+السبب: هناك ~١٦ ملاحظة `info` أسلوبية أخرى غير متعلقة بالأمان —
+`unnecessary_underscores`، `deprecated_member_use`، `use_null_aware_elements`،
+`unnecessary_import` — لا يستحق أي منها فشل CI). النتيجة العملية: القاعدة
+كانت **موجودة ومفعَّلة وتظهر بمخرجات `flutter analyze` محلياً — لكنها لم
+تكن تفشل CI إطلاقاً منذ إنشاء هذا السير**، رغم كونها بالضبط القاعدة التي
+كانت ستمنع فئة `SEC-FIX-CTXAWAIT-01`/`02` كاملة لو كانت قاتلة من البداية.
+
+**رفع severity هذه القاعدة تحديداً (قبل أي إصلاح مواقع) كشف فوراً ٤ مواقع
+حقيقية لم يغطِّها أي من مسحي `SEC-FIX-CTXAWAIT-01`/`02` اليدويين:**
+
+1. `chat_room_screen.dart:172` — `sendLocation()`: `showErrorSnackBar(context,
+   t.enableGpsMessage)` بعد `await Geolocator.isLocationServiceEnabled()`
+   بلا فحص `mounted` — **بمسار try العادي، ليس catch**. كلا المسحين
+   السابقين استهدفا كتل `catch` تحديداً؛ هذا الموقع خارج نطاقهما بالكامل.
+2. نفس الملف، سطر ١٩٤ — بعد `await Geolocator.checkPermission()`/
+   `requestPermission()`، نفس النمط بالضبط.
+3. نفس الملف، سطر ٢١٢ — بعد `await Geolocator.getCurrentPosition()`/
+   `getLastKnownPosition()`، نفس النمط بالضبط.
+4. `admin_support_chat_screen.dart:133` — `if (mounted) Navigator.pop(context);`
+   داخل `onPressed` بـ`build(BuildContext context)`. هذا مختلف بشكل دقيق:
+   `context` هنا معامل محلي بـ`build()` (وليس `State.context` المضمَّن)،
+   و`mounted` يفحص `State.mounted` — متغيّران مختلفان بنظر محلل التدفق، رغم
+   تطابق قيمتهما وقت التشغيل. رسالة المحلل نفسها تحدِّد الحل: "Guard a
+   'State.context' use with a 'mounted' check on the State, and other
+   BuildContext use with a 'mounted' check on the BuildContext".
+
+هذا يثبت نقطة الجولة السابعة حرفياً: التدقيق اليدوي المتكرر (حتى بجولتين
+متتاليتين مخصَّصتين لنفس الفئة) له سقف — أداة آلية مُفعَّلة بشكل صحيح
+تجده مباشرة.
+
+## الحل
+جزءان لا يتجزّآن:
+
+**١. الإصلاحات الموضعية (٤ مواقع):** `if (!mounted) return;` كسطر أول قبل
+استخدام `context` بالمواقع الثلاثة الأولى (نفس نمط `SEC-FIX-CTXAWAIT-02`).
+الموقع الرابع مختلف: `if (mounted) Navigator.pop(context);` →
+`if (context.mounted) Navigator.pop(context);` — استخدام `context.mounted`
+(الامتداد على `BuildContext` نفسه) بدل `mounted` (حقل `State`) لأن
+`context` هنا هو معامل `build()` المحلي تحديداً.
+
+**٢. الإصلاح البنيوي (هو الأهم):** بـ`analysis_options.yaml`:
+```yaml
+analyzer:
+  errors:
+    use_build_context_synchronously: error
+```
+هذا يرفع severity هذه القاعدة تحديداً لـ`error`، فتبقى قاتلة رغم
+`--no-fatal-infos` (الذي يُسكِت `INFO` فقط) — بلا التأثير على أي من الـ~١٦
+قاعدة أسلوبية الأخرى التي لا تزال `INFO` وتُسكَت كما هي بنفس الفلاغ. لم
+تُحذَف `--no-fatal-infos` نفسها ولم يُلغَ نطاقها بالكامل عمداً: ذلك كان
+سيُلزم إصلاح الـ١٦ ملاحظة الأسلوبية غير المرتبطة فوراً لفتح CI، توسيع
+نطاق لا علاقة له بالسؤال المطروح. تعليق موضّح أُضيف بكلا الملفين
+(`analysis_options.yaml` وسير `android-build.yml`) يوثِّق هذا القرار
+لمن يقرأ الكود لاحقاً ويتساءل لماذا استثناء واحد وسط قائمة إعفاءات.
+
+## الإثبات
+**فشل قبل الإصلاح (تحقَّق تجريبياً):** `git stash` مؤقت للمواقع الأربعة
+فقط (مع إبقاء رفع الـseverity)، ثم `flutter analyze --no-fatal-infos` —
+فشل فعلي، الأربعة مواقع تظهر بـ`error` صراحةً (لا `info`)، exit code `1`.
+```
+error • ... • lib/features/admin/screens/admin_support_chat_screen.dart:133:44 • use_build_context_synchronously
+error • ... • lib/features/chat/screens/chat_room_screen.dart:172:27 • use_build_context_synchronously
+error • ... • lib/features/chat/screens/chat_room_screen.dart:194:27 • use_build_context_synchronously
+error • ... • lib/features/chat/screens/chat_room_screen.dart:212:27 • use_build_context_synchronously
+20 issues found.
+```
+استُعيدت المواقع الأربعة بعدها. **نجاح بعد الإصلاح:** `flutter analyze
+--no-fatal-infos` — صفر مواقع `use_build_context_synchronously`، ١٦ ملاحظة
+`info` أسلوبية متبقية فقط (لا علاقة لها)، exit code `0`. `flutter test
+--exclude-tags screenshot` (بالضبط أمر CI): 301 اختبار، نجاح تام، بلا
+انحدار.
+
+## نطاق متروك عمداً
+هذا الإصلاح يرفع severity قاعدة **واحدة** فقط. لم يُراجَع ما إذا كانت
+قواعد lint أخرى ذات قيمة أمنية مشابهة (مثال: `avoid_dynamic_calls`،
+`unawaited_futures`) موجودة بمجموعة `flutter_lints` ومفعَّلة لكن غير
+قاتلة أيضاً — هذا خارج نطاق السؤال المطروح بهذه الجولة (كان مخصَّصاً
+لفئة `context`/`await` تحديداً)، لكنه يستحق نفس السؤال مستقبلاً: "مفعَّلة
+أم قاتلة فعلاً؟" لكل قاعدة ذات قيمة أمنية حقيقية، لا افتراض أن التفعيل
+وحده كافٍ.

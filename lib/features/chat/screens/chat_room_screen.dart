@@ -169,6 +169,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
+        if (!mounted) return;
         showErrorSnackBar(context, t.enableGpsMessage);
         return;
       }
@@ -191,6 +192,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (permission == LocationPermission.denied) {
+        if (!mounted) return;
         showErrorSnackBar(context, t.locationAccessDeniedMessage);
         return;
       }
@@ -209,6 +211,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       }
 
       if (position == null) {
+        if (!mounted) return;
         showErrorSnackBar(context, t.locationDeterminationFailedMessage);
         return;
       }
