@@ -38,6 +38,10 @@ class AdminProvider extends ChangeNotifier {
   List<Map<String, dynamic>> auditLogs = [];
   int auditTotal = 0;
   bool auditLoading = false;
+  // [FIX-ADMINPAGINATION-01] راجع تعليق ledgerLoadingMore أعلاه — نفس المشكلة
+  // ونفس الحل تماماً لسجل عمليات الأدمن.
+  bool auditLoadingMore = false;
+  String _auditSearch = '';
 
   List<Map<String, dynamic>> allRequests = [];
   bool requestsLoading = false;
@@ -57,6 +61,15 @@ class AdminProvider extends ChangeNotifier {
   List<Map<String, dynamic>> ledgerEntries = [];
   int ledgerTotal = 0;
   bool ledgerLoading = false;
+  // [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — كان الحد الأقصى 100 صفاً
+  // ثابتاً بلا أي تصفّح لما بعده رغم أن الخادم يدعم limit/offset كاملاً
+  // (routes/admin.routes.js) والعميل نفسه يحمل معامل offset جاهزاً
+  // (AdminApi.getLedger) بلا أي استخدام. _ledgerUserId يُحفَظ من آخر
+  // loadLedger() صريح حتى تستخدم loadMoreLedger() نفس الفلتر بلا الحاجة
+  // لتمريره يدوياً بكل استدعاء.
+  bool ledgerLoadingMore = false;
+  int? _ledgerUserId;
+  static const _adminPageSize = 100;
 
   Future<void> loadDashboard() async {
     _setLoading(true);
@@ -174,10 +187,11 @@ class AdminProvider extends ChangeNotifier {
 
   /// [FIX-LEDGER-01] دفتر الحساب الشامل — اختياري الفلترة حسب مستخدم واحد.
   Future<void> loadLedger({int? userId}) async {
+    _ledgerUserId = userId;
     ledgerLoading = true;
     notifyListeners();
     try {
-      final result = await api.getLedger(userId: userId, limit: 100);
+      final result = await api.getLedger(userId: userId, limit: _adminPageSize);
       ledgerEntries = result['entries'] as List<Map<String, dynamic>>;
       ledgerTotal = result['total'] is int ? result['total'] as int : 0;
       error = null;
@@ -185,6 +199,33 @@ class AdminProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر تحميل دفتر الحساب';
     } finally {
       ledgerLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-ADMINPAGINATION-01] الصفحة التالية بنفس فلتر آخر loadLedger() —
+  /// لا شيء يحدث لو تحميل صفحة بالفعل قيد التنفيذ، أو لو كل الصفوف محمَّلة أصلاً.
+  Future<void> loadMoreLedger() async {
+    if (ledgerLoading || ledgerLoadingMore) return;
+    if (ledgerEntries.length >= ledgerTotal) return;
+    ledgerLoadingMore = true;
+    notifyListeners();
+    try {
+      final result = await api.getLedger(
+        userId: _ledgerUserId,
+        limit: _adminPageSize,
+        offset: ledgerEntries.length,
+      );
+      ledgerEntries = [
+        ...ledgerEntries,
+        ...result['entries'] as List<Map<String, dynamic>>,
+      ];
+      ledgerTotal = result['total'] is int ? result['total'] as int : ledgerTotal;
+      error = null;
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحميل دفتر الحساب';
+    } finally {
+      ledgerLoadingMore = false;
       notifyListeners();
     }
   }
@@ -379,11 +420,12 @@ class AdminProvider extends ChangeNotifier {
   }
 
   Future<void> loadAuditLogs({String search = ''}) async {
+    _auditSearch = search;
     auditLoading = true;
     notifyListeners();
 
     try {
-      final result = await api.getAuditLogs(search: search, limit: 100);
+      final result = await api.getAuditLogs(search: search, limit: _adminPageSize);
       auditLogs = (result['logs'] as List)
           .map((e) => Map<String, dynamic>.from(e))
           .toList();
@@ -393,6 +435,32 @@ class AdminProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر تحميل سجل العمليات';
     } finally {
       auditLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// [FIX-ADMINPAGINATION-01] الصفحة التالية بنفس بحث آخر loadAuditLogs().
+  Future<void> loadMoreAuditLogs() async {
+    if (auditLoading || auditLoadingMore) return;
+    if (auditLogs.length >= auditTotal) return;
+    auditLoadingMore = true;
+    notifyListeners();
+    try {
+      final result = await api.getAuditLogs(
+        search: _auditSearch,
+        limit: _adminPageSize,
+        offset: auditLogs.length,
+      );
+      auditLogs = [
+        ...auditLogs,
+        ...(result['logs'] as List).map((e) => Map<String, dynamic>.from(e)),
+      ];
+      auditTotal = result['total'] is int ? result['total'] as int : auditTotal;
+      error = null;
+    } catch (e) {
+      error = e is ApiException ? e.message : 'تعذر تحميل سجل العمليات';
+    } finally {
+      auditLoadingMore = false;
       notifyListeners();
     }
   }

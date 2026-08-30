@@ -104,10 +104,21 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
                       ? const _EmptyAuditState()
                       : ListView.separated(
                           padding: const EdgeInsets.all(16),
-                          itemCount: admin.auditLogs.length,
+                          // [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — نفس
+                          // نمط admin_ledger_screen.dart بالضبط.
+                          itemCount: admin.auditLogs.length +
+                              (admin.auditLogs.length < admin.auditTotal ? 1 : 0),
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 10),
                           itemBuilder: (context, index) {
+                            if (index == admin.auditLogs.length) {
+                              return _LoadMoreFooter(
+                                loading: admin.auditLoadingMore,
+                                onPressed: () => context
+                                    .read<AdminProvider>()
+                                    .loadMoreAuditLogs(),
+                              );
+                            }
                             return _AuditCard(log: admin.auditLogs[index]);
                           },
                         ),
@@ -116,6 +127,37 @@ class _AdminAuditScreenState extends State<AdminAuditScreen> {
         ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// [FIX-ADMINPAGINATION-01] راجع DECISIONS.md — نفس الودجت بالضبط بـ
+/// admin_ledger_screen.dart، منسوخ عمداً لا مستورَد (راجع تعليقه هناك).
+class _LoadMoreFooter extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onPressed;
+
+  const _LoadMoreFooter({required this.loading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: loading
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+              )
+            : TextButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.expand_more_rounded),
+                label: Text(t.adminLoadMoreButton),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              ),
       ),
     );
   }

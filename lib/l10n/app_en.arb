@@ -24,6 +24,7 @@
   "packagesScreenTitle": "Top-up Packages",
   "packagesLoadFailedTitle": "Couldn't load packages",
   "retryButton": "Retry",
+  "adminLoadMoreButton": "Load more",
   "packagesEmptyTitle": "No packages available",
   "currencySymbolJod": "JD",
   "packageBonusLabel": "Bonus {amount}",
