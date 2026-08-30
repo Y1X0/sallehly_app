@@ -33,8 +33,32 @@ class _AuthenticatedNetworkImageState
   @override
   void initState() {
     super.initState();
-    authHeadersForMediaUrl(widget.url).then((headers) {
-      if (mounted) setState(() => _headers = headers);
+    _loadHeaders();
+  }
+
+  // [SEC-FIX-IMGHEADERCACHE-01] راجع DECISIONS.md — بدون didUpdateWidget، لو
+  // أعاد Flutter استخدام نفس الـState لودجت بـwidget.url مختلف (مثلاً هذا
+  // الودجت داخل عنصر قائمة بلا ValueKey ثابت — لا يحدث اليوم بأي موقع استخدام
+  // فعلي، لكن لا ضمانة مستقبلية)، تبقى _headers محمَّلة برابط الحساب/الطلب
+  // *القديم* وتُرفَق مع طلب الصورة *الجديد* — تسريب هيدر Authorization لرابط
+  // مختلف تماماً عن الذي أُصدر التوكن لأجله أصلاً، بنفس فئة الخطر التي
+  // isFirstPartyMediaUrl() (core/utils/authenticated_media.dart) صُمِّمت أصلاً
+  // لمنعها. إعادة الجلب عند تغيّر url فقط (لا كل rebuild) يغلق هذا نهائياً.
+  @override
+  void didUpdateWidget(AuthenticatedNetworkImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url) {
+      _headers = null;
+      _loadHeaders();
+    }
+  }
+
+  void _loadHeaders() {
+    final requestedUrl = widget.url;
+    authHeadersForMediaUrl(requestedUrl).then((headers) {
+      // لو تغيّر widget.url مجدداً أثناء الانتظار (سلسلة تحديثات سريعة)، هذا
+      // الرد أصبح قديماً — تجاهله كي لا يُطبّق هيدر رابط سابق على الحالي.
+      if (mounted && widget.url == requestedUrl) setState(() => _headers = headers);
     });
   }
 
