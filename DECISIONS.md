@@ -448,3 +448,44 @@ test` — **المجموعة الكاملة تمر بالكامل باستثنا
 تشترك بالضبط نفس الفجوة غير المُصلَحة هنا (استدعاء مباشر بلا `await`/
 `try/catch`). لم يُطلَب صراحةً بهذه الجولة — يُترَك لطلب لاحق إن أُريد،
 بنفس نمط الحل المُطبَّق هنا بالضبط.
+
+# [FIX-TOGGLEFEEDBACK-02] نفس علة FIX-TOGGLEFEEDBACK-01 بتبويب الباقات — togglePackageActive بلا await ولا try/catch
+
+## الخطورة
+منخفض — أداة أدمن داخلية (لوحة إدارة الباقات، ليست بمواجهة العميل/الفني)،
+والأثر مقصور على الأدمن نفسه عدم معرفة أن حالة الباقة لم تتغيّر فعلياً.
+
+## الاكتشاف
+موثَّق مسبقاً كنطاق متروك عمداً بـ`FIX-TOGGLEFEEDBACK-01` أعلاه:
+`AdminMetaScreen`، تبويب "الباقات": `onToggle: (e) =>
+admin.togglePackageActive(e)` — استدعاء مباشر بلا `await` ولا `try/catch`،
+بعكس `toggleServiceWithFeedback()` التي أُصلحت لتبويب "المهن" بنفس الجولة.
+`AdminProvider.togglePackageActive()` تستدعي `updatePackage()` الداخلية
+التي **تُعيد رمي (`rethrow`)** أي فشل فعلياً (بعد ضبط `error` صراحة) — لكن
+بلا أي مستدعٍ يلتقط ذلك الرمي هنا، فيمر الفشل بصمت تماماً بالواجهة رغم
+وصوله فعلياً للطبقة الأعلى.
+
+## الحل
+دالة جديدة `togglePackageWithFeedback()` بـ`_AdminMetaScreenState`، بنفس
+النمط الحرفي المستخدَم بـ`toggleServiceWithFeedback()` بالضبط (`on
+ApiException catch (e) => showErrorSnackBar(context, e.message)`، `catch
+(_) => showErrorSnackBar(context, t.editDataFailedMessage)`). `onToggle`
+بتبويب "الباقات" يستدعيها الآن بدل `admin.togglePackageActive(e)` المباشرة.
+
+## الإثبات
+`test/widgets/admin_toggle_feedback_test.dart` — اختبار ثانٍ جديد بنفس
+الملف: `AdminProvider` بـ`apiOverride: MockAdminApi` (`getMeta` ناجحة
+بباقة واحدة، `updatePackage` تُلقي استثناءً)، يبني `AdminMetaScreen`
+فعلياً، يبدّل لتبويب "الباقات"، يضغط `Switch` الباقة، ويتحقّق من ظهور
+`SnackBar` برسالة الخطأ العامة (نفس مفتاح ARB الموجود أصلاً، بلا إضافة جديد).
+
+**تحقَّق يدوياً أن الاختبار يفشل فعلاً بدون الإصلاح** (`git stash` مؤقت
+لـ`admin_meta_screen.dart` فقط): فشل بـ`Expected: exactly one matching
+candidate, Actual: Found 0 widgets` — نفس العطل الموصوف بالضبط، والاختبار
+الأول (تبويب المهن) بقي ناجحاً (يثبت أن الإصلاحين مستقلان). استُعيد
+الإصلاح بعدها، نجاح كلا الاختبارين.
+
+`flutter test`: **287/287** فعلياً (كانت 286، +1 هنا) باستثناء نفس الفشل
+الوحيد المعروف مسبقاً وغير المرتبط (`l10n_screenshot_capture_test.dart`،
+خطوط عربية غير متوفرة بهذه البيئة — تحقَّق مباشرة أنه يفشل بنفس الرسالة
+حتى على نسخة نظيفة قبل أي تعديل بهذه الجلسة).

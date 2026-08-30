@@ -67,4 +67,74 @@ void main() {
       expect(find.text('تعذر تعديل البيانات'), findsOneWidget);
     },
   );
+
+  // [FIX-TOGGLEFEEDBACK-02] راجع DECISIONS.md — نفس علة FIX-TOGGLEFEEDBACK-01
+  // أعلاه بالضبط، لكن بتبويب الباقات: onToggle كان يستدعي
+  // admin.togglePackageActive(e) مباشرة بلا await ولا try/catch.
+  // togglePackageActive تُعيد رمي فشل updatePackage الداخلية (rethrow) —
+  // لكن بلا مستدعٍ يلتقط ذلك هنا، فيمر بصمت تماماً بالواجهة.
+  testWidgets(
+    '[FIX-TOGGLEFEEDBACK-02] تبديل حالة باقة فاشل يُظهر رسالة خطأ حقيقية، لا يمر بصمت',
+    (tester) async {
+      final mockApi = MockAdminApi();
+      when(() => mockApi.getMeta()).thenAnswer(
+        (_) async => {
+          'packages': [
+            {
+              'id': 1,
+              'name': 'باقة البداية',
+              'amount': 10,
+              'bonus': 0,
+              'commission_per_order': 2,
+              'is_active': 1,
+            },
+          ],
+        },
+      );
+      when(() => mockApi.getAllServices()).thenAnswer((_) async => []);
+      when(
+        () => mockApi.updatePackage(
+          id: any(named: 'id'),
+          name: any(named: 'name'),
+          amount: any(named: 'amount'),
+          bonus: any(named: 'bonus'),
+          commissionPerOrder: any(named: 'commissionPerOrder'),
+          isActive: any(named: 'isActive'),
+        ),
+      ).thenThrow(Exception('network failure'));
+
+      final provider = AdminProvider(
+        apiClient: MockApiClient(),
+        apiOverride: mockApi,
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: provider,
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(body: AdminMetaScreen()),
+          ),
+        ),
+      );
+
+      await _pumpUntilSettledIgnoringAnimation(tester);
+
+      // التبويب الثاني ("الباقات") — الأول ("المهن") مفعَّل افتراضياً.
+      await tester.tap(find.text('الباقات'));
+      await _pumpUntilSettledIgnoringAnimation(tester);
+
+      expect(find.byType(Switch), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await _pumpUntilSettledIgnoringAnimation(tester);
+
+      // [FIX-TOGGLEFEEDBACK-02] قبل الإصلاح: لا شيء يظهر إطلاقاً هنا رغم فشل
+      // الطلب فعلياً (updatePackage رُميت استثناءً عبر togglePackageActive).
+      // بعده: SnackBar خطأ.
+      expect(find.text('تعذر تعديل البيانات'), findsOneWidget);
+    },
+  );
 }
