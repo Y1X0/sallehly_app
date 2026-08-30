@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Background handler — لازم تكون top-level function خارج الكلاس ───
 @pragma('vm:entry-point')
@@ -36,16 +34,6 @@ class FirebaseNotificationService {
     enableVibration: true,
   );
 
-  // ─── الـDio للتواصل مع السيرفر — يتعمل inject من الخارج ───
-  static Dio? _dio;
-  static String? _baseUrl;
-
-  /// استدعيها بعد تسجيل الدخول مباشرة
-  static void configure({required Dio dio, required String baseUrl}) {
-    _dio = dio;
-    _baseUrl = baseUrl;
-  }
-
   // ─── [FIX-DEEPLINK-01] هدف التنقّل المُعلَّق من آخر إشعار ضُغط عليه ───
   // القيمة تبقى محفوظة هنا (وليست عابرة) حتى تُقرأ فعلياً — يغطي حالتين:
   // ١) التطبيق كان بالخلفية والمستخدم ضغط الإشعار (onMessageOpenedApp).
@@ -65,16 +53,18 @@ class FirebaseNotificationService {
     await _initLocalNotifications();
     await _createAndroidChannel();
 
-    // ٢. احصل على الـtoken وارسله للسيرفر
-    await _fetchAndSaveToken();
+    // [FIX-FCMREFRESH-01] راجع DECISIONS.md — إرسال التوكن الأولي وإعادة
+    // إرساله عند التجدد كلاهما الآن مسؤولية AuthProvider حصراً
+    // (lib/providers/auth_provider.dart)، لا هذا الملف: AuthProvider يملك
+    // الاتصال الحقيقي بالسيرفر (authApi.apiClient.dio) أصلاً ويستدعي نفس
+    // _sendFcmTokenToServer() بعد login/verifyOtp/loadMe وعند كل تجدد توكن.
+    // كان هذا الملف يحمل تطبيقاً موازياً كاملاً (configure/_dio/_baseUrl/
+    // _sendTokenToServer/sendPendingToken) لم يستدعِه أي كود إطلاقاً —
+    // فالتوكن المتجدد كان يُحفظ محلياً فقط بصمت ولا يصل السيرفر أبداً لمستخدم
+    // لا يزال مسجَّلاً دخوله. أُزيل كلياً بدل تركه مسار ميت ثانٍ بجانب المسار
+    // الحقيقي الجديد.
 
-    // ٣. لما يتجدد الـtoken (مثلاً بعد restore) — ارسله تلقائياً
-    _messaging.onTokenRefresh.listen((newToken) {
-      if (kDebugMode) debugPrint('[FCM] Token refreshed');
-      _sendTokenToServer(newToken);
-    });
-
-    // ٤. الإشعارات لما التطبيق مفتوح (Foreground)
+    // ٢. الإشعارات لما التطبيق مفتوح (Foreground)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
         debugPrint('[FCM] Foreground message: ${message.notification?.title}');
@@ -82,13 +72,13 @@ class FirebaseNotificationService {
       _showLocalNotificationStatic(message);
     });
 
-    // ٥. لما يضغط على الإشعار والتطبيق في الخلفية
+    // ٣. لما يضغط على الإشعار والتطبيق في الخلفية
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (kDebugMode) debugPrint('[FCM] Opened from background: ${message.data}');
       _handleNotificationTap(message.data);
     });
 
-    // ٦. لما يفتح التطبيق من إشعار وكان مغلقاً
+    // ٤. لما يفتح التطبيق من إشعار وكان مغلقاً
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       if (kDebugMode) {
@@ -150,56 +140,6 @@ class FirebaseNotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.createNotificationChannel(_channel);
-  }
-
-  // ─── احصل على الـtoken واحفظه ───
-  static Future<void> _fetchAndSaveToken() async {
-    try {
-      final token = await _messaging.getToken();
-      if (token == null) return;
-      if (kDebugMode) debugPrint('[FCM] Token received ✓');
-
-      // احفظ محلياً
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('fcm_token', token);
-
-      // ارسله للسيرفر
-      await _sendTokenToServer(token);
-    } catch (e) {
-      if (kDebugMode) debugPrint('[FCM] Error getting token: $e');
-    }
-  }
-
-  // ─── إرسال الـtoken للسيرفر ───
-  static Future<void> _sendTokenToServer(String token) async {
-    if (_dio == null || _baseUrl == null) {
-      // احفظه مؤقتاً — رح يتبعت لما يتسجل الدخول
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('fcm_token_pending', token);
-      if (kDebugMode) {
-        debugPrint('[FCM] Token saved locally — will send after login');
-      }
-      return;
-    }
-    try {
-      await _dio!.post(
-        '$_baseUrl/api/fcm-token',
-        data: {'token': token},
-      );
-      if (kDebugMode) debugPrint('[FCM] Token sent to server ✓');
-    } catch (e) {
-      if (kDebugMode) debugPrint('[FCM] Failed to send token: $e');
-    }
-  }
-
-  /// استدعيها بعد تسجيل الدخول مباشرة
-  static Future<void> sendPendingToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final pending = prefs.getString('fcm_token_pending');
-    if (pending != null && _dio != null) {
-      await _sendTokenToServer(pending);
-      await prefs.remove('fcm_token_pending');
-    }
   }
 
   // ─── عرض الإشعار محلياً (static عشان تشتغل من background handler) ───

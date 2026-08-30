@@ -55,3 +55,45 @@ ancestor is unsafe"). أخطر موقعين فعلياً: `support_screen.dart` 
 غطّى 53 ملفاً بالكامل ولم يجد أي حالة من هذه الأنواع). أي اكتشاف مستقبلي من
 هذه الفئة يستحق نفس المعالجة الفورية، لا افتراض أن هذا الإصلاح غطّى كل شيء
 للأبد.
+
+# [FIX-FCMREFRESH-01] تجدد توكن FCM كان يصل لمسار ميت — الإشعارات تموت بصمت لمستخدم لا يزال مسجَّلاً دخوله
+
+## الاكتشاف
+`lib/core/notifications/firebase_notification_service.dart` كان يحمل تطبيقاً
+كاملاً موازياً لإرسال توكن FCM للسيرفر (`configure()`/`_dio`/`_baseUrl`/
+`_sendTokenToServer()`/`sendPendingToken()`) — لكن `configure()` و
+`sendPendingToken()` لم يكن يستدعيهما أي كود بالتطبيق كله (تحقَّق بالبحث
+الشامل بـ`lib/` و`test/`). نتيجة ذلك: `_dio`/`_baseUrl` يبقيان `null` دائماً،
+فمعالج `_messaging.onTokenRefresh` (المُسجَّل بـ`init()`) كان يحفظ أي توكن
+متجدد محلياً فقط (`fcm_token_pending` بـSharedPreferences) ولا يرسله للسيرفر
+إطلاقاً — بلا أي خطأ ظاهر، بصمت تام.
+
+تجدد التوكن يحدث فعلياً بالاستخدام الطبيعي (لا فقط عند إعادة التثبيت) —
+فمستخدم مسجَّل دخوله بالفعل، توكنه القديم لا يزال مُسجَّلاً بالسيرفر، لكن
+جهازه يحمل توكناً جديداً السيرفر لا يعرفه — تصير كل محاولات الإرسال له لاحقاً
+تفشل بصمت من طرف Firebase (توكن قديم غير صالح). المسار الحقيقي والوحيد الذي
+كان يعمل فعلاً هو `AuthProvider._sendFcmTokenToServer()` — يُستدعى فقط بعد
+`login()`/`verifyOtp()`/`loadMe()`، لا عند التجدد.
+
+## الحل
+- `AuthProvider` (`lib/providers/auth_provider.dart`) يستمع الآن بنفسه لـ
+  `FirebaseMessaging.instance.onTokenRefresh` (بمُنشئه)، ويستدعي نفس
+  `_sendFcmTokenToServer()` المُثبَتة أصلاً — تجلب توكناً طازجاً بنفسها
+  (`getToken()`) فلا حاجة لتمرير التوكن الجديد من حدث التجدد. `try/catch` حول
+  التسجيل نفسه + `onError` صريح على الـ`Stream` (لا فقط داخل
+  `_sendFcmTokenToServer`) لأن مجرد الوصول لـ`onTokenRefresh`/الاشتراك فيه قد
+  يفشل ببيئة `flutter test` (لا Firebase مُهيَّأ) — نفس السبب الموثَّق أصلاً
+  بتعليق `test/models/auth_provider_test.dart`. `dispose()` جديد يُلغي
+  الاشتراك.
+- `FirebaseNotificationService`: حُذف التطبيق الموازي كاملاً
+  (`configure`/`_dio`/`_baseUrl`/`_sendTokenToServer`/`sendPendingToken`/
+  `_fetchAndSaveToken`) بدل تركه مساراً ميتاً ثانياً بجانب الحل الجديد —
+  `AuthProvider` الآن المصدر الوحيد لإرسال توكن FCM، أولاً وعند كل تجدد.
+  استيرادا `dio`/`shared_preferences` أُزيلا من هذا الملف (لم يعودا
+  مُستخدَمين فيه إطلاقاً بعد الحذف).
+
+## نطاق متروك عمداً
+لم يُشغَّل `flutter analyze`/`flutter test` بهذه الجلسة (لا Flutter SDK متاح
+بهذه البيئة) — التغيير روجع يدوياً بعناية (كل استخدام سابق للدوال المحذوفة
+تحقَّق بالبحث الشامل أنه غير موجود بأي مكان آخر)، لكن يحتاج تأكيد CI الحقيقي
+(`flutter analyze` + `flutter test`) قبل الدمج.
