@@ -70,8 +70,10 @@ class _TopupRequestScreenState extends State<TopupRequestScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.topupRequestFailedMessage);
     }
   }

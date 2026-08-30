@@ -65,6 +65,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       Navigator.pop(context);
       Navigator.pop(context);
     } on ApiException catch (e) {
+      if (!mounted) return;
       // [FIX-OFFERQUOTA-01] استُهلكت الفرصتان المجانيتان والرصيد غير كافٍ —
       // نوجّه الفني مباشرة لشاشة شراء الباقات بدل رسالة خطأ عامة لا يعرف
       // بعدها ماذا يفعل.
@@ -74,6 +75,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         showErrorSnackBar(context, e.message);
       }
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.offerSendFailedMessage);
     }
   }

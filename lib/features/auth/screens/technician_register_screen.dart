@@ -140,8 +140,10 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
         ),
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.registerGenericErrorMessage);
     }
   }

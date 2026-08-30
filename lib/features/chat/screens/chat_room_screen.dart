@@ -113,8 +113,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.sendMessageFailedMessage('$e'));
     }
   }
@@ -135,8 +137,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.sendImageFailedMessage('$e'));
     }
   }
@@ -219,8 +223,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       scrollToBottom();
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.sendLocationFailedMessage('$e'));
     }
   }
@@ -339,6 +345,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         },
       );
     } on ApiException catch (e) {
+      if (!mounted) return;
       recordingTimer?.cancel();
 
       if (mounted) {
@@ -350,6 +357,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
       showErrorSnackBar(context, e.message);
     } catch (e) {
+      if (!mounted) return;
       recordingTimer?.cancel();
 
       if (mounted) {
@@ -419,8 +427,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(t.userBlockedMessage);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.blockActionFailedMessage);
     }
   }
@@ -432,8 +442,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(t.userUnblockedMessage);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.unblockActionFailedMessage);
     }
   }
@@ -455,8 +467,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(message);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.reportFailedMessage);
     }
   }
@@ -478,8 +492,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       if (!mounted) return;
       showInfo(message);
     } on ApiException catch (e) {
+      if (!mounted) return;
       showErrorSnackBar(context, e.message);
     } catch (_) {
+      if (!mounted) return;
       showErrorSnackBar(context, t.reportFailedMessage);
     }
   }
