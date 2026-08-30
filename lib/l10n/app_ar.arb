@@ -1248,6 +1248,10 @@
   "@completeRequestButton": {
     "description": "زر تحديد العميل أن الطلب اكتمل"
   },
+  "completeRequestFailedMessage": "تعذر إنهاء الطلب",
+  "@completeRequestFailedMessage": {
+    "description": "[SEC-FIX-COMPLETEREQUEST-01] رسالة خطأ عامة عند فشل إنهاء الطلب لسبب غير معروف (استثناء غير ApiException)"
+  },
   "rateTechnicianButton": "قيّم الفني",
   "@rateTechnicianButton": {
     "description": "زر فتح نافذة تقييم الفني"
@@ -2752,6 +2756,10 @@
   "playAudioFailedMessage": "تعذر تشغيل التسجيل الصوتي",
   "@playAudioFailedMessage": {
     "description": "[SEC-FIX-AUDIOAUTH-01] رسالة خطأ عند فشل تحميل/تشغيل رسالة صوتية بالمحادثة (فشل شبكة أو مصادقة أثناء جلب البايتات)"
+  },
+  "openLocationFailedMessage": "تعذر فتح الموقع",
+  "@openLocationFailedMessage": {
+    "description": "[SEC-FIX-OPENLOCATION-01] رسالة خطأ عند فشل launchUrl لفتح موقع بالخرائط من رسالة موقع بالمحادثة (لا يوجد تطبيق/متصفح يقدر يفتح الرابط)"
   },
   "blockThisUserTitle": "حظر هذا المستخدم",
   "@blockThisUserTitle": {
