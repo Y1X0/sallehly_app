@@ -28,10 +28,17 @@ jobs:
         run: flutter pub get
 
       # --no-fatal-infos: flutter analyze exits non-zero on ANY issue by
-      # default, including info-level lint suggestions (there are 11
+      # default, including info-level lint suggestions (there are ~16
       # pre-existing ones in this project, e.g. deprecated_member_use,
       # unnecessary_underscores). Only real problems (errors/warnings)
       # should fail CI; --fatal-warnings (default) still applies.
+      #
+      # [SEC-FIX-CTXLINT-01] راجع DECISIONS.md — استثناء واحد متعمَّد: قاعدة
+      # `use_build_context_synchronously` مرفوعة لـ`error` صراحة بـ
+      # analysis_options.yaml رغم أن severity الافتراضية لكل قواعد lint هي
+      # INFO. هذا يجعلها قاتلة هنا رغم --no-fatal-infos — انهيار BuildContext
+      # بعد await فئة أخطاء حقيقية (SEC-FIX-CTXAWAIT-01/02)، لا ملاحظة
+      # أسلوبية، ولا يستحق نفس الإعفاء.
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 

@@ -9,6 +9,18 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+# [SEC-FIX-CTXLINT-01] راجع DECISIONS.md — `use_build_context_synchronously`
+# (كبقية قواعد lint) severity افتراضيتها INFO، وCI يشغّل
+# `flutter analyze --no-fatal-infos` عمداً (لقواعد أسلوبية أخرى غير
+# متعلقة بالأمان). النتيجة: هذه القاعدة تحديداً — التي كانت ستمنع فئة كاملة
+# من انهيارات SEC-FIX-CTXAWAIT-01/02 لو رُفعت من البداية — لم تكن تفشل CI
+# إطلاقاً رغم كونها مفعَّلة. رفعها هنا صراحةً لـerror يجعلها الوحيدة من
+# قواعد INFO التي تبقى قاتلة رغم --no-fatal-infos، بلا التأثير على أي
+# قاعدة أسلوبية أخرى.
+analyzer:
+  errors:
+    use_build_context_synchronously: error
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

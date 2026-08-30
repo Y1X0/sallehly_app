@@ -130,7 +130,7 @@ class _AdminSupportChatScreenState extends State<AdminSupportChatScreen> {
             TextButton.icon(
               onPressed: () async {
                 await widget.onToggleStatus!.call();
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               },
               icon: Icon(
                 isOpen ? Icons.check_circle_outline : Icons.lock_open_rounded,
