@@ -1555,3 +1555,54 @@ Java/Kotlin أصلي بالحزمة → نظام إشعارات أندرويد) 
 حقيقي أو وهمي على مستوى بروتوكول WebSocket) — الاختبار الحالي (كبقية ملف
 `socket_provider_test.dart`) يعمل على مستوى `SocketService` المُقلَّد
 (Mock)، لا يثبت تفاعل حزمة `socket_io_client` نفسها مع خادم حقيقي.
+
+# [SEC-FIX-MEPWSOCKET-CLIENT-01] `ChangePasswordScreen` لا تُعيد اتصال السوكت بعد نجاح تغيير كلمة السر — الخادم يقطعه الآن فوراً
+
+## الخطورة
+متوسط — لا مشكلة أمنية بحد ذاتها (نتيجة مباشرة لإصلاح أمني صحيح بالمستودع
+المقابل)، لكن انكسار وظيفي مضمون بعد كل تغيير كلمة سر ناجح: شات/إشعارات
+لحظية ميتة بصمت على الجهاز الحالي نفسه حتى استئناف التطبيق التالي من
+الخلفية أو تسجيل خروج/دخول جديد.
+
+## الاكتشاف
+جولة تدقيق عاشرة، أثناء تنفيذ إصلاح فك أمني على المستودع المقابل
+(`SEC-FIX-MEPWSOCKET-01`، `sallehly`): `POST /me/password` أصبح يستدعي
+`io.in(user-${id}).disconnectSockets(true)` فور نجاح تغيير كلمة السر —
+بنفس نمط `/auth/reset-password`/مسارات الأدمن. **الفرق الجوهري**: تلك
+المسارات الأخرى تقطع جلسة *جهاز آخر* (نسخة توكن مسروقة) أو *حساب آخر*
+(إجراء أدمن) — لا الجهاز الذي نفّذ الطلب نفسه، والذي يستمر باستخدام
+التطبيق مباشرة بعد ذلك. `/me/password` مختلف: يُنفَّذ من نفس الجهاز الذي
+يملك عادة سوكتاً حياً بنفس الحساب، فيُقطع أيضاً. `ChangePasswordScreen`
+(`lib/features/settings/screens/change_password_screen.dart`) لم تكن
+تستدعي أي إعادة اتصال — `authApi.changePassword()` نفسها تتجاهل جسم
+الاستجابة (`{ok, token}`) بالكامل، معتمدة ضمنياً على أن `ApiClient`'s
+معترِض عام (`onResponse`) يحفظ التوكن الجديد تلقائياً من ترويسة
+`Set-Cookie` (آلية موجودة أصلاً لكل استجابة، لا خاصة بهذا المسار) —
+`tokenStorage` يتحدَّث بالفعل، لكن لا شيء يستخدمه لإعادة اتصال السوكت.
+
+## الحل
+`ChangePasswordScreen.submit()` تستدعي `context.read<SocketProvider>().reconnect()`
+فور نجاح `auth.changePassword(...)` (بلا `await` — لا داعي لتأخير التنقّل
+بانتظار اتصال السوكت، نفس فلسفة `didChangeAppLifecycleState` بـ`app.dart`).
+`reconnect()` تقرأ `tokenStorage` من جديد (التوكن الجديد المحفوظ تلقائياً
+كما هو موضَّح أعلاه) وتُعيد تسجيل كل المستمعين على الكائن الجديد (`FIX-SOCKETREBIND-01`
+يضمن هذا يعمل صحيحاً حتى لو استُدعيت `connect()` أكثر من مرة).
+
+## الإثبات
+`test/widgets/change_password_socket_reconnect_test.dart` (جديد) — يملأ
+نموذج `ChangePasswordScreen` الحقيقي، يضغط زر الحفظ، يثبت أن
+`SocketProvider` الحقيقية (بمزوّدات `SocketService`/`TokenStorage` وهمية)
+تستدعي `disconnect()` ثم `connect(token: 'fresh-token-after-change')`
+وتُعيد تسجيل مستمع حدث `connect`. **تحقَّق يدوياً fail-before/pass-after**
+(`git stash` مؤقت لـ`change_password_screen.dart` فقط): بدون التعديل، فشل
+حقيقي — "No matching calls (actually, no calls at all)" (السوكت لا يُعاد
+اتصاله إطلاقاً). المجموعة الكاملة: **314 اختباراً ناجحاً** (زيادة اختبار
+واحد)، لا تراجع. الفشل البيئي الوحيد المتبقي (`l10n_screenshot_capture_test.dart`،
+خطوط CI غير متاحة بهذا الـsandbox) غير متعلق بهذا التغيير.
+
+## نطاق متروك عمداً
+لا تحقّق من أن `reconnect()` تنجح فعلياً بتوكن السيرفر الحقيقي (يتطلَّب
+خادم حقيقي/اختبار تكامل — خارج نطاق `flutter test` المعزول). الثقة هنا
+مبنية على أن `SEC-FIX-MEPWSOCKET-01` (الخادم) يُصدر توكناً يحمل
+`token_version` الجديد فعلياً (مُثبَت هناك بالفعل)، وأن `ApiClient`'s حفظ
+التوكن من `Set-Cookie` آلية عامة مُختبَرة ضمنياً بمسارات أخرى.

@@ -8,6 +8,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/socket_provider.dart';
 import '../../../core/widgets/success_feedback.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (!formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
+    final socketProvider = context.read<SocketProvider>();
     // [SEC-FIX-CTXAWAIT-01] راجع DECISIONS.md.
     final t = AppLocalizations.of(context)!;
 
@@ -47,6 +49,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         currentPassword: currentController.text,
         newPassword: newController.text,
       );
+
+      // [SEC-FIX-MEPWSOCKET-CLIENT-01] راجع DECISIONS.md. الخادم
+      // (SEC-FIX-MEPWSOCKET-01) يقطع الآن أي اتصال Socket.IO حي بهذا
+      // الحساب فور نجاح تغيير كلمة السر — يشمل سوكت هذا الجهاز نفسه، لا
+      // فقط أي نسخة توكن أخرى مسروقة. ApiClient يحفظ التوكن الجديد تلقائياً
+      // من Set-Cookie الاستجابة (آلية عامة موجودة أصلاً، لا علاقة خاصة بهذا
+      // المسار)، لكن بلا reconnect() صريح هنا كان السوكت يبقى مقطوعاً بصمت
+      // (شات/إشعارات لحظية ميتة) حتى استئناف التطبيق التالي من الخلفية أو
+      // تسجيل خروج/دخول جديد. لا await — لا داعي لتأخير التنقّل بانتظار
+      // اتصال السوكت.
+      socketProvider.reconnect();
 
       if (!mounted) return;
 
