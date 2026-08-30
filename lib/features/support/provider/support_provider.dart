@@ -9,8 +9,11 @@ import '../data/support_api.dart';
 class SupportProvider extends ChangeNotifier {
   late final SupportApi api;
 
-  SupportProvider({required ApiClient apiClient}) {
-    api = SupportApi(apiClient);
+  // [FIX-TEST-01] معامل اختياري يسمح بحقن SupportApi جاهز (Mock) للاختبار —
+  // بنفس نمط ChatProvider/AdminProvider/RequestsProvider أصلاً بهذا المشروع.
+  // بلا أي تأثير على app.dart الذي لا يمرره إطلاقاً.
+  SupportProvider({required ApiClient apiClient, SupportApi? apiOverride}) {
+    api = apiOverride ?? SupportApi(apiClient);
   }
 
   bool loading = false;
@@ -57,6 +60,9 @@ class SupportProvider extends ChangeNotifier {
     required String title,
     required String body,
   }) async {
+    // [SEC-FIX-DOUBLESUBMIT-01] راجع DECISIONS.md — بلا هذا الحارس، ضغطتان
+    // متقاربتان جداً كانتا ترسلان تذكرتَي دعم حقيقيتين منفصلتين.
+    if (sending) return null;
     sending = true;
     notifyListeners();
 
@@ -106,6 +112,9 @@ class SupportProvider extends ChangeNotifier {
     required int ticketId,
     required String body,
   }) async {
+    // [SEC-FIX-DOUBLESUBMIT-01] نفس الحارس أعلاه — يمنع إرسال نفس الرسالة
+    // مرتين لضغطة مزدوجة سريعة.
+    if (sending) return;
     sending = true;
     notifyListeners();
 

@@ -121,6 +121,26 @@ class RequestsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // [SEC-FIX-DOUBLESUBMIT-01] راجع DECISIONS.md — كل دالة كتابة بهذا الملف
+  // كانت تعتمد حصرياً على تعطيل الزر بالواجهة (`loading ? null : onPressed`)
+  // لمنع ضغطة مزدوجة، بلا أي حارس فعلي داخل طبقة الحالة نفسها. التعطيل
+  // بالواجهة لا يسري إلا بعد إعادة رسم فعلية (`notifyListeners` يُجدوِل
+  // إعادة رسم للإطار التالي، لا يُنفَّذها فوراً) — فضغطتان متقاربتان جداً
+  // (أسرع من إطار واحد) كانتا تمرّان كلتاهما، فتُرسَلان كطلبين حقيقيين
+  // منفصلين للخادم (طلب خدمة مكرَّر، قبول/رفض عرض مرتين، تقييم/شكوى/إلغاء
+  // مكرَّر). `loading` نفسه لا يصلح حارساً هنا (يُشارَك مع `loadRequests`
+  // القارئة، فحارس عليه مباشرة قد يمنع إجراءً حقيقياً بصمت لو كانت قراءة
+  // خلفية أخرى قائمة صدفة بنفس اللحظة) — لذا حارس داخلي مخصَّص لكل إجراء
+  // كتابة على حدة، بنفس نمط `ChatProvider.sending` المُطبَّق أصلاً بهذا
+  // المشروع لنفس السبب بالضبط.
+  bool _creatingRequest = false;
+  bool _sendingOffer = false;
+  bool _decidingOffer = false;
+  bool _updatingStatus = false;
+  bool _ratingRequest = false;
+  bool _submittingComplaint = false;
+  bool _cancelingRequest = false;
+
   Future<void> createRequest({
     required String service,
     required String city,
@@ -129,6 +149,8 @@ class RequestsProvider extends ChangeNotifier {
     String? preferredTime,
     String? imagePath,
   }) async {
+    if (_creatingRequest) return;
+    _creatingRequest = true;
     _setLoading(true);
 
     try {
@@ -147,6 +169,7 @@ class RequestsProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر إنشاء الطلب';
       rethrow;
     } finally {
+      _creatingRequest = false;
       _setLoading(false);
     }
   }
@@ -157,6 +180,8 @@ class RequestsProvider extends ChangeNotifier {
     required String duration,
     String? note,
   }) async {
+    if (_sendingOffer) return;
+    _sendingOffer = true;
     _setLoading(true);
 
     try {
@@ -173,6 +198,7 @@ class RequestsProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر إرسال العرض';
       rethrow;
     } finally {
+      _sendingOffer = false;
       _setLoading(false);
     }
   }
@@ -196,6 +222,12 @@ class RequestsProvider extends ChangeNotifier {
     required int requestId,
     required int offerId,
   }) async {
+    // [SEC-FIX-DOUBLESUBMIT-01] راجع تعليق الحقول الخاصة أعلاه. `acceptOffer`/
+    // `rejectOffer` يتشاركان نفس الحارس (`_decidingOffer`) عمداً — كلاهما
+    // يستدعي نفس نقطة نهاية القرار بالخادم لنفس العرض، فلا معنى لسماح قبول
+    // ورفض متزامنَين لنفس العرض بأي حال.
+    if (_decidingOffer) return null;
+    _decidingOffer = true;
     _setLoading(true);
 
     try {
@@ -217,6 +249,7 @@ class RequestsProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر قبول العرض';
       rethrow;
     } finally {
+      _decidingOffer = false;
       _setLoading(false);
     }
   }
@@ -225,6 +258,8 @@ class RequestsProvider extends ChangeNotifier {
     required int requestId,
     required int offerId,
   }) async {
+    if (_decidingOffer) return;
+    _decidingOffer = true;
     _setLoading(true);
 
     try {
@@ -241,6 +276,7 @@ class RequestsProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر رفض العرض';
       rethrow;
     } finally {
+      _decidingOffer = false;
       _setLoading(false);
     }
   }
@@ -249,6 +285,8 @@ class RequestsProvider extends ChangeNotifier {
     required int requestId,
     required String status,
   }) async {
+    if (_updatingStatus) return;
+    _updatingStatus = true;
     _setLoading(true);
 
     try {
@@ -263,6 +301,7 @@ class RequestsProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر تحديث الحالة';
       rethrow;
     } finally {
+      _updatingStatus = false;
       _setLoading(false);
     }
   }
@@ -279,6 +318,8 @@ class RequestsProvider extends ChangeNotifier {
     required int rating,
     String? comment,
   }) async {
+    if (_ratingRequest) return;
+    _ratingRequest = true;
     _setLoading(true);
     try {
       await api.rateRequest(
@@ -296,6 +337,7 @@ class RequestsProvider extends ChangeNotifier {
       error = 'تعذر إرسال التقييم';
       rethrow;
     } finally {
+      _ratingRequest = false;
       _setLoading(false);
     }
   }
@@ -304,6 +346,8 @@ class RequestsProvider extends ChangeNotifier {
     required int requestId,
     required String body,
   }) async {
+    if (_submittingComplaint) return;
+    _submittingComplaint = true;
     _setLoading(true);
     try {
       await api.submitComplaint(requestId: requestId, body: body);
@@ -315,11 +359,14 @@ class RequestsProvider extends ChangeNotifier {
       error = 'تعذر إرسال الشكوى';
       rethrow;
     } finally {
+      _submittingComplaint = false;
       _setLoading(false);
     }
   }
 
   Future<void> cancelRequest(int requestId) async {
+    if (_cancelingRequest) return;
+    _cancelingRequest = true;
     _setLoading(true);
 
     try {
@@ -336,6 +383,7 @@ class RequestsProvider extends ChangeNotifier {
       error = 'تعذر إلغاء الطلب';
       rethrow;
     } finally {
+      _cancelingRequest = false;
       _setLoading(false);
     }
   }
