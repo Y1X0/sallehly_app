@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
@@ -37,23 +38,53 @@ class _OffersScreenState extends State<OffersScreen> {
   }
 
   Future<void> acceptOffer(int offerId) async {
+    final t = AppLocalizations.of(context)!;
     final provider = context.read<RequestsProvider>();
 
-    final request = await provider.acceptOffer(
-      requestId: widget.request.id,
-      offerId: offerId,
-    );
+    // [FIX-OFFERDECISION-01] راجع DECISIONS.md — لم يكن هناك try/catch هنا
+    // إطلاقاً: عند فشل الشبكة كان الزر يتوقف عن التحميل بصمت بلا أي رسالة،
+    // فلا يعرف المستخدم هل نجحت العملية أم لا.
+    try {
+      final request = await provider.acceptOffer(
+        requestId: widget.request.id,
+        offerId: offerId,
+      );
 
-    if (!mounted || request == null) return;
+      if (!mounted || request == null) return;
 
-    showSuccessSnackBar(context, AppLocalizations.of(context)!.offersAcceptedMessage);
+      showSuccessSnackBar(context, t.offersAcceptedMessage);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChatRoomScreen(request: request),
-      ),
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatRoomScreen(request: request),
+        ),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.offerAcceptFailedMessage);
+    }
+  }
+
+  Future<void> rejectOffer(int offerId) async {
+    final t = AppLocalizations.of(context)!;
+    final provider = context.read<RequestsProvider>();
+
+    try {
+      await provider.rejectOffer(
+        requestId: widget.request.id,
+        offerId: offerId,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.offerRejectFailedMessage);
+    }
   }
 
   @override
@@ -112,12 +143,7 @@ class _OffersScreenState extends State<OffersScreen> {
                               offer: offer,
                               loading: provider.loading,
                               onAccept: () => acceptOffer(offer.id),
-                              onReject: () async {
-                                await provider.rejectOffer(
-                                  requestId: widget.request.id,
-                                  offerId: offer.id,
-                                );
-                              },
+                              onReject: () => rejectOffer(offer.id),
                             ),
                           );
                         }),

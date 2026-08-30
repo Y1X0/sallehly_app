@@ -220,3 +220,64 @@ ancestor is unsafe"). أخطر موقعين فعلياً: `support_screen.dart` 
 الجديدة نفسها ذهاباً وإياباً لتصحيح خطأ منطقي بأحدها (`verifyNever` كان
 سيفشل زائفاً)، لكن يحتاج تأكيد CI حقيقي (`flutter analyze` + `flutter test`)
 قبل الدمج.
+
+# [FIX-OFFERDECISION-01] قبول/رفض عرض بلا catch — فشل الشبكة يترك المستخدم بلا أي إشارة
+
+## الاكتشاف
+جولة تدقيق رابعة (طُلبت صراحة، محور مناطق لم تغطِّها الجولات الثلاث
+السابقة: صمود التطبيق أمام شبكة سيئة وإجراء لم يصل رده). `RequestsProvider.acceptOffer`/
+`rejectOffer` (`lib/features/requests/provider/requests_provider.dart`) كانا
+`try { ... } finally { ... }` **بلا `catch` إطلاقاً** — بعكس كل دالة كتابة
+أخرى بنفس الملف (`createRequest`، `sendOffer`، `updateRequestStatus`)
+التي تلتقط الاستثناء، تُسجّله بـ`error`، ثم تُعيد رميه (`rethrow`) لنفس
+النمط دائماً. نقطتا الاستدعاء الوحيدتان
+(`lib/features/customer/screens/offers_screen.dart`) لم تكونا تلتقطان أي
+شيء هما الأخريان — `acceptOffer` تُستدعى مباشرة من `onPressed` بلا
+`try/catch`، و`onReject` بلا حتى `await` داخل دالة منفصلة.
+
+**الأثر الحقيقي:** عميل يضغط "قبول" أو "رفض" على عرض فني أثناء انقطاع شبكة
+مؤقت — الزر يتوقف عن التحميل، **بلا أي رسالة، بلا SnackBar، بلا شيء
+إطلاقاً**. المستخدم لا يعرف هل نجحت العملية أم فشلت، ولا يوجد أي مؤشر
+يدعوه لإعادة المحاولة. الاستثناء نفسه لا يُسقط التطبيق (يُلتقَط بصمت عبر
+`runZonedGuarded`/`PlatformDispatcher.instance.onError` المُضافين بـ
+`[FIX-CRASHREPORT-01]`، فيصل الآن على الأقل لـCrashlytics) لكن المستخدم
+بالواجهة لا يرى أي أثر له.
+
+## الحل
+- `requests_provider.dart`: كلا الدالتين صارتا تتبعان نفس نمط `createRequest`
+  بالحرف — `catch (e) { error = e is ApiException ? e.message : 'رسالة
+  fallback'; rethrow; }` قبل `finally`.
+- `offers_screen.dart`: `acceptOffer` (كانت دالة محلية بلا حماية) و`rejectOffer`
+  (دالة جديدة، كانت مجرد `await` خام داخل `onReject` مباشرة) صارتا تلتقطان
+  `on ApiException catch (e)` (رسالة السيرفر الفعلية) و`catch (_)` (رسالة
+  fallback محلَّاة) وتعرضان `showErrorSnackBar` — نفس دالة الطبقة الآمنة
+  المستخدَمة بكل الشاشات الأخرى (`SEC-FIX-CTXAWAIT-01` أعلاه). `t` يُلتقَط
+  قبل أي `await` بكلا الدالتين، مطابقاً لنفس اتفاقية `SEC-FIX-CTXAWAIT-01`
+  بالحرف.
+- `lib/l10n/app_ar.arb`/`app_en.arb`: مفتاحان جديدان فقط
+  (`offerAcceptFailedMessage`/`offerRejectFailedMessage`)، بنفس نمط
+  `offerSendFailedMessage` الموجود أصلاً بجانبهما.
+
+## الإثبات
+`test/models/requests_provider_test.dart`: اختباران جديدان (فشل السيرفر
+على كل من `acceptOffer`/`rejectOffer`) يثبتان أن `error` يُسجَّل والاستثناء
+يُعاد رميه، بالإضافة لاختبار نجاح جديد لـ`rejectOffer` (لم يكن مُختبَراً
+إطلاقاً قبل هذا الإصلاح، بعكس `acceptOffer`). **تحقَّق يدوياً أن الاختبارين
+الجديدين يفشلان فعلاً بدون الإصلاح** (`git stash` مؤقت للملف، تشغيل —
+فشل بـ`Expected: 'تعذر قبول العرض', Actual: <null>` كما هو متوقَّع تماماً
+لكلا الاختبارين، ثم استعادة الإصلاح).
+
+هذه الجلسة حمّلت Flutter SDK فعلياً (3.47.2 stable — نفس القناة التي يستخدمها
+CI، `channel: stable` بلا تثبيت إصدار بكل ملفات `.github/workflows/*.yml`)
+وشغّلت التحقق محلياً بدل الاكتفاء بمراجعة يدوية: `flutter analyze` — صفر
+أخطاء (42 تحذير info مسبق الوجود، بلا تغيير). `flutter test` — **281/281**
+(كانت 278 قبل هذا الإصلاح، +3 هنا: فشل `acceptOffer`، نجاح+فشل `rejectOffer`)،
+باستثناء الفشل الوحيد المعروف مسبقاً وغير المرتبط (`l10n_screenshot_capture_test.dart`،
+يتطلّب خطوة تثبيت خطوط عربية حقيقية غير متوفرة بهذه البيئة تحديداً — الاختبار
+نفسه يذكر ذلك صراحة برسالة الخطأ).
+
+## نطاق متروك عمداً
+لم تُلمَس أي دالة كتابة أخرى بأي provider آخر — هذا الإصلاح مقصور تماماً
+على `acceptOffer`/`rejectOffer` تحديداً (المطلوبتين صراحة). مسح شامل لبقية
+الـproviders لنفس النمط (`try` بلا `catch`) لم يُطلَب بهذه الجولة ولم
+يُجرَ.

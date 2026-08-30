@@ -197,6 +197,13 @@ class RequestsProvider extends ChangeNotifier {
       error = null;
 
       return result;
+    } catch (e) {
+      // [FIX-OFFERDECISION-01] راجع DECISIONS.md — لم يكن هناك catch إطلاقاً:
+      // فشل الشبكة كان يُسقط الاستثناء بصمت لكل مستدعي هذه الدالة (أخطر
+      // موقع: offers_screen.dart لا يلتقط شيئاً هو الآخر)، فيرى المستخدم زر
+      // "قبول" يتوقف عن التحميل بلا أي رسالة توضّح نجح الأمر أم فشل.
+      error = e is ApiException ? e.message : 'تعذر قبول العرض';
+      rethrow;
     } finally {
       _setLoading(false);
     }
@@ -217,6 +224,10 @@ class RequestsProvider extends ChangeNotifier {
       offers = await api.getOffers(requestId);
       requests = await api.getRequests();
       error = null;
+    } catch (e) {
+      // [FIX-OFFERDECISION-01] راجع تعليق acceptOffer أعلاه — نفس السبب بالضبط.
+      error = e is ApiException ? e.message : 'تعذر رفض العرض';
+      rethrow;
     } finally {
       _setLoading(false);
     }
