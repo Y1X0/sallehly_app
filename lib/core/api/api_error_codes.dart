@@ -159,8 +159,6 @@ String? resolveApiErrorCode(
       return t.apiErrorRequestInvalidCoordinates;
     case 'REQUEST_PREFERRED_TIME_TOO_LONG':
       return t.apiErrorRequestPreferredTimeTooLong;
-    case 'REQUEST_TECHNICIAN_UNAVAILABLE':
-      return t.apiErrorRequestTechnicianUnavailable;
     case 'REQUEST_NOT_FOUND':
       return t.apiErrorRequestNotFound;
     case 'REQUEST_CANNOT_DELETE_COMPLETED':
@@ -185,8 +183,6 @@ String? resolveApiErrorCode(
       return t.apiErrorRatingCommentTooLong;
     case 'RATING_ALREADY_EXISTS':
       return t.apiErrorRatingAlreadyExists;
-    case 'REQUEST_DIRECT_TO_OTHER_TECHNICIAN':
-      return t.apiErrorRequestDirectToOtherTechnician;
     case 'OFFER_ACTIVE_REQUEST_EXISTS':
       final rawId = params?['id'];
       final service = params?['service'];
