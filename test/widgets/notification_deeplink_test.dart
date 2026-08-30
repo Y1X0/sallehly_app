@@ -9,10 +9,18 @@
 // الجزأين اللذين تغيّرا فعلياً:
 // ١) صيغة الحمولة: كانت النوع (type) فقط، أصبحت JSON كاملاً (يشمل
 //    requestId/ticketId) — يثبت أن الترميز/فك الترميز يحافظان على كل الحقول.
-// ٢) بمجرد وصول الحمولة المفكوكة إلى pendingDeepLink (كما تفعل
-//    _handleNotificationTap فعلياً)، يعيد إنتاج نفس منطق التوجيه بـ
-//    customer_layout.dart (تبديل لتبويب الدردشات لنوع "chat") ليثبت أن
-//    القيمة الناتجة عن الجولة الكاملة (ترميز ثم فك ترميز) تُفهَم بشكل صحيح.
+// ٢) بمجرد وصول الحمولة المفكوكة، الدالة الحقيقية
+//    FirebaseNotificationService.handleNotificationTap (كانت _handleNotificationTap،
+//    راجع [TEST-FIX-NOTIFTAP-01] بـDECISIONS.md — رُفعت لـ@visibleForTesting
+//    بلا underscore لتمكين هذا الاستدعاء المباشر، لا مجرد محاكاة منفصلة
+//    لمنطقها) تُستدعى فعلياً، ثم يعيد هذا الاختبار إنتاج نفس منطق التوجيه
+//    بـcustomer_layout.dart (تبديل لتبويب الدردشات لنوع "chat") ليثبت أن
+//    القيمة الناتجة عن الدالة الحقيقية (لا نسخة مُعاد كتابتها) تُفهَم بشكل
+//    صحيح. **حدود هذا الاختبار**: يثبت أن دالة معالجة الضغط الحقيقية تعمل
+//    صحيحاً بمعزل، لا أن onDidReceiveNotificationResponse الفعلية
+//    بـ_initLocalNotifications تستدعيها فعلاً عند ضغطة حقيقية — ذلك يتطلَّب
+//    Firebase.initializeApp() كاملة (غير مُتاحة ببيئة flutter_test)، خارج
+//    نطاق هذا الاختبار عمداً.
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -22,7 +30,7 @@ import 'package:sallehly_app/core/notifications/firebase_notification_service.da
 
 /// نسخة مصغَّرة من منطق _handleDeepLink بـcustomer_layout.dart — فقط الجزء
 /// الخاص بنوع "chat" (المسار الذي كان الإصلاح يستهدفه)، لإثبات أن القيمة
-/// الناتجة فعلياً من ترميز/فك ترميز الحمولة تُوجَّه بشكل صحيح.
+/// الناتجة فعلياً من الدالة الحقيقية handleNotificationTap تُوجَّه بشكل صحيح.
 class _DeepLinkRoutingHarness extends StatefulWidget {
   const _DeepLinkRoutingHarness();
 
@@ -98,13 +106,39 @@ void main() {
         jsonDecode(jsonEncode(rawData)) as Map,
       );
 
-      // هذا بالضبط ما تفعله _handleNotificationTap عند استدعائها الآن من
-      // onDidReceiveNotificationResponse بعد الإصلاح.
-      FirebaseNotificationService.pendingDeepLink.value = decoded;
+      // [TEST-FIX-NOTIFTAP-01] الدالة الحقيقية بالضبط — لا محاكاة منفصلة
+      // لمنطقها، ولا تعيين pendingDeepLink.value يدوياً.
+      FirebaseNotificationService.handleNotificationTap(decoded);
       await tester.pump();
 
       expect(find.text('tab:2'), findsOneWidget);
       expect(FirebaseNotificationService.pendingDeepLink.value, isNull);
+    },
+  );
+
+  test(
+    '[TEST-FIX-NOTIFTAP-01] handleNotificationTap بحمولة بلا type (أو type فارغ): لا تُنشر أي قيمة',
+    () {
+      FirebaseNotificationService.handleNotificationTap({'requestId': '42'});
+      expect(FirebaseNotificationService.pendingDeepLink.value, isNull);
+
+      FirebaseNotificationService.handleNotificationTap({'type': ''});
+      expect(FirebaseNotificationService.pendingDeepLink.value, isNull);
+    },
+  );
+
+  test(
+    '[TEST-FIX-NOTIFTAP-01] handleNotificationTap بحمولة صحيحة: تنشر نسخة كاملة من البيانات (لا مرجعاً للـMap الأصلية)',
+    () {
+      final original = {'type': 'chat', 'requestId': '99'};
+      FirebaseNotificationService.handleNotificationTap(original);
+
+      final published = FirebaseNotificationService.pendingDeepLink.value;
+      expect(published, equals(original));
+
+      // [Map.from] نسخة جديدة — تعديل الأصل بعد الاستدعاء لا يغيّر المنشور.
+      original['requestId'] = '000';
+      expect(published!['requestId'], '99');
     },
   );
 }

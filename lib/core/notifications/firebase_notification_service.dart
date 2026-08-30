@@ -86,7 +86,7 @@ class FirebaseNotificationService {
     // ٣. لما يضغط على الإشعار والتطبيق في الخلفية
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (kDebugMode) debugPrint('[FCM] Opened from background: ${message.data}');
-      _handleNotificationTap(message.data);
+      handleNotificationTap(message.data);
     });
 
     // ٤. لما يفتح التطبيق من إشعار وكان مغلقاً
@@ -95,7 +95,7 @@ class FirebaseNotificationService {
       if (kDebugMode) {
         debugPrint('[FCM] Opened from terminated: ${initialMessage.data}');
       }
-      _handleNotificationTap(initialMessage.data);
+      handleNotificationTap(initialMessage.data);
     }
   }
 
@@ -124,7 +124,7 @@ class FirebaseNotificationService {
       // يوصّل المستخدم لأي مكان إطلاقاً، بعكس onMessageOpenedApp/
       // getInitialMessage (يعملان فقط والتطبيق بالخلفية/مغلق). الآن يفكّ
       // ترميز الحمولة الكاملة (JSON، وليس النوع فقط كما كانت من قبل) ويمرّرها
-      // لنفس _handleNotificationTap المستخدَم بمساري الخلفية/الإغلاق.
+      // لنفس handleNotificationTap المستخدَم بمساري الخلفية/الإغلاق.
       onDidReceiveNotificationResponse: (details) {
         if (kDebugMode) {
           debugPrint('[FCM] Local notification tapped: ${details.payload}');
@@ -135,7 +135,7 @@ class FirebaseNotificationService {
           final data = Map<String, dynamic>.from(
             jsonDecode(payload) as Map,
           );
-          _handleNotificationTap(data);
+          handleNotificationTap(data);
         } catch (e) {
           if (kDebugMode) {
             debugPrint('[FCM] Failed to decode local notification payload: $e');
@@ -187,7 +187,7 @@ class FirebaseNotificationService {
 
     // [FIX-DEEPLINK-02] كانت الحمولة تحمل النوع (type) فقط — يكفي للاستدلال
     // لكن onDidReceiveNotificationResponse (أسفل) الآن يحتاج الحمولة الكاملة
-    // (requestId/ticketId إلخ) لتمريرها لنفس _handleNotificationTap المستخدَم
+    // (requestId/ticketId إلخ) لتمريرها لنفس handleNotificationTap المستخدَم
     // بمساري الخلفية/الإغلاق. message.data كلها نصوص أصلاً (سيرفر Push يحوّلها
     // بـString(v) قبل الإرسال) فـjsonEncode آمن هنا بلا أي قيمة معقّدة متوقَّعة.
     await _localNotifications.show(
@@ -206,7 +206,17 @@ class FirebaseNotificationService {
   // التبويب الصحيح. لا تنقل مباشرة لأي Widget هنا عمداً — هذه الدالة static
   // بلا BuildContext ولا تعرف دور المستخدم الحالي (customer/technician/admin)،
   // فترك القرار لكل Layout (الذي يعرف دوره وتبويباته) هو الصحيح والآمن.
-  static void _handleNotificationTap(Map<String, dynamic> data) {
+  //
+  // [TEST-FIX-NOTIFTAP-01] راجع DECISIONS.md — بلا underscore وبـ
+  // @visibleForTesting عمداً، لا لأنها جزء من الواجهة العامة المقصودة لهذا
+  // الصنف (لم تكن كذلك قبل هذا التغيير، ولا تزال غير مقصودة للاستدعاء من
+  // خارج هذا الملف بالتطبيق نفسه) — فقط لتمكين اختبارها مباشرة. المسار
+  // الحقيقي الذي يستدعيها فعلياً (onDidReceiveNotificationResponse داخل
+  // _initLocalNotifications) يبقى غير قابل للاختبار مباشرة بلا محاكاة
+  // Firebase.initializeApp() كاملة (تكلفة غير متناسبة هنا) — هذا الكشف
+  // يتيح اختبار المنطق الحقيقي لهذه الدالة بمعزل عن ذلك القيد تحديداً.
+  @visibleForTesting
+  static void handleNotificationTap(Map<String, dynamic> data) {
     final type = data['type']?.toString();
     if (kDebugMode) debugPrint('[FCM] Notification type: $type');
     if (type == null || type.isEmpty) return;
