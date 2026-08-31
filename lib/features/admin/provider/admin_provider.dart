@@ -19,20 +19,39 @@ class AdminProvider extends ChangeNotifier {
 
   bool loading = false;
   bool actionLoading = false;
-  // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md — نفس فئة
-  // SEC-FIX-DOUBLESUBMIT-01 (RequestsProvider/WalletProvider/SupportProvider):
-  // `actionLoading` يُكتَب بـ17 دالة كتابة مختلفة بهذا الملف لكن لا يُقرَأ
-  // كحارس بأي منها إطلاقاً — تعطيل الزر بالواجهة (`actionLoading ? null : onPressed`)
-  // وحده لا يمنع نداءين حقيقيين متتاليين وصلا بلا `await` بينهما (ضغطتان
-  // أسرع من إطار رسم واحد). `actionLoading` نفسه لا يصلح حارساً مباشراً هنا
-  // (مشترك بكل الـ17 دالة معاً — حارس ساذج عليه كان سيمنع بصمت إجراءً
-  // أدمن حقيقياً لو كان إجراء *آخر* مختلف قيد التنفيذ صدفة بنفس اللحظة،
-  // نفس السبب بالضبط الموثَّق بـSEC-FIX-DOUBLESUBMIT-01). حارسان مخصَّصان
-  // فقط للطريقتين اللتين تحرِّكان أموالاً فعلياً (اعتماد/رفض شحن رصيد،
-  // تعديل رصيد يدوي مباشر) — أخطر فئة بهذا الملف لضغطة مزدوجة (اعتماد
-  // شحن مرتين، أو تعديل رصيد مرتين).
-  bool _reviewingTopup = false;
-  bool _adjustingBalance = false;
+
+  // [SEC-FIX-ADMINDOUBLESUBMIT-02] راجع DECISIONS.md — يخلف
+  // SEC-FIX-ADMINDOUBLESUBMIT-01 (كانت تحرس فقط reviewTopup/adjustUserBalance
+  // بحارسين مخصَّصين منفصلين، وتترك الـ15 دالة كتابة الأخرى بلا حارس). كل
+  // الـ17 دالة كتابة بهذا الملف تمرّ الآن إجبارياً عبر _runGuarded أدناه —
+  // ليس فقط لسدّ الفجوة، بل لجعلها بنيوية: دالة كتابة جديدة تُضاف لاحقاً بلا
+  // المرور عبر _runGuarded تكون شاذّة بصرياً مقارنة بكل نظيراتها، لا فجوة
+  // صامتة يكتشفها أحد بالصدفة لاحقاً (نفس فئة "تعطيل الزر بالواجهة يبدو
+  // حماية لكنه ليس كذلك دائماً" الأصلية — الحل هنا حارس واحد لا نسخ متكرّرة
+  // منه). `_inFlightActions` مجموعة (لا حارس منفصل بكل دالة) لأن أكثر من
+  // إجراء *مختلف* قد يعمل بشكل مشروع بنفس اللحظة (مثال: تعديل رصيد مستخدم
+  // بينما مراجعة شحن منفصلة قيد التنفيذ) — actionKey فريد لكل دالة يمنع فقط
+  // تكرار *نفس* الدالة، لا يمنع دالتين مختلفتين من العمل معاً.
+  final Set<String> _inFlightActions = {};
+
+  Future<void> _runGuarded(String actionKey, Future<void> Function() action) async {
+    if (_inFlightActions.contains(actionKey)) return;
+    _inFlightActions.add(actionKey);
+    actionLoading = true;
+    notifyListeners();
+    try {
+      await action();
+    } finally {
+      _inFlightActions.remove(actionKey);
+      // actionLoading يعكس "أي إجراء لا يزال قيد التنفيذ"، لا مجرد "هذا
+      // الإجراء انتهى" — بدون هذا، إجراءان مختلفان متداخلان زمنياً كانا
+      // يجعلان actionLoading يعود false بمجرد انتهاء الأسرع منهما، بينما
+      // الآخر لا يزال قيد التنفيذ فعلياً (يُصلِح خللاً كامناً كان موجوداً
+      // أصلاً بالكود القديم، لا يُدخِل جديداً).
+      actionLoading = _inFlightActions.isNotEmpty;
+      notifyListeners();
+    }
+  }
   // [L10N-TODO] كل رسائل fallback الفشل بهذا الملف (طبقة provider، بلا
   // BuildContext) عربية ثابتة حالياً — 24 رسالة مختلفة عبر كل دوال هذا
   // الملف، يستهلك `error` منها عدد كبير من شاشات الأدمن (بعضها مُهاجَر
@@ -111,22 +130,18 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> toggleUser(int id, {String? reason}) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
-      await api.toggleUser(id, reason: reason);
-      users = await api.getUsers();
-      stats = await api.getStats();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تحديث المستخدم';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  Future<void> toggleUser(int id, {String? reason}) {
+    return _runGuarded('toggleUser', () async {
+      try {
+        await api.toggleUser(id, reason: reason);
+        users = await api.getUsers();
+        stats = await api.getStats();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تحديث المستخدم';
+        rethrow;
+      }
+    });
   }
 
   /// [FIX-ADMINPROFILE-01] يُحمَّل عند فتح شاشة تفاصيل مستخدم واحد.
@@ -185,44 +200,38 @@ class AdminProvider extends ChangeNotifier {
     String? nationalNumber,
     String? services,
     String? areas,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.changeUserRole(
-        id: id,
-        role: role,
-        nationalNumber: nationalNumber,
-        services: services,
-        areas: areas,
-      );
-      users = await api.getUsers();
-      if (userDetail != null) await loadUserDetail(id);
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تحويل دور المستخدم';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('changeUserRole', () async {
+      try {
+        await api.changeUserRole(
+          id: id,
+          role: role,
+          nationalNumber: nationalNumber,
+          services: services,
+          areas: areas,
+        );
+        users = await api.getUsers();
+        if (userDetail != null) await loadUserDetail(id);
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تحويل دور المستخدم';
+        rethrow;
+      }
+    });
   }
 
   /// [FIX-VERIFY-01] توثيق فني.
-  Future<void> verifyTechnician(int id) async {
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.verifyTechnician(id);
-      users = await api.getUsers();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر توثيق الفني';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  Future<void> verifyTechnician(int id) {
+    return _runGuarded('verifyTechnician', () async {
+      try {
+        await api.verifyTechnician(id);
+        users = await api.getUsers();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر توثيق الفني';
+        rethrow;
+      }
+    });
   }
 
   /// [FIX-LEDGER-01] دفتر الحساب الشامل — اختياري الفلترة حسب مستخدم واحد.
@@ -288,26 +297,18 @@ class AdminProvider extends ChangeNotifier {
     required int id,
     required String status,
     String? note,
-  }) async {
-    // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md.
-    if (_reviewingTopup) return;
-    _reviewingTopup = true;
-    actionLoading = true;
-    notifyListeners();
-
-    try {
-      await api.reviewTopup(id: id, status: status, note: note);
-      topups = await api.getTopups();
-      stats = await api.getStats();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر مراجعة الشحن';
-      rethrow;
-    } finally {
-      _reviewingTopup = false;
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('reviewTopup', () async {
+      try {
+        await api.reviewTopup(id: id, status: status, note: note);
+        topups = await api.getTopups();
+        stats = await api.getStats();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر مراجعة الشحن';
+        rethrow;
+      }
+    });
   }
 
   Future<void> loadSupport() async {
@@ -326,21 +327,17 @@ class AdminProvider extends ChangeNotifier {
   Future<void> updateSupportStatus({
     required int ticketId,
     required String status,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
-      await api.updateSupportStatus(ticketId: ticketId, status: status);
-      tickets = await api.getSupportTickets();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تحديث التذكرة';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('updateSupportStatus', () async {
+      try {
+        await api.updateSupportStatus(ticketId: ticketId, status: status);
+        tickets = await api.getSupportTickets();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تحديث التذكرة';
+        rethrow;
+      }
+    });
   }
 
   Future<void> loadMeta() async {
@@ -367,17 +364,11 @@ class AdminProvider extends ChangeNotifier {
   }
 
   /// [FIX-SERVICES-01] تفعيل/تعطيل مهنة بدل حذفها نهائياً.
-  Future<void> toggleService(int id, bool isActive) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  Future<void> toggleService(int id, bool isActive) {
+    return _runGuarded('toggleService', () async {
       await api.toggleService(id, isActive);
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
   /// [FIX-SERVICES-03] تعديل اسم/أيقونة مهنة موجودة.
@@ -385,59 +376,35 @@ class AdminProvider extends ChangeNotifier {
     required int id,
     required String name,
     required String icon,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  }) {
+    return _runGuarded('updateService', () async {
       await api.updateService(id: id, name: name, icon: icon);
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
   Future<void> createService({
     required String name,
     required String icon,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  }) {
+    return _runGuarded('createService', () async {
       await api.createService(name: name, icon: icon);
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  Future<void> deleteService(int id) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  Future<void> deleteService(int id) {
+    return _runGuarded('deleteService', () async {
       await api.deleteService(id);
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
-  Future<void> deletePackage(int id) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  Future<void> deletePackage(int id) {
+    return _runGuarded('deletePackage', () async {
       await api.deletePackage(id);
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
   Future<void> createPackage({
@@ -445,11 +412,8 @@ class AdminProvider extends ChangeNotifier {
     required double amount,
     required double bonus,
     required double commissionPerOrder,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
+  }) {
+    return _runGuarded('createPackage', () async {
       await api.createPackage(
         name: name,
         amount: amount,
@@ -457,10 +421,7 @@ class AdminProvider extends ChangeNotifier {
         commissionPerOrder: commissionPerOrder,
       );
       await loadMeta();
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+    });
   }
 
   Future<void> loadAuditLogs({String search = ''}) async {
@@ -524,102 +485,81 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> cancelRequest({required int id, String reason = ''}) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
-      await api.cancelRequest(id: id, reason: reason);
-      allRequests = await api.getAllRequests();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر إلغاء الطلب';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  Future<void> cancelRequest({required int id, String reason = ''}) {
+    return _runGuarded('cancelRequest', () async {
+      try {
+        await api.cancelRequest(id: id, reason: reason);
+        allRequests = await api.getAllRequests();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر إلغاء الطلب';
+        rethrow;
+      }
+    });
   }
 
   Future<void> changeRequestStatus({
     required int id,
     required String status,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-
-    try {
-      await api.changeRequestStatus(id: id, status: status);
-      allRequests = await api.getAllRequests();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تغيير حالة الطلب';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('changeRequestStatus', () async {
+      try {
+        await api.changeRequestStatus(id: id, status: status);
+        allRequests = await api.getAllRequests();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تغيير حالة الطلب';
+        rethrow;
+      }
+    });
   }
 
   Future<void> updateUserProfile({
     required int id,
     required String name,
     required String city,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.updateUserProfile(id: id, name: name, city: city);
-      users = await api.getUsers();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تعديل البيانات';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('updateUserProfile', () async {
+      try {
+        await api.updateUserProfile(id: id, name: name, city: city);
+        users = await api.getUsers();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تعديل البيانات';
+        rethrow;
+      }
+    });
   }
 
   Future<void> adjustUserBalance({
     required int id,
     required double amount,
     required String reason,
-  }) async {
-    // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md.
-    if (_adjustingBalance) return;
-    _adjustingBalance = true;
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.adjustUserBalance(id: id, amount: amount, reason: reason);
-      users = await api.getUsers();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تعديل الرصيد';
-      rethrow;
-    } finally {
-      _adjustingBalance = false;
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('adjustUserBalance', () async {
+      try {
+        await api.adjustUserBalance(id: id, amount: amount, reason: reason);
+        users = await api.getUsers();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تعديل الرصيد';
+        rethrow;
+      }
+    });
   }
 
-  Future<void> deleteUser(int id) async {
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.deleteUser(id);
-      users = await api.getUsers();
-      stats = await api.getStats();
-      error = null;
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر حذف المستخدم';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  Future<void> deleteUser(int id) {
+    return _runGuarded('deleteUser', () async {
+      try {
+        await api.deleteUser(id);
+        users = await api.getUsers();
+        stats = await api.getStats();
+        error = null;
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر حذف المستخدم';
+        rethrow;
+      }
+    });
   }
 
   Future<void> loadModeration() async {
@@ -693,26 +633,23 @@ class AdminProvider extends ChangeNotifier {
     required double bonus,
     required double commissionPerOrder,
     bool? isActive,
-  }) async {
-    actionLoading = true;
-    notifyListeners();
-    try {
-      await api.updatePackage(
-        id: id,
-        name: name,
-        amount: amount,
-        bonus: bonus,
-        commissionPerOrder: commissionPerOrder,
-        isActive: isActive,
-      );
-      await loadMeta();
-    } catch (e) {
-      error = e is ApiException ? e.message : 'تعذر تعديل الباقة';
-      rethrow;
-    } finally {
-      actionLoading = false;
-      notifyListeners();
-    }
+  }) {
+    return _runGuarded('updatePackage', () async {
+      try {
+        await api.updatePackage(
+          id: id,
+          name: name,
+          amount: amount,
+          bonus: bonus,
+          commissionPerOrder: commissionPerOrder,
+          isActive: isActive,
+        );
+        await loadMeta();
+      } catch (e) {
+        error = e is ApiException ? e.message : 'تعذر تعديل الباقة';
+        rethrow;
+      }
+    });
   }
 
   /// [FIX-PACKAGEACTIVE-01] تفعيل/تعطيل باقة بدون تغيير بقية بياناتها.
