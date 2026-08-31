@@ -72,6 +72,7 @@ class ApiEndpoints {
   static const String adminRequests = '/requests';
   static String adminCancelRequest(int id) => '/admin/requests/$id/cancel';
   static String adminRequestStatus(int id) => '/requests/$id/status';
+  static String adminRequestDetail(int id) => '/admin/requests/$id';
 
   static String supportStatus(int id) => '/support/$id/status';
 

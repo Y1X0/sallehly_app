@@ -90,6 +90,12 @@ class AdminProvider extends ChangeNotifier {
   bool userDetailLoading = false;
   String? userDetailError;
 
+  // [FEAT-ADMINREQUESTDETAIL-01] راجع DECISIONS.md — صورة كاملة لطلب واحد
+  // (الطلب + العروض + المحادثة) بشاشته الخاصة، نفس نمط userDetail أعلاه تماماً.
+  Map<String, dynamic>? requestDetail;
+  bool requestDetailLoading = false;
+  String? requestDetailError;
+
   // [FIX-LEDGER-01] دفتر الحساب الشامل بلوحة الأدمن.
   List<Map<String, dynamic>> ledgerEntries = [];
   int ledgerTotal = 0;
@@ -166,12 +172,37 @@ class AdminProvider extends ChangeNotifier {
     userDetailError = null;
   }
 
+  /// [FEAT-ADMINREQUESTDETAIL-01] يُحمَّل عند فتح شاشة تفاصيل طلب واحد.
+  Future<void> loadRequestDetail(int id) async {
+    requestDetailLoading = true;
+    requestDetailError = null;
+    notifyListeners();
+
+    try {
+      requestDetail = await api.getRequestDetail(id);
+      requestDetailError = null;
+    } catch (e) {
+      requestDetailError = e is ApiException ? e.message : 'تعذر تحميل تفاصيل الطلب';
+    } finally {
+      requestDetailLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearRequestDetail() {
+    requestDetail = null;
+    requestDetailError = null;
+  }
+
   /// [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — يُستدعى عند تسجيل الخروج
   /// (app.dart's authProvider.onLoggedOut). بدونها، بيانات حسّاسة لمستخدمي
   /// المنصة كلهم (قائمة مستخدمين، سجل تدقيق، بلاغات، شكاوى، دفتر حساب) تبقى
   /// بالذاكرة حتى دخول حساب أدمن تالٍ على نفس الجهاز. `services`/`packages`
   /// مُستثناتان عمداً — قوائم مرجعية عامة (نفسها لكل الأدمنز)، لا بيانات
   /// خاصة بحساب مُعيَّن، فتنظيفها فقط يهدر استدعاء شبكة إضافي بلا فائدة أمنية.
+  /// [FEAT-ADMINREQUESTDETAIL-01] `requestDetail` أخطر ما يُمسَح هنا فعلياً —
+  /// يحمل محادثة خاصة كاملة بين عميل وفني (راجع GET /admin/requests/:id)،
+  /// لا مجرد بيانات بروفايل.
   void clear() {
     stats = AdminStatsModel.empty;
     users = [];
@@ -185,6 +216,8 @@ class AdminProvider extends ChangeNotifier {
     messageReports = [];
     userDetail = null;
     userDetailError = null;
+    requestDetail = null;
+    requestDetailError = null;
     ledgerEntries = [];
     ledgerTotal = 0;
     _ledgerUserId = null;
