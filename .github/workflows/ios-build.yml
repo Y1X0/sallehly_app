@@ -1,9 +1,11 @@
 ﻿name: Build iOS (Unsigned)
 
 on:
+  # [DEFERRED-AUDIT-10] راجع DECISIONS.md — لا Podfile، لا حساب Apple
+  # Developer، لا جهاز Mac، وiOS لم يكن يوماً هدف نشر فعلي. كان يفشل على كل
+  # push لـmain ويرسل تنبيه بريد بلا أي معنى (لا خطأ إنتاج حقيقي). يبقى
+  # قابلاً للتشغيل يدوياً (workflow_dispatch) أياً كان يوم iOS هدفاً فعلياً.
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build-ios:
