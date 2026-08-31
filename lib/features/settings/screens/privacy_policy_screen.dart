@@ -319,6 +319,7 @@ class _DataTable extends StatelessWidget {
       (t.dataTableChatMediaLabel, t.dataTableChatMediaReason, false),
       (t.dataTableDeviceTokenLabel, t.dataTableDeviceTokenReason, false),
       (t.dataTableWalletLabel, t.dataTableWalletReason, true),
+      (t.dataTableReceiptLabel, t.dataTableReceiptReason, true),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
