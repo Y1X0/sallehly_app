@@ -320,6 +320,7 @@ class _DataTable extends StatelessWidget {
       (t.dataTableDeviceTokenLabel, t.dataTableDeviceTokenReason, false),
       (t.dataTableWalletLabel, t.dataTableWalletReason, true),
       (t.dataTableReceiptLabel, t.dataTableReceiptReason, true),
+      (t.dataTableSupportLabel, t.dataTableSupportReason, false),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
