@@ -116,6 +116,20 @@ class SocketProvider extends ChangeNotifier {
     if (token == null || token.trim().isEmpty) return;
 
     socketService.connect(token: token.trim());
+    // [FIX-SOCKETREBIND-01] راجع DECISIONS.md — socketService.connect()
+    // (socket_service.dart) تستبدل كائن io.Socket الداخلي بكائن جديد تماماً
+    // في كل استدعاء (تفصل عن القديم وتُنشئ آخر عبر enableForceNew()، حتى لو
+    // كان هذا أول اتصال بعد انقطاع لا `reconnect()`/`disconnect()` صريح —
+    // مثال حقيقي: _SocketBootstrapperState.didChangeAppLifecycleState بـ
+    // app.dart يستدعي .connect() مباشرة عند استئناف التطبيق من الخلفية إن
+    // كان !connected). بدون إعادة الضبط هذه، _listenersBound تبقى true من
+    // أول اتصال فتُرجِع _bindSocketListeners() أدناه فوراً بلا تسجيل أي
+    // مستمع على الكائن الجديد — فيتصل السوكت فعلياً (connected تصير true من
+    // منظور socket_io_client) لكن بلا أي مستمع تطبيقي حي: لا رسائل شات، لا
+    // تحديثات طلبات لحظية، ولا حتى تحديث SocketProvider.connected نفسها
+    // (يعتمد على حدث connect المُسجَّل هنا). كل استدعاء لـconnect() يعني
+    // كائن سوكت جديد، فيلزم مستمعين جدد له في كل مرة.
+    _listenersBound = false;
     _bindSocketListeners();
   }
 

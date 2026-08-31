@@ -32,6 +32,95 @@ import 'providers/theme_controller.dart';
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
+// [BUG-FIX-DEEPLINKRACE-01] راجع DECISIONS.md — كانت onAuthenticated/
+// onLoggedOut إغلاقين (closures) مُضمَّنين مباشرة داخل
+// _SocketBootstrapperState.didChangeDependencies، فلا يمكن استدعاؤهما أو
+// اختبارهما بمعزل عن بناء شجرة الودجت الكاملة (Firebase حقيقي، قنوات platform
+// حقيقية غير متاحة بـ`flutter test`). استُخرجا هنا لدالة علوية مستقلة تأخذ كل
+// الـProviders معاملات صريحة — بلا أي تغيير سلوكي عن الإغلاق السابق — خصيصاً
+// ليتمكن اختبار حقيقي (test/widgets/auth_lifecycle_deeplink_test.dart) من
+// استدعاء onAuthenticated الحقيقية بمزوّدات وهمية ويثبت مباشرة أنها لا تمسح
+// FirebaseNotificationService.pendingDeepLink — وهو بالضبط ما كان غائباً حين
+// أُدخِلت [SEC-FIX-DEEPLINKCLEAR-01] ذاتها بجولة سابقة: تعديل صحيح النية على
+// إغلاق غير قابل للاختبار، فلم يلتقطه أي اختبار حين صار خاطئاً.
+void bindAuthLifecycleCallbacks({
+  required AuthProvider authProvider,
+  required SocketProvider socketProvider,
+  required NotificationProvider notificationProvider,
+  required ChatProvider chatProvider,
+  required RequestsProvider requestsProvider,
+  required WalletProvider walletProvider,
+  required AdminProvider adminProvider,
+  required SupportProvider supportProvider,
+}) {
+  authProvider.onAuthenticated = () async {
+    // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — أول شيء
+    // يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة جلسة — قبل أي شيء آخر.
+    // AuthProvider.login()/verifyOtp() يمسحان tokenStorage/appStorage
+    // دفاعياً بدايةً بغض النظر عن استدعاء logout() صراحة قبلهما أم لا
+    // (نفس النمط بالضبط بـlib/providers/auth_provider.dart) — أي "تسجيل
+    // دخول" قد يكون فعلياً تبديل مستخدم على نفس الجهاز دون مرور صريح
+    // بمسار تسجيل خروج. قبل هذا الإصلاح، loadNotifications() (أدناه)
+    // كانت تدمج إشعارات المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة
+    // سابقاً) للمستخدم *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين
+    // حسابين مختلفين على نفس الجهاز. clear() هنا يضمن حالة فارغة قبل أي
+    // تحميل جديد، بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل. نفس
+    // المنطق يشمل الآن كل Provider يخبّئ بيانات خاصة بحساب مُعيَّن —
+    // رسائل الشات، الطلبات/العروض، سجل الشحن/دفتر الحساب، بيانات لوحة
+    // الأدمن، تذاكر الدعم — لا الإشعارات وحدها.
+    notificationProvider.clear();
+    chatProvider.clear();
+    requestsProvider.clear();
+    walletProvider.clear();
+    adminProvider.clear();
+    supportProvider.clear();
+    // [SEC-FIX-DEEPLINKCLEAR-01] عمداً بدون مسح pendingDeepLink هنا —
+    // راجع DECISIONS.md لتفصيل [BUG-FIX-DEEPLINKRACE-01]. main.dart يستدعي
+    // FirebaseNotificationService.init() (يملأ pendingDeepLink من
+    // getInitialMessage() عند إقلاع بارد بضغطة إشعار) قبل runApp()، وأما
+    // onAuthenticated فيُطلَق أثناء استعادة الجلسة، قبل بناء أي Layout
+    // بحسب الدور أصلاً. مسح القيمة هنا كان يُفرغها دائماً قبل أن يصل أي
+    // مستهلك حقيقي لها (مستمع Layout المرفق لاحقاً، أو postFrameCallback
+    // الخاص به) — فهدف التنقّل يُفقَد بصمت بكل إقلاع بارد من إشعار،
+    // ١٠٠٪ من الوقت، لا فقط بحافة نادرة. سيناريو التسريب الفعلي الذي
+    // صُمِّم هذا المسح لأجله (ضغط إشعار ثم تسجيل خروج قبل استهلاكه) يبقى
+    // مغطّى بالكامل عبر onLoggedOut أدناه — الذي يُطلَق من logout()/
+    // deleteAccount()/handleUnauthorized() الثلاثة. لا تُعِد إضافة هذا
+    // السطر هنا بدون حل مشكلة الترتيب أولاً.
+    await socketProvider.reconnect();
+    // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
+    // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
+    // GET /chats) تبقى صفراً منذ إقلاع التطبيق حتى يفتح المستخدم تبويب
+    // "الدردشات" يدوياً ولو مرة واحدة. تحميل صامت هنا (بعد كل تسجيل
+    // دخول/استعادة جلسة) يضمن ظهور الشارة الصحيحة فوراً من اللحظة
+    // الأولى — يشمل إعادة تشغيل التطبيق واستعادة الجلسة المحفوظة تماماً.
+    await chatProvider.loadChats(silent: true);
+    // [NOTIF-FLUTTER-PHASE2A] نفس المنطق تماماً لإشعارات الخادم الدائمة —
+    // اسحبها فوراً بعد كل تسجيل دخول/تسجيل حساب/استعادة جلسة، بدل انتظار
+    // وصول أول حدث Socket.IO حي (الذي قد لا يصل لفترة، أو يفوت المستخدم
+    // كل ما تراكم بينما كان غير متصل).
+    await notificationProvider.loadNotifications();
+  };
+  authProvider.onLoggedOut = () {
+    socketProvider.disconnect();
+    // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — امسح
+    // فوراً عند تسجيل الخروج أيضاً (logout()، deleteAccount()،
+    // وhandleUnauthorized() عبر logout() الداخلي — الثلاثة تستدعي
+    // onLoggedOut) — لا تترك بيانات المستخدم الذي خرج للتو جالسة بالذاكرة
+    // حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق التطبيق بينهما.
+    // نفس القائمة المُنظَّفة بـonAuthenticated أعلاه بالضبط.
+    notificationProvider.clear();
+    chatProvider.clear();
+    requestsProvider.clear();
+    walletProvider.clear();
+    adminProvider.clear();
+    supportProvider.clear();
+    // [SEC-FIX-DEEPLINKCLEAR-01] راجع DECISIONS.md — نفس القائمة المُنظَّفة
+    // بـonAuthenticated أعلاه بالضبط.
+    FirebaseNotificationService.pendingDeepLink.value = null;
+  };
+}
+
 class SallehlyApp extends StatelessWidget {
   const SallehlyApp({super.key});
 
@@ -206,71 +295,16 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
       // اربط دورة حياة المصادقة بالسوكت:
       // عند تسجيل الدخول/استعادة الجلسة → اتصال، وعند الخروج → قطع.
       final authProvider = context.read<AuthProvider>();
-      final chatProvider = context.read<ChatProvider>();
-      final requestsProvider = context.read<RequestsProvider>();
-      final walletProvider = context.read<WalletProvider>();
-      final adminProvider = context.read<AdminProvider>();
-      final supportProvider = context.read<SupportProvider>();
-      authProvider.onAuthenticated = () async {
-        // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — أول شيء
-        // يحدث عند أي تسجيل دخول/تسجيل حساب/استعادة جلسة — قبل أي شيء آخر.
-        // AuthProvider.login()/verifyOtp() يمسحان tokenStorage/appStorage
-        // دفاعياً بدايةً بغض النظر عن استدعاء logout() صراحة قبلهما أم لا
-        // (نفس النمط بالضبط بـlib/providers/auth_provider.dart) — أي "تسجيل
-        // دخول" قد يكون فعلياً تبديل مستخدم على نفس الجهاز دون مرور صريح
-        // بمسار تسجيل خروج. قبل هذا الإصلاح، loadNotifications() (أدناه)
-        // كانت تدمج إشعارات المستخدم الجديد فوق أي إشعارات (لحظية أو محمَّلة
-        // سابقاً) للمستخدم *السابق* المتبقية بالقائمة — تسريب بيانات خاصة بين
-        // حسابين مختلفين على نفس الجهاز. clear() هنا يضمن حالة فارغة قبل أي
-        // تحميل جديد، بصرف النظر تماماً عن أي مسار أدّى لهذا التسجيل. نفس
-        // المنطق يشمل الآن كل Provider يخبّئ بيانات خاصة بحساب مُعيَّن —
-        // رسائل الشات، الطلبات/العروض، سجل الشحن/دفتر الحساب، بيانات لوحة
-        // الأدمن، تذاكر الدعم — لا الإشعارات وحدها.
-        notificationProvider.clear();
-        chatProvider.clear();
-        requestsProvider.clear();
-        walletProvider.clear();
-        adminProvider.clear();
-        supportProvider.clear();
-        // [SEC-FIX-DEEPLINKCLEAR-01] راجع DECISIONS.md — نفس فئة SEC-FIX-CHATCLEAR-01
-        // لكن على FirebaseNotificationService.pendingDeepLink (متغيّر ثابت
-        // على مستوى العملية، خارج شجرة الـProviders). حساب سابق قد يترك هدف
-        // تنقّل معلَّقاً (ضغط إشعاراً ثم سجَّل خروجه قبل أن يُستهلَك) — بلا
-        // هذا المسح، الحساب التالي على نفس الجهاز قد يُنقَل تلقائياً لتبويب
-        // لم يطلبه هو.
-        FirebaseNotificationService.pendingDeepLink.value = null;
-        await socketProvider.reconnect();
-        // [FIX-CHATBADGE-01] بدون هذا، شارة الشات بالشريط السفلي (المرتبطة
-        // بـChatProvider.totalUnread — المصدر الحقيقي المدعوم من الخادم عبر
-        // GET /chats) تبقى صفراً منذ إقلاع التطبيق حتى يفتح المستخدم تبويب
-        // "الدردشات" يدوياً ولو مرة واحدة. تحميل صامت هنا (بعد كل تسجيل
-        // دخول/استعادة جلسة) يضمن ظهور الشارة الصحيحة فوراً من اللحظة
-        // الأولى — يشمل إعادة تشغيل التطبيق واستعادة الجلسة المحفوظة تماماً.
-        await chatProvider.loadChats(silent: true);
-        // [NOTIF-FLUTTER-PHASE2A] نفس المنطق تماماً لإشعارات الخادم الدائمة —
-        // اسحبها فوراً بعد كل تسجيل دخول/تسجيل حساب/استعادة جلسة، بدل انتظار
-        // وصول أول حدث Socket.IO حي (الذي قد لا يصل لفترة، أو يفوت المستخدم
-        // كل ما تراكم بينما كان غير متصل).
-        await notificationProvider.loadNotifications();
-      };
-      authProvider.onLoggedOut = () {
-        socketProvider.disconnect();
-        // [CRIT-FIX-02] / [SEC-FIX-CHATCLEAR-01] راجع DECISIONS.md — امسح
-        // فوراً عند تسجيل الخروج أيضاً (logout()، deleteAccount()،
-        // وhandleUnauthorized() عبر logout() الداخلي — الثلاثة تستدعي
-        // onLoggedOut) — لا تترك بيانات المستخدم الذي خرج للتو جالسة بالذاكرة
-        // حتى لحظة دخول المستخدم التالي، حتى لو لم يُغلَق التطبيق بينهما.
-        // نفس القائمة المُنظَّفة بـonAuthenticated أعلاه بالضبط.
-        notificationProvider.clear();
-        chatProvider.clear();
-        requestsProvider.clear();
-        walletProvider.clear();
-        adminProvider.clear();
-        supportProvider.clear();
-        // [SEC-FIX-DEEPLINKCLEAR-01] راجع DECISIONS.md — نفس القائمة المُنظَّفة
-        // بـonAuthenticated أعلاه بالضبط.
-        FirebaseNotificationService.pendingDeepLink.value = null;
-      };
+      bindAuthLifecycleCallbacks(
+        authProvider: authProvider,
+        socketProvider: socketProvider,
+        notificationProvider: notificationProvider,
+        chatProvider: context.read<ChatProvider>(),
+        requestsProvider: context.read<RequestsProvider>(),
+        walletProvider: context.read<WalletProvider>(),
+        adminProvider: context.read<AdminProvider>(),
+        supportProvider: context.read<SupportProvider>(),
+      );
       // [FIX-SESSION-EXPIRY-01] فقط عند 401 حقيقي أثناء جلسة كانت نشطة
       // (راجع handleUnauthorized()) — وليس عند تسجيل الخروج الصريح من
       // المستخدم (تلك الشاشة تتولى تنقّلها الخاص أصلاً، فلا يُعاد التوجيه

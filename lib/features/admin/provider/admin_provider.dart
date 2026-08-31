@@ -19,6 +19,20 @@ class AdminProvider extends ChangeNotifier {
 
   bool loading = false;
   bool actionLoading = false;
+  // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md — نفس فئة
+  // SEC-FIX-DOUBLESUBMIT-01 (RequestsProvider/WalletProvider/SupportProvider):
+  // `actionLoading` يُكتَب بـ17 دالة كتابة مختلفة بهذا الملف لكن لا يُقرَأ
+  // كحارس بأي منها إطلاقاً — تعطيل الزر بالواجهة (`actionLoading ? null : onPressed`)
+  // وحده لا يمنع نداءين حقيقيين متتاليين وصلا بلا `await` بينهما (ضغطتان
+  // أسرع من إطار رسم واحد). `actionLoading` نفسه لا يصلح حارساً مباشراً هنا
+  // (مشترك بكل الـ17 دالة معاً — حارس ساذج عليه كان سيمنع بصمت إجراءً
+  // أدمن حقيقياً لو كان إجراء *آخر* مختلف قيد التنفيذ صدفة بنفس اللحظة،
+  // نفس السبب بالضبط الموثَّق بـSEC-FIX-DOUBLESUBMIT-01). حارسان مخصَّصان
+  // فقط للطريقتين اللتين تحرِّكان أموالاً فعلياً (اعتماد/رفض شحن رصيد،
+  // تعديل رصيد يدوي مباشر) — أخطر فئة بهذا الملف لضغطة مزدوجة (اعتماد
+  // شحن مرتين، أو تعديل رصيد مرتين).
+  bool _reviewingTopup = false;
+  bool _adjustingBalance = false;
   // [L10N-TODO] كل رسائل fallback الفشل بهذا الملف (طبقة provider، بلا
   // BuildContext) عربية ثابتة حالياً — 24 رسالة مختلفة عبر كل دوال هذا
   // الملف، يستهلك `error` منها عدد كبير من شاشات الأدمن (بعضها مُهاجَر
@@ -275,6 +289,9 @@ class AdminProvider extends ChangeNotifier {
     required String status,
     String? note,
   }) async {
+    // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md.
+    if (_reviewingTopup) return;
+    _reviewingTopup = true;
     actionLoading = true;
     notifyListeners();
 
@@ -287,6 +304,7 @@ class AdminProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر مراجعة الشحن';
       rethrow;
     } finally {
+      _reviewingTopup = false;
       actionLoading = false;
       notifyListeners();
     }
@@ -568,6 +586,9 @@ class AdminProvider extends ChangeNotifier {
     required double amount,
     required String reason,
   }) async {
+    // [SEC-FIX-ADMINDOUBLESUBMIT-01] راجع DECISIONS.md.
+    if (_adjustingBalance) return;
+    _adjustingBalance = true;
     actionLoading = true;
     notifyListeners();
     try {
@@ -578,6 +599,7 @@ class AdminProvider extends ChangeNotifier {
       error = e is ApiException ? e.message : 'تعذر تعديل الرصيد';
       rethrow;
     } finally {
+      _adjustingBalance = false;
       actionLoading = false;
       notifyListeners();
     }
