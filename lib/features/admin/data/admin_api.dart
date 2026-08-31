@@ -341,6 +341,18 @@ class AdminApi {
     }
   }
 
+  /// [FEAT-ADMINREQUESTDETAIL-01] راجع DECISIONS.md — صف الطلب كاملاً (يشمل
+  /// cancel_reason/cancelled_by/cancelled_at) + كل العروض + المحادثة الكاملة،
+  /// بطلب واحد. مصدر GET /admin/requests/:id بالسيرفر.
+  Future<Map<String, dynamic>> getRequestDetail(int id) async {
+    try {
+      final response = await apiClient.dio.get(ApiEndpoints.adminRequestDetail(id));
+      return Map<String, dynamic>.from(response.data);
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
   Future<void> cancelRequest({required int id, String reason = ''}) async {
     try {
       await apiClient.dio.post(

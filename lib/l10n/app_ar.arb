@@ -2072,6 +2072,33 @@
   "@userLoadFailedTitle": {
     "description": "عنوان خطأ فشل تحميل تفاصيل مستخدم بلوحة الأدمن"
   },
+  "requestLoadFailedTitle": "تعذّر تحميل تفاصيل الطلب",
+  "@requestLoadFailedTitle": {
+    "description": "عنوان خطأ فشل تحميل تفاصيل طلب واحد بلوحة الأدمن (نظير userLoadFailedTitle لشاشة الطلب)"
+  },
+  "adminRequestOffersSectionTitle": "العروض المُقدَّمة ({count})",
+  "@adminRequestOffersSectionTitle": {
+    "description": "عنوان قسم كل العروض المُقدَّمة على طلب بشاشة تفاصيل الطلب بلوحة الأدمن (كل العروض، لا المقبول فقط)",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "adminRequestChatSectionTitle": "المحادثة",
+  "@adminRequestChatSectionTitle": {
+    "description": "عنوان قسم محادثة الطلب بشاشة تفاصيل الطلب بلوحة الأدمن — عرض للقراءة فقط، لغرض الحكم بنزاع"
+  },
+  "cancellationReasonLabel": "سبب الإلغاء",
+  "@cancellationReasonLabel": {
+    "description": "تسمية حقل سبب إلغاء الطلب بشاشة تفاصيل الطلب بلوحة الأدمن (عرض، لا إدخال)"
+  },
+  "cancelledByLabel": "أُلغي بواسطة",
+  "@cancelledByLabel": {
+    "description": "تسمية اسم من ألغى الطلب (عميل أو أدمن) بشاشة تفاصيل الطلب بلوحة الأدمن"
+  },
+  "commissionChargedLabel": "العمولة المخصومة",
+  "@commissionChargedLabel": {
+    "description": "تسمية قيمة العمولة المخصومة من الفني على هذا الطلب تحديداً، بشاشة تفاصيل الطلب بلوحة الأدمن"
+  },
   "addProfessionTitle": "إضافة مهنة",
   "@addProfessionTitle": {
     "description": "عنوان مربع حوار إضافة مهنة جديدة بشاشة إدارة البيانات الوصفية"

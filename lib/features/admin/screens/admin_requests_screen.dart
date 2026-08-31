@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../l10n/app_localizations.dart';
 import '../provider/admin_provider.dart';
+import 'admin_request_detail_screen.dart';
 
 class AdminRequestsScreen extends StatefulWidget {
   const AdminRequestsScreen({super.key});
@@ -210,6 +211,16 @@ class _AdminRequestsScreenState extends State<AdminRequestsScreen> {
                               req: filtered[index],
                               onCancel: () => _confirmCancel(filtered[index]),
                               onChangeStatus: (status) => _changeStatus(filtered[index], status),
+                              // [FEAT-ADMINREQUESTDETAIL-01] راجع DECISIONS.md —
+                              // يفتح شاشة تفاصيل الطلب الكاملة (العروض + المحادثة)،
+                              // أول طريقة فعلية للأدمن لمراجعة نزاع بمكان واحد
+                              // بدل تجميع الصورة يدوياً من شاشات منفصلة.
+                              onOpenDetail: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AdminRequestDetailScreen(requestId: filtered[index]['id'] as int),
+                                ),
+                              ),
                             );
                           },
                         ),
@@ -331,13 +342,14 @@ class _RequestCard extends StatelessWidget {
   final Map<String, dynamic> req;
   final VoidCallback onCancel;
   final ValueChanged<String> onChangeStatus;
+  final VoidCallback onOpenDetail;
 
   // [FIX-REQSTATUS-01] نفس القيم المسموحة صراحة بـPOST /requests/:id/status
   // بالسيرفر (routes/requests.routes.js) عدا 'ملغي' — لها زر إلغاء مستقل
   // بسبب إلزامي أصلاً.
   static const _statusOptions = ['قيد التنفيذ', 'بانتظار تأكيد الدفع', 'مكتمل'];
 
-  const _RequestCard({required this.req, required this.onCancel, required this.onChangeStatus});
+  const _RequestCard({required this.req, required this.onCancel, required this.onChangeStatus, required this.onOpenDetail});
 
   Color _statusColor(String status) {
     switch (status) {
@@ -358,7 +370,13 @@ class _RequestCard extends StatelessWidget {
     final status = '${req['status'] ?? ''}';
     final canCancel = status != 'مكتمل' && status != 'ملغي';
 
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onOpenDetail,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -457,6 +475,8 @@ class _RequestCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }
