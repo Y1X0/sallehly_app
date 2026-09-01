@@ -40,10 +40,10 @@ class _TechnicianOrdersScreenState extends State<TechnicianOrdersScreen> {
         .toList();
 
     final active = orders
-        .where((e) => e.status != 'مكتمل' && e.status != 'ملغي')
+        .where((e) => !e.isCompleted && !e.isCancelled)
         .length;
 
-    final completed = orders.where((e) => e.status == 'مكتمل').length;
+    final completed = orders.where((e) => e.isCompleted).length;
 
     return Scaffold(
       body: AppBackground(
