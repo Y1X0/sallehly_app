@@ -1,9 +1,10 @@
-name: Build Signed Android Release (AAB)
+name: Build Signed Android Release (AAB + APK)
 
 # Manual-only workflow that produces a REAL production-signed Android App
-# Bundle (app-release.aab), unlike android-build.yml / temp-build-apk.yml
-# which always fall back to debug signing (no secrets involved, safe for
-# every push/PR/fork).
+# Bundle (app-release.aab) for Play Store, plus a directly-installable
+# production-signed APK (app-release.apk) for sideloading — unlike
+# android-build.yml / temp-build-apk.yml which always fall back to debug
+# signing (no secrets involved, safe for every push/PR/fork).
 #
 # Requires four GitHub Secrets (Settings -> Secrets and variables ->
 # Actions): ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
@@ -82,6 +83,21 @@ jobs:
         with:
           name: sallehly-android-aab-signed
           path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+      # [FEAT-SIDELOAD-01] AAB alone can't be installed directly on a device
+      # (it needs bundletool + a PC to derive an installable APK from it) —
+      # this produces a plain, directly-sideloadable release APK signed with
+      # the exact same production key, for cases where someone needs to
+      # install the real release build outside Play Store review/rollout.
+      - name: Build signed APK
+        run: flutter build apk --release
+
+      - name: Upload signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sallehly-android-apk-signed
+          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
       - name: Clean up signing secrets

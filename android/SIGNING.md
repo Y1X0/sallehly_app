@@ -1,8 +1,9 @@
 # Android Production Release Signing
 
 This document explains how to produce a **real, production-signed** Android
-App Bundle (`app-release.aab`) for Sallehly, using the
-`Build Signed Android Release (AAB)` GitHub Actions workflow
+App Bundle (`app-release.aab`, for Play Store) and a directly-installable
+release APK (`app-release.apk`, for sideloading) for Sallehly, using the
+`Build Signed Android Release (AAB + APK)` GitHub Actions workflow
 (`.github/workflows/android-release-signed.yml`).
 
 It is separate from the existing `Build Android` and
@@ -66,25 +67,31 @@ your own copy of the passwords securely before moving on.
 ## 4. Trigger the signed build
 
 1. Go to the repo's **Actions** tab.
-2. Select **Build Signed Android Release (AAB)** in the left sidebar.
+2. Select **Build Signed Android Release (AAB + APK)** in the left sidebar.
 3. Click **Run workflow**, choose the branch to build from, and confirm.
 
 The workflow decodes the keystore into a runner-local temp file, generates
-`android/key.properties` for that run only, builds
-`flutter build appbundle --release`, uploads the result, and then deletes
-both the decoded keystore and `key.properties` in a cleanup step that runs
-even if the build fails.
+`android/key.properties` for that run only, builds both
+`flutter build appbundle --release` and `flutter build apk --release`,
+uploads both results, and then deletes both the decoded keystore and
+`key.properties` in a cleanup step that runs even if the build fails.
 
 If any of the four secrets is missing, the workflow fails immediately with
 a clear error and does **not** fall back to debug signing.
 
-## 5. Download the signed AAB
+## 5. Download the signed build
 
-Open the workflow run (Actions tab → the run you triggered) and download
-the **`sallehly-android-aab-signed`** artifact from the **Artifacts**
-section at the bottom of the run summary page. It contains
-`app-release.aab`, signed with your production key and ready to upload to
-Google Play Console.
+Open the workflow run (Actions tab → the run you triggered) — two
+artifacts are available in the **Artifacts** section at the bottom of the
+run summary page:
+
+- **`sallehly-android-aab-signed`** — contains `app-release.aab`, signed
+  with your production key and ready to upload to Google Play Console.
+- **`sallehly-android-apk-signed`** — contains `app-release.apk`, the same
+  production signing, packaged as a plain APK you can download straight to
+  a phone and install directly (no Play Store, no bundletool, no PC
+  needed) — useful for sideloading a real release build, e.g. to test it
+  or to recover from an install stuck on an old signature.
 
 ## Security notes
 
