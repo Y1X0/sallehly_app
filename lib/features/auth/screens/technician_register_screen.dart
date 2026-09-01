@@ -227,7 +227,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final phone = value?.trim() ?? '';
-                    if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
+                    if (!AppConstants.phoneRegex.hasMatch(phone)) {
                       return t.phoneFormatValidation;
                     }
                     return null;

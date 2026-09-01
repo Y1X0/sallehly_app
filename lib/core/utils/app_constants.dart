@@ -25,6 +25,19 @@ class AppConstants {
   // يدوياً معه (وFREE_TIER_QUOTA بمستودع الخادم بالتوازي).
   static const int freeTierQuota = 2;
 
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — طول كود OTP (6 أرقام)، يطابق منطق
+  // التوليد بمستودع الخادم (`utils/helpers.js:generateOtp()`،
+  // 100000-999999). كان مكرَّراً حرفياً (كـ`maxLength: 6` وكفحص
+  // `code.length != 6`) بشاشتين منفصلتين (تفعيل الحساب، إعادة تعيين كلمة
+  // السر).
+  static const int otpLength = 6;
+
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — نمط رقم هاتف أردني محلي، يطابق
+  // `PHONE_REGEX` بمستودع الخادم (`utils/helpers.js`) — كان مكرَّراً حرفياً
+  // بثلاث شاشات منفصلة (تسجيل عميل، تسجيل فني، تعديل الملف الشخصي). `final`
+  // لا `const` — `RegExp` بـDart لا يملك مُنشئاً ثابتاً.
+  static final RegExp phoneRegex = RegExp(r'^07\d{8}$');
+
   // [FEAT-DEDUP-01] راجع DECISIONS.md — قائمة احتياطية فقط (عرض فوري قبل
   // اكتمال جلب `GET /meta`، أو عند فشل الاتصال). المصدر الحقيقي هو
   // `RequestsProvider.meta?.cities` الحيّ من الخادم؛ الشاشات التي تعرض هذه

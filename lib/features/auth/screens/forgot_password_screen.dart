@@ -209,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               textAlign: TextAlign.center,
               textDirection: TextDirection.ltr,
               keyboardType: TextInputType.number,
-              maxLength: 6,
+              maxLength: AppConstants.otpLength,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 22,
@@ -223,7 +223,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               validator: (value) {
                 final code = value?.trim() ?? '';
-                if (code.length != 6) {
+                if (code.length != AppConstants.otpLength) {
                   return t.otpLengthValidation;
                 }
                 return null;

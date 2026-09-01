@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
@@ -120,7 +121,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   textAlign: TextAlign.center,
                   textDirection: TextDirection.ltr,
                   keyboardType: TextInputType.number,
-                  maxLength: 6,
+                  maxLength: AppConstants.otpLength,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
@@ -135,7 +136,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   validator: (value) {
                     final code = value?.trim() ?? '';
 
-                    if (code.length != 6) {
+                    if (code.length != AppConstants.otpLength) {
                       return t.otpCodeValidationError;
                     }
 

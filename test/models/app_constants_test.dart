@@ -70,4 +70,21 @@ void main() {
   test('[FEAT-DEDUP-01] AppConstants.freeTierQuota يطابق FREE_TIER_QUOTA بمستودع الخادم', () {
     expect(AppConstants.freeTierQuota, 2);
   });
+
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — طول كود OTP (6 أرقام، يطابق
+  // utils/helpers.js:generateOtp() بمستودع الخادم) ونمط رقم الهاتف الأردني
+  // (يطابق PHONE_REGEX بمستودع الخادم) — كانا مكرَّرين حرفياً بعدة شاشات
+  // منفصلة قبل هذا التوحيد.
+  group('[FEAT-DEDUP-01] AppConstants — OTP وتنسيق الهاتف', () {
+    test('otpLength يساوي 6', () {
+      expect(AppConstants.otpLength, 6);
+    });
+
+    test('phoneRegex يقبل صيغة 07 + 8 أرقام فقط', () {
+      expect(AppConstants.phoneRegex.hasMatch('0791234567'), isTrue);
+      expect(AppConstants.phoneRegex.hasMatch('07912345'), isFalse);
+      expect(AppConstants.phoneRegex.hasMatch('06912345678'), isFalse);
+      expect(AppConstants.phoneRegex.hasMatch('079123456700'), isFalse);
+    });
+  });
 }
