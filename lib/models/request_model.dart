@@ -69,6 +69,16 @@ class RequestModel {
   bool get isCompleted => status == 'مكتمل';
   bool get isCancelled => status == 'ملغي';
 
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — أُضيفتا بعد أن لاحظ صاحب المنتج أن
+  // customer_request_details_screen.dart كانت تقارن هاتين الحالتين حرفياً
+  // بجوار استخدام صحيح لـhasOffers بنفس الودجت — بالضبط الشكل "نصف المحمي"
+  // (بعض المقارنات على getters، وبعضها الآخر حرفي بنفس الملف) الذي أُزيل من
+  // AdminProvider سابقاً. لا حاجة فعلية لغيرها من الاستهلاك الحالي، لكن أي
+  // موضع جديد يقارن نفس الحالتين يجب أن يستخدمهما بدل تكرار النص.
+  bool get isOfferAccepted => status == 'تم اختيار عرض';
+  bool get isInProgress => status == 'قيد التنفيذ';
+  bool get isAwaitingPaymentConfirmation => status == 'بانتظار تأكيد الدفع';
+
   /// [FIX-CUSTDELETE-01] يطابق تماماً الحالات التي يسمح بها السيرفر بالإلغاء
   /// (DELETE /requests/:id) — بعد قبول عرض فني (تم اختيار عرض/قيد التنفيذ/
   /// بانتظار تأكيد الدفع) أو اكتمال الطلب، السيرفر يرفض الإلغاء دائماً. عرض

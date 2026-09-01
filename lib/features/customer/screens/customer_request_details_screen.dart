@@ -175,7 +175,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (request.hasOffers || request.status == 'تم اختيار عرض')
+                if (request.hasOffers || request.isOfferAccepted)
                   ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
@@ -200,8 +200,8 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                     label: Text(t.cancelRequestButton),
                   ),
                 ],
-                if (request.status == 'قيد التنفيذ' ||
-                    request.status == 'بانتظار تأكيد الدفع') ...[
+                if (request.isInProgress ||
+                    request.isAwaitingPaymentConfirmation) ...[
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
                     onPressed: provider.loading
@@ -232,7 +232,7 @@ class CustomerRequestDetailsScreen extends StatelessWidget {
                     label: Text(t.completeRequestButton),
                   ),
                 ],
-                if (request.status == 'مكتمل' && request.technicianId != null) ...[
+                if (request.isCompleted && request.technicianId != null) ...[
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
