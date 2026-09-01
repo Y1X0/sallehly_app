@@ -103,5 +103,18 @@ void main() {
       expect(withStatus('مكتمل').isCancellable, false);
       expect(withStatus('ملغي').isCancellable, false);
     });
+
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — أُضيفت لتحل محل مقارنات حرفية
+    // مباشرة كانت بـcustomer_request_details_screen.dart.
+    test('isOfferAccepted و isInProgress و isAwaitingPaymentConfirmation', () {
+      expect(withStatus('تم اختيار عرض').isOfferAccepted, true);
+      expect(withStatus('قيد التنفيذ').isOfferAccepted, false);
+
+      expect(withStatus('قيد التنفيذ').isInProgress, true);
+      expect(withStatus('تم اختيار عرض').isInProgress, false);
+
+      expect(withStatus('بانتظار تأكيد الدفع').isAwaitingPaymentConfirmation, true);
+      expect(withStatus('قيد التنفيذ').isAwaitingPaymentConfirmation, false);
+    });
   });
 }

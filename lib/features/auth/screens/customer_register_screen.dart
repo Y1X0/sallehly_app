@@ -8,6 +8,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/consent_checkbox.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../requests/provider/requests_provider.dart';
 import 'verify_otp_screen.dart';
 import '../../../core/widgets/success_feedback.dart';
 
@@ -35,6 +36,19 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   List<String> get availableAreas {
     if (selectedCity == null) return [];
     return AppConstants.areasByCity[selectedCity] ?? [];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — نفس نمط شاشة تسجيل الفني: قائمة
+    // المحافظات تُجلَب حيّة من الخادم بدل الاعتماد فقط على
+    // AppConstants.cities الثابتة (المستخدَمة أدناه كاحتياط عند عدم اكتمال
+    // الجلب بعد).
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<RequestsProvider>().loadMeta();
+    });
   }
 
   @override
@@ -98,6 +112,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final loading = context.watch<AuthProvider>().loading;
+    final meta = context.watch<RequestsProvider>().meta;
 
     return Scaffold(
       appBar: AppBar(
@@ -164,7 +179,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final phone = value?.trim() ?? '';
-                    if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
+                    if (!AppConstants.phoneRegex.hasMatch(phone)) {
                       return t.phoneFormatValidation;
                     }
                     return null;
@@ -175,7 +190,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   label: t.cityFieldLabel,
                   icon: Icons.location_city_outlined,
                   value: selectedCity,
-                  items: AppConstants.cities,
+                  // [FEAT-DEDUP-01] راجع DECISIONS.md — القائمة الحقيقية
+                  // المجلوبة من الخادم، مع AppConstants.cities كاحتياط فقط.
+                  items: meta?.cities ?? AppConstants.cities,
                   onChanged: loading
                       ? null
                       : (value) {
@@ -222,7 +239,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value == null || value.length < 8) {
+                    if (value == null || value.length < AppConstants.minPasswordLength) {
                       return t.registerPasswordMinLengthValidation;
                     }
                     return null;

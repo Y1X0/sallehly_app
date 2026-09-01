@@ -33,9 +33,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   bool _isChatRequest(RequestModel request) {
-    return request.status != 'بانتظار العروض' &&
-        request.status != 'وصلت عروض' &&
-        request.status != 'ملغي';
+    return !request.isWaiting && !request.hasOffers && !request.isCancelled;
   }
 
   Future<void> _refresh(BuildContext context) async {

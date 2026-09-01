@@ -124,10 +124,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
     // الآن نقارن الرصيد الحقيقي بالعمولة المطلوبة فعلياً، ونمنع الإرسال محلياً
     // (زر معطَّل + رسالة واحدة واضحة) فقط عندما يكون الرصيد فعلاً غير كافٍ،
     // بدل الاعتماد فقط على رفض السيرفر 402 بعد محاولة إرسال فعلية.
-    final requiredCommission = user?.activeCommission ?? 2;
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — activeCommission قابلة لـnull الآن
+    // (لا تخمين برقم قد لا يطابق العمولة الحقيقية لباقة هذا الفني). القيمة
+    // غير معروفة محلياً لا تعني "امنع الإرسال" — الخادم هو الحكم الفعلي عند
+    // محاولة الإرسال (نفس فلسفة رفض 402 المذكورة بالتعليق أعلاه، لهذه الحالة
+    // تحديداً بدل الحالة العامة). لا نعرض رقماً مخموناً بالرسالة أيضاً.
+    final requiredCommission = user?.activeCommission;
     final balance = user?.balance ?? 0;
-    final hasSufficientBalance =
-        freeOffersRemaining > 0 || balance >= requiredCommission;
+    final hasSufficientBalance = freeOffersRemaining > 0 ||
+        requiredCommission == null ||
+        balance >= requiredCommission;
 
     return Scaffold(
       appBar: AppBar(
@@ -178,12 +184,14 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   child: Text(
                     freeOffersRemaining > 0
                         ? t.freeOffersRemainingCount(freeOffersRemaining)
-                        : hasSufficientBalance
-                            ? t.commissionWillBeDeductedMessage(formatJod(context, requiredCommission))
-                            : t.insufficientBalanceMessage(
-                                formatJod(context, balance),
-                                formatJod(context, requiredCommission),
-                              ),
+                        : requiredCommission == null
+                            ? t.commissionUnknownMessage
+                            : hasSufficientBalance
+                                ? t.commissionWillBeDeductedMessage(formatJod(context, requiredCommission))
+                                : t.insufficientBalanceMessage(
+                                    formatJod(context, balance),
+                                    formatJod(context, requiredCommission),
+                                  ),
                     style: TextStyle(
                       color: hasSufficientBalance ? AppColors.primary : AppColors.danger,
                       fontWeight: FontWeight.w700,

@@ -45,7 +45,7 @@ class _TechnicianDashboardScreenState extends State<TechnicianDashboardScreen> {
     final newRequests = provider.availableNewRequestsCount;
 
     final myOrders = provider.requests
-        .where((e) => e.status != 'بانتظار العروض' && e.status != 'وصلت عروض')
+        .where((e) => !e.isWaiting && !e.hasOffers)
         .length;
 
     return Scaffold(

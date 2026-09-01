@@ -227,7 +227,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   textDirection: TextDirection.ltr,
                   validator: (value) {
                     final phone = value?.trim() ?? '';
-                    if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
+                    if (!AppConstants.phoneRegex.hasMatch(phone)) {
                       return t.phoneFormatValidation;
                     }
                     return null;
@@ -273,7 +273,10 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   label: t.cityFieldLabel,
                   icon: Icons.location_city_outlined,
                   value: selectedCity,
-                  items: AppConstants.cities,
+                  // [FEAT-DEDUP-01] راجع DECISIONS.md — القائمة الحقيقية
+                  // المجلوبة من الخادم (كانت تُجلَب عبر loadMeta() أعلاه ثم
+                  // تُتجاهَل)، مع AppConstants.cities كاحتياط فقط.
+                  items: meta?.cities ?? AppConstants.cities,
                   onChanged: loading
                       ? null
                       : (value) {
@@ -322,7 +325,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value == null || value.length < 8) {
+                    if (value == null || value.length < AppConstants.minPasswordLength) {
                       return t.registerPasswordMinLengthValidation;
                     }
                     return null;

@@ -181,8 +181,8 @@ class TechnicianRequestDetailsScreen extends StatelessWidget {
                     label: Text(t.technicianSubmitOfferButton),
                   ),
                 if (!canSendOffer &&
-                    request.status != 'مكتمل' &&
-                    request.status != 'ملغي') ...[
+                    !request.isCompleted &&
+                    !request.isCancelled) ...[
                   ElevatedButton.icon(
                     onPressed: loading
                         ? null

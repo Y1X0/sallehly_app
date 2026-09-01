@@ -58,7 +58,7 @@ class _CustomerRequestsScreenState extends State<CustomerRequestsScreen> {
 
     final requests = provider.requests;
     final activeCount = requests
-        .where((e) => e.status != 'مكتمل' && e.status != 'ملغي')
+        .where((e) => !e.isCompleted && !e.isCancelled)
         .length;
     final completedCount = requests.where((e) => e.isCompleted).length;
     final cancelledCount = requests.where((e) => e.isCancelled).length;

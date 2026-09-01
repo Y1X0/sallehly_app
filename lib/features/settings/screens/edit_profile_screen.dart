@@ -58,12 +58,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     // [FIX-SERVICES-02] نفس مصدر البيانات المستخدم بالتسجيل وإنشاء الطلبات —
     // لا يوجد استدعاء API مكرر ولا مصدر ثانٍ للمهن.
-    if (isTechnician) {
-      Future.microtask(() {
-        if (!mounted) return;
-        context.read<RequestsProvider>().loadMeta();
-      });
-    }
+    //
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — كانت الجلبة محصورة بالفني فقط
+    // (isTechnician)، رغم أن قائمة المدن أسفله تُعرَض لكل مستخدم (عميل أو
+    // فني) — العميل كان يعتمد دائماً على AppConstants.cities الثابتة حتى لو
+    // كانت نسخة الخادم الحيّة قد جُلبت أصلاً بشاشة أخرى. الجلبة الآن غير
+    // مشروطة بالدور (loadMeta() idempotent أصلاً — تتحقق من meta == null قبل
+    // أي نداء API فعلي).
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<RequestsProvider>().loadMeta();
+    });
   }
 
   @override
@@ -217,7 +222,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         validator: (value) {
                           final phone = value?.trim() ?? '';
-                          if (!RegExp(r'^07\d{8}$').hasMatch(phone)) {
+                          if (!AppConstants.phoneRegex.hasMatch(phone)) {
                             return t.phoneFormatValidation;
                           }
                           return null;
@@ -231,7 +236,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           labelText: t.cityFieldLabel,
                           prefixIcon: const Icon(Icons.location_city_outlined),
                         ),
-                        items: AppConstants.cities
+                        // [FEAT-DEDUP-01] راجع DECISIONS.md — القائمة الحقيقية
+                        // المجلوبة من الخادم، مع AppConstants.cities كاحتياط
+                        // فقط.
+                        items: (meta?.cities ?? AppConstants.cities)
                             .map((c) => DropdownMenuItem(
                           value: c,
                           child: Text(c),

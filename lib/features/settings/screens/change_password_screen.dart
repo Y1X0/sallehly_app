@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/app_constants.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/gradient_button.dart';
@@ -155,7 +156,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           if (value == null || value.isEmpty) {
                             return t.newPasswordRequiredValidation;
                           }
-                          if (value.length < 8) {
+                          if (value.length < AppConstants.minPasswordLength) {
                             return t.newPasswordMinLengthValidation;
                           }
                           return null;

@@ -39,12 +39,52 @@ void main() {
       }
     });
 
-    test('عمّان (العاصمة) تحوي تغطية واسعة تعكس عدد أحيائها الفعلي', () {
-      expect(AppConstants.areasByCity['عمّان']!.length, greaterThanOrEqualTo(30));
+    test('عمان (العاصمة) تحوي تغطية واسعة تعكس عدد أحيائها الفعلي', () {
+      expect(AppConstants.areasByCity['عمان']!.length, greaterThanOrEqualTo(30));
     });
 
     test('لا محافظات مكرَّرة بقائمة cities', () {
       expect(AppConstants.cities.toSet().length, AppConstants.cities.length);
+    });
+
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — "عمّان" (بشدة) كانت قيمة مختلفة
+    // حرفياً عن "عمان" التي يُرجعها الخادم فعلياً (routes/meta.routes.js)
+    // وتُستخدَم بكل مكان آخر بالتطبيق (نماذج الطلبات/المستخدمين). أي مطابقة
+    // بين قيمة مجلوبة من الخادم ومفتاح areasByCity كانت ستفشل صامتة لعمّان
+    // تحديداً (قائمة مناطق فارغة). هذا الاختبار يمنع عودة الشدة.
+    test('عمان بلا شدة — تطابق القيمة الحقيقية من الخادم', () {
+      expect(AppConstants.cities, contains('عمان'));
+      expect(AppConstants.cities, isNot(contains('عمّان')));
+      expect(AppConstants.areasByCity.containsKey('عمان'), isTrue);
+      expect(AppConstants.areasByCity.containsKey('عمّان'), isFalse);
+    });
+  });
+
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — freeOffersExhaustedTitle/
+  // commissionWillBeDeductedMessage/apiErrorInsufficientBalance تحمل صيغة
+  // مثنى عربي ("فرصتان"/"فرصتين") ثابتة نصياً، لا مرتبطة ديناميكياً بهذا
+  // الثابت (القيمة ليست حقلاً من API، فلا داعٍ حقيقي لتحويلها لـ
+  // {quota, plural,...}) — لكن أي تعديل لهذا الثابت دون تحديث تلك النصوص
+  // الثلاث يدوياً يُنتج نصاً يناقض القيمة الفعلية. هذا الاختبار قفل بسيط
+  // يمنع تعديل الرقم بالخطأ دون ملاحظة الارتباط.
+  test('[FEAT-DEDUP-01] AppConstants.freeTierQuota يطابق FREE_TIER_QUOTA بمستودع الخادم', () {
+    expect(AppConstants.freeTierQuota, 2);
+  });
+
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — طول كود OTP (6 أرقام، يطابق
+  // utils/helpers.js:generateOtp() بمستودع الخادم) ونمط رقم الهاتف الأردني
+  // (يطابق PHONE_REGEX بمستودع الخادم) — كانا مكرَّرين حرفياً بعدة شاشات
+  // منفصلة قبل هذا التوحيد.
+  group('[FEAT-DEDUP-01] AppConstants — OTP وتنسيق الهاتف', () {
+    test('otpLength يساوي 6', () {
+      expect(AppConstants.otpLength, 6);
+    });
+
+    test('phoneRegex يقبل صيغة 07 + 8 أرقام فقط', () {
+      expect(AppConstants.phoneRegex.hasMatch('0791234567'), isTrue);
+      expect(AppConstants.phoneRegex.hasMatch('07912345'), isFalse);
+      expect(AppConstants.phoneRegex.hasMatch('06912345678'), isFalse);
+      expect(AppConstants.phoneRegex.hasMatch('079123456700'), isFalse);
     });
   });
 }

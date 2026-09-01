@@ -164,12 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
+                          // [FEAT-DEDUP-01] راجع DECISIONS.md — عمداً بلا فحص
+                          // طول هنا (بعكس شاشات الإنشاء/التغيير الأربع). حساب
+                          // قديم بكلمة سر أقصر من 8 (سياسة سابقة) يجب أن يبقى
+                          // قادراً على تسجيل الدخول — الخادم نفسه لا يفرض حداً
+                          // أدنى عند الدخول (فقط حد أقصى 72 لحماية bcrypt)،
+                          // فالتحقق المحلي هنا يجب ألا يرفض ما سيقبله الخادم.
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return t.passwordRequiredValidation;
-                            }
-                            if (value.length < 6) {
-                              return t.passwordTooShortValidation;
                             }
                             return null;
                           },

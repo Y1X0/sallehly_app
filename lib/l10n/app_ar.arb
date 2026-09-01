@@ -36,13 +36,24 @@
   "@ledgerTitle": {
     "description": "عنوان شاشة سجل عمليات المحفظة"
   },
-  "ledgerComingSoonTitle": "سجل العمليات قريباً",
-  "@ledgerComingSoonTitle": {
-    "description": "عنوان حالة \"قيد التطوير\" بشاشة سجل العمليات"
+  "walletLedgerEmptyTitle": "لا توجد عمليات بعد",
+  "@walletLedgerEmptyTitle": {
+    "description": "[FEAT-DEDUP-01] عنوان حالة عدم وجود أي حركة بدفتر حساب الفني — راجع DECISIONS.md"
   },
-  "ledgerComingSoonSubtitle": "ستظهر هنا كل حركات رصيدك بالتفصيل",
-  "@ledgerComingSoonSubtitle": {
-    "description": "الوصف الفرعي لحالة \"قيد التطوير\" بشاشة سجل العمليات"
+  "walletLedgerEmptySubtitle": "ستظهر هنا كل حركات رصيدك — شحن، خصم عمولة، واسترداد — فور حدوثها",
+  "@walletLedgerEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود أي حركة بدفتر حساب الفني"
+  },
+  "walletLedgerLoadFailedTitle": "تعذّر تحميل سجل العمليات",
+  "@walletLedgerLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل دفتر حساب الفني"
+  },
+  "walletLedgerBalanceAfterLabel": "الرصيد بعدها: {value}",
+  "@walletLedgerBalanceAfterLabel": {
+    "description": "الرصيد بعد هذه الحركة تحديداً بسجل عمليات الفني (value مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
   },
   "listSeparator": "، ",
   "@listSeparator": {
@@ -1423,7 +1434,7 @@
   },
   "freeOffersExhaustedTitle": "استُهلكت فرصتاك المجانيتان",
   "@freeOffersExhaustedTitle": {
-    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد"
+    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد. [FEAT-DEDUP-01] راجع DECISIONS.md — صيغة المثنى 'فرصتاك...المجانيتان' صحيحة فقط لأن AppConstants.freeTierQuota == 2 فعلياً؛ أي تغيير مستقبلي لذلك الثابت يجب أن يُحدِّث هذا النص يدوياً معه."
   },
   "laterButton": "لاحقاً",
   "@laterButton": {
@@ -1442,7 +1453,7 @@
   },
   "commissionWillBeDeductedMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم {amount} من رصيدك عند اكتمال هذا الطلب",
   "@commissionWillBeDeductedMessage": {
-    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod)",
+    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod). [FEAT-DEDUP-01] راجع DECISIONS.md — نفس ملاحظة freeOffersExhaustedTitle: صيغة المثنى مرتبطة بـAppConstants.freeTierQuota == 2.",
     "placeholders": {
       "amount": {"type": "String"}
     }
@@ -1454,6 +1465,10 @@
       "balance": {"type": "String"},
       "required": {"type": "String"}
     }
+  },
+  "commissionUnknownMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم عمولة باقتك الحالية من رصيدك عند اكتمال هذا الطلب",
+  "@commissionUnknownMessage": {
+    "description": "[FEAT-DEDUP-01] بديل عن commissionWillBeDeductedMessage حين لا تصل قيمة العمولة الحقيقية من السيرفر (activeCommission=null) — لا نعرض رقماً مخموناً، الخادم هو الحكم الفعلي عند الإرسال"
   },
   "priceFieldLabel": "السعر بالدينار",
   "@priceFieldLabel": {
@@ -2600,7 +2615,7 @@
   "@dataRetentionSectionTitle": {
     "description": "عنوان قسم الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
   },
-  "dataRetentionSectionBody": "نحتفظ ببياناتك طالما حسابك فعّال. عند حذف حسابك من الإعدادات، تُستبدَل بياناتك المُعرِّفة — الاسم، البريد، الهاتف، الرقم الوطني، صورتك الشخصية، المدينة والمنطقة، والمهن — بقيم عشوائية غير قابلة للربط بك فوراً، ولا يمكن لأي أحد استرجاعها. المحتوى الذي أنشأته أثناء الاستخدام — رسائل المحادثة، التقييمات، وسجل معاملات المحفظة — يبقى محفوظاً كسجل تاريخي غير مرتبط باسمك بعد الحذف. لا يمكن حذف حسابك أثناء وجود طلب نشط، عرض معلَّق، أو طلب شحن رصيد قيد المراجعة — يجب تسوية ذلك أولاً.",
+  "dataRetentionSectionBody": "نحتفظ ببياناتك طالما حسابك فعّال. عند حذف حسابك من الإعدادات، تُستبدَل بياناتك المُعرِّفة — الاسم، البريد، الهاتف، الرقم الوطني، صورتك الشخصية، المدينة والمنطقة، والمهن — بقيم عشوائية غير قابلة للربط بك فوراً، ولا يمكن لأي أحد استرجاعها. المحتوى الذي أنشأته أثناء الاستخدام — رسائل المحادثة، التقييمات، وسجل معاملات المحفظة — يبقى محفوظاً كسجل تاريخي غير مرتبط باسمك بعد الحذف. لا يمكن حذف حسابك أثناء وجود طلب نشط، عرض معلَّق، طلب شحن رصيد قيد المراجعة، أو رصيد متبقٍّ بالمحفظة — يجب تسوية ذلك أولاً.",
   "@dataRetentionSectionBody": {
     "description": "نص شرح الاحتفاظ بالبيانات بشاشة سياسة الخصوصية"
   },
@@ -2695,6 +2710,14 @@
   "dataTableReceiptReason": "إثبات دفع عند طلب شحن رصيد، يراجعه فريق الإدارة قبل الموافقة",
   "@dataTableReceiptReason": {
     "description": "سبب جمع صورة إيصال الدفع بجدول البيانات"
+  },
+  "dataTableSupportLabel": "محتوى تذاكر الدعم",
+  "@dataTableSupportLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' — عنوان ونص تذكرة الدعم"
+  },
+  "dataTableSupportReason": "الرد على استفساراتك ومشاكلك",
+  "@dataTableSupportReason": {
+    "description": "سبب جمع محتوى تذاكر الدعم بجدول البيانات"
   },
   "requiredBadgeLabel": "إلزامية",
   "@requiredBadgeLabel": {
@@ -3383,7 +3406,7 @@
   },
   "apiErrorInsufficientBalance": "رصيدك غير كافي. استخدمت أول فرصتين مجاناً، يجب شحن الرصيد قبل تقديم عرض جديد. الحد الأدنى المطلوب {requiredBalance} د.أ",
   "@apiErrorInsufficientBalance": {
-    "description": "[FIX-ERRCODE-02] رسالة خطأ من الخادم برمز INSUFFICIENT_BALANCE — راجع server.js (master)",
+    "description": "[FIX-ERRCODE-02] رسالة خطأ من الخادم برمز INSUFFICIENT_BALANCE — راجع server.js (master). [FEAT-DEDUP-01] راجع DECISIONS.md — 'فرصتين' هنا صيغة المثنى، مرتبطة بـAppConstants.freeTierQuota == 2 (يطابق FREE_TIER_QUOTA بمستودع الخادم).",
     "placeholders": {
       "requiredBalance": {"type": "num"}
     }
