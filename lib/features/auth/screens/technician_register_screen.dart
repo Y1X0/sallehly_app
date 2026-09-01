@@ -273,7 +273,10 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   label: t.cityFieldLabel,
                   icon: Icons.location_city_outlined,
                   value: selectedCity,
-                  items: AppConstants.cities,
+                  // [FEAT-DEDUP-01] راجع DECISIONS.md — القائمة الحقيقية
+                  // المجلوبة من الخادم (كانت تُجلَب عبر loadMeta() أعلاه ثم
+                  // تُتجاهَل)، مع AppConstants.cities كاحتياط فقط.
+                  items: meta?.cities ?? AppConstants.cities,
                   onChanged: loading
                       ? null
                       : (value) {

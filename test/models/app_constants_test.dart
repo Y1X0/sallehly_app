@@ -39,12 +39,24 @@ void main() {
       }
     });
 
-    test('عمّان (العاصمة) تحوي تغطية واسعة تعكس عدد أحيائها الفعلي', () {
-      expect(AppConstants.areasByCity['عمّان']!.length, greaterThanOrEqualTo(30));
+    test('عمان (العاصمة) تحوي تغطية واسعة تعكس عدد أحيائها الفعلي', () {
+      expect(AppConstants.areasByCity['عمان']!.length, greaterThanOrEqualTo(30));
     });
 
     test('لا محافظات مكرَّرة بقائمة cities', () {
       expect(AppConstants.cities.toSet().length, AppConstants.cities.length);
+    });
+
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — "عمّان" (بشدة) كانت قيمة مختلفة
+    // حرفياً عن "عمان" التي يُرجعها الخادم فعلياً (routes/meta.routes.js)
+    // وتُستخدَم بكل مكان آخر بالتطبيق (نماذج الطلبات/المستخدمين). أي مطابقة
+    // بين قيمة مجلوبة من الخادم ومفتاح areasByCity كانت ستفشل صامتة لعمّان
+    // تحديداً (قائمة مناطق فارغة). هذا الاختبار يمنع عودة الشدة.
+    test('عمان بلا شدة — تطابق القيمة الحقيقية من الخادم', () {
+      expect(AppConstants.cities, contains('عمان'));
+      expect(AppConstants.cities, isNot(contains('عمّان')));
+      expect(AppConstants.areasByCity.containsKey('عمان'), isTrue);
+      expect(AppConstants.areasByCity.containsKey('عمّان'), isFalse);
     });
   });
 }

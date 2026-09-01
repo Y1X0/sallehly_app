@@ -49,7 +49,7 @@ final RequestModel sampleRequest = RequestModel(
   id: 1,
   customerId: 7,
   service: 'كهربائي',
-  city: 'عمّان',
+  city: 'عمان',
   area: 'جبل الحسين',
   description:
       'يوجد عطل متكرر في التمديدات الكهربائية بالمطبخ ويحتاج فحصاً عاجلاً '
