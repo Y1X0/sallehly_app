@@ -11,6 +11,20 @@ class AppConstants {
   // الهاش المخزَّن أصلاً.
   static const int minPasswordLength = 8;
 
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — عدد الفرص المجانية (طلبات مكتملة أو
+  // عروض مُقدَّمة) قبل بدء خصم العمولة، يطابق `FREE_TIER_QUOTA` بمستودع
+  // الخادم (`config/env.js`) — رقمان منفصلان بمستودعين منفصلين بلا نظام
+  // وحدات مشترك، يجب أن يبقيا متطابقين يدوياً. لا يُستخدَم هذا الثابت لأي
+  // قرار فعلي بالتطبيق (`UserModel.freeOffersRemaining`/`freeOffersUsed`
+  // قيمتان محسوبتان من الخادم دائماً، لا حساب محلي بـ"2" إطلاقاً) — فقط
+  // توثيق صريح لماذا نصوص `freeOffersExhaustedTitle`/`commissionWillBeDeductedMessage`/
+  // `apiErrorInsufficientBalance` بملفات الترجمة تحمل صيغة المثنى العربي
+  // "فرصتان/فرصتين" حرفياً (لا `{quota, plural,...}` ديناميكية — القيمة
+  // ثابتة بالكود لا مُتاحة كحقل عبر API، فتحويلها لصيغة ديناميكية بلا داعٍ
+  // حقيقي). أي تغيير مستقبلي لهذا الثابت يجب أن يُحدِّث تلك النصوص الثلاثة
+  // يدوياً معه (وFREE_TIER_QUOTA بمستودع الخادم بالتوازي).
+  static const int freeTierQuota = 2;
+
   // [FEAT-DEDUP-01] راجع DECISIONS.md — قائمة احتياطية فقط (عرض فوري قبل
   // اكتمال جلب `GET /meta`، أو عند فشل الاتصال). المصدر الحقيقي هو
   // `RequestsProvider.meta?.cities` الحيّ من الخادم؛ الشاشات التي تعرض هذه

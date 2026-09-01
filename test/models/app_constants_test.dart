@@ -59,4 +59,15 @@ void main() {
       expect(AppConstants.areasByCity.containsKey('عمّان'), isFalse);
     });
   });
+
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — freeOffersExhaustedTitle/
+  // commissionWillBeDeductedMessage/apiErrorInsufficientBalance تحمل صيغة
+  // مثنى عربي ("فرصتان"/"فرصتين") ثابتة نصياً، لا مرتبطة ديناميكياً بهذا
+  // الثابت (القيمة ليست حقلاً من API، فلا داعٍ حقيقي لتحويلها لـ
+  // {quota, plural,...}) — لكن أي تعديل لهذا الثابت دون تحديث تلك النصوص
+  // الثلاث يدوياً يُنتج نصاً يناقض القيمة الفعلية. هذا الاختبار قفل بسيط
+  // يمنع تعديل الرقم بالخطأ دون ملاحظة الارتباط.
+  test('[FEAT-DEDUP-01] AppConstants.freeTierQuota يطابق FREE_TIER_QUOTA بمستودع الخادم', () {
+    expect(AppConstants.freeTierQuota, 2);
+  });
 }

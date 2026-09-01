@@ -1434,7 +1434,7 @@
   },
   "freeOffersExhaustedTitle": "استُهلكت فرصتاك المجانيتان",
   "@freeOffersExhaustedTitle": {
-    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد"
+    "description": "عنوان نافذة تنبيه عند نفاد الفرص المجانية وعدم كفاية الرصيد. [FEAT-DEDUP-01] راجع DECISIONS.md — صيغة المثنى 'فرصتاك...المجانيتان' صحيحة فقط لأن AppConstants.freeTierQuota == 2 فعلياً؛ أي تغيير مستقبلي لذلك الثابت يجب أن يُحدِّث هذا النص يدوياً معه."
   },
   "laterButton": "لاحقاً",
   "@laterButton": {
@@ -1453,7 +1453,7 @@
   },
   "commissionWillBeDeductedMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم {amount} من رصيدك عند اكتمال هذا الطلب",
   "@commissionWillBeDeductedMessage": {
-    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod)",
+    "description": "رسالة تنبيه أن العمولة ستُخصَم من الرصيد بعد نفاد الفرص المجانية (amount مُنسَّق مسبقاً بـformatJod). [FEAT-DEDUP-01] راجع DECISIONS.md — نفس ملاحظة freeOffersExhaustedTitle: صيغة المثنى مرتبطة بـAppConstants.freeTierQuota == 2.",
     "placeholders": {
       "amount": {"type": "String"}
     }
@@ -3406,7 +3406,7 @@
   },
   "apiErrorInsufficientBalance": "رصيدك غير كافي. استخدمت أول فرصتين مجاناً، يجب شحن الرصيد قبل تقديم عرض جديد. الحد الأدنى المطلوب {requiredBalance} د.أ",
   "@apiErrorInsufficientBalance": {
-    "description": "[FIX-ERRCODE-02] رسالة خطأ من الخادم برمز INSUFFICIENT_BALANCE — راجع server.js (master)",
+    "description": "[FIX-ERRCODE-02] رسالة خطأ من الخادم برمز INSUFFICIENT_BALANCE — راجع server.js (master). [FEAT-DEDUP-01] راجع DECISIONS.md — 'فرصتين' هنا صيغة المثنى، مرتبطة بـAppConstants.freeTierQuota == 2 (يطابق FREE_TIER_QUOTA بمستودع الخادم).",
     "placeholders": {
       "requiredBalance": {"type": "num"}
     }
