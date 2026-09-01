@@ -222,7 +222,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value == null || value.length < 8) {
+                    if (value == null || value.length < AppConstants.minPasswordLength) {
                       return t.registerPasswordMinLengthValidation;
                     }
                     return null;

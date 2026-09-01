@@ -34,7 +34,14 @@ class UserModel {
   /// فعلياً (active_commission ضمن GET /me)، فكانت شاشة تقديم العرض تُظهر
   /// تحذير "رصيد غير كافٍ" فقط بناءً على انتهاء الفرص المجانية بغضّ النظر عن
   /// الرصيد الفعلي — مضلِّل لأي فني رصيده أكبر من العمولة المطلوبة فعلياً.
-  final double activeCommission;
+  ///
+  /// [FEAT-DEDUP-01] راجع DECISIONS.md — قابلة لـnull عمداً: لا قيمة افتراضية
+  /// هنا (لا "2" ولا أي رقم آخر). العمولة تختلف فعلياً بين الباقات (بعضها
+  /// قد لا يساوي 2)، فتخمين رقم عند غياب القيمة الحقيقية من السيرفر قد يعرض
+  /// للفني رقماً مختلفاً عمّا سيُخصَم فعلياً — بالضبط فئة الخطأ التي أنتجت
+  /// هذا الحقل أصلاً (راجع التعليق أعلاه). null صراحة يعني "القيمة الحقيقية
+  /// غير معروفة الآن"، لا "افترض 2".
+  final double? activeCommission;
 
   /// [FIX-SUPERADMIN-01] صحيحة فقط لحساب الإدارة الوحيد المُهيَّأ من .env —
   /// تتحكم بظهور القدرات الأشد حساسية (تغيير دور مستخدم) بواجهة الأدمن.
@@ -56,7 +63,7 @@ class UserModel {
     required this.active,
     this.freeOffersUsed = 0,
     this.freeOffersRemaining = 0,
-    this.activeCommission = 2,
+    this.activeCommission,
     this.isSuperAdmin = false,
   });
 
@@ -89,8 +96,9 @@ class UserModel {
       freeOffersUsed: int.tryParse('${json['free_offers_used'] ?? 0}') ?? 0,
       freeOffersRemaining:
           int.tryParse('${json['free_offers_remaining'] ?? 0}') ?? 0,
-      activeCommission:
-          double.tryParse('${json['active_commission'] ?? 2}') ?? 2,
+      activeCommission: json['active_commission'] == null
+          ? null
+          : double.tryParse('${json['active_commission']}'),
       isSuperAdmin: json['is_super_admin'] == 1 || json['is_super_admin'] == true,
     );
   }

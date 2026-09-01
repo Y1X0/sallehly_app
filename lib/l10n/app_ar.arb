@@ -36,13 +36,24 @@
   "@ledgerTitle": {
     "description": "عنوان شاشة سجل عمليات المحفظة"
   },
-  "ledgerComingSoonTitle": "سجل العمليات قريباً",
-  "@ledgerComingSoonTitle": {
-    "description": "عنوان حالة \"قيد التطوير\" بشاشة سجل العمليات"
+  "walletLedgerEmptyTitle": "لا توجد عمليات بعد",
+  "@walletLedgerEmptyTitle": {
+    "description": "[FEAT-DEDUP-01] عنوان حالة عدم وجود أي حركة بدفتر حساب الفني — راجع DECISIONS.md"
   },
-  "ledgerComingSoonSubtitle": "ستظهر هنا كل حركات رصيدك بالتفصيل",
-  "@ledgerComingSoonSubtitle": {
-    "description": "الوصف الفرعي لحالة \"قيد التطوير\" بشاشة سجل العمليات"
+  "walletLedgerEmptySubtitle": "ستظهر هنا كل حركات رصيدك — شحن، خصم عمولة، واسترداد — فور حدوثها",
+  "@walletLedgerEmptySubtitle": {
+    "description": "الوصف الفرعي لحالة عدم وجود أي حركة بدفتر حساب الفني"
+  },
+  "walletLedgerLoadFailedTitle": "تعذّر تحميل سجل العمليات",
+  "@walletLedgerLoadFailedTitle": {
+    "description": "عنوان حالة فشل تحميل دفتر حساب الفني"
+  },
+  "walletLedgerBalanceAfterLabel": "الرصيد بعدها: {value}",
+  "@walletLedgerBalanceAfterLabel": {
+    "description": "الرصيد بعد هذه الحركة تحديداً بسجل عمليات الفني (value مُنسَّق مسبقاً بـformatJod)",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
   },
   "listSeparator": "، ",
   "@listSeparator": {
@@ -1454,6 +1465,10 @@
       "balance": {"type": "String"},
       "required": {"type": "String"}
     }
+  },
+  "commissionUnknownMessage": "استُهلكت فرصتاك المجانيتان — سيتم خصم عمولة باقتك الحالية من رصيدك عند اكتمال هذا الطلب",
+  "@commissionUnknownMessage": {
+    "description": "[FEAT-DEDUP-01] بديل عن commissionWillBeDeductedMessage حين لا تصل قيمة العمولة الحقيقية من السيرفر (activeCommission=null) — لا نعرض رقماً مخموناً، الخادم هو الحكم الفعلي عند الإرسال"
   },
   "priceFieldLabel": "السعر بالدينار",
   "@priceFieldLabel": {

@@ -148,11 +148,14 @@ void main() {
       expect(user.activeCommission, 3.5);
     });
 
-    test('active_commission مفقودة ترجع 2 افتراضياً (نفس افتراض السيرفر)', () {
+    // [FEAT-DEDUP-01] راجع DECISIONS.md — كانت هذه القيمة تُخمَّن كـ2 عند
+    // غيابها، رغم أن العمولة الحقيقية تختلف باختلاف الباقة. null صراحة الآن
+    // بدل رقم قد لا يطابق ما سيُخصَم فعلياً من الفني.
+    test('active_commission مفقودة ترجع null (لا تخمين برقم قد لا يطابق العمولة الحقيقية)', () {
       final user = UserModel.fromJson({
         'id': 1, 'role': 'technician', 'name': 'test', 'email': 'a@a.com', 'phone': '0791111111',
       });
-      expect(user.activeCommission, 2);
+      expect(user.activeCommission, isNull);
     });
   });
 }

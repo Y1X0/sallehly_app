@@ -154,16 +154,49 @@ void main() {
     verify(() => mockAuthApi.login(email: 'user@example.com', password: 'secret123')).called(1);
   });
 
-  testWidgets('كلمة مرور أقصر من 6 أحرف: خطأ تحقق، بلا نداء شبكة', (tester) async {
+  // [FEAT-DEDUP-01] راجع DECISIONS.md — قبل هذا الإصلاح كانت شاشة الدخول
+  // ترفض كلمة سر أقصر من 6 أحرف محلياً بلا أي نداء شبكة. لو رُفع هذا الحد
+  // لـ8 (ليطابق شاشات الإنشاء) بدل حذفه، أي حساب قديم بكلمة سر 6-7 أحرف
+  // (من سياسة سابقة) كان سيُقفَل خارجاً بلا حتى محاولة اتصال بالخادم — رغم
+  // أن كلمة سره صحيحة وسيقبلها الخادم فعلياً (الذي لا يفرض حداً أدنى عند
+  // الدخول إطلاقاً). الحل: لا فحص طول على الإطلاق بشاشة الدخول — يثبت هذا
+  // الاختبار أن كلمة سر قصيرة (حتى 3 أحرف) تصل فعلياً لنداء تسجيل الدخول،
+  // لا أن تُرفض محلياً.
+  testWidgets('كلمة مرور قصيرة (حتى أقل من الحد الأدنى القديم): لا يوجد فحص طول، الطلب يصل للخادم فعلياً', (tester) async {
+    when(() => mockAuthApi.login(email: any(named: 'email'), password: any(named: 'password')))
+        .thenAnswer((_) async => AuthResult(token: 'tok-123', user: _sampleUser()));
+
+    // نفس ابتلاع استثناء CustomerLayout المتوقَّع أعلاه — نجاح الدخول هنا
+    // أيضاً ينتقل فعلياً لشاشة تحتاج شجرة Provider كاملة غير مُجهَّزة بهذا
+    // الاختبار عمداً؛ الهدف قياس أن login() استُدعيت فعلاً، لا سلوك الشاشة التالية.
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (details) {
+      final isExpectedCustomerLayoutProviderError =
+          details.exception.toString().contains('CustomerLayout');
+      if (isExpectedCustomerLayoutProviderError) return;
+      originalOnError?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = originalOnError);
+
     await tester.pumpWidget(wrap());
     await _pumpAnimated(tester);
 
     await tester.enterText(find.byType(TextFormField).first, 'user@example.com');
     await tester.enterText(find.byType(TextFormField).last, '123');
     await tester.tap(find.text('تسجيل الدخول'));
+    await _pumpAnimated(tester, 3);
+
+    verify(() => mockAuthApi.login(email: 'user@example.com', password: '123')).called(1);
+  });
+
+  testWidgets('حقل كلمة المرور فارغ: خطأ تحقق، بلا نداء شبكة', (tester) async {
+    await tester.pumpWidget(wrap());
     await _pumpAnimated(tester);
 
-    expect(find.text('كلمة المرور قصيرة'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).first, 'user@example.com');
+    await tester.tap(find.text('تسجيل الدخول'));
+    await _pumpAnimated(tester);
+
     verifyNever(() => mockAuthApi.login(email: any(named: 'email'), password: any(named: 'password')));
   });
 
