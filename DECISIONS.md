@@ -2479,3 +2479,58 @@ CI): بلا انحدار. دمج `AndroidManifest.xml` الخاص بـdebug تح
 المنتج به لاحقاً. باقي بنود `[DEFERRED-AUDIT-10]` (Podfile الخاص بـiOS،
 كتم إشعارات FCM بالمقدمة، تصفّح سجل الشات، وبنود منخفضة/تافهة) تُعالَج
 بترتيب منفصل، كل واحد بمُدخَل مستقل عند اكتماله.
+
+---
+
+# [FIX-FCMFOREGROUNDMUTE-01] إشعارات FCM بالمقدمة تُكتَم الآن لمحادثة مفتوحة فعلياً على الشاشة
+
+من قائمة `[DEFERRED-AUDIT-10]` المؤجَّلة (البند "إشعارات FCM بالمقدمة لا
+تُكتَم للمحادثة المفتوحة فعلياً على الشاشة") — ثاني بند من جولة المتابعة
+(بعد `FIX-DEVCLEARTEXT-01`).
+
+## الخطورة
+متوسط — مستخدم يشاهد شاتاً حياً مفتوحاً فعلياً قد يسمع صوت/اهتزاز إشعار
+لرسالة تظهر أمامه بنفس اللحظة على الشاشة.
+
+## الاكتشاف
+مساران متوازيان يصلان لنفس حدث "رسالة شات جديدة" بينما التطبيق بالمقدمة:
+مسار السوكت الحي (`NotificationProvider.handleChatNotify`) يكتم الحدث فعلاً
+عند تطابق `requestId` مع `activeChatRequestId`؛ مسار FCM بالمقدمة
+(`FirebaseNotificationService`'s `FirebaseMessaging.onMessage.listen`) كان
+يستدعي `_showLocalNotificationStatic(message)` بلا أي شرط — إشعار محلي
+حقيقي (صوت + اهتزاز، القناة `sallehly_main` بـ`Importance.max`) لكل رسالة،
+بغض النظر عن كون المحادثة مفتوحة فعلياً أمام المستخدم. `activeChatRequestId`
+كانت حقلاً بـ`NotificationProvider` فقط — مسار FCM دالة `static` بلا أي
+وصول لشجرة الودجت/Provider، فلا يقدر يقرأها أصلاً.
+
+## الحل
+`FirebaseNotificationService.activeChatRequestId` (حقل `static` جديد) أصبح
+المصدر الفعلي الوحيد — بنفس فلسفة `pendingDeepLink` الموجود مسبقاً بنفس
+الملف (حالة تحتاج وصولاً من دالة `static` بلا `BuildContext`).
+`NotificationProvider.activeChatRequestId`/`setActiveChat()` أصبحا يقرآن/يكتبان
+هذا الحقل مباشرة (لا نسخة محلية منفصلة قد تنحرف عن الأصل). دالة جديدة
+`isCurrentlyViewedChatMessage(data)` (نفس نمط `@visibleForTesting` بلا
+`_` المستخدَم أصلاً بـ`handleNotificationTap` بنفس الملف) تُفحَص قبل
+`_showLocalNotificationStatic` داخل `onMessage.listen` — رسالة `type: 'chat'`
+بـ`requestId` مطابق لِـ`activeChatRequestId` تُكتَم (لا إشعار محلي إطلاقاً)،
+أي شيء آخر يمر كالمعتاد بلا أي تغيير سلوكي.
+
+## الإثبات
+`test/core/notifications/firebase_notification_service_mute_test.dart`
+(5 اختبارات): `isCurrentlyViewedChatMessage` تُكتَم فقط عند تطابق النوع
+(`chat`) و`requestId` معاً مع الحالة الفعلية، ولا تُكتَم لطلب مختلف، ولا
+محادثة مفتوحة، ولا نوع آخر، ولا حمولة بلا `requestId`. `test/models/notification_provider_test.dart`
+(3 اختبارات جديدة): `setActiveChat`/`activeChatRequestId` يكتبان/يقرآن
+فعلياً من `FirebaseNotificationService.activeChatRequestId` (مصدر واحد
+فعلي)، و`handleChatNotify` (مسار السوكت الحي القائم أصلاً) لا يزال يعمل
+بالضبط كما كان قبل النقل — يثبت أن إعادة الهيكلة لم تغيّر سلوكاً موجوداً.
+`flutter analyze`: صفر مشاكل جديدة. حزمة الاختبارات الكاملة: **354 اختباراً
+ناجحاً** (فشل واحد بيئي معروف مسبقاً وغير متعلق).
+
+## نطاق متروك عمداً
+لا فحص يدوي حقيقي على جهاز فعلي لسلسلة FCM الكاملة (وصول رسالة حقيقية من
+خوادم Google بينما التطبيق بالمقدمة والمحادثة مفتوحة) — نفس القيد الموثَّق
+مسبقاً بملفات اختبار FCM الأخرى بهذا المشروع (`SEC-FIX-BGHANDLERCATCH-01`)،
+يحتاج جهازاً فعلياً لا بديل برمجياً كاملاً عنه. باقي بنود
+`[DEFERRED-AUDIT-10]` (Podfile الخاص بـiOS، تصفّح سجل الشات، وبنود
+منخفضة/تافهة) تُعالَج بترتيب منفصل، كل واحد بمُدخَل مستقل عند اكتماله.

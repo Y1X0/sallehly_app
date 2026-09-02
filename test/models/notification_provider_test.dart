@@ -6,6 +6,7 @@
 // وأن تصفير تذكرة معيّنة يعمل بشكل صحيح بكلا المصدرين (لحظي ودائم).
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:sallehly_app/core/notifications/firebase_notification_service.dart';
 import 'package:sallehly_app/models/notification_model.dart';
 import 'package:sallehly_app/models/user_model.dart';
 import 'package:sallehly_app/providers/notification_provider.dart';
@@ -114,6 +115,41 @@ void main() {
       provider.markSupportNotificationsReadForTicket(1);
 
       expect(provider.supportUnreadCount, 1);
+    });
+  });
+
+  group('[FIX-FCMFOREGROUNDMUTE-01] NotificationProvider.setActiveChat/activeChatRequestId', () {
+    setUp(() => FirebaseNotificationService.activeChatRequestId = null);
+    tearDown(() => FirebaseNotificationService.activeChatRequestId = null);
+
+    test('setActiveChat يكتب فعلياً على FirebaseNotificationService.activeChatRequestId (مصدر واحد فعلي)', () {
+      final provider = NotificationProvider();
+
+      provider.setActiveChat(77);
+      expect(FirebaseNotificationService.activeChatRequestId, 77);
+      expect(provider.activeChatRequestId, 77);
+
+      provider.setActiveChat(null);
+      expect(FirebaseNotificationService.activeChatRequestId, isNull);
+      expect(provider.activeChatRequestId, isNull);
+    });
+
+    test('handleChatNotify لا يُضيف إشعاراً لرسالة تخص المحادثة المفتوحة حالياً', () {
+      final provider = NotificationProvider()..setCurrentUser(_technicianUser);
+      provider.setActiveChat(77);
+
+      provider.handleChatNotify({'senderId': 999, 'requestId': 77});
+
+      expect(provider.items, isEmpty);
+    });
+
+    test('handleChatNotify يُضيف إشعاراً لرسالة تخص طلباً مختلفاً عن المفتوح حالياً', () {
+      final provider = NotificationProvider()..setCurrentUser(_technicianUser);
+      provider.setActiveChat(77);
+
+      provider.handleChatNotify({'senderId': 999, 'requestId': 88});
+
+      expect(provider.items.length, 1);
     });
   });
 }
