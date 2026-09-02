@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'config/app_config.dart';
 import 'core/notifications/firebase_notification_service.dart';
 import 'firebase_options.dart';
 
@@ -20,6 +21,23 @@ import 'firebase_options.dart';
 void main() {
   runZonedGuarded<void>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // [FIX-DEVCLEARTEXT-01] راجع DECISIONS.md — قبل هذا، `flutter run` بلا
+    // --dart-define صريح يضرب الإنتاج الحية بصمت تام، بلا أي إشارة بالطرفية
+    // تنبّه المطوّر لذلك. هذا تحذير واضح فقط بوضع Debug (لا يُبنى إطلاقاً
+    // بنسخ Release/Profile — kDebugMode ثابت وقت الترجمة)، لا يغيّر أي سلوك
+    // فعلي، لا مسار بناء الإنتاج (لا CI حالياً يمرر --dart-define، يبقى
+    // يعتمد على القيمة الافتراضية بـAppConfig.baseUrl كما هي تماماً).
+    if (kDebugMode) {
+      final isProd = AppConfig.baseUrl == 'https://sallehly.com';
+      debugPrint(
+        isProd
+            ? '⚠️⚠️⚠️ [AppConfig] هذا التشغيل متصل بالإنتاج الحية (${AppConfig.baseUrl}) '
+                '— أي بيانات تُدخَل هنا حقيقية. للتطوير محلياً بلا لمس الإنتاج: '
+                'flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000 ⚠️⚠️⚠️'
+            : '[AppConfig] متصل بـ${AppConfig.baseUrl}',
+      );
+    }
 
     // محاولة تهيئة Firebase — إذا لم يكن مهيّأً بعد (مثلاً لا يوجد google-services.json
     // مطابق) يتجاوز التطبيق الإشعارات وتقرير الأعطال ويكمل العمل بشكل طبيعي بدل أن يتعطل.
