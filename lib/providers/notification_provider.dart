@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../core/api/api_client.dart';
+import '../core/notifications/firebase_notification_service.dart';
 import '../features/notifications/data/notifications_api.dart';
 import '../models/notification_model.dart';
 import '../models/user_model.dart';
@@ -220,10 +221,16 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   /// رقم الطلب المفتوح حالياً في شاشة الدردشة (لمنع إشعار وأنت داخل الغرفة).
-  int? activeChatRequestId;
+  /// [FIX-FCMFOREGROUNDMUTE-01] راجع DECISIONS.md — القيمة الفعلية تعيش
+  /// بـFirebaseNotificationService.activeChatRequestId، لا هنا. كان لهذا
+  /// الصنف نسخته الخاصة سابقاً، مقروءة فقط من مسار السوكت الحي — مسار FCM
+  /// بالمقدمة (دالة static بلا وصول لأي Provider) لا يقدر يقرأها، فيُظهر
+  /// إشعاراً مكرراً بصوت/اهتزاز لرسالة مفتوحة أمام المستخدم فعلياً. مصدر
+  /// واحد فعلي يقرأه المساران معاً بدل نسختين قد تنحرف عن بعض.
+  int? get activeChatRequestId => FirebaseNotificationService.activeChatRequestId;
 
   void setActiveChat(int? requestId) {
-    activeChatRequestId = requestId;
+    FirebaseNotificationService.activeChatRequestId = requestId;
   }
 
   void handleChatNotify(dynamic data) {

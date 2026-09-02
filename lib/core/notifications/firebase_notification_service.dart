@@ -56,6 +56,16 @@ class FirebaseNotificationService {
   static final ValueNotifier<Map<String, dynamic>?> pendingDeepLink =
       ValueNotifier<Map<String, dynamic>?>(null);
 
+  // [FIX-FCMFOREGROUNDMUTE-01] راجع DECISIONS.md — مصدر وحيد لمعرف الطلب
+  // المفتوح حالياً بشاشة الدردشة، يقرأه كل من مسار السوكت الحي
+  // (NotificationProvider.handleChatNotify، الذي كان يملك نسخته الخاصة
+  // مُكرَّرة هنا سابقاً — أُزيلت لتجنّب انحراف نسختين عن بعض) ومسار FCM
+  // بالمقدمة (onMessage أدناه). يُضبَط عبر NotificationProvider.setActiveChat()
+  // (chat_room_screen.dart عند فتح/إغلاق شاشة محادثة) — يعيش هنا لا هناك
+  // لأن onMessage أدناه دالة static بلا أي وصول لشجرة الودجت/Provider، تماماً
+  // نفس سبب وجود pendingDeepLink أعلاه بهذا الملف بالذات.
+  static int? activeChatRequestId;
+
   static Future<void> init() async {
     // ١. سجّل background handler أولاً
     FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
@@ -76,9 +86,20 @@ class FirebaseNotificationService {
     // الحقيقي الجديد.
 
     // ٢. الإشعارات لما التطبيق مفتوح (Foreground)
+    // [FIX-FCMFOREGROUNDMUTE-01] راجع DECISIONS.md — قبل هذا الفحص، رسالة شات
+    // تخص المحادثة المفتوحة فعلياً على الشاشة كانت لا تزال تُظهر إشعاراً
+    // محلياً حقيقياً (صوت + اهتزاز عبر _channel أعلاه) رغم أن مسار السوكت
+    // الحي (NotificationProvider.handleChatNotify) يكتمها فعلاً لنفس الحدث —
+    // مساران متوازيان لنفس الرسالة، أحدهما فقط مكتوم.
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
         debugPrint('[FCM] Foreground message: ${message.notification?.title}');
+      }
+      if (isCurrentlyViewedChatMessage(message.data)) {
+        if (kDebugMode) {
+          debugPrint('[FCM] Muted — same chat already open on screen');
+        }
+        return;
       }
       _showLocalNotificationStatic(message);
     });
@@ -197,6 +218,21 @@ class FirebaseNotificationService {
       notificationDetails: details,
       payload: jsonEncode(message.data),
     );
+  }
+
+  // ─── هل هذه رسالة شات تخص المحادثة المفتوحة فعلياً على الشاشة؟ ───
+  // [FIX-FCMFOREGROUNDMUTE-01] راجع DECISIONS.md — بلا underscore وبـ
+  // @visibleForTesting، نفس نمط handleNotificationTap أسفل هذا الملف
+  // بالضبط: ليست جزءاً من الواجهة العامة المقصودة، فقط لتمكين اختبارها
+  // مباشرة بمعزل عن onMessage.listen (لا يمكن استدعاؤه مباشرة باختبار بلا
+  // محاكاة Firebase.initializeApp() كاملة). requestId بحمولة FCM نص دائماً
+  // (سيرفر Push يحوّله بـString(v))، نفس تحويل int.tryParse المستخدَم أصلاً
+  // بـNotificationProvider.handleChatNotify لنفس الحقل من حمولة السوكت.
+  @visibleForTesting
+  static bool isCurrentlyViewedChatMessage(Map<String, dynamic> data) {
+    if (data['type']?.toString() != 'chat') return false;
+    final requestId = int.tryParse('${data['requestId'] ?? ''}');
+    return requestId != null && requestId == activeChatRequestId;
   }
 
   // ─── التعامل مع الضغط على الإشعار ───
