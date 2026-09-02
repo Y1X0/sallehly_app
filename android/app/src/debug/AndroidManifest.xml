@@ -4,4 +4,13 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- [FIX-DEVCLEARTEXT-01] راجع DECISIONS.md. بلا هذا، تشغيل التطبيق محلياً
+         بتمرير API_BASE_URL=http://10.0.2.2:3000 عبر dart define (الطريقة
+         الموثَّقة بـlib/config/app_config.dart لتطوير محلي بلا لمس الإنتاج) كان
+         يفشل بلا أي تفسير واضح؛ Android يحظر حركة HTTP غير المشفَّرة افتراضياً
+         منذ API 28. مقصور على بناءات debug فقط (هذا الملف يُدمَج معها فقط، لا
+         مع release)؛ لا أثر إطلاقاً على أي بناء إنتاجي حقيقي (appbundle أو apk
+         بوضع الإصدار، ما يُنشَر فعلياً على المتجر يبقى يحظر HTTP كما يجب أمنياً). -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>
