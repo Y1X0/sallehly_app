@@ -391,7 +391,7 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
         return Stack(
           children: [
             child ?? const SizedBox(),
-            const _OfflineBanner(),
+            const OfflineBanner(),
           ],
         );
       },
@@ -404,8 +404,12 @@ class _SocketBootstrapperState extends State<_SocketBootstrapper>
 /// [FIX-CONNECTIVITY-01] كان يظهر بنفس الرسالة المضلِّلة ("لا يوجد اتصال
 /// بالإنترنت") في كلتا الحالتين، رغم أن الحالة الثانية (بطء الخادم، غالباً
 /// بسبب استيقاظ خادم Render المجاني من الخمول) لا علاقة لها بإنترنت المستخدم.
-class _OfflineBanner extends StatelessWidget {
-  const _OfflineBanner();
+///
+/// [TEST-FIX-NAVBADGE-01] راجع DECISIONS.md — بلا underscore عمداً (كانت
+/// `_OfflineBanner`): يتيح اختبار الودجت الحقيقية مباشرة بدل نسخة معاد
+/// كتابتها يدوياً بملف اختبار منفصل.
+class OfflineBanner extends StatelessWidget {
+  const OfflineBanner({super.key});
 
   @override
   Widget build(BuildContext context) {

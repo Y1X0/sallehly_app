@@ -23,6 +23,17 @@ class CustomerLayout extends StatefulWidget {
   State<CustomerLayout> createState() => _CustomerLayoutState();
 }
 
+// [TEST-FIX-NAVBADGE-01] راجع DECISIONS.md — بلا underscore وبـ
+// @visibleForTesting، نفس نمط handleNotificationTap
+// (firebase_notification_service.dart): ليست جزءاً من الواجهة العامة
+// المقصودة، فقط لتمكين اختبار مصدر عدد شارة الدردشات مباشرة (ChatProvider
+// .totalUnread، لا NotificationProvider.chatUnreadCount — راجع
+// FIX-CHATBADGE-01 أعلاه لسبب هذا التمييز) بمعزل عن بناء الشاشة الكاملة،
+// التي تتطلَّب تهيئة عدة مزوّدات لا علاقة لها بهذا المصدر تحديداً.
+@visibleForTesting
+int resolveChatBadgeCount(BuildContext context) =>
+    context.watch<ChatProvider>().totalUnread;
+
 class _CustomerLayoutState extends State<CustomerLayout> {
   int currentIndex = 0;
 
@@ -136,11 +147,7 @@ class _CustomerLayoutState extends State<CustomerLayout> {
     final notify = context.watch<NotificationProvider>();
     final support = context.watch<SupportProvider>();
     final openTicket = support.openTicket;
-    // [FIX-CHATBADGE-01] المصدر الصحيح لعدد الدردشات غير المقروءة: القيمة
-    // المدعومة من الخادم (GET /chats، جدول chat_reads) عبر ChatProvider —
-    // وليس notify.chatUnreadCount (قائمة إشعارات محلية بالذاكرة فقط، تُصفَّر
-    // عند كل إعادة تشغيل للتطبيق ولا تعكس الحالة الحقيقية بقاعدة البيانات).
-    final chatUnread = context.watch<ChatProvider>().totalUnread;
+    final chatUnread = resolveChatBadgeCount(context);
 
     return Scaffold(
       extendBody: true,
@@ -169,7 +176,7 @@ class _CustomerLayoutState extends State<CustomerLayout> {
             _visitedIndices.contains(i) ? pages[i] : const SizedBox.shrink(),
         ],
       ),
-      bottomNavigationBar: _GlassNav(
+      bottomNavigationBar: GlassNav(
         selectedIndex: currentIndex,
         onTap: (index) {
           if (index == 2) {
@@ -189,33 +196,34 @@ class _CustomerLayoutState extends State<CustomerLayout> {
                 );
               },
         items: [
-          _NavItem(Icons.dashboard_outlined, Icons.dashboard, t.navHome, 0),
-          _NavItem(
+          NavItem(Icons.dashboard_outlined, Icons.dashboard, t.navHome, 0),
+          NavItem(
             Icons.assignment_outlined,
             Icons.assignment,
             t.navMyRequests,
             notify.requestUnreadCount,
           ),
-          _NavItem(
+          NavItem(
             Icons.chat_bubble_outline,
             Icons.chat,
             t.navChats,
             chatUnread,
           ),
-          _NavItem(Icons.settings_outlined, Icons.settings, t.navSettings, 0),
+          NavItem(Icons.settings_outlined, Icons.settings, t.navSettings, 0),
         ],
       ),
     );
   }
 }
 
-class _GlassNav extends StatelessWidget {
+class GlassNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
-  final List<_NavItem> items;
+  final List<NavItem> items;
   final VoidCallback? onTapSupport;
 
-  const _GlassNav({
+  const GlassNav({
+    super.key,
     required this.selectedIndex,
     required this.onTap,
     required this.items,
@@ -331,11 +339,11 @@ class _GlassNav extends StatelessWidget {
   }
 }
 
-class _NavItem {
+class NavItem {
   final IconData icon;
   final IconData selectedIcon;
   final String label;
   final int count;
 
-  const _NavItem(this.icon, this.selectedIcon, this.label, this.count);
+  const NavItem(this.icon, this.selectedIcon, this.label, this.count);
 }

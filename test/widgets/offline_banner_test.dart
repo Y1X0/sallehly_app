@@ -1,157 +1,100 @@
+// [FIX-BANNER-01] كان `_OfflineBanner` (lib/app.dart) يُخفى بإزاحة ثابتة
+// (top: -80) أصغر من ارتفاعها الفعلي المتغيّر (حسب شريط الحالة/حجم الخط لكل
+// جهاز)، فيبقى جزء منها ظاهراً دائماً كخط أحمر رفيع أعلى الشاشة حتى في حالة
+// "مخفي". الحل: AnimatedSlide بإزاحة -1 (100% من الارتفاع الفعلي) يخفيها
+// بالكامل مهما كان ارتفاعها.
+//
+// [TEST-FIX-NAVBADGE-01] راجع DECISIONS.md — كان هذا الاختبار يعيد إنتاج
+// بطاقة البانر يدوياً بملف منفصل (لون خاطئ لا يطابق حتى AppColors.danger
+// الحقيقي بأي من الوضعين الفاتح/الداكن، بلا ConnectivityProvider إطلاقاً،
+// بلا فرع offline/serverSlow) — لا يفشل أبداً لو انكسرت البنية الفعلية أو
+// منطق اختيار الرسالة/الأيقونة بـapp.dart. الآن `OfflineBanner` (كانت
+// `_OfflineBanner`) رُفعت للرؤية العامة — الاختبار يبني الودجت الحقيقية
+// كاملة، ويقود حالتها عبر ConnectivityProvider حقيقي (لا محاكاة للحالة عبر
+// Positioned/AnimatedSlide مستقلَّين بالاختبار).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
-/// إعادة إنتاج مبسّطة لبطاقة `_OfflineBanner` من lib/app.dart (نفس القياسات:
-/// margin 8، padding رأسي 12، أيقونة+نص) لاختبار سلوك الإخفاء دون الحاجة
-/// لتشغيل التطبيق كاملاً (الودجت الأصلية خاصة private بالملف).
-Widget _bannerCard() {
-  return Material(
-    color: Colors.transparent,
-    child: SafeArea(
-      bottom: false,
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE53935),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.wifi_off, color: Colors.white, size: 20),
-            SizedBox(width: 10),
-            Flexible(
-              child: Text(
-                'الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+import 'package:sallehly_app/app.dart';
+import 'package:sallehly_app/l10n/app_localizations.dart';
+import 'package:sallehly_app/providers/connectivity_provider.dart';
 
 void main() {
-  // ارتفاع شريط حالة نموذجي على هاتف حديث (يطابق ما يظهر في لقطة الشاشة).
-  const statusBarHeight = 44.0;
+  Future<AnimatedSlide> pumpBanner(
+    WidgetTester tester,
+    ConnectivityProvider connectivity,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ConnectivityProvider>.value(
+        value: connectivity,
+        child: MaterialApp(
+          locale: const Locale('ar'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Stack(children: [OfflineBanner()]),
+        ),
+      ),
+    );
+    // AnimatedSlide بمدة 300ms — البانر الحقيقي (خلافاً لنسخة الاختبار
+    // القديمة) يستخدم مدة انتقال حقيقية، فلا بد من تجاوزها لقراءة الحالة
+    // المستقرة النهائية.
+    await tester.pumpAndSettle();
+    return tester.widget<AnimatedSlide>(find.byType(AnimatedSlide));
+  }
 
   testWidgets(
-    '[FIX-BANNER-01] القديم: إزاحة top:-80 الثابتة تترك شريطاً أحمر ظاهراً '
-    'أعلى الشاشة حتى في حالة "مخفي"',
+    '[FIX-BANNER-01] الحالة الطبيعية (متصل تماماً): مخفية بالكامل (offset -1)',
     (tester) async {
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(
-            padding: EdgeInsets.only(top: statusBarHeight),
-          ),
-          child: MaterialApp(
-            home: Stack(
-              children: [
-                Positioned(
-                  top: -80, // الرقم السحري القديم في الكود قبل الإصلاح
-                  left: 0,
-                  right: 0,
-                  child: _bannerCard(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
+      final connectivity = ConnectivityProvider();
+      final slide = await pumpBanner(tester, connectivity);
 
-      final bottomEdge = tester.getBottomLeft(find.byType(Container)).dy;
-
-      // إثبات وجود العلة: الحافة السفلية للبطاقة لا تزال داخل الشاشة (> 0)
-      // رغم أن الحالة يفترض أن تكون "مخفية بالكامل".
-      expect(
-        bottomEdge,
-        greaterThan(0),
-        reason:
-            'يوثّق العلة الأصلية: الإزاحة الثابتة -80 غير كافية لإخفاء '
-            'البطاقة بالكامل، فيبقى جزء أحمر ظاهراً أعلى الشاشة.',
-      );
+      expect(slide.offset, const Offset(0, -1));
+      expect(find.text('لا يوجد اتصال بالإنترنت'), findsNothing);
     },
   );
 
   testWidgets(
-    '[FIX-BANNER-01] الجديد: AnimatedSlide بإزاحة -1 (100% من الارتفاع) '
-    'يخفي البطاقة بالكامل دائماً بغض النظر عن ارتفاعها الفعلي',
+    '[FIX-CONNECTIVITY-01] انقطاع فعلي (offline): ظاهرة، أيقونة wifi_off، '
+    'رسالة انقطاع الإنترنت',
     (tester) async {
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(
-            padding: EdgeInsets.only(top: statusBarHeight),
-          ),
-          child: MaterialApp(
-            home: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: AnimatedSlide(
-                    duration: Duration.zero,
-                    offset: const Offset(0, -1), // مخفي
-                    child: _bannerCard(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
+      final connectivity = ConnectivityProvider()..markOffline();
+      final slide = await pumpBanner(tester, connectivity);
 
-      final bottomEdge = tester.getBottomLeft(find.byType(Container)).dy;
-
-      expect(
-        bottomEdge,
-        lessThanOrEqualTo(0),
-        reason: 'يجب أن تختفي البطاقة بالكامل خارج حدود الشاشة عند الإخفاء.',
-      );
+      expect(slide.offset, Offset.zero);
+      expect(find.text('لا يوجد اتصال بالإنترنت'), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_off), findsOneWidget);
     },
   );
 
   testWidgets(
-    '[FIX-BANNER-01] الجديد: offset صفر يُظهر البطاقة كاملة عند الحاجة',
+    '[FIX-CONNECTIVITY-01] بطء الخادم (serverSlow، لا انقطاع فعلي): ظاهرة، '
+    'أيقونة hourglass، رسالة بطء الخادم — لا رسالة الإنترنت المضلِّلة',
     (tester) async {
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(
-            padding: EdgeInsets.only(top: statusBarHeight),
-          ),
-          child: MaterialApp(
-            home: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: AnimatedSlide(
-                    duration: Duration.zero,
-                    offset: Offset.zero, // ظاهر
-                    child: _bannerCard(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
+      final connectivity = ConnectivityProvider()..markServerSlow();
+      final slide = await pumpBanner(tester, connectivity);
 
-      expect(find.byType(Container), findsOneWidget);
-      final topEdge = tester.getTopLeft(find.byType(Container)).dy;
-      expect(topEdge, greaterThanOrEqualTo(0));
+      expect(slide.offset, Offset.zero);
+      expect(
+        find.text('الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار'),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.hourglass_top_rounded), findsOneWidget);
+      expect(find.text('لا يوجد اتصال بالإنترنت'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    '[FIX-CONNECTIVITY-01] markOnline بعد انقطاع: تختفي البطاقة من جديد',
+    (tester) async {
+      final connectivity = ConnectivityProvider()..markOffline();
+      await pumpBanner(tester, connectivity);
+
+      connectivity.markOnline();
+      await tester.pumpAndSettle();
+
+      final slide = tester.widget<AnimatedSlide>(find.byType(AnimatedSlide));
+      expect(slide.offset, const Offset(0, -1));
     },
   );
 }
