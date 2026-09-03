@@ -17,6 +17,21 @@ class MessageModel {
     this.seen = false,
   });
 
+  /// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — تُستخدَم فقط لتحديث seen
+  /// محلياً عند وصول حدث messages-seen اللحظي (بدل إعادة بناء كل الرسائل من
+  /// الصفر عبر fromJson لمجرد تغيير حقل واحد).
+  MessageModel copyWith({bool? seen}) {
+    return MessageModel(
+      id: id,
+      requestId: requestId,
+      senderId: senderId,
+      senderName: senderName,
+      body: body,
+      createdAt: createdAt,
+      seen: seen ?? this.seen,
+    );
+  }
+
   bool get isAudio => body.startsWith('[audio]');
   bool get isLocation => body.startsWith('[location]');
   bool get isImage => body.startsWith('[image]');

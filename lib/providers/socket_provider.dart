@@ -244,17 +244,29 @@ class SocketProvider extends ChangeNotifier {
       _chatProvider?.loadChats(silent: true);
     });
 
-    socketService.on(SocketEvents.messagesUpdated, (data) {
+    // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — messageAdded/messagesSeen
+    // (مضغوطان، حدث/رسالة واحدة) بدل messagesUpdated القديم (يبث المحادثة
+    // كاملة عند كل تغيير) — الخادم يبث الحدثين الجديدين بجانب القديم دائماً
+    // (توافق رجعي لنسخ تطبيق أقدم)، هذه النسخة لا تحتاج الاستماع للقديم بعد
+    // الآن.
+    socketService.on(SocketEvents.messageAdded, (data) {
       final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
-      final rawMessages = data?['messages'];
+      final rawMessage = data?['message'];
 
-      if (requestId <= 0 || rawMessages is! List) return;
+      if (requestId <= 0 || rawMessage is! Map) return;
 
-      final messages = rawMessages
-          .map((e) => MessageModel.fromJson(Map<String, dynamic>.from(e)))
-          .toList();
+      final message = MessageModel.fromJson(Map<String, dynamic>.from(rawMessage));
+      _chatProvider?.addIncomingMessage(requestId, message);
+    });
 
-      _chatProvider?.setMessages(requestId, messages);
+    socketService.on(SocketEvents.messagesSeen, (data) {
+      final requestId = int.tryParse('${data?['requestId'] ?? 0}') ?? 0;
+      final readerId = int.tryParse('${data?['readerId'] ?? 0}') ?? 0;
+      final upToMessageId = int.tryParse('${data?['upToMessageId'] ?? 0}') ?? 0;
+
+      if (requestId <= 0 || readerId <= 0 || upToMessageId <= 0) return;
+
+      _chatProvider?.markSeenUpTo(requestId, readerId, upToMessageId);
     });
 
     // ─────────────── المحفظة / الشحن ───────────────

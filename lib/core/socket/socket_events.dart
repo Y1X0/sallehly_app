@@ -18,6 +18,11 @@ class SocketEvents {
   static const String requestStatusUpdated = 'request-status-updated';
 
   static const String messagesUpdated = 'messages-updated';
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — حدثان مضغوطان جديدان يصلان
+  // بجانب messagesUpdated أعلاه (لا بديلاً عنه — الخادم يبثهما معاً)، تستخدمهما
+  // هذه النسخة بدل messagesUpdated (رسالة/مؤشر واحد فقط، لا القائمة كاملة).
+  static const String messageAdded = 'message-added';
+  static const String messagesSeen = 'messages-seen';
   static const String chatMessageNotify = 'chat-message-notify';
   static const String chatBadgesUpdated = 'chat-badges-updated';
 

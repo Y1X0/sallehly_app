@@ -104,9 +104,10 @@ void main() {
   // لكن على ChatProvider.
   group('clear', () {
     test('يُفرّغ الرسائل، المحادثات، وحالة الحظر المخبَّأة بالكامل', () async {
-      when(() => mockApi.getMessages(1)).thenAnswer((_) async => [
-            MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة سرّية من الحساب السابق'),
-          ]);
+      when(() => mockApi.getMessages(1, limit: any(named: 'limit'))).thenAnswer((_) async => (
+            [MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة سرّية من الحساب السابق')],
+            false,
+          ));
       await provider.loadMessages(1);
       expect(provider.messagesFor(1), isNotEmpty);
 
@@ -129,9 +130,9 @@ void main() {
 
     test('رد متأخر لطلب بدأ قبل clear() (حساب سابق) لا يُعيد ملء الحالة بعد الخروج', () async {
       final gate = Completer<void>();
-      when(() => mockApi.getMessages(1)).thenAnswer((_) async {
+      when(() => mockApi.getMessages(1, limit: any(named: 'limit'))).thenAnswer((_) async {
         await gate.future;
-        return [MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة وصلت متأخرة لحساب سابق')];
+        return ([MessageModel(id: 1, requestId: 1, senderId: 5, body: 'رسالة وصلت متأخرة لحساب سابق')], false);
       });
 
       final pendingLoad = provider.loadMessages(1);
@@ -141,6 +142,146 @@ void main() {
       await pendingLoad;
 
       expect(provider.messagesFor(1), isEmpty, reason: 'رد متأخر لحساب سابق أعاد ملء الحالة بعد clear() — لا حماية جيل');
+    });
+  });
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — loadMessages تُحمِّل صفحة
+  // محدودة الحجم (limit) بدل المحادثة كاملة، وتُسجِّل hasMore من الخادم.
+  group('[FEAT-CHATPAGINATION-01] loadMessages — الصفحة الأولى', () {
+    test('يمرّر limit ثابتاً للـAPI، ويسجّل hasMore من الرد', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 5, requestId: 1, senderId: 9, body: 'رسالة')],
+            true,
+          ));
+
+      await provider.loadMessages(1);
+
+      expect(provider.messagesFor(1).length, 1);
+      expect(provider.hasMoreFor(1), isTrue);
+    });
+  });
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — loadOlderMessages تُضيف
+  // صفحة رسائل أقدم لبداية القائمة المحلية بدل استبدال كل شيء.
+  group('[FEAT-CHATPAGINATION-01] loadOlderMessages', () {
+    test('يضيف الرسائل الأقدم لبداية القائمة، ويحدّث hasMore', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [
+              MessageModel(id: 10, requestId: 1, senderId: 9, body: 'رسالة 10'),
+              MessageModel(id: 11, requestId: 1, senderId: 9, body: 'رسالة 11'),
+            ],
+            true,
+          ));
+      await provider.loadMessages(1);
+
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize, beforeId: 10)).thenAnswer((_) async => (
+            [MessageModel(id: 8, requestId: 1, senderId: 9, body: 'رسالة 8')],
+            false,
+          ));
+      await provider.loadOlderMessages(1);
+
+      expect(provider.messagesFor(1).map((m) => m.id), [8, 10, 11]);
+      expect(provider.hasMoreFor(1), isFalse);
+    });
+
+    test('لا يستدعي الـAPI إطلاقاً لو hasMoreFor false', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 10, requestId: 1, senderId: 9, body: 'رسالة 10')],
+            false, // لا مزيد من الرسائل الأقدم
+          ));
+      await provider.loadMessages(1);
+
+      var olderCalled = false;
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize, beforeId: any(named: 'beforeId')))
+          .thenAnswer((_) async {
+        olderCalled = true;
+        return (<MessageModel>[], false);
+      });
+
+      await provider.loadOlderMessages(1);
+
+      expect(olderCalled, isFalse);
+    });
+
+    test('استدعاءان متزامنان لا يُشغّلان طلبين متوازيين (حماية التكرار)', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 10, requestId: 1, senderId: 9, body: 'رسالة 10')],
+            true,
+          ));
+      await provider.loadMessages(1);
+
+      var callCount = 0;
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize, beforeId: 10)).thenAnswer((_) async {
+        callCount++;
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        return (<MessageModel>[], false);
+      });
+
+      final first = provider.loadOlderMessages(1);
+      final second = provider.loadOlderMessages(1);
+      await Future.wait([first, second]);
+
+      expect(callCount, 1);
+    });
+  });
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — addIncomingMessage (حدث
+  // message-added اللحظي).
+  group('[FEAT-CHATPAGINATION-01] addIncomingMessage', () {
+    test('يضيف رسالة جديدة لنهاية المحادثة المُحمَّلة أصلاً', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 1, requestId: 1, senderId: 9, body: 'الأولى')],
+            false,
+          ));
+      await provider.loadMessages(1);
+
+      provider.addIncomingMessage(1, MessageModel(id: 2, requestId: 1, senderId: 9, body: 'الثانية'));
+
+      expect(provider.messagesFor(1).map((m) => m.body), ['الأولى', 'الثانية']);
+    });
+
+    test('لا تأثير لو المحادثة غير مُحمَّلة أصلاً بهذا الجهاز الآن', () {
+      provider.addIncomingMessage(99, MessageModel(id: 1, requestId: 99, senderId: 9, body: 'رسالة'));
+      expect(provider.messagesFor(99), isEmpty);
+    });
+
+    test('لا تكرار لو الرسالة موجودة مسبقاً (وصول مزدوج محتمل)', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 1, requestId: 1, senderId: 9, body: 'الأولى')],
+            false,
+          ));
+      await provider.loadMessages(1);
+
+      provider.addIncomingMessage(1, MessageModel(id: 1, requestId: 1, senderId: 9, body: 'الأولى'));
+
+      expect(provider.messagesFor(1).length, 1);
+    });
+  });
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — markSeenUpTo (حدث
+  // messages-seen اللحظي).
+  group('[FEAT-CHATPAGINATION-01] markSeenUpTo', () {
+    test('يعلّم فقط رسائل الطرف الآخر بمعرّف ≤ upToMessageId كمقروءة', () async {
+      when(() => mockApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [
+              MessageModel(id: 1, requestId: 1, senderId: 9, body: 'من الفني'), // سيُقرأ
+              MessageModel(id: 2, requestId: 1, senderId: 5, body: 'من العميل نفسه'), // ليست موجَّهة لهذا القارئ
+              MessageModel(id: 3, requestId: 1, senderId: 9, body: 'من الفني، لاحقة'), // بعد upToMessageId
+            ],
+            false,
+          ));
+      await provider.loadMessages(1);
+
+      provider.markSeenUpTo(1, 5, 1); // العميل (id=5) قرأ حتى الرسالة رقم 1
+
+      final messages = provider.messagesFor(1);
+      expect(messages.firstWhere((m) => m.id == 1).seen, isTrue);
+      expect(messages.firstWhere((m) => m.id == 2).seen, isFalse);
+      expect(messages.firstWhere((m) => m.id == 3).seen, isFalse);
+    });
+
+    test('لا تأثير لو المحادثة غير مُحمَّلة أصلاً', () {
+      expect(() => provider.markSeenUpTo(99, 5, 10), returnsNormally);
     });
   });
 }

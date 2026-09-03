@@ -28,6 +28,13 @@ class ChatProvider extends ChangeNotifier {
   final Map<int, List<MessageModel>> _messagesByRequest = {};
   // يمنع تشغيل أكثر من GET للرسائل لنفس الطلب في الوقت نفسه.
   final Set<int> _loadingRequestIds = {};
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — حجم الصفحة لتحميل رسائل
+  // الشات (التحميل الأول و"تحميل أقدم" عند التمرير). يطابق limit الافتراضي
+  // بطرف الخادم (routes/chat.routes.js، حد أقصى 200).
+  static const int pageSize = 50;
+  final Map<int, bool> _hasMoreByRequest = {};
+  final Set<int> _loadingOlderRequestIds = {};
   // [FIX-UGC-01] حالة الحظر لكل طلب (يُحمَّل عند فتح شاشة الشات).
   final Map<int, BlockStatus> _blockStatusByRequest = {};
 
@@ -65,6 +72,8 @@ class ChatProvider extends ChangeNotifier {
     _messagesByRequest.clear();
     _blockStatusByRequest.clear();
     _loadingRequestIds.clear();
+    _hasMoreByRequest.clear();
+    _loadingOlderRequestIds.clear();
     chats = [];
     totalUnread = 0;
     error = null;
@@ -108,6 +117,11 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// [FEAT-CHATPAGINATION-01] هل توجد رسائل أقدم لم تُحمَّل بعد لهذا الطلب؟
+  bool hasMoreFor(int requestId) => _hasMoreByRequest[requestId] ?? false;
+
+  bool isLoadingOlderFor(int requestId) => _loadingOlderRequestIds.contains(requestId);
+
   Future<void> loadMessages(int requestId, {bool silent = false}) async {
     if (_loadingRequestIds.contains(requestId)) return;
     _loadingRequestIds.add(requestId);
@@ -120,9 +134,10 @@ class ChatProvider extends ChangeNotifier {
     }
 
     try {
-      final messages = await api.getMessages(requestId);
+      final (messages, hasMore) = await api.getMessages(requestId, limit: pageSize);
       if (capturedGeneration != _generation) return;
       _messagesByRequest[requestId] = messages;
+      _hasMoreByRequest[requestId] = hasMore;
       error = null;
     } catch (e) {
       if (capturedGeneration != _generation) return;
@@ -132,6 +147,70 @@ class ChatProvider extends ChangeNotifier {
       if (!silent) loading = false;
       if (capturedGeneration == _generation) notifyListeners();
     }
+  }
+
+  /// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — يُستدعى عند التمرير لأعلى
+  /// المحادثة (نحو الرسائل الأقدم). يُضيف الصفحة الجديدة في بداية القائمة
+  /// المحلية بدل استبدال كل شيء — لا يمس الرسائل الأحدث المعروضة أصلاً.
+  Future<void> loadOlderMessages(int requestId) async {
+    if (_loadingOlderRequestIds.contains(requestId)) return;
+    if (!hasMoreFor(requestId)) return;
+    final existing = _messagesByRequest[requestId];
+    if (existing == null || existing.isEmpty) return;
+
+    _loadingOlderRequestIds.add(requestId);
+    final capturedGeneration = _generation;
+    notifyListeners();
+
+    try {
+      final oldestId = existing.first.id;
+      final (older, hasMore) = await api.getMessages(
+        requestId,
+        limit: pageSize,
+        beforeId: oldestId,
+      );
+      if (capturedGeneration != _generation) return;
+      final current = _messagesByRequest[requestId] ?? [];
+      _messagesByRequest[requestId] = [...older, ...current];
+      _hasMoreByRequest[requestId] = hasMore;
+    } catch (_) {
+      // فشل صامت — المستخدم يقدر يعيد المحاولة بالتمرير مجدداً، لا داعي
+      // لكسر شاشة الشات كلها لمجرد فشل تحميل صفحة رسائل أقدم.
+    } finally {
+      _loadingOlderRequestIds.remove(requestId);
+      if (capturedGeneration == _generation) notifyListeners();
+    }
+  }
+
+  /// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — استقبال حدث message-added
+  /// اللحظي: رسالة واحدة جديدة تُضاف لنهاية القائمة المحلية بدل استبدال كل
+  /// شيء. لا تأثير لو المحادثة غير مُحمَّلة أصلاً بهذا الجهاز الآن (لم تُفتَح
+  /// بعد) أو لو الرسالة موجودة مسبقاً (منع تكرار عند وصول مزدوج محتمل).
+  void addIncomingMessage(int requestId, MessageModel message) {
+    final existing = _messagesByRequest[requestId];
+    if (existing == null) return;
+    if (existing.any((m) => m.id == message.id)) return;
+    _messagesByRequest[requestId] = [...existing, message];
+    notifyListeners();
+  }
+
+  /// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — استقبال حدث messages-seen
+  /// اللحظي: يعلّم كل رسالة مُرسَلة من غير readerId، وبمعرّف ≤ upToMessageId،
+  /// كـ"تمت مشاهدتها" — بلا إعادة بناء القائمة من الصفر.
+  void markSeenUpTo(int requestId, int readerId, int upToMessageId) {
+    final existing = _messagesByRequest[requestId];
+    if (existing == null) return;
+    var changed = false;
+    final updated = existing.map((m) {
+      if (!m.seen && m.senderId != readerId && m.id <= upToMessageId) {
+        changed = true;
+        return m.copyWith(seen: true);
+      }
+      return m;
+    }).toList();
+    if (!changed) return;
+    _messagesByRequest[requestId] = updated;
+    notifyListeners();
   }
 
   Future<void> sendMessage({

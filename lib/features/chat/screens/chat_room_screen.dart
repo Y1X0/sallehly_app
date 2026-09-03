@@ -74,6 +74,20 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       // بقية المحادثات الأخرى غير المقروءة تبقى كما هي.
       _notify!.markChatNotificationsReadForRequest(widget.request.id);
     });
+
+    // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — القائمة reverse:true (رسالة
+    // 0 = الأحدث بأسفل الشاشة)، فـmaxScrollExtent هو أقصى تمرير نحو الأعلى —
+    // أي نحو أقدم رسالة مُحمَّلة حالياً. عتبة 200 بكسل قبل الوصول فعلياً حتى
+    // يبدأ التحميل قبل أن يرى المستخدم فراغاً حقيقياً بأعلى الشاشة.
+    scrollController.addListener(_maybeLoadOlderMessages);
+  }
+
+  void _maybeLoadOlderMessages() {
+    if (!scrollController.hasClients) return;
+    final position = scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      context.read<ChatProvider>().loadOlderMessages(widget.request.id);
+    }
   }
 
   @override
@@ -83,6 +97,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     // غادرت المحادثة — اسمح بوصول إشعارات هذا الطلب مجدداً.
     _notify?.setActiveChat(null);
     messageController.dispose();
+    scrollController.removeListener(_maybeLoadOlderMessages);
     scrollController.dispose();
     audioRecorder.dispose();
     super.dispose();
@@ -510,6 +525,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final chatProvider = context.watch<ChatProvider>();
     final messages = chatProvider.messagesFor(widget.request.id);
     final reversedMessages = messages.reversed.toList();
+    // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — مؤشر تحميل بأعلى الشاشة
+    // (طرف القائمة الأقدم بـreverse:true) بينما تُحمَّل صفحة رسائل أقدم.
+    final showLoadingOlder = chatProvider.isLoadingOlderFor(widget.request.id);
     final blockStatus = chatProvider.blockStatusFor(widget.request.id);
     final isChatBlocked = blockStatus?.isChatBlocked ?? false;
 
@@ -577,11 +595,28 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     reverse: true,
                     padding:
                     const EdgeInsets.fromLTRB(16, 14, 16, 16),
-                    itemCount: reversedMessages.length,
+                    itemCount: reversedMessages.length + (showLoadingOlder ? 1 : 0),
                     separatorBuilder: (context, index) {
                       return const SizedBox(height: 10);
                     },
                     itemBuilder: (context, index) {
+                      // [FEAT-CHATPAGINATION-01] العنصر الأخير (أعلى الشاشة
+                      // فعلياً بقائمة reverse:true) هو مؤشر التحميل، لا رسالة.
+                      if (showLoadingOlder && index == reversedMessages.length) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Center(
+                            child: SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       final message = reversedMessages[index];
                       final isMe = currentUser != null &&
                           message.senderId == currentUser.id;
