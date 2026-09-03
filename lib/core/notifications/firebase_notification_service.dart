@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -29,6 +30,13 @@ class FirebaseNotificationService {
 
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
+
+  // [DEFERRED-AUDIT-10] راجع DECISIONS.md — معرِّف عشوائي بدل طابع زمني
+  // بدقة الثانية: يتفادى التصادم (إشعاران بنفس الثانية) وتجاوز int32 لعام
+  // 2038 معاً، لأنه لا يعتمد على الوقت إطلاقاً. المعرِّف لا يُستخدَم لاحقاً
+  // بأي إلغاء/تحديث لإشعار محدَّد بهذا المشروع (تحقَّق مباشرة) — فريد بما
+  // يكفي لعدم استبدال إشعار آخر معروض باللحظة نفسها هو كل المطلوب فعلياً.
+  static final Random _random = Random();
 
   // [L10N-05] اسم/وصف القناة `const` — لا BuildContext ولا حتى نداء دالة
   // ممكن هنا أصلاً. أهم من ذلك: أندرويد يخزّن بيانات القناة (بما فيها
@@ -212,7 +220,7 @@ class FirebaseNotificationService {
     // بمساري الخلفية/الإغلاق. message.data كلها نصوص أصلاً (سيرفر Push يحوّلها
     // بـString(v) قبل الإرسال) فـjsonEncode آمن هنا بلا أي قيمة معقّدة متوقَّعة.
     await _localNotifications.show(
-      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      id: _random.nextInt(0x7FFFFFFF),
       title: title,
       body: body,
       notificationDetails: details,
