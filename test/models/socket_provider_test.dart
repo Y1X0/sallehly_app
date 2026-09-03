@@ -5,14 +5,45 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:sallehly_app/core/api/api_client.dart';
 import 'package:sallehly_app/core/socket/socket_events.dart';
 import 'package:sallehly_app/core/socket/socket_service.dart';
 import 'package:sallehly_app/core/storage/token_storage.dart';
+import 'package:sallehly_app/features/admin/provider/admin_provider.dart';
+import 'package:sallehly_app/features/chat/data/chat_api.dart';
+import 'package:sallehly_app/features/chat/provider/chat_provider.dart';
+import 'package:sallehly_app/features/requests/provider/requests_provider.dart';
+import 'package:sallehly_app/features/support/provider/support_provider.dart';
+import 'package:sallehly_app/features/wallet/provider/wallet_provider.dart';
+import 'package:sallehly_app/models/message_model.dart';
+import 'package:sallehly_app/providers/auth_provider.dart';
+import 'package:sallehly_app/providers/notification_provider.dart';
 import 'package:sallehly_app/providers/socket_provider.dart';
 
 class MockSocketService extends Mock implements SocketService {}
 
 class MockTokenStorage extends Mock implements TokenStorage {}
+
+class MockApiClient extends Mock implements ApiClient {}
+
+class MockChatApi extends Mock implements ChatApi {}
+
+// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — bindProviders() تتطلب السبعة
+// معاً (كلها required)، لكن اختبار حدثَي الشات الجديدين لا يحتاج فعلياً إلا
+// ChatProvider حقيقياً (لمراقبة أثر فعلي). الستة الباقية Mock فارغة تماماً —
+// extends Mock implements X لا يستدعي مُنشئ X الحقيقي إطلاقاً، فلا حاجة لأي
+// من تبعياتها الفعلية (ApiClient حقيقي، AppStorage، إلخ) لمجرد إشباع التوقيع.
+class MockRequestsProvider extends Mock implements RequestsProvider {}
+
+class MockNotificationProvider extends Mock implements NotificationProvider {}
+
+class MockAuthProvider extends Mock implements AuthProvider {}
+
+class MockAdminProvider extends Mock implements AdminProvider {}
+
+class MockWalletProvider extends Mock implements WalletProvider {}
+
+class MockSupportProvider extends Mock implements SupportProvider {}
 
 void main() {
   late MockSocketService mockSocket;
@@ -155,5 +186,83 @@ void main() {
 
     verify(() => mockSocket.disconnect()).called(1);
     verify(() => mockSocket.connect(token: 'tok')).called(2); // مرة بـconnect() الأولى، ومرة بإعادة الاتصال
+  });
+
+  // [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — message-added/messages-seen
+  // اللحظيان الجديدان (يصلان بجانب messagesUpdated القديم من الخادم، هذه
+  // النسخة لا تستمع للقديم بعد الآن). يثبت هذا القسم أن SocketProvider يفكّك
+  // حمولة الحدث الخام بشكل صحيح ويستدعي طريقة ChatProvider الصحيحة بالضبط —
+  // منطق التحديث نفسه (الإضافة/التكرار/seen) مختبَر بمعزل بـ
+  // test/models/chat_provider_test.dart.
+  group('[FEAT-CHATPAGINATION-01] message-added / messages-seen', () {
+    late MockChatApi mockChatApi;
+    late ChatProvider chatProvider;
+
+    setUp(() {
+      mockChatApi = MockChatApi();
+      chatProvider = ChatProvider(apiClient: MockApiClient(), apiOverride: mockChatApi);
+      provider.bindProviders(
+        requestsProvider: MockRequestsProvider(),
+        chatProvider: chatProvider,
+        notificationProvider: MockNotificationProvider(),
+        authProvider: MockAuthProvider(),
+        adminProvider: MockAdminProvider(),
+        walletProvider: MockWalletProvider(),
+        supportProvider: MockSupportProvider(),
+      );
+    });
+
+    test('message-added: يضيف الرسالة الواردة فعلياً لمحادثة مُحمَّلة أصلاً', () async {
+      when(() => mockChatApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 1, requestId: 1, senderId: 9, body: 'الأولى')],
+            false,
+          ));
+      await chatProvider.loadMessages(1);
+
+      when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
+      await provider.connect();
+      final onMessageAdded = capturedCallbackFor(SocketEvents.messageAdded);
+
+      onMessageAdded({
+        'requestId': 1,
+        'message': {'id': 2, 'request_id': 1, 'sender_id': 9, 'body': 'الثانية'},
+        'senderId': 9,
+      });
+
+      expect(chatProvider.messagesFor(1).map((m) => m.body), ['الأولى', 'الثانية']);
+    });
+
+    test('message-added: حمولة ناقصة (بلا message أو requestId) لا تسبّب أي خطأ ولا تُغيّر الحالة', () async {
+      when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
+      await provider.connect();
+      final onMessageAdded = capturedCallbackFor(SocketEvents.messageAdded);
+
+      expect(() => onMessageAdded({'requestId': 1}), returnsNormally);
+      expect(() => onMessageAdded(null), returnsNormally);
+    });
+
+    test('messages-seen: يعلّم الرسائل المطابقة كمقروءة عبر ChatProvider فعلياً', () async {
+      when(() => mockChatApi.getMessages(1, limit: ChatProvider.pageSize)).thenAnswer((_) async => (
+            [MessageModel(id: 1, requestId: 1, senderId: 9, body: 'من الفني')],
+            false,
+          ));
+      await chatProvider.loadMessages(1);
+
+      when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
+      await provider.connect();
+      final onMessagesSeen = capturedCallbackFor(SocketEvents.messagesSeen);
+
+      onMessagesSeen({'requestId': 1, 'readerId': 5, 'upToMessageId': 1});
+
+      expect(chatProvider.messagesFor(1).first.seen, isTrue);
+    });
+
+    test('messages-seen: حمولة ناقصة (upToMessageId صفر) لا تسبّب أي خطأ', () async {
+      when(() => mockTokenStorage.getToken()).thenAnswer((_) async => 'tok');
+      await provider.connect();
+      final onMessagesSeen = capturedCallbackFor(SocketEvents.messagesSeen);
+
+      expect(() => onMessagesSeen({'requestId': 1, 'readerId': 5}), returnsNormally);
+    });
   });
 }

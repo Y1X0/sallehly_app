@@ -28,17 +28,32 @@ class ChatApi {
     }
   }
 
-  Future<List<MessageModel>> getMessages(int requestId) async {
+  /// [FEAT-CHATPAGINATION-01] راجع DECISIONS.md — limit/beforeId اختياريان
+  /// تماماً (استعلام query string فقط لو مُمرَّرين) — بلا تمريرهما، السلوك
+  /// القديم حرفياً (كل رسائل الطلب دفعة واحدة، نفس ما كان قبل هذا الإصلاح).
+  /// hasMore من السيرفر مباشرة (false دائماً لو بلا limit).
+  Future<(List<MessageModel>, bool)> getMessages(
+    int requestId, {
+    int? limit,
+    int? beforeId,
+  }) async {
     try {
       final response = await apiClient.dio.get(
         ApiEndpoints.requestMessages(requestId),
+        queryParameters: {
+          if (limit != null) 'limit': limit,
+          if (beforeId != null) 'before': beforeId,
+        },
       );
 
       final data = Map<String, dynamic>.from(response.data);
 
-      return (data['messages'] as List? ?? [])
+      final messages = (data['messages'] as List? ?? [])
           .map((e) => MessageModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
+      final hasMore = data['hasMore'] == true;
+
+      return (messages, hasMore);
     } catch (e) {
       throw apiClient.handleError(e);
     }
