@@ -38,6 +38,36 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sallehly_app/core/notifications/firebase_notification_service.dart';
 
+const _localNotificationsChannel =
+    MethodChannel('dexterous.com/flutter/local_notifications');
+
+// [ملاحظة تقنية] debugDefaultTargetPlatformOverride متغيّر تصحيح على
+// مستوى foundation — إطار flutter_test يتحقق أنه يعود null بعد كل
+// اختبار عبر _verifyInvariants، الذي يُنفَّذ **داخل** استدعاء testWidgets
+// نفسه (قبل أن يصل الدور لأي tearDown مسجَّل خارجياً بمستوى group/main).
+// لذلك، بعكس ما قد يبدو طبيعياً، الضبط والاستعادة يجب أن يكونا داخل كل
+// اختبار مباشرة (try/finally)، لا بـsetUp/tearDown منفصلين.
+Future<List<MethodCall>> runWithMockedAndroidChannel(
+  Future<void> Function() body,
+) async {
+  final calls = <MethodCall>[];
+  debugDefaultTargetPlatformOverride = TargetPlatform.android;
+  AndroidFlutterLocalNotificationsPlugin.registerWith();
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(_localNotificationsChannel, (call) async {
+    calls.add(call);
+    return null;
+  });
+  try {
+    await body();
+  } finally {
+    debugDefaultTargetPlatformOverride = null;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_localNotificationsChannel, null);
+  }
+  return calls;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -55,36 +85,40 @@ void main() {
     },
   );
 
+  group('[DEFERRED-AUDIT-10] معرِّف الإشعار المحلي: عشوائي بدل طابع زمني '
+      'بدقة الثانية', () {
+    testWidgets(
+      'إشعارات متعددة خلال نفس اللحظة تحصل على معرِّفات مختلفة، وكلها ضمن '
+      'حدود 32-bit صحيحة دائماً (لا علاقة بالوقت — لا خطر تجاوز عام 2038)',
+      (tester) async {
+        const message = RemoteMessage(data: {'type': 'chat'});
+
+        final calls = await runWithMockedAndroidChannel(() async {
+          for (var i = 0; i < 20; i++) {
+            await firebaseBackgroundHandler(message);
+          }
+        });
+
+        final showCalls = calls.where((c) => c.method == 'show').toList();
+        expect(showCalls, hasLength(20));
+
+        final ids = showCalls
+            .map((c) => (c.arguments as Map)['id'] as int)
+            .toList();
+
+        for (final id in ids) {
+          expect(id, greaterThanOrEqualTo(0));
+          expect(id, lessThanOrEqualTo(0x7FFFFFFF));
+        }
+
+        // العشرون استدعاءً وقعت عملياً بنفس اللحظة تقريباً (تنفيذ الحلقة
+        // الكاملة يستغرق أجزاءً من الثانية) — بلا أي معرِّفَين متطابقَين.
+        expect(ids.toSet(), hasLength(20));
+      },
+    );
+  });
+
   group('[TEST-FIX-NOTIFSHOW-01] show() يُستدعى بالمعاملات الصحيحة عند وصول رسالة', () {
-    const channel = MethodChannel('dexterous.com/flutter/local_notifications');
-
-    // [ملاحظة تقنية] debugDefaultTargetPlatformOverride متغيّر تصحيح على
-    // مستوى foundation — إطار flutter_test يتحقق أنه يعود null بعد كل
-    // اختبار عبر _verifyInvariants، الذي يُنفَّذ **داخل** استدعاء testWidgets
-    // نفسه (قبل أن يصل الدور لأي tearDown مسجَّل خارجياً بمستوى group/main).
-    // لذلك، بعكس ما قد يبدو طبيعياً، الضبط والاستعادة يجب أن يكونا داخل كل
-    // اختبار مباشرة (try/finally)، لا بـsetUp/tearDown منفصلين.
-    Future<List<MethodCall>> runWithMockedAndroidChannel(
-      Future<void> Function() body,
-    ) async {
-      final calls = <MethodCall>[];
-      debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      AndroidFlutterLocalNotificationsPlugin.registerWith();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (call) async {
-        calls.add(call);
-        return null;
-      });
-      try {
-        await body();
-      } finally {
-        debugDefaultTargetPlatformOverride = null;
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(channel, null);
-      }
-      return calls;
-    }
-
     testWidgets(
       'رسالة FCM (بيانات فقط، بلا notification) بالخلفية: show() تستقبل العنوان/النص/الحمولة الصحيحة',
       (tester) async {
