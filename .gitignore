@@ -35,3 +35,9 @@ lib/l10n/app_localizations.dart
 lib/l10n/app_localizations_*.dart
 
 ios/Runner/GoogleService-Info.plist
+
+# [GOOGLE_PLAY_AUDIT] مفتاح توقيع الإصدار الحقيقي — لا يوجد بالمستودع
+# حالياً، لكن يُستبعَد صراحة وقائياً حتى لو أُضيف لاحقاً بالخطأ.
+android/key.properties
+*.jks
+*.keystore
