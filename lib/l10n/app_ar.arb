@@ -2675,9 +2675,9 @@
   "@dataTableLocationLabel": {
     "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' (نص مطابق لـpermissionLocationTitle، سياق مختلف)"
   },
-  "dataTableLocationReason": "فقط عند مشاركته داخل محادثة طلب",
+  "dataTableLocationReason": "بتطبيق الجوال: فقط عند اختيارك مشاركته داخل محادثة طلب. بالموقع الإلكتروني: يُستخدم أيضاً لتحديد موقعك عند نشر طلب أو البحث عن أقرب فني.",
   "@dataTableLocationReason": {
-    "description": "سبب جمع الموقع الجغرافي بجدول البيانات"
+    "description": "سبب جمع الموقع الجغرافي بجدول البيانات — راجع DECISIONS.md [PRIVACY-AUDIT-01]: يفصل صراحة بين سلوك التطبيق وسلوك الموقع الإلكتروني (public/app.js)"
   },
   "dataTableChatMediaLabel": "صور/صوت المحادثة",
   "@dataTableChatMediaLabel": {
@@ -2687,6 +2687,14 @@
   "@dataTableChatMediaReason": {
     "description": "سبب جمع صور/صوت المحادثة بجدول البيانات"
   },
+  "dataTableProblemImageLabel": "صورة المشكلة عند إنشاء الطلب",
+  "@dataTableProblemImageLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' — [PRIVACY-AUDIT-01] منفصلة عن صور المحادثة، تُرفَق عند نشر الطلب نفسه"
+  },
+  "dataTableProblemImageReason": "توضيح المشكلة الفنية للفنيين قبل تقديم عرض — منفصلة عن صور المحادثة",
+  "@dataTableProblemImageReason": {
+    "description": "سبب جمع صورة المشكلة عند إنشاء الطلب بجدول البيانات"
+  },
   "dataTableDeviceTokenLabel": "معرّف إشعارات الجهاز",
   "@dataTableDeviceTokenLabel": {
     "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
@@ -2694,6 +2702,22 @@
   "dataTableDeviceTokenReason": "إرسال إشعارات فورية",
   "@dataTableDeviceTokenReason": {
     "description": "سبب جمع معرّف إشعارات الجهاز بجدول البيانات"
+  },
+  "dataTableNotificationRecordLabel": "سجل الإشعارات",
+  "@dataTableNotificationRecordLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' — [PRIVACY-AUDIT-01] سجل محفوظ بالخادم (عنوان + نص + الطلب/التذكرة المرتبطة)، منفصل عن معرّف الجهاز أعلاه"
+  },
+  "dataTableNotificationRecordReason": "حفظ سجل إشعاراتك (العنوان والنص) لعرضه لك لاحقاً — منفصل عن معرّف الجهاز",
+  "@dataTableNotificationRecordReason": {
+    "description": "سبب حفظ سجل الإشعارات بجدول البيانات"
+  },
+  "dataTableTechnicianServicesLabel": "قائمة خدمات الفني",
+  "@dataTableTechnicianServicesLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
+  },
+  "dataTableTechnicianServicesReason": "عرضها للعملاء عند البحث عن فني بخدمة معيّنة",
+  "@dataTableTechnicianServicesReason": {
+    "description": "سبب جمع قائمة خدمات الفني بجدول البيانات"
   },
   "dataTableWalletLabel": "معاملات المحفظة",
   "@dataTableWalletLabel": {
@@ -2711,13 +2735,21 @@
   "@dataTableReceiptReason": {
     "description": "سبب جمع صورة إيصال الدفع بجدول البيانات"
   },
-  "dataTableSupportLabel": "محتوى تذاكر الدعم",
-  "@dataTableSupportLabel": {
-    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' — عنوان ونص تذكرة الدعم"
+  "dataTableRatingsLabel": "نص التقييمات",
+  "@dataTableRatingsLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا'"
   },
-  "dataTableSupportReason": "الرد على استفساراتك ومشاكلك",
+  "dataTableRatingsReason": "عرضه للمستخدمين الآخرين كجزء من تقييم الفني",
+  "@dataTableRatingsReason": {
+    "description": "سبب جمع نص التقييمات بجدول البيانات"
+  },
+  "dataTableSupportLabel": "محتوى تذاكر الدعم والشكاوى",
+  "@dataTableSupportLabel": {
+    "description": "بيان بيانات بجدول 'البيانات التي نجمعها ولماذا' — [PRIVACY-AUDIT-01] وسِّع ليشمل الشكاوى (ComplaintSheet)، آلية منفصلة عن تذاكر الدعم بالخادم لكن نفس الغرض تقريباً"
+  },
+  "dataTableSupportReason": "الرد على استفساراتك ومشاكلك، أو مراجعة شكوى قدّمتها",
   "@dataTableSupportReason": {
-    "description": "سبب جمع محتوى تذاكر الدعم بجدول البيانات"
+    "description": "سبب جمع محتوى تذاكر الدعم والشكاوى بجدول البيانات"
   },
   "requiredBadgeLabel": "إلزامية",
   "@requiredBadgeLabel": {

@@ -309,6 +309,14 @@ class _DataTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    // [PRIVACY-AUDIT-01] راجع DECISIONS.md — الترتيب والصفوف مطابقة الآن
+    // لـsallehly/public/privacy.html (نفس المصدر المُدخَل بـPlay Console)
+    // بعد مقارنة ثلاثية (سكيما قاعدة البيانات + ما يُرسَل فعلياً من
+    // العميل + جدول السياسة): أربعة صفوف جديدة (صورة المشكلة عند إنشاء
+    // الطلب، سجل الإشعارات، قائمة خدمات الفني، نص التقييمات) كانت بيانات
+    // حقيقية تُجمَع ولا صف لها؛ صف الموقع الجغرافي عُدِّل ليعكس سلوك نسخة
+    // الموقع الإلكتروني أيضاً (لا التطبيق فقط)؛ صف الدعم وُسِّع ليشمل
+    // الشكاوى (ComplaintSheet، آلية منفصلة بالخادم بنفس الغرض تقريباً).
     final rows = [
       (t.dataTableNameLabel, t.dataTableNameReason, true),
       (t.dataTablePasswordLabel, t.dataTablePasswordReason, true),
@@ -317,9 +325,13 @@ class _DataTable extends StatelessWidget {
       (t.dataTableProfilePhotoLabel, t.dataTableProfilePhotoReason, true),
       (t.dataTableLocationLabel, t.dataTableLocationReason, false),
       (t.dataTableChatMediaLabel, t.dataTableChatMediaReason, false),
+      (t.dataTableProblemImageLabel, t.dataTableProblemImageReason, false),
       (t.dataTableDeviceTokenLabel, t.dataTableDeviceTokenReason, false),
+      (t.dataTableNotificationRecordLabel, t.dataTableNotificationRecordReason, false),
+      (t.dataTableTechnicianServicesLabel, t.dataTableTechnicianServicesReason, true),
       (t.dataTableWalletLabel, t.dataTableWalletReason, true),
       (t.dataTableReceiptLabel, t.dataTableReceiptReason, true),
+      (t.dataTableRatingsLabel, t.dataTableRatingsReason, false),
       (t.dataTableSupportLabel, t.dataTableSupportReason, false),
     ];
     return Column(
