@@ -44,6 +44,103 @@ class AuthApi {
     }
   }
 
+  /// [FEAT-GOOGLESIGNIN-01] راجع routes/auth.routes.js (POST /auth/google) —
+  /// idToken هو Firebase ID token (بعد Google Sign-In من طرف التطبيق، راجع
+  /// auth_provider.dart). ثلاث حالات ممكنة بالرد: حساب مرتبط/قابل للربط
+  /// بنفس الإيميل → دخول مباشر (needsRegistration=false)؛ أو لا حساب بهذا
+  /// الإيميل إطلاقاً → needsRegistration=true مع اسم/إيميل جوجل للتعبئة
+  /// المسبقة بشاشة استكمال التسجيل (customer/technician_register_screen).
+  Future<GoogleAuthResult> loginWithGoogle(String idToken) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiEndpoints.googleLogin,
+        data: {'idToken': idToken},
+      );
+
+      final data = Map<String, dynamic>.from(response.data);
+
+      if (data['needsRegistration'] == true) {
+        final google = Map<String, dynamic>.from(data['google'] ?? {});
+        return GoogleAuthResult.needsRegistration(
+          googleName: google['name']?.toString() ?? '',
+          googleEmail: google['email']?.toString() ?? '',
+        );
+      }
+
+      final userJson = Map<String, dynamic>.from(data['user']);
+      String token = data['token']?.toString() ?? '';
+      if (token.isNotEmpty) {
+        await apiClient.tokenStorage.saveToken(token);
+      } else {
+        token = await apiClient.tokenStorage.getToken() ?? '';
+      }
+
+      return GoogleAuthResult.authenticated(
+        token: token,
+        user: UserModel.fromJson(userJson),
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FEAT-GOOGLESIGNIN-01] راجع routes/auth.routes.js (POST /auth/google-register)
+  /// — يُستدعى فقط بعد loginWithGoogle() برجوع needsRegistration=true. بلا
+  /// كلمة سر (idToken وحده كافٍ لإثبات ملكية البريد)، وبلا خطوة OTP (دخول
+  /// مباشر فور الإنشاء، نفس شكل رد login()).
+  Future<AuthResult> registerWithGoogle({
+    required String idToken,
+    required String role,
+    required String name,
+    required String phone,
+    String? city,
+    String? nationalNumber,
+    List<String>? services,
+    List<String>? areas,
+    String? avatarPath,
+  }) async {
+    try {
+      final map = <String, dynamic>{
+        'idToken': idToken,
+        'role': role,
+        'name': name.trim(),
+        'phone': phone.trim(),
+      };
+
+      if (city != null && city.trim().isNotEmpty) map['city'] = city.trim();
+      if (nationalNumber != null && nationalNumber.trim().isNotEmpty) {
+        map['national_number'] = nationalNumber.trim();
+      }
+      if (services != null && services.isNotEmpty) {
+        map['services'] = services.join(',');
+      }
+      if (areas != null && areas.isNotEmpty) map['areas'] = areas.join(',');
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        map['avatar'] = await MultipartFile.fromFile(avatarPath);
+      }
+
+      final response = await apiClient.dio.post(
+        ApiEndpoints.googleRegister,
+        data: FormData.fromMap(map),
+        options: apiClient.uploadOptions(),
+      );
+
+      final data = Map<String, dynamic>.from(response.data);
+      final userJson = Map<String, dynamic>.from(data['user']);
+
+      String token = data['token']?.toString() ?? '';
+      if (token.isNotEmpty) {
+        await apiClient.tokenStorage.saveToken(token);
+      } else {
+        token = await apiClient.tokenStorage.getToken() ?? '';
+      }
+
+      return AuthResult(token: token, user: UserModel.fromJson(userJson));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
   Future<RegisterResult> register({
     required String role,
     required String name,
@@ -344,6 +441,27 @@ class AuthResult {
     required this.token,
     required this.user,
   });
+}
+
+/// [FEAT-GOOGLESIGNIN-01] نتيجة loginWithGoogle() — إما دخول مباشر ناجح
+/// (needsRegistration=false، token/user موجودان)، أو إشارة لاستكمال حساب
+/// جديد (needsRegistration=true، googleName/googleEmail فقط للتعبئة المسبقة).
+class GoogleAuthResult {
+  final bool needsRegistration;
+  final String? token;
+  final UserModel? user;
+  final String googleName;
+  final String googleEmail;
+
+  GoogleAuthResult.authenticated({required String this.token, required UserModel this.user})
+      : needsRegistration = false,
+        googleName = '',
+        googleEmail = '';
+
+  GoogleAuthResult.needsRegistration({required this.googleName, required this.googleEmail})
+      : needsRegistration = true,
+        token = null,
+        user = null;
 }
 
 class RegisterResult {

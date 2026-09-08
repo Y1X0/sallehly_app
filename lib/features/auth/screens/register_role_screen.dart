@@ -10,7 +10,20 @@ import 'customer_register_screen.dart';
 import 'technician_register_screen.dart';
 
 class RegisterRoleScreen extends StatelessWidget {
-  const RegisterRoleScreen({super.key});
+  // [FEAT-GOOGLESIGNIN-01] الثلاثة معاً null بالمسار العادي (زر "إنشاء حساب
+  // جديد" من شاشة الدخول)؛ تُمرَّر فقط قادمة من signInWithGoogle() بشاشة
+  // الدخول (needsRegistration=true) لتمرّرها بدورها لشاشة التسجيل المختارة،
+  // التي تتفرَّع بناءً عليها (بلا كلمة سر، تعبئة اسم/إيميل مسبقة).
+  final String? googleIdToken;
+  final String? googlePrefillName;
+  final String? googlePrefillEmail;
+
+  const RegisterRoleScreen({
+    super.key,
+    this.googleIdToken,
+    this.googlePrefillName,
+    this.googlePrefillEmail,
+  });
 
   void goTo(BuildContext context, Widget screen) {
     Navigator.push(
@@ -74,7 +87,11 @@ class RegisterRoleScreen extends StatelessWidget {
                 onTap: () {
                   goTo(
                     context,
-                    const CustomerRegisterScreen(),
+                    CustomerRegisterScreen(
+                      googleIdToken: googleIdToken,
+                      googlePrefillName: googlePrefillName,
+                      googlePrefillEmail: googlePrefillEmail,
+                    ),
                   );
                 },
               ),
@@ -92,7 +109,11 @@ class RegisterRoleScreen extends StatelessWidget {
                 onTap: () {
                   goTo(
                     context,
-                    const TechnicianRegisterScreen(),
+                    TechnicianRegisterScreen(
+                      googleIdToken: googleIdToken,
+                      googlePrefillName: googlePrefillName,
+                      googlePrefillEmail: googlePrefillEmail,
+                    ),
                   );
                 },
               ),

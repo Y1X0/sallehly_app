@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'app.dart';
 import 'config/app_config.dart';
@@ -46,6 +47,18 @@ void main() {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       await FirebaseNotificationService.init();
+
+      // [FEAT-GOOGLESIGNIN-01] يجب استدعاؤها مرة واحدة فقط قبل أي استخدام
+      // آخر لـGoogleSignIn.instance (راجع تعليق initialize() بالحزمة نفسها:
+      // "Calling other methods without waiting for this method to return...
+      // will result in undefined behavior"). AppConfig.googleServerClientId
+      // فارغ افتراضياً بلا --dart-define صريح — نمرر null عندها بدل نص فارغ
+      // (login_screen.dart يعطّل الزر بصمت بنفس الحالة، بدل رمي خطأ مبهم).
+      await GoogleSignIn.instance.initialize(
+        serverClientId: AppConfig.googleServerClientId.isEmpty
+            ? null
+            : AppConfig.googleServerClientId,
+      );
 
       // لا تُسجَّل أعطال التطوير المحلي بلوحة Crashlytics — تُغرق إشارة
       // الأعطال الحقيقية من مستخدمين فعليين بضجيج غير ذي قيمة.

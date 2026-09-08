@@ -43,6 +43,12 @@ dependencies:
   firebase_core: ^4.0.0
   firebase_messaging: ^16.0.0
   firebase_crashlytics: ^5.3.0
+  # [FEAT-GOOGLESIGNIN-01] تسجيل الدخول بجوجل — خيار إضافي جنب فورم
+  # الإيميل/كلمة السر الحالي (لا يستبدله). firebase_auth يوقّع ID token
+  # يتحقق منه الخادم عبر firebase-admin الموجود أصلاً (services/push.js)،
+  # بلا أي اعتماد جديد على الخادم.
+  firebase_auth: ^6.0.0
+  google_sign_in: ^7.1.0
   flutter_local_notifications: ^22.3.0
 
 dev_dependencies:

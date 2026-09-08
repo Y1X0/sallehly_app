@@ -1,6 +1,13 @@
+// [FEAT-GOOGLESIGNIN-01] firebase_auth يصدّر AuthProvider (صنف أساسي لمزوّدي
+// المصادقة كـGoogleAuthProvider) بنفس اسم providers/auth_provider.dart —
+// نستخدم فقط FirebaseAuth وGoogleAuthProvider من هذه الحزمة، لا AuthProvider
+// نفسه، فإخفاؤه هنا يزيل التعارض دون أي أثر آخر.
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
+import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_background.dart';
@@ -29,12 +36,76 @@ class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
 
   bool hidePassword = true;
+  bool googleLoading = false;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  /// [FEAT-GOOGLESIGNIN-01] راجع auth_provider.dart (loginWithGoogle) —
+  /// حالة تحميل محلية منفصلة عن AuthProvider.loading (تغطي فقط مربّع اختيار
+  /// حساب جوجل الأصلي + تبادل التوكن، قبل أي استدعاء API فعلي).
+  Future<void> signInWithGoogle() async {
+    if (AppConfig.googleServerClientId.isEmpty) return;
+
+    setState(() => googleLoading = true);
+    final t = AppLocalizations.of(context)!;
+
+    try {
+      final account = await GoogleSignIn.instance.authenticate();
+      final googleIdToken = account.authentication.idToken;
+      if (googleIdToken == null) throw Exception('no google id token');
+
+      final credential = GoogleAuthProvider.credential(idToken: googleIdToken);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final firebaseIdToken = await userCredential.user?.getIdToken();
+      if (firebaseIdToken == null) throw Exception('no firebase id token');
+
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      final result = await auth.loginWithGoogle(firebaseIdToken);
+
+      if (!mounted) return;
+
+      if (result.needsRegistration) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RegisterRoleScreen(
+              googleIdToken: firebaseIdToken,
+              googlePrefillName: result.googleName,
+              googlePrefillEmail: result.googleEmail,
+            ),
+          ),
+        );
+        return;
+      }
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RouteGuard.homeForUser(auth.user),
+        ),
+        (route) => false,
+      );
+    } on GoogleSignInException catch (e) {
+      // المستخدم أغلق مربّع اختيار الحساب بنفسه — ليس خطأً يستحق رسالة.
+      if (e.code == GoogleSignInExceptionCode.canceled) return;
+      if (!mounted) return;
+      showErrorSnackBar(context, t.googleSignInFailedMessage);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.googleSignInFailedMessage);
+    } finally {
+      if (mounted) setState(() => googleLoading = false);
+    }
   }
 
   Future<void> submit() async {
@@ -203,6 +274,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   ),
+                  // [FEAT-GOOGLESIGNIN-01] يظهر فقط بعد ضبط Web client ID
+                  // فعلياً (راجع AppConfig.googleServerClientId) — بدل زر
+                  // معطَّل بصمت بأي نسخة لم تُضبَط بعد.
+                  if (AppConfig.googleServerClientId.isNotEmpty) ...[
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: AppColors.border)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            t.orDividerLabel,
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: AppColors.border)),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    OutlinedButton.icon(
+                      onPressed: (loading || googleLoading) ? null : signInWithGoogle,
+                      icon: googleLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.g_mobiledata_rounded, size: 26),
+                      label: Text(t.signInWithGoogleButton),
+                    ),
+                  ],
                   const SizedBox(height: 18),
                   TextButton(
                     onPressed: loading

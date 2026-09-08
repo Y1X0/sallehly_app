@@ -8,12 +8,25 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/consent_checkbox.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../routes/route_guard.dart';
 import '../../requests/provider/requests_provider.dart';
 import 'verify_otp_screen.dart';
 import '../../../core/widgets/success_feedback.dart';
 
 class CustomerRegisterScreen extends StatefulWidget {
-  const CustomerRegisterScreen({super.key});
+  // [FEAT-GOOGLESIGNIN-01] راجع register_role_screen.dart — null بالمسار
+  // العادي. عند وجود googleIdToken: لا كلمة سر، الإيميل مقفل (من جوجل)،
+  // والإرسال يستدعي auth.completeGoogleRegistration بدل register()+OTP.
+  final String? googleIdToken;
+  final String? googlePrefillName;
+  final String? googlePrefillEmail;
+
+  const CustomerRegisterScreen({
+    super.key,
+    this.googleIdToken,
+    this.googlePrefillName,
+    this.googlePrefillEmail,
+  });
 
   @override
   State<CustomerRegisterScreen> createState() => _CustomerRegisterScreenState();
@@ -33,6 +46,8 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   String? selectedCity;
   String? selectedArea;
 
+  bool get isGoogleFlow => widget.googleIdToken != null;
+
   List<String> get availableAreas {
     if (selectedCity == null) return [];
     return AppConstants.areasByCity[selectedCity] ?? [];
@@ -41,6 +56,12 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.googlePrefillName?.isNotEmpty ?? false) {
+      nameController.text = widget.googlePrefillName!;
+    }
+    if (widget.googlePrefillEmail?.isNotEmpty ?? false) {
+      emailController.text = widget.googlePrefillEmail!;
+    }
     // [FEAT-DEDUP-01] راجع DECISIONS.md — نفس نمط شاشة تسجيل الفني: قائمة
     // المحافظات تُجلَب حيّة من الخادم بدل الاعتماد فقط على
     // AppConstants.cities الثابتة (المستخدَمة أدناه كاحتياط عند عدم اكتمال
@@ -73,6 +94,28 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     final auth = context.read<AuthProvider>();
 
     try {
+      if (isGoogleFlow) {
+        await auth.completeGoogleRegistration(
+          idToken: widget.googleIdToken!,
+          role: 'customer',
+          name: nameController.text,
+          phone: phoneController.text,
+          city: selectedCity,
+          areas: selectedArea != null ? [selectedArea!] : null,
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteGuard.homeForUser(auth.user),
+          ),
+          (route) => false,
+        );
+        return;
+      }
+
       final result = await auth.register(
         role: 'customer',
         name: nameController.text,
@@ -144,6 +187,22 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
+                if (isGoogleFlow) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      t.completeGoogleProfileNote,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
                 _field(
                   controller: nameController,
                   label: t.fullNameFieldLabel,
@@ -162,6 +221,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
+                  enabled: !isGoogleFlow,
                   validator: (value) {
                     final email = value?.trim() ?? '';
                     if (!email.contains('@')) {
@@ -216,35 +276,37 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: hidePassword,
-                  textDirection: TextDirection.ltr,
-                  decoration: InputDecoration(
-                    labelText: t.passwordFieldLabel,
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
-                      onPressed: () {
-                        setState(() {
-                          hidePassword = !hidePassword;
-                        });
-                      },
-                      icon: Icon(
-                        hidePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+                if (!isGoogleFlow) ...[
+                  const SizedBox(height: 14),
+                  TextFormField(
+                    controller: passwordController,
+                    obscureText: hidePassword,
+                    textDirection: TextDirection.ltr,
+                    decoration: InputDecoration(
+                      labelText: t.passwordFieldLabel,
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        tooltip: hidePassword ? t.showPasswordTooltip : t.hidePasswordTooltip,
+                        onPressed: () {
+                          setState(() {
+                            hidePassword = !hidePassword;
+                          });
+                        },
+                        icon: Icon(
+                          hidePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.length < AppConstants.minPasswordLength) {
+                        return t.registerPasswordMinLengthValidation;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.length < AppConstants.minPasswordLength) {
-                      return t.registerPasswordMinLengthValidation;
-                    }
-                    return null;
-                  },
-                ),
+                ],
                 const SizedBox(height: 10),
                 ConsentCheckbox(
                   value: consentGiven,
@@ -282,12 +344,14 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     TextDirection? textDirection,
+    bool enabled = true,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       textDirection: textDirection,
+      enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),

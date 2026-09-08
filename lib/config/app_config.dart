@@ -23,4 +23,17 @@ class AppConfig {
   );
 
   static const String apiUrl = '$baseUrl/api';
+
+  // [FEAT-GOOGLESIGNIN-01] "Web client ID" (OAuth 2.0) من Firebase Console:
+  // Authentication → Sign-in method → Google → Web SDK configuration. يُنشأ
+  // تلقائياً عند تفعيل Google كمزوّد تسجيل دخول — ليس سرّاً (يظهر بكل طلب
+  // تسجيل دخول)، لكنه إلزامي التمرير هنا (google_sign_in v7 يرفض المتابعة
+  // بأندرويد بلا serverClientId صريح). فارغ افتراضياً حتى يُمرَّر فعلياً:
+  //   flutter build appbundle --dart-define=GOOGLE_SERVER_CLIENT_ID=xxxxx.apps.googleusercontent.com
+  // بلا هذه القيمة، زر "تسجيل الدخول بجوجل" يبقى معطَّلاً بصمت (راجع
+  // login_screen.dart) بدل رمي خطأ مبهم وقت الضغط عليه.
+  static const String googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+    defaultValue: '',
+  );
 }

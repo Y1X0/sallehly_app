@@ -813,6 +813,22 @@
   "@noAccountCreateOneLink": {
     "description": "رابط الانتقال لاختيار نوع الحساب من شاشة تسجيل الدخول"
   },
+  "orDividerLabel": "أو",
+  "@orDividerLabel": {
+    "description": "[FEAT-GOOGLESIGNIN-01] فاصل بين فورم الإيميل/كلمة السر وزر تسجيل الدخول بجوجل"
+  },
+  "signInWithGoogleButton": "المتابعة بحساب جوجل",
+  "@signInWithGoogleButton": {
+    "description": "[FEAT-GOOGLESIGNIN-01] زر تسجيل الدخول بجوجل بشاشة تسجيل الدخول"
+  },
+  "googleSignInFailedMessage": "تعذر تسجيل الدخول بجوجل، حاول مرة أخرى",
+  "@googleSignInFailedMessage": {
+    "description": "[FEAT-GOOGLESIGNIN-01] رسالة خطأ عامة عند فشل تسجيل الدخول بجوجل (إلغاء المستخدم، انقطاع شبكة...)"
+  },
+  "completeGoogleProfileNote": "سجّلت الدخول بحساب جوجل — أكمل بياناتك لإنشاء حسابك",
+  "@completeGoogleProfileNote": {
+    "description": "[FEAT-GOOGLESIGNIN-01] ملاحظة تظهر أعلى شاشة التسجيل عند وصول المستخدم من تسجيل الدخول بجوجل لأول مرة"
+  },
   "changePasswordSuccessMessage": "تم تغيير كلمة المرور بنجاح",
   "@changePasswordSuccessMessage": {
     "description": "رسالة تأكيد بعد نجاح تغيير كلمة المرور"

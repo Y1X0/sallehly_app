@@ -144,6 +144,98 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// [FEAT-GOOGLESIGNIN-01] راجع authApi.loginWithGoogle — عند دخول مباشر
+  /// ناجح، نفس مسار login() تماماً (حفظ جلسة + FCM + إعادة وصل السوكت). عند
+  /// needsRegistration=true لا تُحفَظ أي جلسة هنا؛ الشاشة المستدعية توجّه
+  /// المستخدم لاستكمال التسجيل (customer/technician_register_screen) ثم
+  /// تستدعي completeGoogleRegistration أدناه.
+  Future<GoogleAuthResult> loginWithGoogle(String idToken) async {
+    _setLoading(true);
+    try {
+      final result = await authApi.loginWithGoogle(idToken);
+      if (result.needsRegistration) {
+        _error = null;
+        return result;
+      }
+
+      await tokenStorage.clearToken();
+      await appStorage.clear();
+
+      await _saveSession(token: result.token!, user: result.user!);
+
+      _user = result.user;
+      _error = null;
+      _handlingSessionExpiry = false;
+
+      await _sendFcmTokenToServer();
+      await onAuthenticated?.call();
+
+      notifyListeners();
+      return result;
+    } on ApiException catch (e) {
+      _error = e.message;
+      rethrow;
+    } catch (_) {
+      _error = 'حدث خطأ غير متوقع';
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// [FEAT-GOOGLESIGNIN-01] راجع authApi.registerWithGoogle — يُستدعى بعد
+  /// loginWithGoogle() برجوع needsRegistration=true. دخول مباشر فور النجاح
+  /// (بلا OTP)، بنفس مسار حفظ الجلسة الموحَّد بـlogin()/verifyOtp().
+  Future<void> completeGoogleRegistration({
+    required String idToken,
+    required String role,
+    required String name,
+    required String phone,
+    String? city,
+    String? nationalNumber,
+    List<String>? services,
+    List<String>? areas,
+    String? avatarPath,
+  }) async {
+    _setLoading(true);
+    try {
+      await tokenStorage.clearToken();
+      await appStorage.clear();
+      _user = null;
+
+      final result = await authApi.registerWithGoogle(
+        idToken: idToken,
+        role: role,
+        name: name,
+        phone: phone,
+        city: city,
+        nationalNumber: nationalNumber,
+        services: services,
+        areas: areas,
+        avatarPath: avatarPath,
+      );
+
+      await _saveSession(token: result.token, user: result.user);
+
+      _user = result.user;
+      _error = null;
+      _handlingSessionExpiry = false;
+
+      await _sendFcmTokenToServer();
+      await onAuthenticated?.call();
+
+      notifyListeners();
+    } on ApiException catch (e) {
+      _error = e.message;
+      rethrow;
+    } catch (_) {
+      _error = 'حدث خطأ غير متوقع';
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<RegisterResult> register({
     required String role,
     required String name,
