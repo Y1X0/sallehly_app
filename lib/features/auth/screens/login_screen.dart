@@ -14,6 +14,7 @@ import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/fade_in.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/google_logo.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
@@ -293,16 +294,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 14),
-                    OutlinedButton.icon(
-                      onPressed: (loading || googleLoading) ? null : signInWithGoogle,
-                      icon: googleLoading
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.g_mobiledata_rounded, size: 26),
-                      label: Text(t.signInWithGoogleButton),
+                    _GoogleSignInButton(
+                      loading: googleLoading,
+                      enabled: !loading && !googleLoading,
+                      label: t.signInWithGoogleButton,
+                      onPressed: signInWithGoogle,
                     ),
                   ],
                   const SizedBox(height: 18),
@@ -321,6 +317,69 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// [FEAT-GOOGLESIGNIN-01] زر "المتابعة بحساب جوجل" بالتصميم الرسمي المعتمَد
+/// من جوجل لأزرار تسجيل الدخول (خلفية بيضاء ثابتة بغض النظر عن الوضع
+/// الداكن/الفاتح للتطبيق — هذا مقصود، وليس نسياناً لاستخدام AppColors: زر
+/// جوجل يجب أن يبقى بهويته البصرية الرسمية دائماً، لا يتبع تصميم التطبيق).
+class _GoogleSignInButton extends StatelessWidget {
+  final bool loading;
+  final bool enabled;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _GoogleSignInButton({
+    required this.loading,
+    required this.enabled,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.6,
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: enabled ? onPressed : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (loading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Color(0xFF757575),
+                    ),
+                  )
+                else
+                  const GoogleLogo(size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Color(0xFF3C4043),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
