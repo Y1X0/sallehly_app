@@ -1220,6 +1220,10 @@
   "@topupStatusRejectedLabel": {
     "description": "وسم حالة طلب شحن مرفوض"
   },
+  "duplicateReceiptWarning": "⚠️ نفس صورة الإيصال مستخدَمة بطلب شحن آخر — تحقّق قبل الموافقة",
+  "@duplicateReceiptWarning": {
+    "description": "[FEAT-TOPUPDUPHASH-01] تحذير يظهر بطلب شحن الرصيد لو duplicate_receipt=true من الخادم — إشارة اشتباه فقط، لا يمنع الموافقة/الرفض"
+  },
   "topupStatusPendingLabel": "قيد المراجعة",
   "@topupStatusPendingLabel": {
     "description": "وسم حالة طلب شحن قيد المراجعة"

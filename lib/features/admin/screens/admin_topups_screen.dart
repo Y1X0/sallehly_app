@@ -212,6 +212,10 @@ class _TopupCard extends StatelessWidget {
     final amount = double.tryParse('${topup['amount'] ?? 0}') ?? 0;
     final bonus = double.tryParse('${topup['bonus'] ?? 0}') ?? 0;
     final status = '${topup['status'] ?? ''}';
+    // [FEAT-TOPUPDUPHASH-01] إشارة اشتباه فقط من الخادم (نفس بصمة الإيصال
+    // مستخدَمة بطلب آخر) — لا تمنع أو تغيّر أزرار الموافقة/الرفض أدناه، فقط
+    // تلفت انتباه الأدمن قبل ما يقرر.
+    final duplicateReceipt = topup['duplicate_receipt'] == true;
 
     final color = status == 'approved'
         ? AppColors.success
@@ -271,6 +275,26 @@ class _TopupCard extends StatelessWidget {
             '${topup['package_name'] ?? t.packageFallbackName} • ${formatJod(context, amount + bonus)}',
             style: TextStyle(color: AppColors.textSecondary),
           ),
+          if (duplicateReceipt) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+              ),
+              child: Text(
+                t.duplicateReceiptWarning,
+                style: TextStyle(
+                  color: AppColors.warning,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12.5,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           if (pending)
             Row(

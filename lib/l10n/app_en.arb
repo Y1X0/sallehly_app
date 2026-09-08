@@ -286,6 +286,7 @@
   "adminTopupsEmptyTitle": "No top-up requests",
   "topupStatusApprovedLabel": "Approved",
   "topupStatusRejectedLabel": "Rejected",
+  "duplicateReceiptWarning": "⚠️ This receipt image was already used on another top-up request — check before approving",
   "topupStatusPendingLabel": "Under Review",
   "packageFallbackName": "Package",
   "approveButton": "Approve",
