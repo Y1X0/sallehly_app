@@ -420,12 +420,21 @@ class OfflineBanner extends StatelessWidget {
 
     final t = AppLocalizations.of(context)!;
     final String message;
+    // [FIX-CONNECTIVITY-03] راجع DECISIONS.md — بعض شبكات الاتصال بالأردن
+    // تفشل بحل DNS بشكل متقطع (لا علاقة له بخادمنا ولا بكود التطبيق — أثبتت
+    // سجلات الخادم خلوّها التام من الأخطاء وقت حادثة مماثلة حقيقية). لا يوجد
+    // إصلاح من طرفنا يضمن حل DNS للمستخدم، لذا نضيف إرشاداً ذاتياً فورياً
+    // بدل ترك المستخدم أمام رسالة بلا أي مخرج. لا يظهر مع حالة بطء الخادم
+    // (تلك مؤقتة ومعروفة السبب، لا تحتاج إرشاد المستخدم لفعل شيء).
+    final String? hint;
     final IconData icon;
     if (offline) {
       message = t.connectivityOfflineMessage;
+      hint = t.connectivityOfflineHint;
       icon = Icons.wifi_off;
     } else {
       message = t.connectivityServerSlowMessage;
+      hint = null;
       icon = Icons.hourglass_top_rounded;
     }
 
@@ -465,14 +474,32 @@ class OfflineBanner extends StatelessWidget {
                   Icon(icon, color: Colors.white, size: 20),
                   const SizedBox(width: 10),
                   Flexible(
-                    child: Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (hint != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            hint,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11.5,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],

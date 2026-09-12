@@ -68,6 +68,23 @@ void main() {
   );
 
   testWidgets(
+    '[FIX-CONNECTIVITY-03] انقطاع فعلي (offline): يظهر إرشاد ذاتي (تبديل '
+    'الشبكة / تغيير DNS) تحت رسالة الانقطاع',
+    (tester) async {
+      final connectivity = ConnectivityProvider()..markOffline();
+      await pumpBanner(tester, connectivity);
+
+      expect(
+        find.text(
+          'جرّب تبديل الشبكة (واي فاي ↔ بيانات) — إذا استمرت المشكلة، '
+          'غيّر DNS الخاص بجهازك إلى dns.google من إعدادات الشبكة',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
     '[FIX-CONNECTIVITY-01] بطء الخادم (serverSlow، لا انقطاع فعلي): ظاهرة، '
     'أيقونة hourglass، رسالة بطء الخادم — لا رسالة الإنترنت المضلِّلة',
     (tester) async {
@@ -81,6 +98,15 @@ void main() {
       );
       expect(find.byIcon(Icons.hourglass_top_rounded), findsOneWidget);
       expect(find.text('لا يوجد اتصال بالإنترنت'), findsNothing);
+      // [FIX-CONNECTIVITY-03] بطء الخادم مؤقت ومعروف السبب — لا حاجة لإرشاد
+      // المستخدم بفعل شيء، فلا يجوز ظهور إرشاد الانقطاع الفعلي هنا.
+      expect(
+        find.text(
+          'جرّب تبديل الشبكة (واي فاي ↔ بيانات) — إذا استمرت المشكلة، '
+          'غيّر DNS الخاص بجهازك إلى dns.google من إعدادات الشبكة',
+        ),
+        findsNothing,
+      );
     },
   );
 

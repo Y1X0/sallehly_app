@@ -7,6 +7,7 @@
   "newRequestBadge": "New",
   "viewDetailsAndSendOffer": "View details and send an offer",
   "connectivityOfflineMessage": "No internet connection",
+  "connectivityOfflineHint": "Try switching networks (WiFi ↔ mobile data) — if it keeps happening, change your device's DNS to dns.google in network settings",
   "connectivityServerSlowMessage": "The server is taking longer than usual to respond, please wait",
   "ledgerTitle": "Transaction History",
   "walletLedgerEmptyTitle": "No transactions yet",

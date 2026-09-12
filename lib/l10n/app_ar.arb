@@ -28,6 +28,10 @@
   "@connectivityOfflineMessage": {
     "description": "رسالة بانر انقطاع الإنترنت"
   },
+  "connectivityOfflineHint": "جرّب تبديل الشبكة (واي فاي ↔ بيانات) — إذا استمرت المشكلة، غيّر DNS الخاص بجهازك إلى dns.google من إعدادات الشبكة",
+  "@connectivityOfflineHint": {
+    "description": "نص إرشادي إضافي تحت رسالة بانر انقطاع الإنترنت يقترح حلاً ذاتياً سريعاً (بعض الشبكات لدى مزوّدي الاتصال بالأردن لديها مشاكل DNS متقطعة)"
+  },
   "connectivityServerSlowMessage": "الخادم يستغرق وقتاً أطول من المعتاد للرد، يرجى الانتظار",
   "@connectivityServerSlowMessage": {
     "description": "رسالة بانر بطء استجابة الخادم (غير متعلقة بإنترنت المستخدم)"
