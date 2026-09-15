@@ -70,8 +70,16 @@ class SettingsScreen extends StatelessWidget {
 
   /// حذف الحساب نهائياً (متطلّب سياسة Google Play لحذف الحساب).
   /// يطلب كلمة السر الحالية للتأكيد، ثم يستدعي AuthProvider.deleteAccount().
+  ///
+  /// [FIX-SOCIALDELETE-01] راجع DECISIONS.md — حساب جوجل/أبل (hasPassword
+  /// false) كلمة سره الحقيقية عشوائية غير معروفة حتى لصاحبه، فطلب كتابتها
+  /// كان يمنعه من حذف حسابه نهائياً (السيرفر يرفضها دائماً). حقل كلمة السر لا
+  /// يظهر أصلاً بهذه الحالة — توكن الجلسة الصالح كافٍ كتأكيد هوية (السيرفر
+  /// يتجاوز فحص كلمة السر لنفس السبب تحديداً)، والتأكيد النصي بالحوار نفسه
+  /// كافٍ كخطوة "تأكيد قصدي" إضافية.
   Future<void> deleteAccountFlow(BuildContext context) async {
     final t = AppLocalizations.of(context)!;
+    final hasPassword = context.read<AuthProvider>().user?.hasPassword ?? true;
     final passwordController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     bool obscure = true;
@@ -139,32 +147,34 @@ class SettingsScreen extends StatelessWidget {
                           fontSize: 11.5,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Text(
-                        t.enterCurrentPasswordToConfirmMessage,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: obscure,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          labelText: t.currentPasswordFieldLabel,
-                          suffixIcon: IconButton(
-                            tooltip: obscure ? t.showPasswordTooltip : t.hidePasswordTooltip,
-                            icon: Icon(
-                              obscure
-                                  ? Icons.visibility_off_rounded
-                                  : Icons.visibility_rounded,
-                            ),
-                            onPressed: () =>
-                                setDialogState(() => obscure = !obscure),
-                          ),
+                      if (hasPassword) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          t.enterCurrentPasswordToConfirmMessage,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                         ),
-                        validator: (v) =>
-                            (v == null || v.isEmpty) ? t.passwordRequiredValidation : null,
-                      ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: passwordController,
+                          obscureText: obscure,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText: t.currentPasswordFieldLabel,
+                            suffixIcon: IconButton(
+                              tooltip: obscure ? t.showPasswordTooltip : t.hidePasswordTooltip,
+                              icon: Icon(
+                                obscure
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
+                              ),
+                              onPressed: () =>
+                                  setDialogState(() => obscure = !obscure),
+                            ),
+                          ),
+                          validator: (v) =>
+                              (v == null || v.isEmpty) ? t.passwordRequiredValidation : null,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -198,7 +208,7 @@ class SettingsScreen extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
 
     try {
-      await auth.deleteAccount(password: passwordController.text);
+      await auth.deleteAccount(password: hasPassword ? passwordController.text : '');
       if (!context.mounted) return;
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),

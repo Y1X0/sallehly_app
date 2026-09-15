@@ -9,6 +9,8 @@ class ApiEndpoints {
   static const String logout = '/auth/logout';
   static const String googleLogin = '/auth/google';
   static const String googleRegister = '/auth/google-register';
+  static const String appleLogin = '/auth/apple';
+  static const String appleRegister = '/auth/apple-register';
   static const String me = '/me';
   static const String meProfile = '/me/profile';
   static const String mePassword = '/me/password';

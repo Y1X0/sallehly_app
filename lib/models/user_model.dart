@@ -47,6 +47,13 @@ class UserModel {
   /// تتحكم بظهور القدرات الأشد حساسية (تغيير دور مستخدم) بواجهة الأدمن.
   final bool isSuperAdmin;
 
+  /// [FIX-SOCIALDELETE-01] راجع DECISIONS.md — false فقط لحساب جوجل/أبل لم
+  /// يستخدم "نسيت كلمة السر" بعد (كلمة سره الحقيقية عشوائية لا يعرفها). true
+  /// لأي حساب آخر (عادي، أو اجتماعي استعاد كلمة سر حقيقية عبر إعادة التعيين).
+  /// السيرفر يُرجع has_password: 0 صراحةً بهذه الحالة فقط، وnull/1 لكل ما
+  /// عداها — `!= 0` يطابق هذا الترميز تماماً بلا فحوصات null إضافية.
+  final bool hasPassword;
+
   const UserModel({
     required this.id,
     required this.role,
@@ -65,6 +72,7 @@ class UserModel {
     this.freeOffersRemaining = 0,
     this.activeCommission,
     this.isSuperAdmin = false,
+    this.hasPassword = true,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -100,6 +108,7 @@ class UserModel {
           ? null
           : double.tryParse('${json['active_commission']}'),
       isSuperAdmin: json['is_super_admin'] == 1 || json['is_super_admin'] == true,
+      hasPassword: json['has_password'] != 0,
     );
   }
 
@@ -121,6 +130,7 @@ class UserModel {
       'free_offers_used': freeOffersUsed,
       'free_offers_remaining': freeOffersRemaining,
       'active_commission': activeCommission,
+      'has_password': hasPassword ? 1 : 0,
     };
   }
 

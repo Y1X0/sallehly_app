@@ -20,12 +20,19 @@ class CustomerRegisterScreen extends StatefulWidget {
   final String? googleIdToken;
   final String? googlePrefillName;
   final String? googlePrefillEmail;
+  // [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من حقول جوجل أعلاه.
+  final String? appleIdToken;
+  final String? applePrefillName;
+  final String? applePrefillEmail;
 
   const CustomerRegisterScreen({
     super.key,
     this.googleIdToken,
     this.googlePrefillName,
     this.googlePrefillEmail,
+    this.appleIdToken,
+    this.applePrefillName,
+    this.applePrefillEmail,
   });
 
   @override
@@ -47,6 +54,8 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   String? selectedArea;
 
   bool get isGoogleFlow => widget.googleIdToken != null;
+  bool get isAppleFlow => widget.appleIdToken != null;
+  bool get isSocialFlow => isGoogleFlow || isAppleFlow;
 
   List<String> get availableAreas {
     if (selectedCity == null) return [];
@@ -61,6 +70,12 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     }
     if (widget.googlePrefillEmail?.isNotEmpty ?? false) {
       emailController.text = widget.googlePrefillEmail!;
+    }
+    if (widget.applePrefillName?.isNotEmpty ?? false) {
+      nameController.text = widget.applePrefillName!;
+    }
+    if (widget.applePrefillEmail?.isNotEmpty ?? false) {
+      emailController.text = widget.applePrefillEmail!;
     }
     // [FEAT-DEDUP-01] راجع DECISIONS.md — نفس نمط شاشة تسجيل الفني: قائمة
     // المحافظات تُجلَب حيّة من الخادم بدل الاعتماد فقط على
@@ -97,6 +112,28 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
       if (isGoogleFlow) {
         await auth.completeGoogleRegistration(
           idToken: widget.googleIdToken!,
+          role: 'customer',
+          name: nameController.text,
+          phone: phoneController.text,
+          city: selectedCity,
+          areas: selectedArea != null ? [selectedArea!] : null,
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteGuard.homeForUser(auth.user),
+          ),
+          (route) => false,
+        );
+        return;
+      }
+
+      if (isAppleFlow) {
+        await auth.completeAppleRegistration(
+          idToken: widget.appleIdToken!,
           role: 'customer',
           name: nameController.text,
           phone: phoneController.text,
@@ -187,7 +224,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                if (isGoogleFlow) ...[
+                if (isSocialFlow) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -196,7 +233,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      t.completeGoogleProfileNote,
+                      isGoogleFlow ? t.completeGoogleProfileNote : t.completeAppleProfileNote,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textPrimary),
                     ),
@@ -221,7 +258,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
-                  enabled: !isGoogleFlow,
+                  enabled: !isSocialFlow,
                   validator: (value) {
                     final email = value?.trim() ?? '';
                     if (!email.contains('@')) {
@@ -276,7 +313,7 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
                     });
                   },
                 ),
-                if (!isGoogleFlow) ...[
+                if (!isSocialFlow) ...[
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: passwordController,

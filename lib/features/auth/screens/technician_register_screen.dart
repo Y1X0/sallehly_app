@@ -23,12 +23,19 @@ class TechnicianRegisterScreen extends StatefulWidget {
   final String? googleIdToken;
   final String? googlePrefillName;
   final String? googlePrefillEmail;
+  // [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من حقول جوجل أعلاه.
+  final String? appleIdToken;
+  final String? applePrefillName;
+  final String? applePrefillEmail;
 
   const TechnicianRegisterScreen({
     super.key,
     this.googleIdToken,
     this.googlePrefillName,
     this.googlePrefillEmail,
+    this.appleIdToken,
+    this.applePrefillName,
+    this.applePrefillEmail,
   });
 
   @override
@@ -54,6 +61,8 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
   String? selectedArea;
 
   bool get isGoogleFlow => widget.googleIdToken != null;
+  bool get isAppleFlow => widget.appleIdToken != null;
+  bool get isSocialFlow => isGoogleFlow || isAppleFlow;
 
   List<String> get availableAreas {
     if (selectedCity == null) return [];
@@ -68,6 +77,12 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
     }
     if (widget.googlePrefillEmail?.isNotEmpty ?? false) {
       emailController.text = widget.googlePrefillEmail!;
+    }
+    if (widget.applePrefillName?.isNotEmpty ?? false) {
+      nameController.text = widget.applePrefillName!;
+    }
+    if (widget.applePrefillEmail?.isNotEmpty ?? false) {
+      emailController.text = widget.applePrefillEmail!;
     }
     // [FIX-SERVICES-01] المهن كانت تُقرأ من قائمة ثابتة بالكود — الآن تُجلب
     // حيّة من الخادم حتى تظهر أي مهنة يضيفها الأدمن فوراً دون تحديث التطبيق.
@@ -133,6 +148,31 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
       if (isGoogleFlow) {
         await auth.completeGoogleRegistration(
           idToken: widget.googleIdToken!,
+          role: 'technician',
+          name: nameController.text,
+          phone: phoneController.text,
+          city: selectedCity,
+          nationalNumber: nationalController.text,
+          services: selectedServices,
+          areas: [selectedArea!],
+          avatarPath: avatarPath,
+        );
+
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RouteGuard.homeForUser(auth.user),
+          ),
+          (route) => false,
+        );
+        return;
+      }
+
+      if (isAppleFlow) {
+        await auth.completeAppleRegistration(
+          idToken: widget.appleIdToken!,
           role: 'technician',
           name: nameController.text,
           phone: phoneController.text,
@@ -237,7 +277,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                if (isGoogleFlow) ...[
+                if (isSocialFlow) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -246,7 +286,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      t.completeGoogleProfileNote,
+                      isGoogleFlow ? t.completeGoogleProfileNote : t.completeAppleProfileNote,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textPrimary),
                     ),
@@ -271,7 +311,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
-                  enabled: !isGoogleFlow,
+                  enabled: !isSocialFlow,
                   validator: (value) {
                     final email = value?.trim() ?? '';
                     if (!email.contains('@')) {
@@ -362,7 +402,7 @@ class _TechnicianRegisterScreenState extends State<TechnicianRegisterScreen> {
                     });
                   },
                 ),
-                if (!isGoogleFlow) ...[
+                if (!isSocialFlow) ...[
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: passwordController,

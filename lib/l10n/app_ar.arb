@@ -833,6 +833,18 @@
   "@completeGoogleProfileNote": {
     "description": "[FEAT-GOOGLESIGNIN-01] ملاحظة تظهر أعلى شاشة التسجيل عند وصول المستخدم من تسجيل الدخول بجوجل لأول مرة"
   },
+  "signInWithAppleButton": "المتابعة بحساب Apple",
+  "@signInWithAppleButton": {
+    "description": "[FEAT-APPLESIGNIN-01] زر تسجيل الدخول بأبل بشاشة تسجيل الدخول"
+  },
+  "appleSignInFailedMessage": "تعذر تسجيل الدخول بأبل، حاول مرة أخرى",
+  "@appleSignInFailedMessage": {
+    "description": "[FEAT-APPLESIGNIN-01] رسالة خطأ عامة عند فشل تسجيل الدخول بأبل (إلغاء المستخدم، انقطاع شبكة...)"
+  },
+  "completeAppleProfileNote": "سجّلت الدخول بحساب Apple — أكمل بياناتك لإنشاء حسابك",
+  "@completeAppleProfileNote": {
+    "description": "[FEAT-APPLESIGNIN-01] ملاحظة تظهر أعلى شاشة التسجيل عند وصول المستخدم من تسجيل الدخول بأبل لأول مرة"
+  },
   "changePasswordSuccessMessage": "تم تغيير كلمة المرور بنجاح",
   "@changePasswordSuccessMessage": {
     "description": "رسالة تأكيد بعد نجاح تغيير كلمة المرور"

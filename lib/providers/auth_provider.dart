@@ -236,6 +236,92 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من loginWithGoogle أعلاه.
+  Future<AppleAuthResult> loginWithApple(String idToken) async {
+    _setLoading(true);
+    try {
+      final result = await authApi.loginWithApple(idToken);
+      if (result.needsRegistration) {
+        _error = null;
+        return result;
+      }
+
+      await tokenStorage.clearToken();
+      await appStorage.clear();
+
+      await _saveSession(token: result.token!, user: result.user!);
+
+      _user = result.user;
+      _error = null;
+      _handlingSessionExpiry = false;
+
+      await _sendFcmTokenToServer();
+      await onAuthenticated?.call();
+
+      notifyListeners();
+      return result;
+    } on ApiException catch (e) {
+      _error = e.message;
+      rethrow;
+    } catch (_) {
+      _error = 'حدث خطأ غير متوقع';
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من completeGoogleRegistration أعلاه.
+  Future<void> completeAppleRegistration({
+    required String idToken,
+    required String role,
+    required String name,
+    required String phone,
+    String? city,
+    String? nationalNumber,
+    List<String>? services,
+    List<String>? areas,
+    String? avatarPath,
+  }) async {
+    _setLoading(true);
+    try {
+      await tokenStorage.clearToken();
+      await appStorage.clear();
+      _user = null;
+
+      final result = await authApi.registerWithApple(
+        idToken: idToken,
+        role: role,
+        name: name,
+        phone: phone,
+        city: city,
+        nationalNumber: nationalNumber,
+        services: services,
+        areas: areas,
+        avatarPath: avatarPath,
+      );
+
+      await _saveSession(token: result.token, user: result.user);
+
+      _user = result.user;
+      _error = null;
+      _handlingSessionExpiry = false;
+
+      await _sendFcmTokenToServer();
+      await onAuthenticated?.call();
+
+      notifyListeners();
+    } on ApiException catch (e) {
+      _error = e.message;
+      rethrow;
+    } catch (_) {
+      _error = 'حدث خطأ غير متوقع';
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<RegisterResult> register({
     required String role,
     required String name,

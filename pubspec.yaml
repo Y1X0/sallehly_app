@@ -49,6 +49,18 @@ dependencies:
   # بلا أي اعتماد جديد على الخادم.
   firebase_auth: ^6.0.0
   google_sign_in: ^7.1.0
+  # [FEAT-APPLESIGNIN-01] راجع DECISIONS.md — نفس نمط google_sign_in أعلاه
+  # بالضبط: idToken من هذه الحزمة يُمرَّر لـFirebaseAuth.instance.signInWithCredential
+  # (OAuthProvider("apple.com"))، ثم Firebase ID token الموحَّد يُتحقَّق منه
+  # بالخادم — نفس verifyGoogleIdToken تماماً (provider-agnostic). مطلوب من
+  # Apple (Guideline 4.8): أي تطبيق يعرض تسجيل دخول بطرف ثالث لازم يعرض
+  # "تسجيل عبر Apple" موازياً.
+  sign_in_with_apple: ^7.0.1
+  # [FEAT-APPLESIGNIN-01] لتوليد nonce عشوائي مُجزَّأ (sha256) — Apple توصي به
+  # لربط طلب التفويض برد Firebase وحماية من إعادة تشغيل (replay). كانت أصلاً
+  # اعتمادية غير مباشرة (transitive) عبر حزم أخرى؛ أُضيفت صراحةً هنا لأننا
+  # نستوردها مباشرة بكودنا (login_screen.dart).
+  crypto: ^3.0.7
   flutter_local_notifications: ^22.3.0
 
 dev_dependencies:

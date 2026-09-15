@@ -37,6 +37,17 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- [FEAT-APPLESIGNIN-01] الإشعارات (FCM/APNs) تصل بالخلفية بشكل موثوق —
+	     بدون هذا المفتاح، iOS قد لا يوقظ التطبيق لتسليم إشعار صامت بالخلفية. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<!-- التطبيق يستخدم فقط تشفير HTTPS القياسي المعفى (TLS عبر URLSession/Dio) —
+	     بلا هذا المفتاح، App Store Connect يسأل سؤال التوافق التصديري يدوياً
+	     بكل رفعة نسخة. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

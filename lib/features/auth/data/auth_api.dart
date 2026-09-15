@@ -141,6 +141,98 @@ class AuthApi {
     }
   }
 
+  /// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من loginWithGoogle أعلاه — راجع
+  /// routes/auth.routes.js (POST /auth/apple). idToken هو نفس Firebase ID
+  /// token (بعد Sign in with Apple من طرف التطبيق، راجع login_screen.dart).
+  Future<AppleAuthResult> loginWithApple(String idToken) async {
+    try {
+      final response = await apiClient.dio.post(
+        ApiEndpoints.appleLogin,
+        data: {'idToken': idToken},
+      );
+
+      final data = Map<String, dynamic>.from(response.data);
+
+      if (data['needsRegistration'] == true) {
+        final apple = Map<String, dynamic>.from(data['apple'] ?? {});
+        return AppleAuthResult.needsRegistration(
+          appleName: apple['name']?.toString() ?? '',
+          appleEmail: apple['email']?.toString() ?? '',
+        );
+      }
+
+      final userJson = Map<String, dynamic>.from(data['user']);
+      String token = data['token']?.toString() ?? '';
+      if (token.isNotEmpty) {
+        await apiClient.tokenStorage.saveToken(token);
+      } else {
+        token = await apiClient.tokenStorage.getToken() ?? '';
+      }
+
+      return AppleAuthResult.authenticated(
+        token: token,
+        user: UserModel.fromJson(userJson),
+      );
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
+  /// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من registerWithGoogle أعلاه —
+  /// راجع routes/auth.routes.js (POST /auth/apple-register).
+  Future<AuthResult> registerWithApple({
+    required String idToken,
+    required String role,
+    required String name,
+    required String phone,
+    String? city,
+    String? nationalNumber,
+    List<String>? services,
+    List<String>? areas,
+    String? avatarPath,
+  }) async {
+    try {
+      final map = <String, dynamic>{
+        'idToken': idToken,
+        'role': role,
+        'name': name.trim(),
+        'phone': phone.trim(),
+      };
+
+      if (city != null && city.trim().isNotEmpty) map['city'] = city.trim();
+      if (nationalNumber != null && nationalNumber.trim().isNotEmpty) {
+        map['national_number'] = nationalNumber.trim();
+      }
+      if (services != null && services.isNotEmpty) {
+        map['services'] = services.join(',');
+      }
+      if (areas != null && areas.isNotEmpty) map['areas'] = areas.join(',');
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        map['avatar'] = await MultipartFile.fromFile(avatarPath);
+      }
+
+      final response = await apiClient.dio.post(
+        ApiEndpoints.appleRegister,
+        data: FormData.fromMap(map),
+        options: apiClient.uploadOptions(),
+      );
+
+      final data = Map<String, dynamic>.from(response.data);
+      final userJson = Map<String, dynamic>.from(data['user']);
+
+      String token = data['token']?.toString() ?? '';
+      if (token.isNotEmpty) {
+        await apiClient.tokenStorage.saveToken(token);
+      } else {
+        token = await apiClient.tokenStorage.getToken() ?? '';
+      }
+
+      return AuthResult(token: token, user: UserModel.fromJson(userJson));
+    } catch (e) {
+      throw apiClient.handleError(e);
+    }
+  }
+
   Future<RegisterResult> register({
     required String role,
     required String name,
@@ -459,6 +551,26 @@ class GoogleAuthResult {
         googleEmail = '';
 
   GoogleAuthResult.needsRegistration({required this.googleName, required this.googleEmail})
+      : needsRegistration = true,
+        token = null,
+        user = null;
+}
+
+/// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من GoogleAuthResult أعلاه —
+/// نتيجة loginWithApple().
+class AppleAuthResult {
+  final bool needsRegistration;
+  final String? token;
+  final UserModel? user;
+  final String appleName;
+  final String appleEmail;
+
+  AppleAuthResult.authenticated({required String this.token, required UserModel this.user})
+      : needsRegistration = false,
+        appleName = '',
+        appleEmail = '';
+
+  AppleAuthResult.needsRegistration({required this.appleName, required this.appleEmail})
       : needsRegistration = true,
         token = null,
         user = null;

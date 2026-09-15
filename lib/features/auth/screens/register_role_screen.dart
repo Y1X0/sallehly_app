@@ -17,12 +17,20 @@ class RegisterRoleScreen extends StatelessWidget {
   final String? googleIdToken;
   final String? googlePrefillName;
   final String? googlePrefillEmail;
+  // [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من حقول جوجل أعلاه — راجع
+  // login_screen.dart (signInWithApple).
+  final String? appleIdToken;
+  final String? applePrefillName;
+  final String? applePrefillEmail;
 
   const RegisterRoleScreen({
     super.key,
     this.googleIdToken,
     this.googlePrefillName,
     this.googlePrefillEmail,
+    this.appleIdToken,
+    this.applePrefillName,
+    this.applePrefillEmail,
   });
 
   void goTo(BuildContext context, Widget screen) {
@@ -91,6 +99,9 @@ class RegisterRoleScreen extends StatelessWidget {
                       googleIdToken: googleIdToken,
                       googlePrefillName: googlePrefillName,
                       googlePrefillEmail: googlePrefillEmail,
+                      appleIdToken: appleIdToken,
+                      applePrefillName: applePrefillName,
+                      applePrefillEmail: applePrefillEmail,
                     ),
                   );
                 },
@@ -113,6 +124,9 @@ class RegisterRoleScreen extends StatelessWidget {
                       googleIdToken: googleIdToken,
                       googlePrefillName: googlePrefillName,
                       googlePrefillEmail: googlePrefillEmail,
+                      appleIdToken: appleIdToken,
+                      applePrefillName: applePrefillName,
+                      applePrefillEmail: applePrefillEmail,
                     ),
                   );
                 },

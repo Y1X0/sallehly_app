@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- [FEAT-APPLESIGNIN-01] مطلوب لزر "تسجيل الدخول عبر Apple" — App Store
+	     Guideline 4.8 (أي تطبيق يعرض تسجيل دخول بطرف ثالث كجوجل لازم يعرض هذا
+	     الخيار موازياً). بدون هذا المفتاح، ASAuthorizationAppleIDProvider يفشل
+	     فوراً وقت التشغيل حتى لو الكود صحيح تماماً. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<!-- مطلوب لتسليم إشعارات Push (Firebase Cloud Messaging عبر APNs) —
+	     development هنا، Xcode/Apple Developer Portal يبدّلها تلقائياً
+	     production عند التوقيع الفعلي لإصدار App Store. -->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>

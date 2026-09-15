@@ -2,10 +2,16 @@
 // المصادقة كـGoogleAuthProvider) بنفس اسم providers/auth_provider.dart —
 // نستخدم فقط FirebaseAuth وGoogleAuthProvider من هذه الحزمة، لا AuthProvider
 // نفسه، فإخفاؤه هنا يزيل التعارض دون أي أثر آخر.
+import 'dart:convert';
+import 'dart:io' show Platform;
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/api/api_exception.dart';
@@ -23,6 +29,17 @@ import 'forgot_password_screen.dart';
 import 'register_role_screen.dart';
 import '../../../core/widgets/success_feedback.dart';
 
+// [FEAT-APPLESIGNIN-01] nonce عشوائي مُجزَّأ (sha256) يربط طلب Sign in with
+// Apple برد Firebase ويحمي من إعادة تشغيل (replay) — توصية Apple/Firebase
+// الرسمية لهذا التدفّق بالضبط.
+String _generateNonce([int length = 32]) {
+  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._';
+  final random = Random.secure();
+  return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+}
+
+String _sha256OfString(String input) => sha256.convert(utf8.encode(input)).toString();
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -38,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool hidePassword = true;
   bool googleLoading = false;
+  bool appleLoading = false;
 
   @override
   void dispose() {
@@ -106,6 +124,86 @@ class _LoginScreenState extends State<LoginScreen> {
       showErrorSnackBar(context, t.googleSignInFailedMessage);
     } finally {
       if (mounted) setState(() => googleLoading = false);
+    }
+  }
+
+  /// [FEAT-APPLESIGNIN-01] نسخة طبق الأصل من signInWithGoogle أعلاه — الفرق
+  /// الوحيد: SignInWithApple.getAppleIDCredential بدل GoogleSignIn.instance
+  /// (تفويض أصلي عبر iOS نفسه، بلا مربّع اختيار حساب Google)، وnonce مُجزَّأ
+  /// يُربَط بـOAuthProvider("apple.com") — راجع Firebase/Apple التوثيق
+  /// الرسمي لهذا النمط بالضبط. Apple تعيد givenName/familyName فقط أول مرة
+  /// يوافق فيها المستخدم على مشاركتها (لا تتكرر بمحاولات لاحقة لنفس الحساب
+  /// على نفس التطبيق) — التعبئة المسبقة بشاشة استكمال التسجيل قد تكون فارغة
+  /// بمحاولات لاحقة، وهذا سلوك Apple نفسه لا عطل بكودنا.
+  Future<void> signInWithApple() async {
+    setState(() => appleLoading = true);
+    final t = AppLocalizations.of(context)!;
+
+    try {
+      final rawNonce = _generateNonce();
+      final nonce = _sha256OfString(rawNonce);
+
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: nonce,
+      );
+
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        rawNonce: rawNonce,
+      );
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      final firebaseIdToken = await userCredential.user?.getIdToken();
+      if (firebaseIdToken == null) throw Exception('no firebase id token');
+
+      if (!mounted) return;
+      final auth = context.read<AuthProvider>();
+      final result = await auth.loginWithApple(firebaseIdToken);
+
+      if (!mounted) return;
+
+      if (result.needsRegistration) {
+        final appleName = [
+          appleCredential.givenName,
+          appleCredential.familyName,
+        ].where((s) => s != null && s.isNotEmpty).join(' ');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RegisterRoleScreen(
+              appleIdToken: firebaseIdToken,
+              applePrefillName: appleName.isNotEmpty ? appleName : result.appleName,
+              applePrefillEmail: result.appleEmail,
+            ),
+          ),
+        );
+        return;
+      }
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RouteGuard.homeForUser(auth.user),
+        ),
+        (route) => false,
+      );
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // المستخدم ألغى مربّع تفويض Apple بنفسه — ليس خطأً يستحق رسالة.
+      if (e.code == AuthorizationErrorCode.canceled) return;
+      if (!mounted) return;
+      showErrorSnackBar(context, t.appleSignInFailedMessage);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showErrorSnackBar(context, e.message);
+    } catch (_) {
+      if (!mounted) return;
+      showErrorSnackBar(context, t.appleSignInFailedMessage);
+    } finally {
+      if (mounted) setState(() => appleLoading = false);
     }
   }
 
@@ -278,7 +376,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   // [FEAT-GOOGLESIGNIN-01] يظهر فقط بعد ضبط Web client ID
                   // فعلياً (راجع AppConfig.googleServerClientId) — بدل زر
                   // معطَّل بصمت بأي نسخة لم تُضبَط بعد.
-                  if (AppConfig.googleServerClientId.isNotEmpty) ...[
+                  if (AppConfig.googleServerClientId.isNotEmpty ||
+                      Platform.isIOS) ...[
                     const SizedBox(height: 18),
                     Row(
                       children: [
@@ -293,13 +392,28 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(child: Divider(color: AppColors.border)),
                       ],
                     ),
-                    const SizedBox(height: 14),
-                    _GoogleSignInButton(
-                      loading: googleLoading,
-                      enabled: !loading && !googleLoading,
-                      label: t.signInWithGoogleButton,
-                      onPressed: signInWithGoogle,
-                    ),
+                    if (AppConfig.googleServerClientId.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      _GoogleSignInButton(
+                        loading: googleLoading,
+                        enabled: !loading && !googleLoading && !appleLoading,
+                        label: t.signInWithGoogleButton,
+                        onPressed: signInWithGoogle,
+                      ),
+                    ],
+                    // [FEAT-APPLESIGNIN-01] Sign in with Apple لا معنى له خارج
+                    // iOS/macOS (لا مزوّد أصلي على أندرويد) — يظهر فقط على iOS،
+                    // بعكس زر جوجل المشروط بضبط Web client ID فقط بغض النظر
+                    // عن المنصة.
+                    if (Platform.isIOS) ...[
+                      const SizedBox(height: 14),
+                      _AppleSignInButton(
+                        loading: appleLoading,
+                        enabled: !loading && !googleLoading && !appleLoading,
+                        label: t.signInWithAppleButton,
+                        onPressed: signInWithApple,
+                      ),
+                    ],
                   ],
                   const SizedBox(height: 18),
                   TextButton(
@@ -375,6 +489,69 @@ class _GoogleSignInButton extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     color: Color(0xFF3C4043),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// [FEAT-APPLESIGNIN-01] زر "المتابعة بحساب Apple" بالتصميم الرسمي المعتمَد
+/// من Apple (Human Interface Guidelines): خلفية سوداء ثابتة + شعار/نص أبيض،
+/// بغض النظر عن الوضع الداكن/الفاتح للتطبيق — نفس فلسفة زر جوجل أعلاه
+/// بالضبط (هوية بصرية رسمية ثابتة، لا تتبع تصميم التطبيق).
+class _AppleSignInButton extends StatelessWidget {
+  final bool loading;
+  final bool enabled;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _AppleSignInButton({
+    required this.loading,
+    required this.enabled,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.6,
+      child: Material(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.25),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: enabled ? onPressed : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (loading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
+                  )
+                else
+                  const Icon(Icons.apple, color: Colors.white, size: 22),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),

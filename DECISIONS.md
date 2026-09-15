@@ -2877,3 +2877,62 @@ Flutter أحدث قرار منفصل مستقبلي (يتطلَّب تحقُّق
   الأصح يختبر سلوك إطار Flutter عاماً (قوائم `const`/`late final` لا تُعاد
   بناؤها ضمن `IndexedStack`) لا نسخة معاد كتابتها من منطق أعمال حقيقي —
   تطابق أضعف بكثير مع وصف البند الأصلي، لم يُعامَل كجزء منه.
+
+---
+
+# [FEAT-APPLESIGNIN-01] تسجيل الدخول بأبل + تحضير App Store
+
+## السياق
+تدقيق شامل لمتطلبات Apple App Store (لا يوجد حساب Apple Developer بعد، لكن
+كل العمل البرمجي المستقل عنه بدأ الآن دفعة واحدة، حسب استراتيجية تجميع كل
+شي بتحديث واحد على برانش claude/google-sign-in). Apple Guideline 4.8: أي
+تطبيق يعرض تسجيل دخول بطرف ثالث (جوجل، FEAT-GOOGLESIGNIN-01) لازم يعرض
+"تسجيل عبر Apple" موازياً، وإلا رفض مباشر من مراجعة أبل.
+
+## التنفيذ (نسخة طبق الأصل من مسار جوجل بالكامل)
+`login_screen.dart`: `signInWithApple()` تستخدم حزمة `sign_in_with_apple`
+(nonce مُجزَّأ sha256 يربط الطلب بـFirebase — توصية Apple/Firebase الرسمية)
+بدل `google_sign_in`، لكن نفس `FirebaseAuth.instance.signInWithCredential`
+لاحقاً — Firebase ID token الناتج مُوحَّد بغضّ النظر عن المزوّد، فالباكند
+(`verifyFirebaseIdToken`، اسم مستعار لـ`verifyGoogleIdToken`) لا يحتاج أي
+تعديل. زر Apple بالتصميم الرسمي (خلفية سوداء + شعار/نص أبيض ثابتين، Apple
+HIG) ويظهر فقط على iOS (`Platform.isIOS`) — لا مزوّد أصلي على أندرويد.
+Apple تُرجع الاسم (givenName/familyName) فقط أول موافقة على الإطلاق لكل
+حساب/تطبيق، لا تتكرر لاحقاً — تعبئة الاسم المسبقة بشاشة استكمال التسجيل قد
+تكون فارغة بمحاولات لاحقة، سلوك Apple نفسه لا عطل بكودنا.
+
+`register_role_screen.dart`/`customer_register_screen.dart`/
+`technician_register_screen.dart`: حقول `appleIdToken`/`applePrefillName`/
+`applePrefillEmail` موازية لحقول جوجل بالضبط؛ `isSocialFlow = isGoogleFlow
+|| isAppleFlow` يتحكم بإخفاء حقل كلمة السر وقفل حقل الإيميل لأي من الحالتين.
+
+`ios/Runner/`: `Runner.entitlements` جديد (Sign in with Apple +
+aps-environment، مربوط بـ`CODE_SIGN_ENTITLEMENTS` بمشروع Xcode لكل بيئات
+Debug/Release/Profile)، `PrivacyInfo.xcprivacy` جديد (Privacy Manifest
+إلزامي من أبل منذ مايو 2024 — خط أساس معقول لـUserDefaults/FileTimestamp،
+يحتاج مراجعة عند أول Archive حقيقي بعد توفر حساب مطوّر). `Info.plist`:
+`UIBackgroundModes: remote-notification` (تسليم إشعارات FCM بالخلفية
+بشكل موثوق) و`ITSAppUsesNonExemptEncryption: false` (تشفير HTTPS قياسي
+فقط، يمنع سؤال التوافق التصديري اليدوي بكل رفعة). `TARGETED_DEVICE_FAMILY`
+من "1,2" إلى "1" (iPhone فقط) — التطبيق ما كان مصمَّماً فعلياً لآيباد، وترك
+الدعم الشكلي كان سيفرض تجهيز صور شاشة آيباد بلا داعٍ لمتجر أبل.
+
+## [FIX-SOCIALDELETE-01] عطل حقيقي بالإنتاج الحالي، مكتشَف أثناء هذا التدقيق
+حساب جوجل يُنشأ بكلمة سر عشوائية غير معروفة حتى لصاحب الحساب. حوار حذف
+الحساب (`settings_screen.dart` `deleteAccountFlow`) كان يطلب كلمة السر
+دائماً — **لا طريقة يقدر فيها مستخدم Google Sign-In الحالي يحذف حسابه
+الذاتي إطلاقاً**، اكتُشف بتدقيق كود لا ببلاغ مستخدم. الإصلاح (باكند:
+عمود `has_password`، راجع DECISIONS.md بـsallehly) ينعكس هنا بحقل
+`UserModel.hasPassword` (`json['has_password'] != 0` — يطابق NULL/1=true،
+0=false تماماً بلا فحوصات إضافية). حقل كلمة السر بحوار الحذف يظهر فقط لو
+`hasPassword`؛ غيابها يعني توكن الجلسة الصالح + التأكيد النصي بالحوار
+نفسه كافيان، ويُرسَل `password: ''` (السيرفر يتجاهله تماماً بهذه الحالة).
+
+## الاختبارات
+`test/widgets/delete_account_password_field_test.dart` (جديد): حقل كلمة
+السر يظهر لحساب `hasPassword=true`، يختفي لـ`hasPassword=false`، والتأكيد
+بالحالة الثانية يستدعي `deleteAccount(password: '')` فعلياً بلا أي إدخال.
+`flutter analyze`: نظيف (نفس ١٨ ملاحظة `info` القديمة، صفر جديد). المجموعة
+الكاملة: **375/376 ناجحة** — الفاشل الوحيد (`l10n_screenshot_capture_test`)
+قيد بيئي معروف مسبقاً (لا خطوط عربية حقيقية بهذا الـsandbox)، لا علاقة له
+بهذا التغيير.

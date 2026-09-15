@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- [FEAT-APPLESIGNIN-01] راجع DECISIONS.md — ملف "Privacy Manifest" إلزامي
+	     من Apple منذ مايو 2024 لأي تطبيق يُرفع لمتجر App Store. هذا يغطي
+	     استخدام التطبيق نفسه (مو مكتبات Firebase/google_sign_in — كل حزمة
+	     منها تحمل PrivacyInfo.xcprivacy خاصاً بها). القيم هنا خط أساس معقول
+	     (UserDefaults عبر shared_preferences، وطابع زمني للملفات عبر
+	     image_picker/path_provider لرفع الصور/الإيصالات) — Xcode يفحص أي
+	     استخدام غير مُعلَن فعلياً عند أول أرشفة حقيقية (Archive) بعد توفّر
+	     حساب Apple Developer، وحينها تُضاف أي فئة إضافية يكتشفها التحذير. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
