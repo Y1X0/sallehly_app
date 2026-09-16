@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 import '../../config/app_config.dart';
 import '../../l10n/app_localizations.dart';
@@ -8,6 +10,46 @@ import '../i18n/current_locale.dart';
 import '../storage/token_storage.dart';
 import 'api_error_codes.dart';
 import 'api_exception.dart';
+import 'doh_resolver.dart';
+
+/// [FIX-DNSFALLBACK-01] راجع DECISIONS.md — HttpClient مخصَّص لكل طلبات
+/// Dio (الأساسي وretryDio معاً): يحل الاسم بالطريقة العادية (DNS النظام)
+/// أولاً بلا أي فرق عن السلوك الافتراضي بالحالة الطبيعية؛ فقط عند فشل ذلك
+/// الحل تحديداً (لا فشل الاتصال بعده) يحاول DNS-over-HTTPS كطريق بديل
+/// كامل. دالة top-level (لا method بـApiClient) لأنها لا تحتاج أي حالة من
+/// الصنف — فقط لتُستخدَم كقيمة CreateHttpClient مباشرة.
+HttpClient _buildResilientHttpClient() {
+  final client = HttpClient();
+  client.connectionFactory = (Uri uri, String? proxyHost, int? proxyPort) async {
+    InternetAddress address;
+    try {
+      final addresses =
+          await InternetAddress.lookup(uri.host).timeout(const Duration(seconds: 5));
+      if (addresses.isEmpty) throw const SocketException('empty DNS result');
+      address = addresses.first;
+    } catch (_) {
+      // فشل حل DNS العادي تحديداً — نجرّب DNS-over-HTTPS كطريق بديل كامل،
+      // بلا أي تدخل من المستخدم (راجع DohResolver لتفصيل الحالة الحقيقية
+      // المؤكَّدة التي دفعت لهذا).
+      address = await DohResolver.resolve(uri.host);
+    }
+
+    final rawSocket = await Socket.startConnect(address, uri.port).then((task) => task.socket);
+
+    if (uri.scheme != 'https') {
+      return ConnectionTask.fromSocket(Future.value(rawSocket), rawSocket.destroy);
+    }
+
+    // [FIX-DNSFALLBACK-01] عند ضبط connectionFactory، HttpClient لا يرفع
+    // الاتصال لـTLS تلقائياً كسلوكه الافتراضي — لازم يتم يدوياً هنا.
+    // host: uri.host (لا العنوان الرقمي المُتَّصَل به فعلياً) يضمن أن SNI
+    // وفحص شهادة TLS يطابقان اسم الموقع الحقيقي تماماً كالسلوك الافتراضي،
+    // بغضّ النظر عن العنوان الحقيقي الذي وصلنا له (نظام أو DoH).
+    final secureSocket = SecureSocket.secure(rawSocket, host: uri.host);
+    return ConnectionTask.fromSocket(secureSocket, rawSocket.destroy);
+  };
+  return client;
+}
 
 class ApiClient {
   final TokenStorage tokenStorage;
@@ -52,6 +94,11 @@ class ApiClient {
         },
       ),
     );
+    // [FIX-DNSFALLBACK-01] راجع DECISIONS.md — يحوّل تلقائياً لـDNS-over-HTTPS
+    // لو فشل حل DNS العادي، بلا أي تدخل من المستخدم (حالة مؤكَّدة: بعض شبكات
+    // الاتصال بالأردن تفشل بحل DNS لموقعنا تحديداً بشكل متكرر).
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient =
+        _buildResilientHttpClient;
 
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -149,6 +196,11 @@ class ApiClient {
                     headers: options.headers,
                   ),
                 );
+                // [FIX-DNSFALLBACK-01] نفس تحويل DNS-over-HTTPS الاحتياطي —
+                // Dio منفصل هنا (راجع FIX-RETRY-02) يحتاج نفس الإعداد صراحةً.
+                (retryDio.httpClientAdapter as IOHttpClientAdapter)
+                        .createHttpClient =
+                    _buildResilientHttpClient;
 
                 final response = await retryDio.fetch(options);
                 // [FIX-RETRY-02] retryDio كائن منفصل بلا أي Interceptors —
