@@ -1,40 +1,83 @@
-# sallehly_app
+# صلّحلي (Sallehly) — Flutter App
 
-A new Flutter project.
+تطبيق موبايل (Flutter، أندرويد + iOS قيد التحضير) لـ**صلّحلي** — منصّة
+تربط العميل بالفني الموثوق لخدمات الصيانة المنزلية بالأردن. يتصل هذا
+التطبيق بالـbackend بمستودع منفصل (`sallehly`).
 
-## Running locally
+## الميزات الأساسية
 
-`flutter run` with no extra flags connects to the **live production
-backend** (`https://sallehly.com`) — anything you do (register, create
-requests, top up a wallet) writes real data. In debug mode the app now
-prints a loud warning in the terminal at startup confirming which backend
-it's talking to (see `[FIX-DEVCLEARTEXT-01]` in `lib/main.dart`).
+- ثلاثة أدوار منفصلة: عميل، فني، أدمن — كل دور بواجهته وصلاحياته الخاصة.
+- تسجيل دخول بالإيميل/كلمة السر (OTP)، وتسجيل دخول بجوجل وأبل.
+- طلب صيانة (وصف + صورة اختيارية + موقع)، عروض الفنيين، متابعة الحالة لحظياً.
+- دردشة لحظية بين العميل والفني لكل طلب (Socket.IO).
+- محفظة رصيد للفني: شحن عبر إيصال تحويل بنكي، سجل عمليات (Ledger).
+- إشعارات Push (Firebase Cloud Messaging).
+- عربي/إنجليزي كاملين (ARB، `lib/l10n/`) بدعم RTL/LTR صحيح.
+- كشف انقطاع الاتصال الحقيقي مقابل بطء الخادم، مع تحويل تلقائي احتياطي
+  لـDNS-over-HTTPS عند فشل حل DNS العادي (بلا أي تدخل من المستخدم) —
+  راجع `[FIX-DNSFALLBACK-01]` بـ`DECISIONS.md`.
 
-To develop against a local backend instead, run it and pass its address
-explicitly:
+## التشغيل محلياً
 
-```
+`flutter run` بلا أي خيارات إضافية يتصل بـ**السيرفر الحقيقي المنشور**
+(`https://sallehly.com`) — أي شيء تسويه (تسجيل، إنشاء طلب، شحن رصيد)
+يكتب بيانات حقيقية. بوضع Debug، التطبيق يطبع تحذيراً واضحاً بالطرفية عند
+الإقلاع يؤكد أي سيرفر متصل فيه (راجع `[FIX-DEVCLEARTEXT-01]` بـ`lib/main.dart`).
+
+للتطوير على سيرفر محلي بدلاً من هيك، شغّله ومرّر عنوانه صراحةً:
+
+```bash
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
 ```
 
-(`10.0.2.2` is how the Android emulator reaches `localhost` on your
-machine — use your machine's LAN IP instead for a physical device.) See
-`lib/config/app_config.dart` for how this is resolved.
+(`10.0.2.2` هي طريقة وصول محاكي أندرويد لـ`localhost` على جهازك — استخدم
+عنوان شبكة جهازك المحلي (LAN IP) بدلاً منه لجهاز حقيقي.) راجع
+`lib/config/app_config.dart` لتفاصيل كيفية تحديد هذا.
 
-CI/release builds (`flutter build appbundle --release`, etc.) don't pass
-`--dart-define` either, so they also fall through to the production
-default — this is intentional and matches what actually ships.
+بناء CI/الإصدار (`flutter build appbundle --release`، إلخ) لا يمرّر
+`--dart-define` أيضاً، فيتصل بالإنتاج افتراضياً كذلك — هذا مقصود ومطابق
+لما يُنشَر فعلياً.
 
-## Getting Started
+### تسجيل الدخول بجوجل (اختياري للتطوير المحلي)
 
-This project is a starting point for a Flutter application.
+يحتاج `GOOGLE_SERVER_CLIENT_ID` (Web client ID من Firebase Console) —
+بدونه، زر "المتابعة بحساب جوجل" يبقى مخفياً بصمت بدل رمي خطأ:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter run --dart-define=GOOGLE_SERVER_CLIENT_ID=xxxxx.apps.googleusercontent.com
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## الاختبارات
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter test
+```
+
+64 ملف اختبار (وحدة + ودجت) — راجع `test/`. `flutter analyze` يجب أن يبقى
+نظيفاً بلا أي ملاحظة جديدة قبل أي commit.
+
+## بنية المشروع
+
+```
+lib/features/   كل شاشة/ميزة بمجلدها الخاص (auth، customer، technician، admin، chat، wallet...)
+lib/core/       عميل الـAPI، تخزين محلي، ودجتس مشتركة، أدوات مساعدة
+lib/providers/  إدارة الحالة (Provider)
+lib/models/     نماذج البيانات
+lib/l10n/       ملفات الترجمة (app_ar.arb / app_en.arb)
+lib/routes/     التوجيه حسب دور المستخدم
+android/ ios/   إعدادات المنصّتين الأصليتين
+```
+
+## قرارات وإصلاحات موثَّقة
+
+كل إصلاح جوهري بهذا المشروع (أمني، منطقي، أو تحضيري لمتاجر التطبيقات)
+موثَّق بالتفصيل (السياق، السبب، الاختبار) داخل **`DECISIONS.md`** —
+راجعه قبل تعديل أي منطق حسّاس (المصادقة الاجتماعية، حذف الحساب، الاتصال
+بالشبكة، التعامل مع الجلسة...) لفهم القيود المقصودة.
+
+## الحالة الحالية
+
+- **أندرويد:** منشور على Google Play (Closed testing) — بانتظار اكتمال
+  فترة الاختبار الإلزامية (12 مختبراً لمدة 14 يوماً) قبل طلب الوصول لـProduction.
+- **iOS:** الكود جاهز (تسجيل دخول أبل، إعدادات Xcode/Privacy Manifest)،
+  بانتظار فتح حساب Apple Developer قبل أي بناء موقَّع فعلياً أو رفع لـApp Store.
