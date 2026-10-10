@@ -12,7 +12,20 @@
           "package_name": "com.sallehly.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "213407241503-v7ub7tiqu0svgpsf7emm4mjr7gj43upg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sallehly.app",
+            "certificate_hash": "1415988d116dc19afc623132eb73d878df7ea993"
+          }
+        },
+        {
+          "client_id": "213407241503-q1j2h61e2u1arn0q9e9h8rbj55arjv5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB1U9FxhveMTbpw0o_Ko9JTB6DwDveMHJ8"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213407241503-q1j2h61e2u1arn0q9e9h8rbj55arjv5a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "213407241503-1u1no1ku4opad1bcbujie29damidkm3h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sallehly.app"
+              }
+            }
+          ]
         }
       }
     }
