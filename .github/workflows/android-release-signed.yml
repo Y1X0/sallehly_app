@@ -75,8 +75,13 @@ jobs:
             echo "storeFile=$RUNNER_TEMP/release.jks"
           } > android/key.properties
 
+      # [FEAT-GOOGLESIGNIN-01] Web client ID من Firebase Authentication ->
+      # Sign-in method -> Google -> Web SDK configuration. ليس سراً (يظهر
+      # داخل أي APK مُفكك على أي حال)، لذا يُمرَّر كقيمة ثابتة بدل secret.
+      # بدونه AppConfig.googleServerClientId فاضي وزر "تسجيل الدخول بجوجل"
+      # يختفي بصمت (login_screen.dart).
       - name: Build signed AAB
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=GOOGLE_SERVER_CLIENT_ID=213407241503-q1j2h61e2u1arn0q9e9h8rbj55arjv5a.apps.googleusercontent.com
 
       - name: Upload signed AAB
         uses: actions/upload-artifact@v4
@@ -91,7 +96,7 @@ jobs:
       # the exact same production key, for cases where someone needs to
       # install the real release build outside Play Store review/rollout.
       - name: Build signed APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=GOOGLE_SERVER_CLIENT_ID=213407241503-q1j2h61e2u1arn0q9e9h8rbj55arjv5a.apps.googleusercontent.com
 
       - name: Upload signed APK
         uses: actions/upload-artifact@v4
